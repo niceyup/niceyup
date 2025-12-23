@@ -1,0 +1,97 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Niceyup Docs",
+  "favicon": "/logo/logo-dark.png",
+  "logo": {
+    "light": "https://assets.niceyup.com/logo-light.png",
+    "dark": "https://assets.niceyup.com/logo-dark.png",
+    "href": "https://niceyup.com"
+  },
+  "colors": {
+    "primary": "#1D1D1D",
+    "light": "#F2F1EF",
+    "dark": "#1D1D1D"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:hello@niceyup.team"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://niceyup.io"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "chatgpt",
+      "claude"
+    ]
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index"
+            ]
+          },
+          {
+            "group": "Open Source",
+            "pages": [
+              "local-development",
+              "self-hosting"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "APIs",
+            "pages": [
+              "api-reference/endpoint/health"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Documentation",
+          "href": "https://docs.niceyup.com",
+          "icon": "book-open-cover"
+        },
+        {
+          "anchor": "Github",
+          "href": "https://github.com/niceyup",
+          "icon": "github"
+        }
+      ]
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://niceyup.com",
+      "x": "https://x.com/niceyup_",
+      "github": "https://github.com/niceyup",
+      "linkedin": "https://linkedin.com/company/niceyup"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "mint dev --port 3001",
+    "endpoint:generate": "mintlify-scrape openapi-file api-reference/openapi.json -o api-reference/endpoint",
+    "clean": "rm -rf .turbo node_modules"
+  },
+  "dependencies": {
+    "@mintlify/scraping": "^4.0.504",
+    "mint": "^4.2.250"
+  }
+}
