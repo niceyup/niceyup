@@ -1,4 +1,6 @@
 export {
+  customProvider,
+  createProviderRegistry,
   generateText,
   generateObject,
   streamText,
@@ -9,6 +11,7 @@ export {
   type LanguageModel,
   type ToolSet,
   tool,
+  extractReasoningMiddleware,
   stepCountIs,
   Output,
   type ModelMessage,

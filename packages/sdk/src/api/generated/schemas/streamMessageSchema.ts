@@ -28,7 +28,6 @@ export type StreamMessagePathParamsSchema = StreamMessagePathParams
 export const streamMessageQueryParamsSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
-  teamId: z.string().optional(),
   agentId: z.string(),
 }) as unknown as ToZod<StreamMessageQueryParams>
 

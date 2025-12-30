@@ -40,11 +40,6 @@ const nextConfig: NextConfig = {
         destination: '/auth/sign-in',
         permanent: true,
       },
-      {
-        source: '/docs/:path*',
-        destination: 'https://docs.niceyup.com/:path*',
-        permanent: true,
-      },
     ]
   },
   async rewrites() {

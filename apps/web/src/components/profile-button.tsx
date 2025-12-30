@@ -59,13 +59,13 @@ export async function ProfileButton() {
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link href="/docs" target="_blank">
+            <Link href="https://docs.niceyup.com" target="_blank">
               Documentation
               <BookIcon className="ml-auto size-4" />
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/support" target="_blank">
+            <Link href="mailto:hello@niceyup.team">
               Support
               <MessageSquareMoreIcon className="ml-auto size-4" />
             </Link>

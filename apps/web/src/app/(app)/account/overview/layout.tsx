@@ -27,7 +27,7 @@ export default async function Layout({
           )}
         >
           <div className="flex items-center gap-4">
-            <div className="md:max-w-sm">
+            <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Account Overview</h2>
               <p className="mt-1 text-muted-foreground text-sm">
                 Overview of your account information on Niceyup.

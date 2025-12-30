@@ -40,9 +40,8 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           agentId: z.string(),
           parentMessageId: z.string(),
         }),
@@ -62,19 +61,13 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
 
       const { conversationId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        teamId,
-        agentId,
-        parentMessageId,
-      } = request.body
+      const { organizationId, organizationSlug, agentId, parentMessageId } =
+        request.body
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const conversation = await queries.context.getConversation(context, {
@@ -144,22 +137,13 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         return { assistantMessage: { ...assistantMessage, children: [] } }
       })
 
-      // TODO: make this dynamic based on the agent's configuration
-      const contextMessages = true
-      const maxContextMessages = 10
-
       sendUserMessageToAssistant({
-        namespace: context.organizationId,
         conversationId,
         userMessage: {
           id: parentMessage.id,
           parts: parentMessage.parts || [],
         },
         assistantMessage,
-        agentConfiguration: {
-          contextMessages,
-          maxContextMessages,
-        },
       })
 
       conversationPubSub.publish({

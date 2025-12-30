@@ -25,9 +25,8 @@ export const getFilePathParamsSchema = z.object({
 export type GetFilePathParamsSchema = GetFilePathParams
 
 export const getFileQueryParamsSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
-  teamId: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   expires: z.coerce.number().default(300),
 }) as unknown as ToZod<GetFileQueryParams>
 

@@ -129,9 +129,8 @@ export const stopMessage500Schema = z
 export type StopMessage500Schema = StopMessage500
 
 export const stopMessageMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
-  teamId: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   agentId: z.string(),
 }) as unknown as ToZod<StopMessageMutationRequest>
 

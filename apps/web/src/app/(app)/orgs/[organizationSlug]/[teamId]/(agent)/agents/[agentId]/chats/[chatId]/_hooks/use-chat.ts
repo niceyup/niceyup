@@ -164,7 +164,6 @@ const createBranchChangeHandler = (
           conversationId: params.chatId,
           params: {
             organizationSlug: params.organizationSlug,
-            teamId: params.teamId,
             agentId: params.agentId,
             targetMessageId: targetNodeId,
           },
@@ -265,6 +264,7 @@ export function useChat({
 
   const { messages: messagesRealtime, error: errorRealtime } = useChatRealtime({
     params,
+    visibility: chat?.visibility,
   })
 
   React.useEffect(() => {
@@ -515,7 +515,14 @@ export function useChat({
           agentId: params.agentId,
           parentMessageId: persistentParentNodeId,
           message: { parts },
-          // explorerNode: params.chatId === 'new' ? selectedExplorerNode : undefined,
+          // ...(params.chatId === 'new'
+          //   ? {
+          //       visibility: selectedExplorerNode.visibility,
+          //       explorerNode: {
+          //         folderId: selectedExplorerNode.folderId,
+          //       },
+          //     }
+          //   : {}),
         },
       })
 
@@ -582,7 +589,6 @@ export function useChat({
         conversationId: params.chatId,
         data: {
           organizationSlug: params.organizationSlug,
-          teamId: params.teamId,
           agentId: params.agentId,
           parentMessageId: persistentParentNodeId,
           message: { parts },
@@ -647,7 +653,6 @@ export function useChat({
         conversationId: params.chatId,
         data: {
           organizationSlug: params.organizationSlug,
-          teamId: params.teamId,
           agentId: params.agentId,
           parentMessageId: persistentParentNodeId,
           // referenceMessageId: message.isPersisted === false ? undefined : message.id,
@@ -686,7 +691,6 @@ export function useChat({
         messageId: msgId,
         data: {
           organizationSlug: params.organizationSlug,
-          teamId: params.teamId,
           agentId: params.agentId,
         },
       })
@@ -702,7 +706,6 @@ export function useChat({
     scope: 'conversations',
     params: {
       organizationSlug: params.organizationSlug,
-      teamId: params.teamId,
     },
     agentId: params.agentId,
     conversationId: params.chatId !== 'new' ? params.chatId : null,

@@ -12,17 +12,13 @@ export type GetFilePathParams = {
 
 export type GetFileQueryParams = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
-  /**
-   * @type string
-   */
-  teamId?: string | null
+  organizationSlug?: string
   /**
    * @default 300
    * @type number | undefined

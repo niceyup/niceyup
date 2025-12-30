@@ -11,9 +11,11 @@ import { ChatViewWrapper } from './_components/chat-view-wrapper'
 import { NewChatWrapper } from './_components/new-chat-wrapper'
 import { Tabbar } from './_components/tabbar'
 
-type Params = OrganizationTeamParams & AgentParams & ChatParams
-
-async function getConversation(params: Params) {
+async function getConversation(params: {
+  organizationSlug: string
+  agentId: string
+  chatId: string
+}) {
   'use cache: private'
   cacheTag('update-chat')
 
@@ -22,7 +24,6 @@ async function getConversation(params: Params) {
       conversationId: params.chatId,
       params: {
         organizationSlug: params.organizationSlug,
-        teamId: params.teamId,
         agentId: params.agentId,
       },
     })
@@ -36,16 +37,11 @@ async function getConversation(params: Params) {
 export default async function Page({
   params,
 }: Readonly<{
-  params: Promise<Params>
+  params: Promise<OrganizationTeamParams & AgentParams & ChatParams>
 }>) {
   const { organizationSlug, teamId, agentId, chatId } = await params
 
-  const chat = await getConversation({
-    organizationSlug,
-    teamId,
-    agentId,
-    chatId,
-  })
+  const chat = await getConversation({ organizationSlug, agentId, chatId })
 
   return (
     <div className="flex h-full flex-col bg-background">

@@ -1,5 +1,6 @@
 'use client'
 
+import { setActiveOrganizationTeam } from '@/actions/organizations'
 import { authClient } from '@/lib/auth/client'
 import { Button } from '@workspace/ui/components/button'
 import { Spinner } from '@workspace/ui/components/spinner'
@@ -23,6 +24,7 @@ export function DeleteOrganizationForm({ params }: { params: Params }) {
       if (data) {
         toast.success('Organization deleted successfully')
 
+        await setActiveOrganizationTeam()
         router.push('/')
       }
 

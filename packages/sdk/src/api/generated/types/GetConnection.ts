@@ -21,6 +21,15 @@ export type GetConnectionQueryParams = {
   organizationSlug?: string
 }
 
+export const connectionAppEnum = {
+  github: 'github',
+  postgresql: 'postgresql',
+  mysql: 'mysql',
+} as const
+
+export type ConnectionAppEnum =
+  (typeof connectionAppEnum)[keyof typeof connectionAppEnum]
+
 /**
  * @description Success
  */
@@ -36,17 +45,11 @@ export type GetConnection200 = {
     /**
      * @type string
      */
-    app: string
+    app: ConnectionAppEnum
     /**
      * @type string
      */
     name: string
-    /**
-     * @type object
-     */
-    payload: {
-      [key: string]: any
-    } | null
   }
 }
 

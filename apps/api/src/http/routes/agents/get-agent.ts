@@ -20,7 +20,6 @@ export async function getAgent(app: FastifyTypedInstance) {
         querystring: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          teamId: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -28,7 +27,7 @@ export async function getAgent(app: FastifyTypedInstance) {
               agent: z.object({
                 id: z.string(),
                 name: z.string(),
-                slug: z.string().nullable(),
+                slug: z.string(),
                 logo: z.string().nullable(),
                 description: z.string().nullable(),
                 tags: z.array(z.string()).nullable(),
@@ -45,13 +44,12 @@ export async function getAgent(app: FastifyTypedInstance) {
 
       const { agentId } = request.params
 
-      const { organizationId, organizationSlug, teamId } = request.query
+      const { organizationId, organizationSlug } = request.query
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const agent = await queries.context.getAgent(context, {

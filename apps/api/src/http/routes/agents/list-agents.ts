@@ -16,7 +16,6 @@ export async function listAgents(app: FastifyTypedInstance) {
         querystring: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          teamId: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -25,7 +24,7 @@ export async function listAgents(app: FastifyTypedInstance) {
                 z.object({
                   id: z.string(),
                   name: z.string(),
-                  slug: z.string().nullable(),
+                  slug: z.string(),
                   logo: z.string().nullable(),
                   description: z.string().nullable(),
                   tags: z.array(z.string()).nullable(),
@@ -41,13 +40,12 @@ export async function listAgents(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, teamId } = request.query
+      const { organizationId, organizationSlug } = request.query
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const agents = await queries.context.listAgents(context)

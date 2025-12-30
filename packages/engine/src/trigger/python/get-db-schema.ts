@@ -1,8 +1,8 @@
 import { python } from '@trigger.dev/python'
 import { env } from '../../lib/env'
-import { pyArgs, pyPath, pyStreamingResult } from '../../lib/python'
 import type { DatabaseSourceTableMetadata } from '../../lib/types'
 import { tmpDir } from '../../lib/utils'
+import { pyArgs, pyPath, pyStreamingResult } from '../lib/python'
 
 type GetDbSchemaArgs = {
   dialect?: string

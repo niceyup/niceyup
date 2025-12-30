@@ -6,7 +6,7 @@
 /**
  * @description Success
  */
-export type CreateSource200 = {
+export type CreateSource201 = {
   /**
    * @type string
    */
@@ -204,13 +204,13 @@ export type CreateSourceMutationRequest = (
     }
 ) & {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
+  organizationSlug?: string
   /**
    * @type string
    */
@@ -226,10 +226,10 @@ export type CreateSourceMutationRequest = (
   }
 }
 
-export type CreateSourceMutationResponse = CreateSource200
+export type CreateSourceMutationResponse = CreateSource201
 
 export type CreateSourceMutation = {
-  Response: CreateSource200
+  Response: CreateSource201
   Request: CreateSourceMutationRequest
   Errors:
     | CreateSource400

@@ -20,10 +20,6 @@ export type GetConversationQueryParams = {
    */
   organizationSlug?: string
   /**
-   * @type string | undefined
-   */
-  teamId?: string
-  /**
    * @type string
    */
   agentId: string

@@ -32,7 +32,7 @@ export default async function Layout({
     },
     {
       label: 'Documentation',
-      href: '/docs/teams',
+      href: 'https://docs.niceyup.com/teams',
       target: '_blank',
       icon: <SquareArrowOutUpRightIcon className="ml-auto size-4" />,
     },

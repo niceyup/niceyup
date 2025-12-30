@@ -18,6 +18,7 @@ export async function listConversations(app: FastifyTypedInstance) {
           organizationSlug: z.string().optional(),
           teamId: z.string().optional(),
           agentId: z.string(),
+          visibility: z.enum(['private', 'shared', 'team']).default('private'),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -42,7 +43,7 @@ export async function listConversations(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, teamId, agentId } =
+      const { organizationId, organizationSlug, teamId, agentId, visibility } =
         request.query
 
       const { context } = await getMembershipContext({
@@ -54,6 +55,7 @@ export async function listConversations(app: FastifyTypedInstance) {
 
       const conversations = await queries.context.listConversations(context, {
         agentId,
+        visibility,
       })
 
       return { conversations }

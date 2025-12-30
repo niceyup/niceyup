@@ -200,7 +200,10 @@ export function TeamMemberList({
 function TeamMemberActionRemove({
   params,
   userId,
-}: { params: Params; userId: string }) {
+}: {
+  params: Params
+  userId: string
+}) {
   const [isPending, startTransition] = React.useTransition()
 
   const onRemove = async () => {

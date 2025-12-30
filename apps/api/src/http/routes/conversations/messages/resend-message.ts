@@ -55,9 +55,8 @@ export async function resendMessage(app: FastifyTypedInstance) {
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           agentId: z.string(),
           parentMessageId: z.string(),
           message: z.object({
@@ -85,7 +84,6 @@ export async function resendMessage(app: FastifyTypedInstance) {
       const {
         organizationId,
         organizationSlug,
-        teamId,
         agentId,
         parentMessageId,
         message,
@@ -95,7 +93,6 @@ export async function resendMessage(app: FastifyTypedInstance) {
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const conversation = await queries.context.getConversation(context, {
@@ -197,22 +194,13 @@ export async function resendMessage(app: FastifyTypedInstance) {
         },
       )
 
-      // TODO: make this dynamic based on the agent's configuration
-      const contextMessages = true
-      const maxContextMessages = 10
-
       sendUserMessageToAssistant({
-        namespace: context.organizationId,
         conversationId,
         userMessage: {
           id: userMessage.id,
           parts: message.parts,
         },
         assistantMessage,
-        agentConfiguration: {
-          contextMessages,
-          maxContextMessages,
-        },
       })
 
       conversationPubSub.publish({

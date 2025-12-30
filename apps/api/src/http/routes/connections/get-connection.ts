@@ -4,6 +4,7 @@ import { getMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { queries } from '@workspace/db/queries'
+import { connectionAppSchema } from '@workspace/engine/connections'
 import { z } from 'zod'
 
 export async function getConnection(app: FastifyTypedInstance) {
@@ -26,9 +27,8 @@ export async function getConnection(app: FastifyTypedInstance) {
             .object({
               connection: z.object({
                 id: z.string(),
-                app: z.string(),
+                app: connectionAppSchema,
                 name: z.string(),
-                payload: z.record(z.string(), z.any()).nullable(),
               }),
             })
             .describe('Success'),

@@ -34,7 +34,7 @@ export default async function Page({
   const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
 
   const { data } = await sdk.listAgents({
-    params: { organizationSlug, teamId },
+    params: { organizationSlug },
   })
 
   return (
@@ -42,7 +42,7 @@ export default async function Page({
       <div className="border-b bg-background p-4">
         <div className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="flex items-center gap-4">
-            <div className="md:max-w-sm">
+            <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Agents</h2>
               <p className="mt-1 text-muted-foreground text-sm">
                 Create and manage AI agents for your organization.
@@ -97,13 +97,13 @@ export default async function Page({
             {data.agents.map((agent) => (
               <Link
                 key={agent.id}
-                href={`/orgs/${organizationSlug}/${teamId}/agents/${agent.id}/chats`}
-                className="group/card flex cursor-pointer flex-col gap-2 rounded-xl border bg-background p-4"
+                href={`/orgs/${organizationSlug}/${teamId}/agents/${agent.id}/chats/new`}
+                className="group/card flex cursor-pointer flex-col gap-4 rounded-xl border bg-background p-4"
               >
-                <div className="flex flex-row items-center justify-between gap-2">
-                  <Avatar className="size-8 rounded-sm">
+                <div className="flex flex-row items-center justify-between gap-3">
+                  <Avatar className="size-8">
                     {agent.logo && <AvatarImage src={agent.logo} />}
-                    <AvatarFallback className="rounded-sm" />
+                    <AvatarFallback />
                   </Avatar>
 
                   <span className="line-clamp-2 w-full font-semibold text-sm">
@@ -133,12 +133,14 @@ export default async function Page({
                   </DropdownMenu>
                 </div>
 
-                <p className="line-clamp-3 text-muted-foreground text-sm">
-                  {agent.description}
-                </p>
+                {agent.description && (
+                  <p className="line-clamp-3 text-muted-foreground text-sm">
+                    {agent.description}
+                  </p>
+                )}
 
                 {agent.tags && (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1">
                     {agent.tags.map((tag) => (
                       <Badge key={tag} variant="outline">
                         {tag}

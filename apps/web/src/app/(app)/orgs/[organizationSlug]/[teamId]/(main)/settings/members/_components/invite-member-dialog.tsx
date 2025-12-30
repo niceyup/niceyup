@@ -286,7 +286,10 @@ function RoleSelect({ disabled }: { disabled?: boolean }) {
 function TeamSelect({
   teams,
   disabled,
-}: { teams?: { id: string; name: string }[]; disabled?: boolean }) {
+}: {
+  teams?: { id: string; name: string }[]
+  disabled?: boolean
+}) {
   const [open, setOpen] = React.useState(false)
 
   const { getValues, setValue } = useFormContext()

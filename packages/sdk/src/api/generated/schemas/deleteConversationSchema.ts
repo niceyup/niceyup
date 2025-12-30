@@ -128,9 +128,8 @@ export const deleteConversation500Schema = z
 export type DeleteConversation500Schema = DeleteConversation500
 
 export const deleteConversationMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
-  teamId: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   agentId: z.string(),
   destroy: z.boolean().optional(),
 }) as unknown as ToZod<DeleteConversationMutationRequest>

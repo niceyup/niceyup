@@ -128,8 +128,8 @@ export const updateConnection500Schema = z
 export type UpdateConnection500Schema = UpdateConnection500
 
 export const updateConnectionMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   name: z.string(),
 }) as unknown as ToZod<UpdateConnectionMutationRequest>
 

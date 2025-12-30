@@ -18,9 +18,8 @@ export async function generateUploadSignatureConversation(
         description: 'Generate upload signature for conversation',
         operationId: 'generateUploadSignatureConversation',
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           agentId: z.string(),
           conversationId: z.string().nullish(),
         }),
@@ -38,19 +37,13 @@ export async function generateUploadSignatureConversation(
         user: { id: userId },
       } = request.authSession
 
-      const {
-        organizationId,
-        organizationSlug,
-        teamId,
-        agentId,
-        conversationId,
-      } = request.body
+      const { organizationId, organizationSlug, agentId, conversationId } =
+        request.body
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       if (conversationId) {

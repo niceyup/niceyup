@@ -1,2 +1,2 @@
-export * from './functions/ai-tools'
-export * from './functions/stream-ai-assistant'
+export * from './ai-tools'
+export * from './stream-ai-assistant'

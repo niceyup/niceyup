@@ -15,10 +15,6 @@ export async function getFile(
   context: ContextGetFileParams,
   params: GetFileParams,
 ) {
-  if (!context.isAdmin) {
-    return null
-  }
-
   const [file] = await db
     .select({
       id: files.id,
@@ -40,6 +36,10 @@ export async function getFile(
       ),
     )
     .limit(1)
+
+  if (file?.bucket === 'engine' && !context.isAdmin) {
+    return null
+  }
 
   return file || null
 }

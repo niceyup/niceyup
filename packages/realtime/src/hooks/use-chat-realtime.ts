@@ -1,30 +1,32 @@
 'use client'
 
+import type { ConversationVisibility } from '@workspace/db/types'
 import * as React from 'react'
 import type { AIMessageNode } from '../lib/types'
 
 type ContextParams = {
   organizationSlug: '$slug'
-  teamId: '~' | '$id'
   agentId: '$id'
   chatId: 'new' | '$id'
 }
 
 type UseChatRealtimeParams = {
   params: ContextParams
+  visibility?: ConversationVisibility | null
 }
 
-export function useChatRealtime({ params }: UseChatRealtimeParams) {
+export function useChatRealtime({ params, visibility }: UseChatRealtimeParams) {
   const [error, setError] = React.useState<string>()
   const [messages, setMessages] = React.useState<AIMessageNode[]>([])
 
   React.useEffect(() => {
     if (
       !params.organizationSlug ||
-      !params.teamId ||
       !params.agentId ||
       !params.chatId ||
-      params.chatId === 'new'
+      params.chatId === 'new' ||
+      !visibility ||
+      visibility === 'private'
     ) {
       return
     }
@@ -34,7 +36,6 @@ export function useChatRealtime({ params }: UseChatRealtimeParams) {
     try {
       const searchParams = new URLSearchParams({
         organizationSlug: params.organizationSlug,
-        teamId: params.teamId,
       })
 
       const url = new URL(
@@ -58,13 +59,16 @@ export function useChatRealtime({ params }: UseChatRealtimeParams) {
       }
     } catch (error) {
       websocket?.close()
-      setError(error instanceof Error ? error.message : String(error))
+      setError(
+        (error as any)?.message ||
+          'An error occurred while connecting to the server',
+      )
     }
 
     return () => {
       websocket?.close()
     }
-  }, [params.organizationSlug, params.teamId, params.agentId, params.chatId])
+  }, [params.organizationSlug, params.agentId, params.chatId])
 
   return { messages, error }
 }

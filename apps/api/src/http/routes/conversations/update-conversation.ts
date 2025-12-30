@@ -21,9 +21,8 @@ export async function updateConversation(app: FastifyTypedInstance) {
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           agentId: z.string(),
           title: z.string(),
         }),
@@ -39,14 +38,12 @@ export async function updateConversation(app: FastifyTypedInstance) {
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, teamId, agentId, title } =
-        request.body
+      const { organizationId, organizationSlug, agentId, title } = request.body
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const conversation = await queries.context.getConversation(context, {

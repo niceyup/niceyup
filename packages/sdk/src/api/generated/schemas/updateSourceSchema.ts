@@ -128,8 +128,8 @@ export const updateSource500Schema = z
 export type UpdateSource500Schema = UpdateSource500
 
 export const updateSourceMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   name: z.string(),
 }) as unknown as ToZod<UpdateSourceMutationRequest>
 

@@ -1,6 +1,11 @@
 'use client'
 
 import type { Agent, OrganizationTeamParams } from '@/lib/types'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -10,11 +15,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@workspace/ui/components/dropdown-menu'
-import {
-  ChevronsUpDownIcon,
-  CircleDashedIcon,
-  PlusCircleIcon,
-} from 'lucide-react'
+import { ChevronsUpDownIcon, PlusCircleIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 
@@ -35,7 +36,10 @@ export function AgentSwitcher({
         <Button variant="ghost" className="max-w-[250px]">
           {activeAgent ? (
             <>
-              <CircleDashedIcon className="size-4" />
+              <Avatar className="size-5">
+                {activeAgent.logo && <AvatarImage src={activeAgent.logo} />}
+                <AvatarFallback />
+              </Avatar>
               <span className="truncate">{activeAgent.name}</span>
             </>
           ) : (
@@ -53,11 +57,14 @@ export function AgentSwitcher({
                 key={agent.id}
                 onClick={async () => {
                   router.push(
-                    `/orgs/${organizationSlug}/${teamId}/agents/${agent.id}/chats`,
+                    `/orgs/${organizationSlug}/${teamId}/agents/${agent.id}/chats/new`,
                   )
                 }}
               >
-                <CircleDashedIcon className="size-4" />
+                <Avatar className="size-4">
+                  {agent.logo && <AvatarImage src={agent.logo} />}
+                  <AvatarFallback />
+                </Avatar>
                 <span className="line-clamp-1">{agent.name}</span>
               </DropdownMenuItem>
             )

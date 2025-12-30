@@ -3,6 +3,15 @@
  * Do not edit manually.
  */
 
+export const listConnectionsQueryParamsAppEnum = {
+  github: 'github',
+  postgresql: 'postgresql',
+  mysql: 'mysql',
+} as const
+
+export type ListConnectionsQueryParamsAppEnum =
+  (typeof listConnectionsQueryParamsAppEnum)[keyof typeof listConnectionsQueryParamsAppEnum]
+
 export type ListConnectionsQueryParams = {
   /**
    * @type string | undefined
@@ -15,8 +24,17 @@ export type ListConnectionsQueryParams = {
   /**
    * @type string | undefined
    */
-  app?: string
+  app?: ListConnectionsQueryParamsAppEnum
 }
+
+export const connectionsAppEnum = {
+  github: 'github',
+  postgresql: 'postgresql',
+  mysql: 'mysql',
+} as const
+
+export type ConnectionsAppEnum =
+  (typeof connectionsAppEnum)[keyof typeof connectionsAppEnum]
 
 /**
  * @description Success
@@ -33,17 +51,11 @@ export type ListConnections200 = {
     /**
      * @type string
      */
-    app: string
+    app: ConnectionsAppEnum
     /**
      * @type string
      */
     name: string
-    /**
-     * @type object
-     */
-    payload: {
-      [key: string]: any
-    } | null
   }[]
 }
 

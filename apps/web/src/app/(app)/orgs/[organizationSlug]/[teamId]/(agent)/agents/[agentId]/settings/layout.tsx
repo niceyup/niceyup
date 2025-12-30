@@ -31,7 +31,7 @@ export default async function Layout({
 
   items.push({
     label: 'Documentation',
-    href: '/docs/agents',
+    href: 'https://docs.niceyup.com/agents',
     target: '_blank',
     icon: <SquareArrowOutUpRightIcon className="ml-auto size-4" />,
   })
@@ -46,7 +46,7 @@ export default async function Layout({
           )}
         >
           <div className="flex items-center gap-4">
-            <div className="md:max-w-sm">
+            <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Settings</h2>
               <p className="mt-1 text-muted-foreground text-sm">
                 Configure and fine-tune your AI agent settings.

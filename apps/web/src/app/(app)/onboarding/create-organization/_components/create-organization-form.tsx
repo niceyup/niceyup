@@ -107,7 +107,7 @@ export function CreateOrganizationForm({ modal }: CreateOrganizationFormProps) {
                 <FormControl>
                   <InputGroup className="w-full max-w-md">
                     <InputGroupAddon>
-                      <InputGroupText>niceyup.com/orgs/</InputGroupText>
+                      <InputGroupText>niceyup.io/orgs/</InputGroupText>
                     </InputGroupAddon>
                     <InputGroupInput {...field} placeholder="acme-inc" />
                   </InputGroup>

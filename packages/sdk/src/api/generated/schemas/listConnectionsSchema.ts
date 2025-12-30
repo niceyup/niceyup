@@ -21,7 +21,7 @@ export const listConnectionsQueryParamsSchema = z
   .object({
     organizationId: z.string().optional(),
     organizationSlug: z.string().optional(),
-    app: z.string().optional(),
+    app: z.enum(['github', 'postgresql', 'mysql']).optional(),
   })
   .optional() as unknown as ToZod<ListConnectionsQueryParams>
 
@@ -35,9 +35,8 @@ export const listConnections200Schema = z
     connections: z.array(
       z.object({
         id: z.string(),
-        app: z.string(),
+        app: z.enum(['github', 'postgresql', 'mysql']),
         name: z.string(),
-        payload: z.object({}).catchall(z.any()).nullable(),
       }),
     ),
   })

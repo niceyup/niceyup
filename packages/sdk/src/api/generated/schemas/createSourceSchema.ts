@@ -4,7 +4,7 @@
  */
 
 import type {
-  CreateSource200,
+  CreateSource201,
   CreateSource400,
   CreateSource401,
   CreateSource403,
@@ -20,16 +20,16 @@ import { z } from 'zod'
 /**
  * @description Success
  */
-export const createSource200Schema = z
+export const createSource201Schema = z
   .object({
     sourceId: z.string(),
     explorerNode: z.object({
       itemId: z.string(),
     }),
   })
-  .describe('Success') as unknown as ToZod<CreateSource200>
+  .describe('Success') as unknown as ToZod<CreateSource201>
 
-export type CreateSource200Schema = CreateSource200
+export type CreateSource201Schema = CreateSource201
 
 /**
  * @description Bad Request. Usually due to missing parameters, or invalid parameters.
@@ -146,8 +146,8 @@ export const createSourceMutationRequestSchema = z
   ])
   .and(
     z.object({
-      organizationId: z.string().nullable().nullish(),
-      organizationSlug: z.string().nullable().nullish(),
+      organizationId: z.string().optional(),
+      organizationSlug: z.string().optional(),
       type: z.enum(['text', 'question-answer', 'database']),
       explorerNode: z
         .object({
@@ -160,7 +160,7 @@ export const createSourceMutationRequestSchema = z
 export type CreateSourceMutationRequestSchema = CreateSourceMutationRequest
 
 export const createSourceMutationResponseSchema = z.lazy(
-  () => createSource200Schema,
+  () => createSource201Schema,
 ) as unknown as ToZod<CreateSourceMutationResponse>
 
 export type CreateSourceMutationResponseSchema = CreateSourceMutationResponse

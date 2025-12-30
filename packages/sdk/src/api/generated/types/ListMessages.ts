@@ -20,10 +20,6 @@ export type ListMessagesQueryParams = {
    */
   organizationSlug?: string
   /**
-   * @type string | undefined
-   */
-  teamId?: string
-  /**
    * @type string
    */
   agentId: string
@@ -150,7 +146,7 @@ export type PartsTypeEnum9 =
   (typeof partsTypeEnum9)[keyof typeof partsTypeEnum9]
 
 export const partsStateEnum5 = {
-  'output-available': 'output-available',
+  'approval-requested': 'approval-requested',
 } as const
 
 export type PartsStateEnum5 =
@@ -164,39 +160,144 @@ export type PartsTypeEnum10 =
   (typeof partsTypeEnum10)[keyof typeof partsTypeEnum10]
 
 export const partsStateEnum6 = {
-  'output-error': 'output-error',
+  'approval-responded': 'approval-responded',
 } as const
 
 export type PartsStateEnum6 =
   (typeof partsStateEnum6)[keyof typeof partsStateEnum6]
 
+export const partsTypeEnum11 = {
+  'dynamic-tool': 'dynamic-tool',
+} as const
+
+export type PartsTypeEnum11 =
+  (typeof partsTypeEnum11)[keyof typeof partsTypeEnum11]
+
 export const partsStateEnum7 = {
-  'input-streaming': 'input-streaming',
+  'output-available': 'output-available',
 } as const
 
 export type PartsStateEnum7 =
   (typeof partsStateEnum7)[keyof typeof partsStateEnum7]
 
+export const approvalApprovedEnum = {
+  true: true,
+} as const
+
+export type ApprovalApprovedEnum =
+  (typeof approvalApprovedEnum)[keyof typeof approvalApprovedEnum]
+
+export const partsTypeEnum12 = {
+  'dynamic-tool': 'dynamic-tool',
+} as const
+
+export type PartsTypeEnum12 =
+  (typeof partsTypeEnum12)[keyof typeof partsTypeEnum12]
+
 export const partsStateEnum8 = {
-  'input-available': 'input-available',
+  'output-error': 'output-error',
 } as const
 
 export type PartsStateEnum8 =
   (typeof partsStateEnum8)[keyof typeof partsStateEnum8]
 
+export const approvalApprovedEnum2 = {
+  true: true,
+} as const
+
+export type ApprovalApprovedEnum2 =
+  (typeof approvalApprovedEnum2)[keyof typeof approvalApprovedEnum2]
+
+export const partsTypeEnum13 = {
+  'dynamic-tool': 'dynamic-tool',
+} as const
+
+export type PartsTypeEnum13 =
+  (typeof partsTypeEnum13)[keyof typeof partsTypeEnum13]
+
 export const partsStateEnum9 = {
-  'output-available': 'output-available',
+  'output-denied': 'output-denied',
 } as const
 
 export type PartsStateEnum9 =
   (typeof partsStateEnum9)[keyof typeof partsStateEnum9]
 
+export const approvalApprovedEnum3 = {
+  false: false,
+} as const
+
+export type ApprovalApprovedEnum3 =
+  (typeof approvalApprovedEnum3)[keyof typeof approvalApprovedEnum3]
+
 export const partsStateEnum10 = {
-  'output-error': 'output-error',
+  'input-streaming': 'input-streaming',
 } as const
 
 export type PartsStateEnum10 =
   (typeof partsStateEnum10)[keyof typeof partsStateEnum10]
+
+export const partsStateEnum11 = {
+  'input-available': 'input-available',
+} as const
+
+export type PartsStateEnum11 =
+  (typeof partsStateEnum11)[keyof typeof partsStateEnum11]
+
+export const partsStateEnum12 = {
+  'approval-requested': 'approval-requested',
+} as const
+
+export type PartsStateEnum12 =
+  (typeof partsStateEnum12)[keyof typeof partsStateEnum12]
+
+export const partsStateEnum13 = {
+  'approval-responded': 'approval-responded',
+} as const
+
+export type PartsStateEnum13 =
+  (typeof partsStateEnum13)[keyof typeof partsStateEnum13]
+
+export const partsStateEnum14 = {
+  'output-available': 'output-available',
+} as const
+
+export type PartsStateEnum14 =
+  (typeof partsStateEnum14)[keyof typeof partsStateEnum14]
+
+export const approvalApprovedEnum4 = {
+  true: true,
+} as const
+
+export type ApprovalApprovedEnum4 =
+  (typeof approvalApprovedEnum4)[keyof typeof approvalApprovedEnum4]
+
+export const partsStateEnum15 = {
+  'output-error': 'output-error',
+} as const
+
+export type PartsStateEnum15 =
+  (typeof partsStateEnum15)[keyof typeof partsStateEnum15]
+
+export const approvalApprovedEnum5 = {
+  true: true,
+} as const
+
+export type ApprovalApprovedEnum5 =
+  (typeof approvalApprovedEnum5)[keyof typeof approvalApprovedEnum5]
+
+export const partsStateEnum16 = {
+  'output-denied': 'output-denied',
+} as const
+
+export type PartsStateEnum16 =
+  (typeof partsStateEnum16)[keyof typeof partsStateEnum16]
+
+export const approvalApprovedEnum6 = {
+  false: false,
+} as const
+
+export type ApprovalApprovedEnum6 =
+  (typeof approvalApprovedEnum6)[keyof typeof approvalApprovedEnum6]
 
 /**
  * @description Success
@@ -375,8 +476,13 @@ export type ListMessages200 = {
                */
               state: PartsStateEnum3
               input?: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
               output?: any
               errorText?: any
+              approval?: any
             }
           | {
               /**
@@ -396,6 +502,10 @@ export type ListMessages200 = {
                */
               state: PartsStateEnum4
               input: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
               output?: any
               errorText?: any
               /**
@@ -404,6 +514,7 @@ export type ListMessages200 = {
               callProviderMetadata?: {
                 [key: string]: any
               }
+              approval?: any
             }
           | {
               /**
@@ -423,7 +534,11 @@ export type ListMessages200 = {
                */
               state: PartsStateEnum5
               input: any
-              output: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              output?: any
               errorText?: any
               /**
                * @type object | undefined
@@ -432,9 +547,16 @@ export type ListMessages200 = {
                 [key: string]: any
               }
               /**
-               * @type boolean | undefined
+               * @type object
                */
-              preliminary?: boolean
+              approval: {
+                /**
+                 * @type string
+                 */
+                id: string
+                approved?: any
+                reason?: any
+              }
             }
           | {
               /**
@@ -454,24 +576,45 @@ export type ListMessages200 = {
                */
               state: PartsStateEnum6
               input: any
-              output?: any
               /**
-               * @type string
+               * @type boolean | undefined
                */
-              errorText: string
+              providerExecuted?: boolean
+              output?: any
+              errorText?: any
               /**
                * @type object | undefined
                */
               callProviderMetadata?: {
                 [key: string]: any
               }
+              /**
+               * @type object
+               */
+              approval: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: boolean
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
             }
           | {
               /**
-               * @pattern ^tool-.*
                * @type string
                */
-              type: string
+              type: PartsTypeEnum11
+              /**
+               * @type string
+               */
+              toolName: string
               /**
                * @type string
                */
@@ -480,49 +623,11 @@ export type ListMessages200 = {
                * @type string
                */
               state: PartsStateEnum7
-              input?: any
-              output?: any
-              errorText?: any
-            }
-          | {
-              /**
-               * @pattern ^tool-.*
-               * @type string
-               */
-              type: string
-              /**
-               * @type string
-               */
-              toolCallId: string
-              /**
-               * @type string
-               */
-              state: PartsStateEnum8
               input: any
-              output?: any
-              errorText?: any
               /**
-               * @type object | undefined
+               * @type boolean | undefined
                */
-              callProviderMetadata?: {
-                [key: string]: any
-              }
-            }
-          | {
-              /**
-               * @pattern ^tool-.*
-               * @type string
-               */
-              type: string
-              /**
-               * @type string
-               */
-              toolCallId: string
-              /**
-               * @type string
-               */
-              state: PartsStateEnum9
-              input: any
+              providerExecuted?: boolean
               output: any
               errorText?: any
               /**
@@ -535,6 +640,122 @@ export type ListMessages200 = {
                * @type boolean | undefined
                */
               preliminary?: boolean
+              /**
+               * @type object | undefined
+               */
+              approval?: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: ApprovalApprovedEnum
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
+            }
+          | {
+              /**
+               * @type string
+               */
+              type: PartsTypeEnum12
+              /**
+               * @type string
+               */
+              toolName: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum8
+              input: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              output?: any
+              /**
+               * @type string
+               */
+              errorText: string
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              /**
+               * @type object | undefined
+               */
+              approval?: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: ApprovalApprovedEnum2
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
+            }
+          | {
+              /**
+               * @type string
+               */
+              type: PartsTypeEnum13
+              /**
+               * @type string
+               */
+              toolName: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum9
+              input: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              output?: any
+              errorText?: any
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              /**
+               * @type object
+               */
+              approval: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: ApprovalApprovedEnum3
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
             }
           | {
               /**
@@ -550,6 +771,195 @@ export type ListMessages200 = {
                * @type string
                */
               state: PartsStateEnum10
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              input?: any
+              output?: any
+              errorText?: any
+              approval?: any
+            }
+          | {
+              /**
+               * @pattern ^tool-.*
+               * @type string
+               */
+              type: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum11
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              input: any
+              output?: any
+              errorText?: any
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              approval?: any
+            }
+          | {
+              /**
+               * @pattern ^tool-.*
+               * @type string
+               */
+              type: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum12
+              input: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              output?: any
+              errorText?: any
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              /**
+               * @type object
+               */
+              approval: {
+                /**
+                 * @type string
+                 */
+                id: string
+                approved?: any
+                reason?: any
+              }
+            }
+          | {
+              /**
+               * @pattern ^tool-.*
+               * @type string
+               */
+              type: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum13
+              input: any
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              output?: any
+              errorText?: any
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              /**
+               * @type object
+               */
+              approval: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: boolean
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
+            }
+          | {
+              /**
+               * @pattern ^tool-.*
+               * @type string
+               */
+              type: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum14
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              input: any
+              output: any
+              errorText?: any
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              /**
+               * @type boolean | undefined
+               */
+              preliminary?: boolean
+              /**
+               * @type object | undefined
+               */
+              approval?: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: ApprovalApprovedEnum4
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
+            }
+          | {
+              /**
+               * @pattern ^tool-.*
+               * @type string
+               */
+              type: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum15
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
               input: any
               output?: any
               /**
@@ -561,6 +971,68 @@ export type ListMessages200 = {
                */
               callProviderMetadata?: {
                 [key: string]: any
+              }
+              /**
+               * @type object | undefined
+               */
+              approval?: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: ApprovalApprovedEnum5
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
+              }
+            }
+          | {
+              /**
+               * @pattern ^tool-.*
+               * @type string
+               */
+              type: string
+              /**
+               * @type string
+               */
+              toolCallId: string
+              /**
+               * @type string
+               */
+              state: PartsStateEnum16
+              /**
+               * @type boolean | undefined
+               */
+              providerExecuted?: boolean
+              input: any
+              output?: any
+              errorText?: any
+              /**
+               * @type object | undefined
+               */
+              callProviderMetadata?: {
+                [key: string]: any
+              }
+              /**
+               * @type object
+               */
+              approval: {
+                /**
+                 * @type string
+                 */
+                id: string
+                /**
+                 * @type boolean
+                 */
+                approved: ApprovalApprovedEnum6
+                /**
+                 * @type string | undefined
+                 */
+                reason?: string
               }
             }
         )[]

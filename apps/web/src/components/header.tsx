@@ -53,10 +53,7 @@ export async function Header({
   let agents: Agent[] = []
 
   if (activeAgent) {
-    agents = await listAgents({
-      organizationId: activeOrganization?.id,
-      teamId: activeTeam?.id,
-    })
+    agents = await listAgents({ organizationId: activeOrganization?.id })
   }
 
   return (

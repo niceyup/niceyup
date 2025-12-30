@@ -204,7 +204,6 @@ function ChatListItem() {
       conversationId: item.id,
       data: {
         organizationSlug: params.organizationSlug,
-        teamId: params.teamId,
         agentId: params.agentId,
         title: value,
       },
@@ -361,7 +360,6 @@ function ChatListItemActionDelete({ label = 'Delete' }: { label?: string }) {
       conversationId: item.id,
       data: {
         organizationSlug: params.organizationSlug,
-        teamId: params.teamId,
         agentId: params.agentId,
       },
     })

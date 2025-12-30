@@ -27,7 +27,6 @@ export type GetConversationPathParamsSchema = GetConversationPathParams
 export const getConversationQueryParamsSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
-  teamId: z.string().optional(),
   agentId: z.string(),
 }) as unknown as ToZod<GetConversationQueryParams>
 

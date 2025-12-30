@@ -9,7 +9,10 @@ type Params = OrganizationTeamParams & AgentParams
 export function PrivateChatList({
   params,
   initialItems,
-}: { params: Params; initialItems?: Chat[] }) {
+}: {
+  params: Params
+  initialItems?: Chat[]
+}) {
   return (
     <ChatListProvider
       params={params}

@@ -4,24 +4,21 @@ import {
   stepCountIs,
   validateUIMessages,
 } from '@workspace/ai'
-import { gateway, openai } from '@workspace/ai/providers'
 import type {
   AIMessage,
   AIMessageMetadata,
   AIMessagePart,
 } from '@workspace/ai/types'
 import { queries } from '@workspace/db/queries'
-import { retrieveSourcesTool, streamAIAssistant } from '@workspace/engine'
+import { streamAIAssistant } from '@workspace/engine'
+import { getAgentConfiguration } from '@workspace/engine/agents'
 import throttle from 'throttleit'
 
 export async function sendUserMessageToAssistant({
-  namespace,
   conversationId,
   userMessage,
   assistantMessage,
-  agentConfiguration,
 }: {
-  namespace: string
   conversationId: string
   userMessage: {
     id: string
@@ -30,11 +27,6 @@ export async function sendUserMessageToAssistant({
   assistantMessage: {
     id: string
     metadata?: AIMessageMetadata | null
-  }
-  agentConfiguration?: {
-    languageModel?: string
-    contextMessages?: boolean
-    maxContextMessages?: number
   }
 }) {
   const stream = new ReadableStream({
@@ -50,11 +42,37 @@ export async function sendUserMessageToAssistant({
         parts: [],
       })
 
-      const messageHistory = agentConfiguration?.contextMessages
+      const agentConfiguration = await getAgentConfiguration({ conversationId })
+
+      if (!agentConfiguration.languageModel) {
+        const metadataWithError = {
+          ...assistantMessage.metadata,
+          error: 'Language model not configured for this agent',
+        }
+
+        enqueue({
+          id: assistantMessage.id,
+          metadata: metadataWithError,
+          status: 'failed',
+          role: 'assistant',
+          parts: [],
+        })
+
+        await queries.updateMessage({
+          messageId: assistantMessage.id,
+          metadata: metadataWithError,
+          status: 'failed',
+        })
+
+        controller.close()
+        return
+      }
+
+      const messageHistory = agentConfiguration.contextMessages
         ? await queries.listMessageParentNodes({
             conversationId,
             targetMessageId: userMessage.id,
-            limit: agentConfiguration?.maxContextMessages,
+            limit: agentConfiguration.maxContextMessages,
           })
         : []
 
@@ -62,7 +80,7 @@ export async function sendUserMessageToAssistant({
         messages: [...messageHistory, { ...userMessage, role: 'user' }],
       })
 
-      const messages = convertToModelMessages(validatedMessages)
+      const messages = await convertToModelMessages(validatedMessages)
 
       const stopSignal = new AbortController()
 
@@ -78,13 +96,8 @@ export async function sendUserMessageToAssistant({
       }, 1000)
 
       await streamAIAssistant({
-        model: gateway.languageModel(
-          agentConfiguration?.languageModel || 'openai/gpt-4.1',
-        ),
-        tools: {
-          image_generation: openai.tools.imageGeneration(),
-          retrieve_sources: retrieveSourcesTool({ namespace }),
-        },
+        model: agentConfiguration.languageModel.model,
+        tools: agentConfiguration.tools,
         stopWhen: stepCountIs(5),
         abortSignal: stopSignal.signal,
         originalMessage: assistantMessage,

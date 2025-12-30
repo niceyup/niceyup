@@ -12,7 +12,7 @@ import { runIngestionTask } from '../run-ingestion'
 export const runFilesLoaderAndIngestorTask = schemaTask({
   id: 'run-files-loader-and-ingestor',
   schema: z.object({
-    ownerUserId: z.string(),
+    organizationId: z.string(),
     source: z.object({
       chunkSize: z.number(),
       chunkOverlap: z.number(),
@@ -36,7 +36,7 @@ export const runFilesLoaderAndIngestorTask = schemaTask({
               type: 'file',
               chunkSize: payload.source.chunkSize,
               chunkOverlap: payload.source.chunkOverlap,
-              ownerUserId: payload.ownerUserId,
+              organizationId: payload.organizationId,
             })
             .returning()
 
@@ -56,7 +56,7 @@ export const runFilesLoaderAndIngestorTask = schemaTask({
               metadata: {
                 sourceId: createSource.id,
               },
-              ownerUserId: payload.ownerUserId,
+              organizationId: payload.organizationId,
             })
             .returning()
 
@@ -78,7 +78,7 @@ export const runFilesLoaderAndIngestorTask = schemaTask({
 
           await tx.insert(sourceExplorerNodes).values({
             sourceId: createSource.id,
-            ownerUserId: payload.ownerUserId,
+            organizationId: payload.organizationId,
           })
 
           return createSource.id

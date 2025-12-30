@@ -6,7 +6,7 @@
 /**
  * @description Success
  */
-export type CreateConnection200 = {
+export type CreateConnection201 = {
   /**
    * @type string
    */
@@ -104,29 +104,44 @@ export type CreateConnection500 = {
   message: string
 }
 
+export const createConnectionMutationRequestAppEnum = {
+  github: 'github',
+  postgresql: 'postgresql',
+  mysql: 'mysql',
+} as const
+
+export type CreateConnectionMutationRequestAppEnum =
+  (typeof createConnectionMutationRequestAppEnum)[keyof typeof createConnectionMutationRequestAppEnum]
+
 export type CreateConnectionMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
+  /**
+   * @type string | undefined
+   */
+  organizationSlug?: string
   /**
    * @type string
    */
-  organizationSlug?: string | null
-  /**
-   * @type string
-   */
-  app: string
+  app: CreateConnectionMutationRequestAppEnum
   /**
    * @type string
    */
   name: string
+  /**
+   * @type object
+   */
+  payload: {
+    [key: string]: any
+  }
 }
 
-export type CreateConnectionMutationResponse = CreateConnection200
+export type CreateConnectionMutationResponse = CreateConnection201
 
 export type CreateConnectionMutation = {
-  Response: CreateConnection200
+  Response: CreateConnection201
   Request: CreateConnectionMutationRequest
   Errors:
     | CreateConnection400

@@ -19,10 +19,6 @@ export type ListAgentSourcesQueryParams = {
    * @type string | undefined
    */
   organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
-  teamId?: string
 }
 
 /**
@@ -44,7 +40,7 @@ export type ListAgentSources200 = {
     /**
      * @type string
      */
-    slug: string | null
+    slug: string
     /**
      * @type string
      */

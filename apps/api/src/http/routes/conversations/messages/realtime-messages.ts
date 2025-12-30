@@ -22,7 +22,6 @@ export async function realtimeMessages(app: FastifyTypedInstance) {
         querystring: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          teamId: z.string().optional(),
           agentId: z.string(),
         }),
         response: withDefaultErrorResponses({
@@ -37,14 +36,12 @@ export async function realtimeMessages(app: FastifyTypedInstance) {
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, teamId, agentId } =
-        request.query
+      const { organizationId, organizationSlug, agentId } = request.query
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const conversation = await queries.context.getConversation(context, {

@@ -59,16 +59,26 @@ export function PrimarySidebar({ params }: { params: Params }) {
   )
 }
 
+async function listConversations(params: {
+  organizationSlug: string
+  teamId: string
+  agentId: string
+}) {
+  'use cache: private'
+  cacheTag('create-chat', 'delete-chat')
+
+  const { data } = await sdk.listConversations({
+    params: {
+      organizationSlug: params.organizationSlug,
+      teamId: params.teamId,
+      agentId: params.agentId,
+    },
+  })
+
+  return data?.conversations || []
+}
+
 async function ChatList({ params }: { params: Params }) {
-  async function listConversations(params: Params) {
-    'use cache: private'
-    cacheTag('create-chat', 'delete-chat')
-
-    const { data } = await sdk.listConversations({ params })
-
-    return data?.conversations || []
-  }
-
   const conversations = await listConversations(params)
 
   return (

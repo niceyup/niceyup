@@ -130,7 +130,7 @@ export type GenerateUploadSignatureSource500Schema =
 
 export const generateUploadSignatureSourceMutationRequestSchema = z.object({
   organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
+  organizationSlug: z.string().optional(),
   sourceType: z.enum(['file', 'database']).default('file'),
   explorerNode: z
     .object({

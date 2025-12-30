@@ -130,8 +130,8 @@ export const generateUploadSignature500Schema = z
 export type GenerateUploadSignature500Schema = GenerateUploadSignature500
 
 export const generateUploadSignatureMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   accept: z.string().default('*'),
   maxFiles: z.number().min(0).default(1),
   maxSize: z.number().min(0).default(15728640),

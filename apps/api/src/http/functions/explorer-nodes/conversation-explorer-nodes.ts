@@ -67,7 +67,7 @@ export async function createConversationExplorerNodeItem(
     return null
   }
 
-  const ownerTypeCondition = params.ownerTeamId
+  const explorerOwnerTypeCondition = params.ownerTeamId
     ? eq(conversationExplorerNodes.ownerTeamId, params.ownerTeamId)
     : eq(conversationExplorerNodes.ownerUserId, params.ownerUserId as string)
 
@@ -83,7 +83,7 @@ export async function createConversationExplorerNodeItem(
           : eq(conversationExplorerNodes.parentId, params.parentId),
         eq(conversationExplorerNodes.visibility, params.visibility),
         eq(conversationExplorerNodes.agentId, params.agentId),
-        ownerTypeCondition,
+        explorerOwnerTypeCondition,
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -95,6 +95,10 @@ export async function createConversationExplorerNodeItem(
     firstSibling?.fractionalIndex || null,
   )
 
+  const ownerTypeCondition = params.ownerTeamId
+    ? { ownerTeamId: params.ownerTeamId }
+    : { ownerUserId: params.ownerUserId }
+
   const [explorerNode] = await (tx ?? db)
     .insert(conversationExplorerNodes)
     .values({
@@ -103,8 +107,7 @@ export async function createConversationExplorerNodeItem(
       conversationId: params.conversationId,
       parentId: params.parentId === 'root' ? null : params.parentId,
       fractionalIndex,
-      ownerTeamId: params.ownerTeamId,
-      ownerUserId: params.ownerUserId,
+      ...ownerTypeCondition,
     })
     .returning({
       id: conversationExplorerNodes.id,

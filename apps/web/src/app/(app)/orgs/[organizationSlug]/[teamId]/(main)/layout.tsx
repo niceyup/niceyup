@@ -73,6 +73,7 @@ export default async function Layout({
         {
           label: 'Sources',
           href: `/orgs/${organizationSlug}/~/sources`,
+          deep: true,
         },
         {
           label: 'Connections',

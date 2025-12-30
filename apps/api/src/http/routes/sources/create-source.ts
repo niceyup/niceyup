@@ -61,8 +61,8 @@ export async function createSource(app: FastifyTypedInstance) {
         operationId: 'createSource',
         body: z
           .object({
-            organizationId: z.string().nullish(),
-            organizationSlug: z.string().nullish(),
+            organizationId: z.string().optional(),
+            organizationSlug: z.string().optional(),
           })
           .and(
             sourceTypeSchema.and(
@@ -76,7 +76,7 @@ export async function createSource(app: FastifyTypedInstance) {
             ),
           ),
         response: withDefaultErrorResponses({
-          200: z
+          201: z
             .object({
               sourceId: z.string(),
               explorerNode: z.object({

@@ -113,13 +113,13 @@ export type UpdateConnection500 = {
 
 export type UpdateConnectionMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
+  organizationSlug?: string
   /**
    * @type string
    */

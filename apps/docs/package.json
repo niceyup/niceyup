@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "mint dev --port 3001",
-    "endpoint:generate": "mintlify-scrape openapi-file api-reference/openapi.json -o api-reference/endpoint",
+    "docs:dev": "mint dev --port 3001",
+    "docs:generate": "mintlify-scrape openapi-file api-reference/openapi.json -o api-reference/endpoint",
     "clean": "rm -rf .turbo node_modules"
   },
   "dependencies": {

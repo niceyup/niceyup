@@ -5,7 +5,23 @@ import { TabBar, type TabItem } from '@/components/tab-bar'
 import { sdk } from '@/lib/sdk'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { ChevronLeftIcon } from 'lucide-react'
+import { cacheTag } from 'next/cache'
 import { Topbar } from '../_components/topbar'
+
+async function getAgent(params: {
+  organizationSlug: string
+  agentId: string
+}) {
+  'use cache: private'
+  cacheTag('update-agent')
+
+  const { data } = await sdk.getAgent({
+    agentId: params.agentId,
+    params: { organizationSlug: params.organizationSlug },
+  })
+
+  return data?.agent || null
+}
 
 export default async function Layout({
   params,
@@ -16,12 +32,9 @@ export default async function Layout({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  const { data, error } = await sdk.getAgent({
-    agentId,
-    params: { organizationSlug, teamId },
-  })
+  const agent = await getAgent({ organizationSlug, agentId })
 
-  if (error) {
+  if (!agent) {
     return (
       <>
         <Header organizationSlug={organizationSlug} teamId={teamId} />
@@ -42,7 +55,7 @@ export default async function Layout({
     },
     {
       label: 'Chats',
-      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/chats`,
+      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/chats/new`,
       deep: true,
     },
   ]
@@ -91,7 +104,7 @@ export default async function Layout({
         <Header
           organizationSlug={organizationSlug}
           teamId={teamId}
-          activeAgent={data.agent}
+          activeAgent={agent}
         />
 
         <TabBar tabs={tabs} />

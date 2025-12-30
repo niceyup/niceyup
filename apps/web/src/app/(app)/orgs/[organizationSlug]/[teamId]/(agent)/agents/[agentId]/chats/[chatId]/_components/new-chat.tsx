@@ -17,7 +17,10 @@ type Params = OrganizationTeamParams & AgentParams & ChatParams
 export function NewChat({
   params,
   suggestions,
-}: { params: Params; suggestions: string[] }) {
+}: {
+  params: Params
+  suggestions?: string[] | null
+}) {
   const [suggestion, setSuggestion] = React.useState<string>('')
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -28,7 +31,7 @@ export function NewChat({
     <div className="flex size-full flex-col items-center justify-center">
       <div className="flex w-full max-w-2xl flex-col gap-4 p-2">
         <Suggestions>
-          {suggestions.map((suggestion) => (
+          {suggestions?.map((suggestion) => (
             <Suggestion
               key={suggestion}
               suggestion={suggestion}

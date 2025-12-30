@@ -8,6 +8,7 @@ export default defineConfig({
   noExternal: [
     '@workspace/ai',
     '@workspace/auth',
+    '@workspace/billing',
     '@workspace/cache',
     '@workspace/db',
     '@workspace/engine',

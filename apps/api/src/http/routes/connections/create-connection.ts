@@ -5,6 +5,10 @@ import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { connections } from '@workspace/db/schema'
+import {
+  connectionAppSchema,
+  connectionSchema,
+} from '@workspace/engine/connections'
 import { z } from 'zod'
 
 export async function createConnection(app: FastifyTypedInstance) {
@@ -16,13 +20,14 @@ export async function createConnection(app: FastifyTypedInstance) {
         description: 'Create a new connection',
         operationId: 'createConnection',
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          app: z.string(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
+          app: connectionAppSchema,
           name: z.string(),
+          payload: z.record(z.string(), z.unknown()),
         }),
         response: withDefaultErrorResponses({
-          200: z
+          201: z
             .object({
               connectionId: z.string(),
             })
@@ -35,7 +40,8 @@ export async function createConnection(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, app, name } = request.body
+      const { organizationId, organizationSlug, app, name, payload } =
+        request.body
 
       const { context } = await getMembershipContext({
         userId,
@@ -43,13 +49,17 @@ export async function createConnection(app: FastifyTypedInstance) {
         organizationSlug,
       })
 
-      // TODO: implement app validation
+      const { payload: validatedPayload } = connectionSchema.parse({
+        app,
+        payload,
+      })
 
       const [connection] = await db
         .insert(connections)
         .values({
           app,
           name,
+          payload: validatedPayload,
           organizationId: context.organizationId,
         })
         .returning({

@@ -26,7 +26,6 @@ export async function ChatViewWrapper({
     conversationId: chat.id,
     params: {
       organizationSlug: params.organizationSlug,
-      teamId: params.teamId,
       agentId: params.agentId,
       parents: true,
     },

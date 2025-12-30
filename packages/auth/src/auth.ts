@@ -2,13 +2,7 @@ import { polarPlugin } from '@workspace/billing/better-auth'
 import { cache } from '@workspace/cache'
 import { db, generateId } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
-import {
-  agents,
-  teamMembers,
-  teams,
-  teamsToAgents,
-  users,
-} from '@workspace/db/schema'
+import { users } from '@workspace/db/schema'
 import {
   sendOrganizationInvitation,
   sendPasswordResetEmail,
@@ -21,54 +15,10 @@ import { openAPI, organization } from 'better-auth/plugins'
 import { ac, roles } from './lib/access'
 import { COOKIE_PREFIX } from './lib/constants'
 import { env } from './lib/env'
-
-async function createDefaultTeamAndAgent({
-  organizationId,
-  userId,
-}: { organizationId: string; userId: string }) {
-  await db.transaction(async (tx) => {
-    const [team] = await tx
-      .insert(teams)
-      .values({
-        name: 'Default Team',
-        organizationId,
-      })
-      .returning({
-        id: teams.id,
-      })
-
-    if (!team) {
-      return
-    }
-
-    await tx.insert(teamMembers).values({
-      teamId: team.id,
-      userId,
-    })
-
-    const [agent] = await tx
-      .insert(agents)
-      .values({
-        name: 'Assistant',
-        slug: `assistant-${generateId()}`,
-        description: 'Your AI-Powered Assistant for Work and Life',
-        tags: ['OpenAI', 'Anthropic', 'Google'],
-        organizationId,
-      })
-      .returning({
-        id: agents.id,
-      })
-
-    if (!agent) {
-      return
-    }
-
-    await tx.insert(teamsToAgents).values({
-      teamId: team.id,
-      agentId: agent.id,
-    })
-  })
-}
+import {
+  setupDefaultIndividualOrganization,
+  setupDefaultTeamAndAgent,
+} from './lib/setup'
 
 const config = {
   appName: 'Niceyup',
@@ -126,6 +76,22 @@ const config = {
       await cache.del(key)
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          const organization = await setupDefaultIndividualOrganization(user)
+
+          if (organization) {
+            await setupDefaultTeamAndAgent({
+              organizationId: organization.id,
+              userId: user.id,
+            })
+          }
+        },
+      },
+    },
+  },
   plugins: [
     organization({
       ac,
@@ -178,10 +144,7 @@ const config = {
           }
         },
         afterCreateOrganization: async ({ member }) => {
-          await createDefaultTeamAndAgent({
-            organizationId: member.organizationId,
-            userId: member.userId,
-          })
+          await setupDefaultTeamAndAgent(member)
         },
       },
     }),

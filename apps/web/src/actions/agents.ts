@@ -7,7 +7,6 @@ import { cacheTag } from 'next/cache'
 
 type ListAgentsParams = {
   organizationId?: string | null
-  teamId?: string | null
 }
 
 export async function listAgents(params: ListAgentsParams) {

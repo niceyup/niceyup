@@ -23,7 +23,7 @@ export default async function Layout({
     },
     {
       label: 'Documentation',
-      href: '/docs/sources',
+      href: 'https://docs.niceyup.com/sources',
       target: '_blank',
       icon: <SquareArrowOutUpRightIcon className="ml-auto size-4" />,
     },
@@ -39,7 +39,7 @@ export default async function Layout({
           )}
         >
           <div className="flex items-center gap-4">
-            <div className="md:max-w-sm">
+            <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Sources</h2>
               <p className="mt-1 text-muted-foreground text-sm">
                 View and manage the data sources used to train and power this AI

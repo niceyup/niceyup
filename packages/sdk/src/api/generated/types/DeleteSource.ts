@@ -113,13 +113,13 @@ export type DeleteSource500 = {
 
 export type DeleteSourceMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
+  organizationSlug?: string
   /**
    * @type boolean | undefined
    */

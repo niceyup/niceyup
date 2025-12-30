@@ -23,9 +23,8 @@ export async function manageAgentSources(app: FastifyTypedInstance) {
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           add: z.array(z.string()),
           remove: z.array(z.string()),
         }),
@@ -41,14 +40,12 @@ export async function manageAgentSources(app: FastifyTypedInstance) {
 
       const { agentId } = request.params
 
-      const { organizationId, organizationSlug, teamId, add, remove } =
-        request.body
+      const { organizationId, organizationSlug, add, remove } = request.body
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const agent = await queries.context.getAgent(context, { agentId })

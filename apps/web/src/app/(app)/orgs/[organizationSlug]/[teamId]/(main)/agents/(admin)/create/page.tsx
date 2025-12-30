@@ -1,3 +1,4 @@
+import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Card,
   CardContent,
@@ -6,7 +7,13 @@ import {
 } from '@workspace/ui/components/card'
 import { CreateAgentForm } from './_components/create-agent-form'
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: Readonly<{
+  params: Promise<OrganizationTeamParams>
+}>) {
+  const { organizationSlug, teamId } = await params
+
   return (
     <div className="w-full max-w-xl p-4 md:p-10">
       <Card>
@@ -16,7 +23,10 @@ export default async function Page() {
           </CardTitle>
         </CardHeader>
         <CardContent className="mt-5">
-          <CreateAgentForm />
+          <CreateAgentForm
+            organizationSlug={organizationSlug}
+            teamId={teamId}
+          />
         </CardContent>
       </Card>
     </div>

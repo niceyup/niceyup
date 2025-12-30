@@ -128,9 +128,8 @@ export const manageAgentSources500Schema = z
 export type ManageAgentSources500Schema = ManageAgentSources500
 
 export const manageAgentSourcesMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
-  teamId: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   add: z.array(z.string()),
   remove: z.array(z.string()),
 }) as unknown as ToZod<ManageAgentSourcesMutationRequest>

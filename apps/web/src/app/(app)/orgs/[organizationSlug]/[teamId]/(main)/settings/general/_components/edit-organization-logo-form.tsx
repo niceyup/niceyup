@@ -146,7 +146,7 @@ export function EditOrganizationLogoForm({
                             <img
                               className="size-full object-cover"
                               src={field.value}
-                              alt="Organization logo"
+                              alt="Organization avatar"
                               width={64}
                               height={64}
                               style={{ objectFit: 'cover' }}

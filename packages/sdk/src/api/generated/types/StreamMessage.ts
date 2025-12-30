@@ -24,10 +24,6 @@ export type StreamMessageQueryParams = {
    */
   organizationSlug?: string
   /**
-   * @type string | undefined
-   */
-  teamId?: string
-  /**
    * @type string
    */
   agentId: string

@@ -2,6 +2,7 @@ import { getActiveSubscription } from '@/actions/billing'
 import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import { cn } from '@workspace/ui/lib/utils'
+import { format } from 'date-fns'
 import { SquareArrowOutUpRightIcon } from 'lucide-react'
 import Link from 'next/link'
 import { ManageBillingCard } from './_components/manage-billing-card'
@@ -9,14 +10,6 @@ import { PlanUpgradeButton } from './_components/plan-upgrade-button'
 
 export default async function Page() {
   const activeSubscription = await getActiveSubscription()
-
-  function formatDate(date: Date) {
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    })
-  }
 
   return (
     <div className="rounded-lg border border-border bg-background">
@@ -29,10 +22,10 @@ export default async function Page() {
           <div className="flex flex-row items-center justify-end gap-1">
             {activeSubscription && (
               <span className="text-muted-foreground text-sm">
-                {formatDate(activeSubscription.currentPeriodStart)}
+                {format(activeSubscription.currentPeriodStart, 'MMMM d, yyyy')}
 
                 {activeSubscription.currentPeriodEnd &&
-                  ` - ${formatDate(activeSubscription.currentPeriodEnd)}`}
+                  ` - ${format(activeSubscription.currentPeriodEnd, 'MMMM d, yyyy')}`}
               </span>
             )}
           </div>
@@ -68,7 +61,7 @@ export default async function Page() {
               Custom needs?
             </p>
             <Button variant="outline" asChild>
-              <a href="mailto:hello@niceyup.team">Contact Sales</a>
+              <Link href="mailto:hello@niceyup.team">Contact Sales</Link>
             </Button>
           </>
         ) : (

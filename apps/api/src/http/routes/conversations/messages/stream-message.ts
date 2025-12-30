@@ -27,7 +27,6 @@ export async function streamMessage(app: FastifyTypedInstance) {
         querystring: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          teamId: z.string().optional(),
           agentId: z.string(),
         }),
         response: withDefaultErrorResponses({
@@ -42,14 +41,12 @@ export async function streamMessage(app: FastifyTypedInstance) {
 
       const { conversationId, messageId } = request.params
 
-      const { organizationId, organizationSlug, teamId, agentId } =
-        request.query
+      const { organizationId, organizationSlug, agentId } = request.query
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const message = await queries.context.getMessage(context, {

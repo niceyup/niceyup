@@ -13,7 +13,7 @@ export default async function Page({
 }: Readonly<{
   params: Promise<OrganizationTeamParams>
 }>) {
-  const { organizationSlug } = await params
+  const { organizationSlug, teamId } = await params
 
   const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
 
@@ -31,7 +31,11 @@ export default async function Page({
         </DialogHeader>
 
         <div className="mt-5">
-          <CreateAgentForm />
+          <CreateAgentForm
+            modal
+            organizationSlug={organizationSlug}
+            teamId={teamId}
+          />
         </div>
       </InterceptedDialogContent>
     </Dialog>

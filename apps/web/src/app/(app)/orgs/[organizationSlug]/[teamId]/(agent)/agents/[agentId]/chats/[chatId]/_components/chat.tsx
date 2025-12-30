@@ -415,7 +415,10 @@ function ChatConversationScroll() {
 function ChatMessageBranch({
   message,
   parentMessage,
-}: { message: ChatMessageNode; parentMessage: ChatMessageNode }) {
+}: {
+  message: ChatMessageNode
+  parentMessage: ChatMessageNode
+}) {
   const { getMessageNodeById, handleBranchChange } = useChatContext()
 
   return (
@@ -471,7 +474,10 @@ function ChatMessageBranch({
 function ChatMessage({
   message,
   branch,
-}: { message: ChatMessageNode; branch?: boolean }) {
+}: {
+  message: ChatMessageNode
+  branch?: boolean
+}) {
   if (message.role !== 'assistant' && message.role !== 'user') {
     return null
   }
@@ -770,11 +776,7 @@ function ChatUserMessageContent() {
 }
 
 function ChatEmptyMessage() {
-  return (
-    <p className="italic">
-      No message content content content content content content content content
-    </p>
-  )
+  return <p className="italic">No message content</p>
 }
 
 function ChatMessageActions() {

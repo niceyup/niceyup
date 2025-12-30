@@ -118,9 +118,9 @@ export type GenerateUploadSignatureSourceMutationRequest = {
    */
   organizationId?: string | null
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
+  organizationSlug?: string
   /**
    * @default "file"
    * @type string | undefined

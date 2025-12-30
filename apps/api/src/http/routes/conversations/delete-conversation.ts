@@ -25,9 +25,8 @@ export async function deleteConversation(app: FastifyTypedInstance) {
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           agentId: z.string(),
           destroy: z.boolean().optional(),
         }),
@@ -43,14 +42,13 @@ export async function deleteConversation(app: FastifyTypedInstance) {
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, teamId, agentId, destroy } =
+      const { organizationId, organizationSlug, agentId, destroy } =
         request.body
 
       const { context } = await getMembershipContext({
         userId,
         organizationId,
         organizationSlug,
-        teamId,
       })
 
       const conversation = await queries.context.getConversation(context, {

@@ -113,17 +113,13 @@ export type DeleteConversation500 = {
 
 export type DeleteConversationMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
-  /**
-   * @type string
-   */
-  teamId?: string | null
+  organizationSlug?: string
   /**
    * @type string
    */

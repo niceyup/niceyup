@@ -132,9 +132,8 @@ export type GenerateUploadSignatureConversation500Schema =
 
 export const generateUploadSignatureConversationMutationRequestSchema =
   z.object({
-    organizationId: z.string().nullable().nullish(),
-    organizationSlug: z.string().nullable().nullish(),
-    teamId: z.string().nullable().nullish(),
+    organizationId: z.string().optional(),
+    organizationSlug: z.string().optional(),
     agentId: z.string(),
     conversationId: z.string().nullable().nullish(),
   }) as unknown as ToZod<GenerateUploadSignatureConversationMutationRequest>

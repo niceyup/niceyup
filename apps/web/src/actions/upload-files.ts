@@ -21,7 +21,6 @@ export type GenerateUploadSignatureParams =
           scope: 'conversations'
           params: {
             organizationSlug: string
-            teamId?: string | null
           }
           agentId: string
           conversationId?: string | null

@@ -21,8 +21,8 @@ export async function deleteConnection(app: FastifyTypedInstance) {
           connectionId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),

@@ -128,8 +128,8 @@ export const deleteConnection500Schema = z
 export type DeleteConnection500Schema = DeleteConnection500
 
 export const deleteConnectionMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
 }) as unknown as ToZod<DeleteConnectionMutationRequest>
 
 export type DeleteConnectionMutationRequestSchema =

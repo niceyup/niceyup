@@ -8,5 +8,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  return redirect(`/orgs/${organizationSlug}/${teamId}/agents/${agentId}/chats`)
+  return redirect(
+    `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/chats/new`,
+  )
 }

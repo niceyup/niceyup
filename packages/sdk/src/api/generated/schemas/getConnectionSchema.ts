@@ -40,9 +40,8 @@ export const getConnection200Schema = z
   .object({
     connection: z.object({
       id: z.string(),
-      app: z.string(),
+      app: z.enum(['github', 'postgresql', 'mysql']),
       name: z.string(),
-      payload: z.object({}).catchall(z.any()).nullable(),
     }),
   })
   .describe('Success') as unknown as ToZod<GetConnection200>

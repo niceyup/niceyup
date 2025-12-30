@@ -128,9 +128,8 @@ export const updateConversation500Schema = z
 export type UpdateConversation500Schema = UpdateConversation500
 
 export const updateConversationMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
-  teamId: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   agentId: z.string(),
   title: z.string(),
 }) as unknown as ToZod<UpdateConversationMutationRequest>

@@ -20,6 +20,7 @@ import { db } from '@workspace/db'
 import { and, desc, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { conversations, messages } from '@workspace/db/schema'
+import { getAgentConfiguration } from '@workspace/engine/agents'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
 
@@ -60,8 +61,8 @@ export async function sendMessage(app: FastifyTypedInstance) {
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           teamId: z.string().nullish(),
           agentId: z.string(),
           parentMessageId: z.string().nullish(),
@@ -69,9 +70,12 @@ export async function sendMessage(app: FastifyTypedInstance) {
             parts: z.array(promptMessagePartSchema).nonempty(),
             metadata: aiMessageMetadataSchema.nullish(),
           }),
+          visibility: z
+            .enum(['private', 'team'])
+            .default('private')
+            .describe('Used only when conversation is created'),
           explorerNode: z
             .object({
-              visibility: z.enum(['private', 'team']),
               folderId: z.string().nullish(),
             })
             .optional()
@@ -108,6 +112,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
         agentId,
         parentMessageId,
         message,
+        visibility,
         explorerNode,
       } = request.body
 
@@ -118,23 +123,13 @@ export async function sendMessage(app: FastifyTypedInstance) {
         teamId,
       })
 
-      if (explorerNode?.visibility === 'team' && !context.teamId) {
+      if (visibility === 'team' && !context.teamId) {
         throw new BadRequestError({
           code: 'TEAM_ID_REQUIRED',
           message:
-            'Team is required when the explorer node visibility is set to "team"',
+            'Team is required when the conversation visibility is set to "team"',
         })
       }
-
-      const ownerTypeCondition =
-        explorerNode?.visibility === 'team'
-          ? { teamId: context.teamId }
-          : { createdByUserId: context.userId }
-
-      const explorerOwnerTypeCondition =
-        explorerNode?.visibility === 'team'
-          ? { ownerTeamId: context.teamId }
-          : { ownerUserId: context.userId }
 
       if (conversationId === 'new') {
         const checkAccessToAgent = await queries.context.getAgent(context, {
@@ -151,9 +146,10 @@ export async function sendMessage(app: FastifyTypedInstance) {
         if (explorerNode?.folderId && explorerNode.folderId !== 'root') {
           const folderExplorerNode = await getConversationExplorerNodeFolder({
             id: explorerNode.folderId,
-            visibility: explorerNode.visibility,
+            visibility,
             agentId,
-            ...explorerOwnerTypeCondition,
+            ownerUserId: context.userId,
+            ownerTeamId: context.teamId,
           })
 
           if (!folderExplorerNode) {
@@ -198,9 +194,10 @@ export async function sendMessage(app: FastifyTypedInstance) {
             const [conversation] = await tx
               .insert(conversations)
               .values({
-                agentId,
                 title,
-                ...ownerTypeCondition,
+                agentId,
+                teamId: visibility === 'team' ? context.teamId : null,
+                createdByUserId: context.userId,
               })
               .returning({
                 id: conversations.id,
@@ -215,10 +212,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
 
             _conversationId = conversation.id
 
-            // TODO: make this dynamic based on the agent's configuration
-            const systemMessageText = `You are a helpful assistant. Check your knowledge base before answering any questions.
-Only respond to questions using information from tool calls.
-if no relevant information is found in the tool calls, respond, "Sorry, I don't know."`
+            const agentConfiguration = await getAgentConfiguration({ agentId })
 
             const [systemMessage] = await tx
               .insert(messages)
@@ -226,12 +220,9 @@ if no relevant information is found in the tool calls, respond, "Sorry, I don't 
                 conversationId: conversation.id,
                 status: 'finished',
                 role: 'system',
-                parts: [
-                  {
-                    type: 'text',
-                    text: systemMessageText,
-                  },
-                ],
+                parts: agentConfiguration.systemMessage
+                  ? [{ type: 'text', text: agentConfiguration.systemMessage }]
+                  : [],
               })
               .returning({
                 id: messages.id,
@@ -251,10 +242,11 @@ if no relevant information is found in the tool calls, respond, "Sorry, I don't 
               const itemExplorerNode = await createConversationExplorerNodeItem(
                 {
                   agentId,
-                  visibility: explorerNode.visibility,
+                  visibility,
                   parentId: explorerNode.folderId,
                   conversationId: conversation.id,
-                  ...explorerOwnerTypeCondition,
+                  ownerUserId: context.userId,
+                  ownerTeamId: context.teamId,
                 },
                 tx,
               )
@@ -353,22 +345,13 @@ if no relevant information is found in the tool calls, respond, "Sorry, I don't 
           }
         })
 
-      // TODO: make this dynamic based on the agent's configuration
-      const contextMessages = true
-      const maxContextMessages = 10
-
       sendUserMessageToAssistant({
-        namespace: context.organizationId,
         conversationId: _conversationId,
         userMessage: {
           id: userMessage.id,
           parts: message.parts,
         },
         assistantMessage,
-        agentConfiguration: {
-          contextMessages,
-          maxContextMessages,
-        },
       })
 
       conversationPubSub.publish({

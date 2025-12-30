@@ -22,8 +22,12 @@ export default async function Layout({
       href: `/orgs/${organizationSlug}/~/settings/members`,
     },
     {
+      label: 'Flags',
+      href: `/orgs/${organizationSlug}/~/settings/flags`,
+    },
+    {
       label: 'Documentation',
-      href: '/docs/organizations',
+      href: 'https://docs.niceyup.com/organizations',
       target: '_blank',
       icon: <SquareArrowOutUpRightIcon className="ml-auto size-4" />,
     },
@@ -39,7 +43,7 @@ export default async function Layout({
           )}
         >
           <div className="flex items-center gap-4">
-            <div className="md:max-w-sm">
+            <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Settings</h2>
               <p className="mt-1 text-muted-foreground text-sm">
                 Configure your organization’s preferences and information.

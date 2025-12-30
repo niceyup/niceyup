@@ -29,7 +29,7 @@ export default async function Page({
       <div className="border-b bg-background p-4">
         <div className="mx-auto flex max-w-4xl flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="flex items-center gap-4">
-            <div className="md:max-w-sm">
+            <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Teams</h2>
               <p className="mt-1 text-muted-foreground text-sm">
                 Create and manage teams within your organization.

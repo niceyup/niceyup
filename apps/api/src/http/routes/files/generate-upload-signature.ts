@@ -24,8 +24,8 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
           'x-app-secret-key': z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           accept: z.string().default(DEFAULT_ACCEPT),
           maxFiles: z.number().positive().default(DEFAULT_MAX_FILES),
           maxSize: z.number().positive().default(DEFAULT_MAX_SIZE),

@@ -1,12 +1,19 @@
+export type { CreateAgentMutationKey } from './react-query/hooks/useCreateAgent'
 export type { CreateConnectionMutationKey } from './react-query/hooks/useCreateConnection'
+export type { CreateConversationMutationKey } from './react-query/hooks/useCreateConversation'
+export type { CreateProviderMutationKey } from './react-query/hooks/useCreateProvider'
 export type { CreateSourceMutationKey } from './react-query/hooks/useCreateSource'
+export type { DeleteAgentMutationKey } from './react-query/hooks/useDeleteAgent'
 export type { DeleteConnectionMutationKey } from './react-query/hooks/useDeleteConnection'
 export type { DeleteConversationMutationKey } from './react-query/hooks/useDeleteConversation'
+export type { DeleteProviderMutationKey } from './react-query/hooks/useDeleteProvider'
 export type { DeleteSourceMutationKey } from './react-query/hooks/useDeleteSource'
 export type { GenerateUploadSignatureMutationKey } from './react-query/hooks/useGenerateUploadSignature'
 export type { GenerateUploadSignatureConversationMutationKey } from './react-query/hooks/useGenerateUploadSignatureConversation'
 export type { GenerateUploadSignatureSourceMutationKey } from './react-query/hooks/useGenerateUploadSignatureSource'
 export type { GetAgentQueryKey } from './react-query/hooks/useGetAgent'
+export type { GetAgentConfigurationQueryKey } from './react-query/hooks/useGetAgentConfiguration'
+export type { GetAgentConfigurationSuspenseQueryKey } from './react-query/hooks/useGetAgentConfigurationSuspense'
 export type { GetAgentSuspenseQueryKey } from './react-query/hooks/useGetAgentSuspense'
 export type { GetConnectionQueryKey } from './react-query/hooks/useGetConnection'
 export type { GetConnectionSuspenseQueryKey } from './react-query/hooks/useGetConnectionSuspense'
@@ -18,6 +25,8 @@ export type { GetFileQueryKey } from './react-query/hooks/useGetFile'
 export type { GetFileSuspenseQueryKey } from './react-query/hooks/useGetFileSuspense'
 export type { GetProfileQueryKey } from './react-query/hooks/useGetProfile'
 export type { GetProfileSuspenseQueryKey } from './react-query/hooks/useGetProfileSuspense'
+export type { GetProviderQueryKey } from './react-query/hooks/useGetProvider'
+export type { GetProviderSuspenseQueryKey } from './react-query/hooks/useGetProviderSuspense'
 export type { GetSourceQueryKey } from './react-query/hooks/useGetSource'
 export type { GetSourceSuspenseQueryKey } from './react-query/hooks/useGetSourceSuspense'
 export type { HealthQueryKey } from './react-query/hooks/useHealth'
@@ -32,6 +41,10 @@ export type { ListConversationsQueryKey } from './react-query/hooks/useListConve
 export type { ListConversationsSuspenseQueryKey } from './react-query/hooks/useListConversationsSuspense'
 export type { ListMessagesQueryKey } from './react-query/hooks/useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './react-query/hooks/useListMessagesSuspense'
+export type { ListModelCostsQueryKey } from './react-query/hooks/useListModelCosts'
+export type { ListModelCostsSuspenseQueryKey } from './react-query/hooks/useListModelCostsSuspense'
+export type { ListProvidersQueryKey } from './react-query/hooks/useListProviders'
+export type { ListProvidersSuspenseQueryKey } from './react-query/hooks/useListProvidersSuspense'
 export type { ListSourcesQueryKey } from './react-query/hooks/useListSources'
 export type { ListSourcesSuspenseQueryKey } from './react-query/hooks/useListSourcesSuspense'
 export type { ManageAgentSourcesMutationKey } from './react-query/hooks/useManageAgentSources'
@@ -41,14 +54,28 @@ export type { SendMessageMutationKey } from './react-query/hooks/useSendMessage'
 export type { StopMessageMutationKey } from './react-query/hooks/useStopMessage'
 export type { StreamMessageQueryKey } from './react-query/hooks/useStreamMessage'
 export type { StreamMessageSuspenseQueryKey } from './react-query/hooks/useStreamMessageSuspense'
+export type { UpdateAgentMutationKey } from './react-query/hooks/useUpdateAgent'
+export type { UpdateAgentConfigurationMutationKey } from './react-query/hooks/useUpdateAgentConfiguration'
 export type { UpdateConnectionMutationKey } from './react-query/hooks/useUpdateConnection'
 export type { UpdateConversationMutationKey } from './react-query/hooks/useUpdateConversation'
+export type { UpdateProviderMutationKey } from './react-query/hooks/useUpdateProvider'
 export type { UpdateSourceMutationKey } from './react-query/hooks/useUpdateSource'
 export type { UploadFilesMutationKey } from './react-query/hooks/useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './react-query/hooks/useUploadFilesConversation'
 export type { UploadFilesSourceMutationKey } from './react-query/hooks/useUploadFilesSource'
 export type {
-  CreateConnection200Schema,
+  CreateAgent201Schema,
+  CreateAgent400Schema,
+  CreateAgent401Schema,
+  CreateAgent403Schema,
+  CreateAgent404Schema,
+  CreateAgent429Schema,
+  CreateAgent500Schema,
+  CreateAgentMutationRequestSchema,
+  CreateAgentMutationResponseSchema,
+} from './schemas/createAgentSchema'
+export type {
+  CreateConnection201Schema,
   CreateConnection400Schema,
   CreateConnection401Schema,
   CreateConnection403Schema,
@@ -59,7 +86,29 @@ export type {
   CreateConnectionMutationResponseSchema,
 } from './schemas/createConnectionSchema'
 export type {
-  CreateSource200Schema,
+  CreateConversation201Schema,
+  CreateConversation400Schema,
+  CreateConversation401Schema,
+  CreateConversation403Schema,
+  CreateConversation404Schema,
+  CreateConversation429Schema,
+  CreateConversation500Schema,
+  CreateConversationMutationRequestSchema,
+  CreateConversationMutationResponseSchema,
+} from './schemas/createConversationSchema'
+export type {
+  CreateProvider201Schema,
+  CreateProvider400Schema,
+  CreateProvider401Schema,
+  CreateProvider403Schema,
+  CreateProvider404Schema,
+  CreateProvider429Schema,
+  CreateProvider500Schema,
+  CreateProviderMutationRequestSchema,
+  CreateProviderMutationResponseSchema,
+} from './schemas/createProviderSchema'
+export type {
+  CreateSource201Schema,
   CreateSource400Schema,
   CreateSource401Schema,
   CreateSource403Schema,
@@ -69,6 +118,18 @@ export type {
   CreateSourceMutationRequestSchema,
   CreateSourceMutationResponseSchema,
 } from './schemas/createSourceSchema'
+export type {
+  DeleteAgentPathParamsSchema,
+  DeleteAgent204Schema,
+  DeleteAgent400Schema,
+  DeleteAgent401Schema,
+  DeleteAgent403Schema,
+  DeleteAgent404Schema,
+  DeleteAgent429Schema,
+  DeleteAgent500Schema,
+  DeleteAgentMutationRequestSchema,
+  DeleteAgentMutationResponseSchema,
+} from './schemas/deleteAgentSchema'
 export type {
   DeleteConnectionPathParamsSchema,
   DeleteConnection204Schema,
@@ -93,6 +154,18 @@ export type {
   DeleteConversationMutationRequestSchema,
   DeleteConversationMutationResponseSchema,
 } from './schemas/deleteConversationSchema'
+export type {
+  DeleteProviderPathParamsSchema,
+  DeleteProvider204Schema,
+  DeleteProvider400Schema,
+  DeleteProvider401Schema,
+  DeleteProvider403Schema,
+  DeleteProvider404Schema,
+  DeleteProvider429Schema,
+  DeleteProvider500Schema,
+  DeleteProviderMutationRequestSchema,
+  DeleteProviderMutationResponseSchema,
+} from './schemas/deleteProviderSchema'
 export type {
   DeleteSourcePathParamsSchema,
   DeleteSource204Schema,
@@ -139,6 +212,18 @@ export type {
   GenerateUploadSignatureSourceMutationRequestSchema,
   GenerateUploadSignatureSourceMutationResponseSchema,
 } from './schemas/generateUploadSignatureSourceSchema'
+export type {
+  GetAgentConfigurationPathParamsSchema,
+  GetAgentConfigurationQueryParamsSchema,
+  GetAgentConfiguration200Schema,
+  GetAgentConfiguration400Schema,
+  GetAgentConfiguration401Schema,
+  GetAgentConfiguration403Schema,
+  GetAgentConfiguration404Schema,
+  GetAgentConfiguration429Schema,
+  GetAgentConfiguration500Schema,
+  GetAgentConfigurationQueryResponseSchema,
+} from './schemas/getAgentConfigurationSchema'
 export type {
   GetAgentPathParamsSchema,
   GetAgentQueryParamsSchema,
@@ -209,6 +294,18 @@ export type {
   GetProfile500Schema,
   GetProfileQueryResponseSchema,
 } from './schemas/getProfileSchema'
+export type {
+  GetProviderPathParamsSchema,
+  GetProviderQueryParamsSchema,
+  GetProvider200Schema,
+  GetProvider400Schema,
+  GetProvider401Schema,
+  GetProvider403Schema,
+  GetProvider404Schema,
+  GetProvider429Schema,
+  GetProvider500Schema,
+  GetProviderQueryResponseSchema,
+} from './schemas/getProviderSchema'
 export type {
   GetSourcePathParamsSchema,
   GetSourceQueryParamsSchema,
@@ -288,6 +385,27 @@ export type {
   ListMessages500Schema,
   ListMessagesQueryResponseSchema,
 } from './schemas/listMessagesSchema'
+export type {
+  ListModelCosts200Schema,
+  ListModelCosts400Schema,
+  ListModelCosts401Schema,
+  ListModelCosts403Schema,
+  ListModelCosts404Schema,
+  ListModelCosts429Schema,
+  ListModelCosts500Schema,
+  ListModelCostsQueryResponseSchema,
+} from './schemas/listModelCostsSchema'
+export type {
+  ListProvidersQueryParamsSchema,
+  ListProviders200Schema,
+  ListProviders400Schema,
+  ListProviders401Schema,
+  ListProviders403Schema,
+  ListProviders404Schema,
+  ListProviders429Schema,
+  ListProviders500Schema,
+  ListProvidersQueryResponseSchema,
+} from './schemas/listProvidersSchema'
 export type {
   ListSourcesQueryParamsSchema,
   ListSources200Schema,
@@ -372,6 +490,30 @@ export type {
   StreamMessageQueryResponseSchema,
 } from './schemas/streamMessageSchema'
 export type {
+  UpdateAgentConfigurationPathParamsSchema,
+  UpdateAgentConfiguration204Schema,
+  UpdateAgentConfiguration400Schema,
+  UpdateAgentConfiguration401Schema,
+  UpdateAgentConfiguration403Schema,
+  UpdateAgentConfiguration404Schema,
+  UpdateAgentConfiguration429Schema,
+  UpdateAgentConfiguration500Schema,
+  UpdateAgentConfigurationMutationRequestSchema,
+  UpdateAgentConfigurationMutationResponseSchema,
+} from './schemas/updateAgentConfigurationSchema'
+export type {
+  UpdateAgentPathParamsSchema,
+  UpdateAgent204Schema,
+  UpdateAgent400Schema,
+  UpdateAgent401Schema,
+  UpdateAgent403Schema,
+  UpdateAgent404Schema,
+  UpdateAgent429Schema,
+  UpdateAgent500Schema,
+  UpdateAgentMutationRequestSchema,
+  UpdateAgentMutationResponseSchema,
+} from './schemas/updateAgentSchema'
+export type {
   UpdateConnectionPathParamsSchema,
   UpdateConnection204Schema,
   UpdateConnection400Schema,
@@ -395,6 +537,18 @@ export type {
   UpdateConversationMutationRequestSchema,
   UpdateConversationMutationResponseSchema,
 } from './schemas/updateConversationSchema'
+export type {
+  UpdateProviderPathParamsSchema,
+  UpdateProvider204Schema,
+  UpdateProvider400Schema,
+  UpdateProvider401Schema,
+  UpdateProvider403Schema,
+  UpdateProvider404Schema,
+  UpdateProvider429Schema,
+  UpdateProvider500Schema,
+  UpdateProviderMutationRequestSchema,
+  UpdateProviderMutationResponseSchema,
+} from './schemas/updateProviderSchema'
 export type {
   UpdateSourcePathParamsSchema,
   UpdateSource204Schema,
@@ -444,19 +598,58 @@ export type {
   UploadFilesSourceMutationResponseSchema,
 } from './schemas/uploadFilesSourceSchema'
 export type {
-  CreateConnection200,
+  CreateAgent201,
+  CreateAgent400,
+  CreateAgent401,
+  CreateAgent403,
+  CreateAgent404,
+  CreateAgent429,
+  CreateAgent500,
+  CreateAgentMutationRequest,
+  CreateAgentMutationResponse,
+  CreateAgentMutation,
+} from './types/CreateAgent'
+export type {
+  CreateConnection201,
   CreateConnection400,
   CreateConnection401,
   CreateConnection403,
   CreateConnection404,
   CreateConnection429,
   CreateConnection500,
+  CreateConnectionMutationRequestAppEnum,
   CreateConnectionMutationRequest,
   CreateConnectionMutationResponse,
   CreateConnectionMutation,
 } from './types/CreateConnection'
 export type {
-  CreateSource200,
+  CreateConversation201,
+  CreateConversation400,
+  CreateConversation401,
+  CreateConversation403,
+  CreateConversation404,
+  CreateConversation429,
+  CreateConversation500,
+  CreateConversationMutationRequestVisibilityEnum,
+  CreateConversationMutationRequest,
+  CreateConversationMutationResponse,
+  CreateConversationMutation,
+} from './types/CreateConversation'
+export type {
+  CreateProvider201,
+  CreateProvider400,
+  CreateProvider401,
+  CreateProvider403,
+  CreateProvider404,
+  CreateProvider429,
+  CreateProvider500,
+  CreateProviderMutationRequestAppEnum,
+  CreateProviderMutationRequest,
+  CreateProviderMutationResponse,
+  CreateProviderMutation,
+} from './types/CreateProvider'
+export type {
+  CreateSource201,
   CreateSource400,
   CreateSource401,
   CreateSource403,
@@ -472,6 +665,20 @@ export type {
   CreateSourceMutationResponse,
   CreateSourceMutation,
 } from './types/CreateSource'
+export type {
+  DeleteAgentPathParams,
+  DeleteAgent204Enum,
+  DeleteAgent204,
+  DeleteAgent400,
+  DeleteAgent401,
+  DeleteAgent403,
+  DeleteAgent404,
+  DeleteAgent429,
+  DeleteAgent500,
+  DeleteAgentMutationRequest,
+  DeleteAgentMutationResponse,
+  DeleteAgentMutation,
+} from './types/DeleteAgent'
 export type {
   DeleteConnectionPathParams,
   DeleteConnection204Enum,
@@ -500,6 +707,20 @@ export type {
   DeleteConversationMutationResponse,
   DeleteConversationMutation,
 } from './types/DeleteConversation'
+export type {
+  DeleteProviderPathParams,
+  DeleteProvider204Enum,
+  DeleteProvider204,
+  DeleteProvider400,
+  DeleteProvider401,
+  DeleteProvider403,
+  DeleteProvider404,
+  DeleteProvider429,
+  DeleteProvider500,
+  DeleteProviderMutationRequest,
+  DeleteProviderMutationResponse,
+  DeleteProviderMutation,
+} from './types/DeleteProvider'
 export type {
   DeleteSourcePathParams,
   DeleteSource204Enum,
@@ -566,8 +787,27 @@ export type {
   GetAgentQuery,
 } from './types/GetAgent'
 export type {
+  GetAgentConfigurationPathParams,
+  GetAgentConfigurationQueryParams,
+  LanguageModelTypeEnum,
+  ProviderAppEnum,
+  EmbeddingModelTypeEnum,
+  ProviderAppEnum2,
+  PromptMessagesRoleEnum,
+  GetAgentConfiguration200,
+  GetAgentConfiguration400,
+  GetAgentConfiguration401,
+  GetAgentConfiguration403,
+  GetAgentConfiguration404,
+  GetAgentConfiguration429,
+  GetAgentConfiguration500,
+  GetAgentConfigurationQueryResponse,
+  GetAgentConfigurationQuery,
+} from './types/GetAgentConfiguration'
+export type {
   GetConnectionPathParams,
   GetConnectionQueryParams,
+  ConnectionAppEnum,
   GetConnection200,
   GetConnection400,
   GetConnection401,
@@ -632,6 +872,20 @@ export type {
   GetProfileQuery,
 } from './types/GetProfile'
 export type {
+  GetProviderPathParams,
+  GetProviderQueryParams,
+  ProviderAppEnum3,
+  GetProvider200,
+  GetProvider400,
+  GetProvider401,
+  GetProvider403,
+  GetProvider404,
+  GetProvider429,
+  GetProvider500,
+  GetProviderQueryResponse,
+  GetProviderQuery,
+} from './types/GetProvider'
+export type {
   GetSourcePathParams,
   GetSourceQueryParams,
   SourceTypeEnum,
@@ -682,7 +936,9 @@ export type {
   ListAgentSourcesQuery,
 } from './types/ListAgentSources'
 export type {
+  ListConnectionsQueryParamsAppEnum,
   ListConnectionsQueryParams,
+  ConnectionsAppEnum,
   ListConnections200,
   ListConnections400,
   ListConnections401,
@@ -694,6 +950,7 @@ export type {
   ListConnectionsQuery,
 } from './types/ListConnections'
 export type {
+  ListConversationsQueryParamsVisibilityEnum,
   ListConversationsQueryParams,
   ConversationsVisibilityEnum,
   ListConversations200,
@@ -727,10 +984,25 @@ export type {
   PartsStateEnum5,
   PartsTypeEnum10,
   PartsStateEnum6,
+  PartsTypeEnum11,
   PartsStateEnum7,
+  ApprovalApprovedEnum,
+  PartsTypeEnum12,
   PartsStateEnum8,
+  ApprovalApprovedEnum2,
+  PartsTypeEnum13,
   PartsStateEnum9,
+  ApprovalApprovedEnum3,
   PartsStateEnum10,
+  PartsStateEnum11,
+  PartsStateEnum12,
+  PartsStateEnum13,
+  PartsStateEnum14,
+  ApprovalApprovedEnum4,
+  PartsStateEnum15,
+  ApprovalApprovedEnum5,
+  PartsStateEnum16,
+  ApprovalApprovedEnum6,
   ListMessages200,
   ListMessages400,
   ListMessages401,
@@ -741,6 +1013,32 @@ export type {
   ListMessagesQueryResponse,
   ListMessagesQuery,
 } from './types/ListMessages'
+export type {
+  ModelCostsOperatorEnum,
+  ListModelCosts200,
+  ListModelCosts400,
+  ListModelCosts401,
+  ListModelCosts403,
+  ListModelCosts404,
+  ListModelCosts429,
+  ListModelCosts500,
+  ListModelCostsQueryResponse,
+  ListModelCostsQuery,
+} from './types/ListModelCosts'
+export type {
+  ListProvidersQueryParamsAppEnum,
+  ListProvidersQueryParams,
+  ProvidersAppEnum,
+  ListProviders200,
+  ListProviders400,
+  ListProviders401,
+  ListProviders403,
+  ListProviders404,
+  ListProviders429,
+  ListProviders500,
+  ListProvidersQueryResponse,
+  ListProvidersQuery,
+} from './types/ListProviders'
 export type {
   ListSourcesQueryParams,
   SourcesTypeEnum,
@@ -772,26 +1070,41 @@ export type {
   RegenerateMessagePathParams,
   AssistantMessageStatusEnum3,
   AssistantMessageRoleEnum3,
-  PartsTypeEnum55,
-  PartsStateEnum51,
-  PartsTypeEnum56,
-  PartsStateEnum52,
-  PartsTypeEnum57,
-  PartsTypeEnum58,
-  PartsTypeEnum59,
-  PartsTypeEnum60,
-  PartsTypeEnum61,
-  PartsStateEnum53,
-  PartsTypeEnum62,
-  PartsStateEnum54,
-  PartsTypeEnum63,
-  PartsStateEnum55,
-  PartsTypeEnum64,
-  PartsStateEnum56,
-  PartsStateEnum57,
-  PartsStateEnum58,
-  PartsStateEnum59,
-  PartsStateEnum60,
+  PartsTypeEnum70,
+  PartsStateEnum81,
+  PartsTypeEnum71,
+  PartsStateEnum82,
+  PartsTypeEnum72,
+  PartsTypeEnum73,
+  PartsTypeEnum74,
+  PartsTypeEnum75,
+  PartsTypeEnum76,
+  PartsStateEnum83,
+  PartsTypeEnum77,
+  PartsStateEnum84,
+  PartsTypeEnum78,
+  PartsStateEnum85,
+  PartsTypeEnum79,
+  PartsStateEnum86,
+  PartsTypeEnum80,
+  PartsStateEnum87,
+  ApprovalApprovedEnum31,
+  PartsTypeEnum81,
+  PartsStateEnum88,
+  ApprovalApprovedEnum32,
+  PartsTypeEnum82,
+  PartsStateEnum89,
+  ApprovalApprovedEnum33,
+  PartsStateEnum90,
+  PartsStateEnum91,
+  PartsStateEnum92,
+  PartsStateEnum93,
+  PartsStateEnum94,
+  ApprovalApprovedEnum34,
+  PartsStateEnum95,
+  ApprovalApprovedEnum35,
+  PartsStateEnum96,
+  ApprovalApprovedEnum36,
   RegenerateMessage200,
   RegenerateMessage400,
   RegenerateMessage401,
@@ -807,48 +1120,78 @@ export type {
   ResendMessagePathParams,
   UserMessageStatusEnum2,
   UserMessageRoleEnum2,
-  PartsTypeEnum33,
-  PartsStateEnum31,
-  PartsTypeEnum34,
-  PartsStateEnum32,
-  PartsTypeEnum35,
-  PartsTypeEnum36,
-  PartsTypeEnum37,
-  PartsTypeEnum38,
-  PartsTypeEnum39,
-  PartsStateEnum33,
-  PartsTypeEnum40,
-  PartsStateEnum34,
-  PartsTypeEnum41,
-  PartsStateEnum35,
   PartsTypeEnum42,
-  PartsStateEnum36,
-  PartsStateEnum37,
-  PartsStateEnum38,
-  PartsStateEnum39,
-  PartsStateEnum40,
-  AssistantMessageStatusEnum2,
-  AssistantMessageRoleEnum2,
+  PartsStateEnum49,
   PartsTypeEnum43,
-  PartsStateEnum41,
+  PartsStateEnum50,
   PartsTypeEnum44,
-  PartsStateEnum42,
   PartsTypeEnum45,
   PartsTypeEnum46,
   PartsTypeEnum47,
   PartsTypeEnum48,
+  PartsStateEnum51,
   PartsTypeEnum49,
-  PartsStateEnum43,
+  PartsStateEnum52,
   PartsTypeEnum50,
-  PartsStateEnum44,
+  PartsStateEnum53,
   PartsTypeEnum51,
-  PartsStateEnum45,
+  PartsStateEnum54,
   PartsTypeEnum52,
-  PartsStateEnum46,
-  PartsStateEnum47,
-  PartsStateEnum48,
-  PartsStateEnum49,
-  PartsStateEnum50,
+  PartsStateEnum55,
+  ApprovalApprovedEnum19,
+  PartsTypeEnum53,
+  PartsStateEnum56,
+  ApprovalApprovedEnum20,
+  PartsTypeEnum54,
+  PartsStateEnum57,
+  ApprovalApprovedEnum21,
+  PartsStateEnum58,
+  PartsStateEnum59,
+  PartsStateEnum60,
+  PartsStateEnum61,
+  PartsStateEnum62,
+  ApprovalApprovedEnum22,
+  PartsStateEnum63,
+  ApprovalApprovedEnum23,
+  PartsStateEnum64,
+  ApprovalApprovedEnum24,
+  AssistantMessageStatusEnum2,
+  AssistantMessageRoleEnum2,
+  PartsTypeEnum55,
+  PartsStateEnum65,
+  PartsTypeEnum56,
+  PartsStateEnum66,
+  PartsTypeEnum57,
+  PartsTypeEnum58,
+  PartsTypeEnum59,
+  PartsTypeEnum60,
+  PartsTypeEnum61,
+  PartsStateEnum67,
+  PartsTypeEnum62,
+  PartsStateEnum68,
+  PartsTypeEnum63,
+  PartsStateEnum69,
+  PartsTypeEnum64,
+  PartsStateEnum70,
+  PartsTypeEnum65,
+  PartsStateEnum71,
+  ApprovalApprovedEnum25,
+  PartsTypeEnum66,
+  PartsStateEnum72,
+  ApprovalApprovedEnum26,
+  PartsTypeEnum67,
+  PartsStateEnum73,
+  ApprovalApprovedEnum27,
+  PartsStateEnum74,
+  PartsStateEnum75,
+  PartsStateEnum76,
+  PartsStateEnum77,
+  PartsStateEnum78,
+  ApprovalApprovedEnum28,
+  PartsStateEnum79,
+  ApprovalApprovedEnum29,
+  PartsStateEnum80,
+  ApprovalApprovedEnum30,
   ResendMessage200,
   ResendMessage400,
   ResendMessage401,
@@ -856,8 +1199,8 @@ export type {
   ResendMessage404,
   ResendMessage429,
   ResendMessage500,
-  PartsTypeEnum53,
-  PartsTypeEnum54,
+  PartsTypeEnum68,
+  PartsTypeEnum69,
   ResendMessageMutationRequest,
   ResendMessageMutationResponse,
   ResendMessageMutation,
@@ -866,48 +1209,78 @@ export type {
   SendMessagePathParams,
   UserMessageStatusEnum,
   UserMessageRoleEnum,
-  PartsTypeEnum11,
-  PartsStateEnum11,
-  PartsTypeEnum12,
-  PartsStateEnum12,
-  PartsTypeEnum13,
   PartsTypeEnum14,
+  PartsStateEnum17,
   PartsTypeEnum15,
+  PartsStateEnum18,
   PartsTypeEnum16,
   PartsTypeEnum17,
-  PartsStateEnum13,
   PartsTypeEnum18,
-  PartsStateEnum14,
   PartsTypeEnum19,
-  PartsStateEnum15,
   PartsTypeEnum20,
-  PartsStateEnum16,
-  PartsStateEnum17,
-  PartsStateEnum18,
   PartsStateEnum19,
-  PartsStateEnum20,
-  AssistantMessageStatusEnum,
-  AssistantMessageRoleEnum,
   PartsTypeEnum21,
-  PartsStateEnum21,
+  PartsStateEnum20,
   PartsTypeEnum22,
-  PartsStateEnum22,
+  PartsStateEnum21,
   PartsTypeEnum23,
+  PartsStateEnum22,
   PartsTypeEnum24,
-  PartsTypeEnum25,
-  PartsTypeEnum26,
-  PartsTypeEnum27,
   PartsStateEnum23,
-  PartsTypeEnum28,
+  ApprovalApprovedEnum7,
+  PartsTypeEnum25,
   PartsStateEnum24,
-  PartsTypeEnum29,
+  ApprovalApprovedEnum8,
+  PartsTypeEnum26,
   PartsStateEnum25,
-  PartsTypeEnum30,
+  ApprovalApprovedEnum9,
   PartsStateEnum26,
   PartsStateEnum27,
   PartsStateEnum28,
   PartsStateEnum29,
   PartsStateEnum30,
+  ApprovalApprovedEnum10,
+  PartsStateEnum31,
+  ApprovalApprovedEnum11,
+  PartsStateEnum32,
+  ApprovalApprovedEnum12,
+  AssistantMessageStatusEnum,
+  AssistantMessageRoleEnum,
+  PartsTypeEnum27,
+  PartsStateEnum33,
+  PartsTypeEnum28,
+  PartsStateEnum34,
+  PartsTypeEnum29,
+  PartsTypeEnum30,
+  PartsTypeEnum31,
+  PartsTypeEnum32,
+  PartsTypeEnum33,
+  PartsStateEnum35,
+  PartsTypeEnum34,
+  PartsStateEnum36,
+  PartsTypeEnum35,
+  PartsStateEnum37,
+  PartsTypeEnum36,
+  PartsStateEnum38,
+  PartsTypeEnum37,
+  PartsStateEnum39,
+  ApprovalApprovedEnum13,
+  PartsTypeEnum38,
+  PartsStateEnum40,
+  ApprovalApprovedEnum14,
+  PartsTypeEnum39,
+  PartsStateEnum41,
+  ApprovalApprovedEnum15,
+  PartsStateEnum42,
+  PartsStateEnum43,
+  PartsStateEnum44,
+  PartsStateEnum45,
+  PartsStateEnum46,
+  ApprovalApprovedEnum16,
+  PartsStateEnum47,
+  ApprovalApprovedEnum17,
+  PartsStateEnum48,
+  ApprovalApprovedEnum18,
   SendMessage200,
   SendMessage400,
   SendMessage401,
@@ -915,9 +1288,9 @@ export type {
   SendMessage404,
   SendMessage429,
   SendMessage500,
-  PartsTypeEnum31,
-  PartsTypeEnum32,
-  ExplorerNodeVisibilityEnum,
+  PartsTypeEnum40,
+  PartsTypeEnum41,
+  SendMessageMutationRequestVisibilityEnum,
   SendMessageMutationRequest,
   SendMessageMutationResponse,
   SendMessageMutation,
@@ -950,6 +1323,34 @@ export type {
   StreamMessageQuery,
 } from './types/StreamMessage'
 export type {
+  UpdateAgentPathParams,
+  UpdateAgent204Enum,
+  UpdateAgent204,
+  UpdateAgent400,
+  UpdateAgent401,
+  UpdateAgent403,
+  UpdateAgent404,
+  UpdateAgent429,
+  UpdateAgent500,
+  UpdateAgentMutationRequest,
+  UpdateAgentMutationResponse,
+  UpdateAgentMutation,
+} from './types/UpdateAgent'
+export type {
+  UpdateAgentConfigurationPathParams,
+  UpdateAgentConfiguration204Enum,
+  UpdateAgentConfiguration204,
+  UpdateAgentConfiguration400,
+  UpdateAgentConfiguration401,
+  UpdateAgentConfiguration403,
+  UpdateAgentConfiguration404,
+  UpdateAgentConfiguration429,
+  UpdateAgentConfiguration500,
+  UpdateAgentConfigurationMutationRequest,
+  UpdateAgentConfigurationMutationResponse,
+  UpdateAgentConfigurationMutation,
+} from './types/UpdateAgentConfiguration'
+export type {
   UpdateConnectionPathParams,
   UpdateConnection204Enum,
   UpdateConnection204,
@@ -977,6 +1378,20 @@ export type {
   UpdateConversationMutationResponse,
   UpdateConversationMutation,
 } from './types/UpdateConversation'
+export type {
+  UpdateProviderPathParams,
+  UpdateProvider204Enum,
+  UpdateProvider204,
+  UpdateProvider400,
+  UpdateProvider401,
+  UpdateProvider403,
+  UpdateProvider404,
+  UpdateProvider429,
+  UpdateProvider500,
+  UpdateProviderMutationRequest,
+  UpdateProviderMutationResponse,
+  UpdateProviderMutation,
+} from './types/UpdateProvider'
 export type {
   UpdateSourcePathParams,
   UpdateSource204Enum,
@@ -1036,20 +1451,27 @@ export type {
   UploadFilesSourceMutationResponse,
   UploadFilesSourceMutation,
 } from './types/UploadFilesSource'
+export { createAgent } from './operations/createAgent'
 export { createConnection } from './operations/createConnection'
+export { createConversation } from './operations/createConversation'
+export { createProvider } from './operations/createProvider'
 export { createSource } from './operations/createSource'
+export { deleteAgent } from './operations/deleteAgent'
 export { deleteConnection } from './operations/deleteConnection'
 export { deleteConversation } from './operations/deleteConversation'
+export { deleteProvider } from './operations/deleteProvider'
 export { deleteSource } from './operations/deleteSource'
 export { generateUploadSignature } from './operations/generateUploadSignature'
 export { generateUploadSignatureConversation } from './operations/generateUploadSignatureConversation'
 export { generateUploadSignatureSource } from './operations/generateUploadSignatureSource'
 export { getAgent } from './operations/getAgent'
+export { getAgentConfiguration } from './operations/getAgentConfiguration'
 export { getConnection } from './operations/getConnection'
 export { getConversation } from './operations/getConversation'
 export { getDatabaseSchema } from './operations/getDatabaseSchema'
 export { getFile } from './operations/getFile'
 export { getProfile } from './operations/getProfile'
+export { getProvider } from './operations/getProvider'
 export { getSource } from './operations/getSource'
 export { health } from './operations/health'
 export { listAgents } from './operations/listAgents'
@@ -1057,6 +1479,8 @@ export { listAgentSources } from './operations/listAgentSources'
 export { listConnections } from './operations/listConnections'
 export { listConversations } from './operations/listConversations'
 export { listMessages } from './operations/listMessages'
+export { listModelCosts } from './operations/listModelCosts'
+export { listProviders } from './operations/listProviders'
 export { listSources } from './operations/listSources'
 export { manageAgentSources } from './operations/manageAgentSources'
 export { regenerateMessage } from './operations/regenerateMessage'
@@ -1064,20 +1488,39 @@ export { resendMessage } from './operations/resendMessage'
 export { sendMessage } from './operations/sendMessage'
 export { stopMessage } from './operations/stopMessage'
 export { streamMessage } from './operations/streamMessage'
+export { updateAgent } from './operations/updateAgent'
+export { updateAgentConfiguration } from './operations/updateAgentConfiguration'
 export { updateConnection } from './operations/updateConnection'
 export { updateConversation } from './operations/updateConversation'
+export { updateProvider } from './operations/updateProvider'
 export { updateSource } from './operations/updateSource'
 export { uploadFiles } from './operations/uploadFiles'
 export { uploadFilesConversation } from './operations/uploadFilesConversation'
 export { uploadFilesSource } from './operations/uploadFilesSource'
 export {
+  createAgentMutationKey,
+  useCreateAgent,
+} from './react-query/hooks/useCreateAgent'
+export {
   createConnectionMutationKey,
   useCreateConnection,
 } from './react-query/hooks/useCreateConnection'
 export {
+  createConversationMutationKey,
+  useCreateConversation,
+} from './react-query/hooks/useCreateConversation'
+export {
+  createProviderMutationKey,
+  useCreateProvider,
+} from './react-query/hooks/useCreateProvider'
+export {
   createSourceMutationKey,
   useCreateSource,
 } from './react-query/hooks/useCreateSource'
+export {
+  deleteAgentMutationKey,
+  useDeleteAgent,
+} from './react-query/hooks/useDeleteAgent'
 export {
   deleteConnectionMutationKey,
   useDeleteConnection,
@@ -1086,6 +1529,10 @@ export {
   deleteConversationMutationKey,
   useDeleteConversation,
 } from './react-query/hooks/useDeleteConversation'
+export {
+  deleteProviderMutationKey,
+  useDeleteProvider,
+} from './react-query/hooks/useDeleteProvider'
 export {
   deleteSourceMutationKey,
   useDeleteSource,
@@ -1107,6 +1554,16 @@ export {
   getAgentQueryOptions,
   useGetAgent,
 } from './react-query/hooks/useGetAgent'
+export {
+  getAgentConfigurationQueryKey,
+  getAgentConfigurationQueryOptions,
+  useGetAgentConfiguration,
+} from './react-query/hooks/useGetAgentConfiguration'
+export {
+  getAgentConfigurationSuspenseQueryKey,
+  getAgentConfigurationSuspenseQueryOptions,
+  useGetAgentConfigurationSuspense,
+} from './react-query/hooks/useGetAgentConfigurationSuspense'
 export {
   getAgentSuspenseQueryKey,
   getAgentSuspenseQueryOptions,
@@ -1162,6 +1619,16 @@ export {
   getProfileSuspenseQueryOptions,
   useGetProfileSuspense,
 } from './react-query/hooks/useGetProfileSuspense'
+export {
+  getProviderQueryKey,
+  getProviderQueryOptions,
+  useGetProvider,
+} from './react-query/hooks/useGetProvider'
+export {
+  getProviderSuspenseQueryKey,
+  getProviderSuspenseQueryOptions,
+  useGetProviderSuspense,
+} from './react-query/hooks/useGetProviderSuspense'
 export {
   getSourceQueryKey,
   getSourceQueryOptions,
@@ -1233,6 +1700,26 @@ export {
   useListMessagesSuspense,
 } from './react-query/hooks/useListMessagesSuspense'
 export {
+  listModelCostsQueryKey,
+  listModelCostsQueryOptions,
+  useListModelCosts,
+} from './react-query/hooks/useListModelCosts'
+export {
+  listModelCostsSuspenseQueryKey,
+  listModelCostsSuspenseQueryOptions,
+  useListModelCostsSuspense,
+} from './react-query/hooks/useListModelCostsSuspense'
+export {
+  listProvidersQueryKey,
+  listProvidersQueryOptions,
+  useListProviders,
+} from './react-query/hooks/useListProviders'
+export {
+  listProvidersSuspenseQueryKey,
+  listProvidersSuspenseQueryOptions,
+  useListProvidersSuspense,
+} from './react-query/hooks/useListProvidersSuspense'
+export {
   listSourcesQueryKey,
   listSourcesQueryOptions,
   useListSources,
@@ -1273,6 +1760,14 @@ export {
   useStreamMessageSuspense,
 } from './react-query/hooks/useStreamMessageSuspense'
 export {
+  updateAgentMutationKey,
+  useUpdateAgent,
+} from './react-query/hooks/useUpdateAgent'
+export {
+  updateAgentConfigurationMutationKey,
+  useUpdateAgentConfiguration,
+} from './react-query/hooks/useUpdateAgentConfiguration'
+export {
   updateConnectionMutationKey,
   useUpdateConnection,
 } from './react-query/hooks/useUpdateConnection'
@@ -1280,6 +1775,10 @@ export {
   updateConversationMutationKey,
   useUpdateConversation,
 } from './react-query/hooks/useUpdateConversation'
+export {
+  updateProviderMutationKey,
+  useUpdateProvider,
+} from './react-query/hooks/useUpdateProvider'
 export {
   updateSourceMutationKey,
   useUpdateSource,
@@ -1297,7 +1796,18 @@ export {
   useUploadFilesSource,
 } from './react-query/hooks/useUploadFilesSource'
 export {
-  createConnection200Schema,
+  createAgent201Schema,
+  createAgent400Schema,
+  createAgent401Schema,
+  createAgent403Schema,
+  createAgent404Schema,
+  createAgent429Schema,
+  createAgent500Schema,
+  createAgentMutationRequestSchema,
+  createAgentMutationResponseSchema,
+} from './schemas/createAgentSchema'
+export {
+  createConnection201Schema,
   createConnection400Schema,
   createConnection401Schema,
   createConnection403Schema,
@@ -1308,7 +1818,29 @@ export {
   createConnectionMutationResponseSchema,
 } from './schemas/createConnectionSchema'
 export {
-  createSource200Schema,
+  createConversation201Schema,
+  createConversation400Schema,
+  createConversation401Schema,
+  createConversation403Schema,
+  createConversation404Schema,
+  createConversation429Schema,
+  createConversation500Schema,
+  createConversationMutationRequestSchema,
+  createConversationMutationResponseSchema,
+} from './schemas/createConversationSchema'
+export {
+  createProvider201Schema,
+  createProvider400Schema,
+  createProvider401Schema,
+  createProvider403Schema,
+  createProvider404Schema,
+  createProvider429Schema,
+  createProvider500Schema,
+  createProviderMutationRequestSchema,
+  createProviderMutationResponseSchema,
+} from './schemas/createProviderSchema'
+export {
+  createSource201Schema,
   createSource400Schema,
   createSource401Schema,
   createSource403Schema,
@@ -1318,6 +1850,18 @@ export {
   createSourceMutationRequestSchema,
   createSourceMutationResponseSchema,
 } from './schemas/createSourceSchema'
+export {
+  deleteAgentPathParamsSchema,
+  deleteAgent204Schema,
+  deleteAgent400Schema,
+  deleteAgent401Schema,
+  deleteAgent403Schema,
+  deleteAgent404Schema,
+  deleteAgent429Schema,
+  deleteAgent500Schema,
+  deleteAgentMutationRequestSchema,
+  deleteAgentMutationResponseSchema,
+} from './schemas/deleteAgentSchema'
 export {
   deleteConnectionPathParamsSchema,
   deleteConnection204Schema,
@@ -1342,6 +1886,18 @@ export {
   deleteConversationMutationRequestSchema,
   deleteConversationMutationResponseSchema,
 } from './schemas/deleteConversationSchema'
+export {
+  deleteProviderPathParamsSchema,
+  deleteProvider204Schema,
+  deleteProvider400Schema,
+  deleteProvider401Schema,
+  deleteProvider403Schema,
+  deleteProvider404Schema,
+  deleteProvider429Schema,
+  deleteProvider500Schema,
+  deleteProviderMutationRequestSchema,
+  deleteProviderMutationResponseSchema,
+} from './schemas/deleteProviderSchema'
 export {
   deleteSourcePathParamsSchema,
   deleteSource204Schema,
@@ -1388,6 +1944,18 @@ export {
   generateUploadSignatureSourceMutationRequestSchema,
   generateUploadSignatureSourceMutationResponseSchema,
 } from './schemas/generateUploadSignatureSourceSchema'
+export {
+  getAgentConfigurationPathParamsSchema,
+  getAgentConfigurationQueryParamsSchema,
+  getAgentConfiguration200Schema,
+  getAgentConfiguration400Schema,
+  getAgentConfiguration401Schema,
+  getAgentConfiguration403Schema,
+  getAgentConfiguration404Schema,
+  getAgentConfiguration429Schema,
+  getAgentConfiguration500Schema,
+  getAgentConfigurationQueryResponseSchema,
+} from './schemas/getAgentConfigurationSchema'
 export {
   getAgentPathParamsSchema,
   getAgentQueryParamsSchema,
@@ -1458,6 +2026,18 @@ export {
   getProfile500Schema,
   getProfileQueryResponseSchema,
 } from './schemas/getProfileSchema'
+export {
+  getProviderPathParamsSchema,
+  getProviderQueryParamsSchema,
+  getProvider200Schema,
+  getProvider400Schema,
+  getProvider401Schema,
+  getProvider403Schema,
+  getProvider404Schema,
+  getProvider429Schema,
+  getProvider500Schema,
+  getProviderQueryResponseSchema,
+} from './schemas/getProviderSchema'
 export {
   getSourcePathParamsSchema,
   getSourceQueryParamsSchema,
@@ -1537,6 +2117,27 @@ export {
   listMessages500Schema,
   listMessagesQueryResponseSchema,
 } from './schemas/listMessagesSchema'
+export {
+  listModelCosts200Schema,
+  listModelCosts400Schema,
+  listModelCosts401Schema,
+  listModelCosts403Schema,
+  listModelCosts404Schema,
+  listModelCosts429Schema,
+  listModelCosts500Schema,
+  listModelCostsQueryResponseSchema,
+} from './schemas/listModelCostsSchema'
+export {
+  listProvidersQueryParamsSchema,
+  listProviders200Schema,
+  listProviders400Schema,
+  listProviders401Schema,
+  listProviders403Schema,
+  listProviders404Schema,
+  listProviders429Schema,
+  listProviders500Schema,
+  listProvidersQueryResponseSchema,
+} from './schemas/listProvidersSchema'
 export {
   listSourcesQueryParamsSchema,
   listSources200Schema,
@@ -1621,6 +2222,30 @@ export {
   streamMessageQueryResponseSchema,
 } from './schemas/streamMessageSchema'
 export {
+  updateAgentConfigurationPathParamsSchema,
+  updateAgentConfiguration204Schema,
+  updateAgentConfiguration400Schema,
+  updateAgentConfiguration401Schema,
+  updateAgentConfiguration403Schema,
+  updateAgentConfiguration404Schema,
+  updateAgentConfiguration429Schema,
+  updateAgentConfiguration500Schema,
+  updateAgentConfigurationMutationRequestSchema,
+  updateAgentConfigurationMutationResponseSchema,
+} from './schemas/updateAgentConfigurationSchema'
+export {
+  updateAgentPathParamsSchema,
+  updateAgent204Schema,
+  updateAgent400Schema,
+  updateAgent401Schema,
+  updateAgent403Schema,
+  updateAgent404Schema,
+  updateAgent429Schema,
+  updateAgent500Schema,
+  updateAgentMutationRequestSchema,
+  updateAgentMutationResponseSchema,
+} from './schemas/updateAgentSchema'
+export {
   updateConnectionPathParamsSchema,
   updateConnection204Schema,
   updateConnection400Schema,
@@ -1644,6 +2269,18 @@ export {
   updateConversationMutationRequestSchema,
   updateConversationMutationResponseSchema,
 } from './schemas/updateConversationSchema'
+export {
+  updateProviderPathParamsSchema,
+  updateProvider204Schema,
+  updateProvider400Schema,
+  updateProvider401Schema,
+  updateProvider403Schema,
+  updateProvider404Schema,
+  updateProvider429Schema,
+  updateProvider500Schema,
+  updateProviderMutationRequestSchema,
+  updateProviderMutationResponseSchema,
+} from './schemas/updateProviderSchema'
 export {
   updateSourcePathParamsSchema,
   updateSource204Schema,
@@ -1692,6 +2329,9 @@ export {
   uploadFilesSourceMutationRequestSchema,
   uploadFilesSourceMutationResponseSchema,
 } from './schemas/uploadFilesSourceSchema'
+export { createConnectionMutationRequestAppEnum } from './types/CreateConnection'
+export { createConversationMutationRequestVisibilityEnum } from './types/CreateConversation'
+export { createProviderMutationRequestAppEnum } from './types/CreateProvider'
 export {
   createSourceMutationRequestTypeEnum2,
   createSourceMutationRequestTypeEnum3,
@@ -1699,14 +2339,32 @@ export {
   createSourceMutationRequestDialectEnum,
   createSourceMutationRequestTypeEnum,
 } from './types/CreateSource'
+export { deleteAgent204Enum } from './types/DeleteAgent'
 export { deleteConnection204Enum } from './types/DeleteConnection'
 export { deleteConversation204Enum } from './types/DeleteConversation'
+export { deleteProvider204Enum } from './types/DeleteProvider'
 export { deleteSource204Enum } from './types/DeleteSource'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './types/GenerateUploadSignatureSource'
+export {
+  languageModelTypeEnum,
+  providerAppEnum,
+  embeddingModelTypeEnum,
+  providerAppEnum2,
+  promptMessagesRoleEnum,
+} from './types/GetAgentConfiguration'
+export { connectionAppEnum } from './types/GetConnection'
 export { conversationVisibilityEnum } from './types/GetConversation'
 export { fileBucketEnum, fileScopeEnum } from './types/GetFile'
+export { providerAppEnum3 } from './types/GetProvider'
 export { sourceTypeEnum } from './types/GetSource'
-export { conversationsVisibilityEnum } from './types/ListConversations'
+export {
+  listConnectionsQueryParamsAppEnum,
+  connectionsAppEnum,
+} from './types/ListConnections'
+export {
+  listConversationsQueryParamsVisibilityEnum,
+  conversationsVisibilityEnum,
+} from './types/ListConversations'
 export {
   messagesStatusEnum,
   messagesRoleEnum,
@@ -1726,137 +2384,235 @@ export {
   partsStateEnum5,
   partsTypeEnum10,
   partsStateEnum6,
+  partsTypeEnum11,
   partsStateEnum7,
+  approvalApprovedEnum,
+  partsTypeEnum12,
   partsStateEnum8,
+  approvalApprovedEnum2,
+  partsTypeEnum13,
   partsStateEnum9,
+  approvalApprovedEnum3,
   partsStateEnum10,
+  partsStateEnum11,
+  partsStateEnum12,
+  partsStateEnum13,
+  partsStateEnum14,
+  approvalApprovedEnum4,
+  partsStateEnum15,
+  approvalApprovedEnum5,
+  partsStateEnum16,
+  approvalApprovedEnum6,
 } from './types/ListMessages'
+export { modelCostsOperatorEnum } from './types/ListModelCosts'
+export {
+  listProvidersQueryParamsAppEnum,
+  providersAppEnum,
+} from './types/ListProviders'
 export { sourcesTypeEnum } from './types/ListSources'
 export { manageAgentSources204Enum } from './types/ManageAgentSources'
 export {
   assistantMessageStatusEnum3,
   assistantMessageRoleEnum3,
-  partsTypeEnum55,
+  partsTypeEnum70,
+  partsStateEnum81,
+  partsTypeEnum71,
+  partsStateEnum82,
+  partsTypeEnum72,
+  partsTypeEnum73,
+  partsTypeEnum74,
+  partsTypeEnum75,
+  partsTypeEnum76,
+  partsStateEnum83,
+  partsTypeEnum77,
+  partsStateEnum84,
+  partsTypeEnum78,
+  partsStateEnum85,
+  partsTypeEnum79,
+  partsStateEnum86,
+  partsTypeEnum80,
+  partsStateEnum87,
+  approvalApprovedEnum31,
+  partsTypeEnum81,
+  partsStateEnum88,
+  approvalApprovedEnum32,
+  partsTypeEnum82,
+  partsStateEnum89,
+  approvalApprovedEnum33,
+  partsStateEnum90,
+  partsStateEnum91,
+  partsStateEnum92,
+  partsStateEnum93,
+  partsStateEnum94,
+  approvalApprovedEnum34,
+  partsStateEnum95,
+  approvalApprovedEnum35,
+  partsStateEnum96,
+  approvalApprovedEnum36,
+} from './types/RegenerateMessage'
+export {
+  userMessageStatusEnum2,
+  userMessageRoleEnum2,
+  partsTypeEnum42,
+  partsStateEnum49,
+  partsTypeEnum43,
+  partsStateEnum50,
+  partsTypeEnum44,
+  partsTypeEnum45,
+  partsTypeEnum46,
+  partsTypeEnum47,
+  partsTypeEnum48,
   partsStateEnum51,
-  partsTypeEnum56,
+  partsTypeEnum49,
   partsStateEnum52,
+  partsTypeEnum50,
+  partsStateEnum53,
+  partsTypeEnum51,
+  partsStateEnum54,
+  partsTypeEnum52,
+  partsStateEnum55,
+  approvalApprovedEnum19,
+  partsTypeEnum53,
+  partsStateEnum56,
+  approvalApprovedEnum20,
+  partsTypeEnum54,
+  partsStateEnum57,
+  approvalApprovedEnum21,
+  partsStateEnum58,
+  partsStateEnum59,
+  partsStateEnum60,
+  partsStateEnum61,
+  partsStateEnum62,
+  approvalApprovedEnum22,
+  partsStateEnum63,
+  approvalApprovedEnum23,
+  partsStateEnum64,
+  approvalApprovedEnum24,
+  assistantMessageStatusEnum2,
+  assistantMessageRoleEnum2,
+  partsTypeEnum55,
+  partsStateEnum65,
+  partsTypeEnum56,
+  partsStateEnum66,
   partsTypeEnum57,
   partsTypeEnum58,
   partsTypeEnum59,
   partsTypeEnum60,
   partsTypeEnum61,
-  partsStateEnum53,
+  partsStateEnum67,
   partsTypeEnum62,
-  partsStateEnum54,
+  partsStateEnum68,
   partsTypeEnum63,
-  partsStateEnum55,
+  partsStateEnum69,
   partsTypeEnum64,
-  partsStateEnum56,
-  partsStateEnum57,
-  partsStateEnum58,
-  partsStateEnum59,
-  partsStateEnum60,
-} from './types/RegenerateMessage'
-export {
-  userMessageStatusEnum2,
-  userMessageRoleEnum2,
-  partsTypeEnum33,
-  partsStateEnum31,
-  partsTypeEnum34,
-  partsStateEnum32,
-  partsTypeEnum35,
-  partsTypeEnum36,
-  partsTypeEnum37,
-  partsTypeEnum38,
-  partsTypeEnum39,
-  partsStateEnum33,
-  partsTypeEnum40,
-  partsStateEnum34,
-  partsTypeEnum41,
-  partsStateEnum35,
-  partsTypeEnum42,
-  partsStateEnum36,
-  partsStateEnum37,
-  partsStateEnum38,
-  partsStateEnum39,
-  partsStateEnum40,
-  assistantMessageStatusEnum2,
-  assistantMessageRoleEnum2,
-  partsTypeEnum43,
-  partsStateEnum41,
-  partsTypeEnum44,
-  partsStateEnum42,
-  partsTypeEnum45,
-  partsTypeEnum46,
-  partsTypeEnum47,
-  partsTypeEnum48,
-  partsTypeEnum49,
-  partsStateEnum43,
-  partsTypeEnum50,
-  partsStateEnum44,
-  partsTypeEnum51,
-  partsStateEnum45,
-  partsTypeEnum52,
-  partsStateEnum46,
-  partsStateEnum47,
-  partsStateEnum48,
-  partsStateEnum49,
-  partsStateEnum50,
-  partsTypeEnum53,
-  partsTypeEnum54,
+  partsStateEnum70,
+  partsTypeEnum65,
+  partsStateEnum71,
+  approvalApprovedEnum25,
+  partsTypeEnum66,
+  partsStateEnum72,
+  approvalApprovedEnum26,
+  partsTypeEnum67,
+  partsStateEnum73,
+  approvalApprovedEnum27,
+  partsStateEnum74,
+  partsStateEnum75,
+  partsStateEnum76,
+  partsStateEnum77,
+  partsStateEnum78,
+  approvalApprovedEnum28,
+  partsStateEnum79,
+  approvalApprovedEnum29,
+  partsStateEnum80,
+  approvalApprovedEnum30,
+  partsTypeEnum68,
+  partsTypeEnum69,
 } from './types/ResendMessage'
 export {
   userMessageStatusEnum,
   userMessageRoleEnum,
-  partsTypeEnum11,
-  partsStateEnum11,
-  partsTypeEnum12,
-  partsStateEnum12,
-  partsTypeEnum13,
   partsTypeEnum14,
+  partsStateEnum17,
   partsTypeEnum15,
+  partsStateEnum18,
   partsTypeEnum16,
   partsTypeEnum17,
-  partsStateEnum13,
   partsTypeEnum18,
-  partsStateEnum14,
   partsTypeEnum19,
-  partsStateEnum15,
   partsTypeEnum20,
-  partsStateEnum16,
-  partsStateEnum17,
-  partsStateEnum18,
   partsStateEnum19,
-  partsStateEnum20,
-  assistantMessageStatusEnum,
-  assistantMessageRoleEnum,
   partsTypeEnum21,
-  partsStateEnum21,
+  partsStateEnum20,
   partsTypeEnum22,
-  partsStateEnum22,
+  partsStateEnum21,
   partsTypeEnum23,
+  partsStateEnum22,
   partsTypeEnum24,
-  partsTypeEnum25,
-  partsTypeEnum26,
-  partsTypeEnum27,
   partsStateEnum23,
-  partsTypeEnum28,
+  approvalApprovedEnum7,
+  partsTypeEnum25,
   partsStateEnum24,
-  partsTypeEnum29,
+  approvalApprovedEnum8,
+  partsTypeEnum26,
   partsStateEnum25,
-  partsTypeEnum30,
+  approvalApprovedEnum9,
   partsStateEnum26,
   partsStateEnum27,
   partsStateEnum28,
   partsStateEnum29,
   partsStateEnum30,
+  approvalApprovedEnum10,
+  partsStateEnum31,
+  approvalApprovedEnum11,
+  partsStateEnum32,
+  approvalApprovedEnum12,
+  assistantMessageStatusEnum,
+  assistantMessageRoleEnum,
+  partsTypeEnum27,
+  partsStateEnum33,
+  partsTypeEnum28,
+  partsStateEnum34,
+  partsTypeEnum29,
+  partsTypeEnum30,
   partsTypeEnum31,
   partsTypeEnum32,
-  explorerNodeVisibilityEnum,
+  partsTypeEnum33,
+  partsStateEnum35,
+  partsTypeEnum34,
+  partsStateEnum36,
+  partsTypeEnum35,
+  partsStateEnum37,
+  partsTypeEnum36,
+  partsStateEnum38,
+  partsTypeEnum37,
+  partsStateEnum39,
+  approvalApprovedEnum13,
+  partsTypeEnum38,
+  partsStateEnum40,
+  approvalApprovedEnum14,
+  partsTypeEnum39,
+  partsStateEnum41,
+  approvalApprovedEnum15,
+  partsStateEnum42,
+  partsStateEnum43,
+  partsStateEnum44,
+  partsStateEnum45,
+  partsStateEnum46,
+  approvalApprovedEnum16,
+  partsStateEnum47,
+  approvalApprovedEnum17,
+  partsStateEnum48,
+  approvalApprovedEnum18,
+  partsTypeEnum40,
+  partsTypeEnum41,
+  sendMessageMutationRequestVisibilityEnum,
 } from './types/SendMessage'
 export { stopMessage204Enum } from './types/StopMessage'
+export { updateAgent204Enum } from './types/UpdateAgent'
+export { updateAgentConfiguration204Enum } from './types/UpdateAgentConfiguration'
 export { updateConnection204Enum } from './types/UpdateConnection'
 export { updateConversation204Enum } from './types/UpdateConversation'
+export { updateProvider204Enum } from './types/UpdateProvider'
 export { updateSource204Enum } from './types/UpdateSource'
 export { filesStatusEnum, filesStatusEnum2 } from './types/UploadFiles'
 export {

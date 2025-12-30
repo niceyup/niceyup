@@ -21,7 +21,6 @@ export const listAgentsQueryParamsSchema = z
   .object({
     organizationId: z.string().optional(),
     organizationSlug: z.string().optional(),
-    teamId: z.string().optional(),
   })
   .optional() as unknown as ToZod<ListAgentsQueryParams>
 
@@ -36,7 +35,7 @@ export const listAgents200Schema = z
       z.object({
         id: z.string(),
         name: z.string(),
-        slug: z.string().nullable(),
+        slug: z.string(),
         logo: z.string().nullable(),
         description: z.string().nullable(),
         tags: z.array(z.string()).nullable(),

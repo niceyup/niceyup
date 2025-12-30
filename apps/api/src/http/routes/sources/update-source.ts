@@ -21,8 +21,8 @@ export async function updateSource(app: FastifyTypedInstance) {
           sourceId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           name: z.string(),
         }),
         response: withDefaultErrorResponses({

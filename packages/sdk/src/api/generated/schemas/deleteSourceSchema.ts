@@ -128,8 +128,8 @@ export const deleteSource500Schema = z
 export type DeleteSource500Schema = DeleteSource500
 
 export const deleteSourceMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
   destroy: z.boolean().optional(),
 }) as unknown as ToZod<DeleteSourceMutationRequest>
 

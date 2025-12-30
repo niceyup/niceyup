@@ -15,7 +15,7 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
         operationId: 'generateUploadSignatureSource',
         body: z.object({
           organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
+          organizationSlug: z.string().optional(),
           sourceType: z.enum(['file', 'database']).default('file'),
           explorerNode: z
             .object({

@@ -40,17 +40,23 @@ export const getDbSchemaTask = schemaTask({
           throw new AbortTaskRunError('Connection not found')
         }
 
+        if (connection.app !== 'postgresql' && connection.app !== 'mysql') {
+          throw new AbortTaskRunError('Connection app not supported')
+        }
+
+        type DatabaseConnectionPayload = {
+          host: string
+          port: string
+          user: string
+          password: string
+          database: string
+          schema?: string
+        }
+
         return await python.getDbSchema(
           { dialect: databaseSource.dialect },
           {
-            envVars: {
-              host: connection.payload?.host,
-              port: connection.payload?.port,
-              user: connection.payload?.user,
-              password: connection.payload?.password,
-              database: connection.payload?.database,
-              schema: connection.payload?.schema,
-            },
+            envVars: connection.payload as DatabaseConnectionPayload,
           },
         )
 

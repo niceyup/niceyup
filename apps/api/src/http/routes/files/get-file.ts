@@ -20,9 +20,8 @@ export async function getFile(app: FastifyTypedInstance) {
           fileId: z.string(),
         }),
         querystring: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
-          teamId: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           expires: z.number().optional().default(DEFAULT_EXPIRES),
         }),
         response: withDefaultErrorResponses({
@@ -50,8 +49,7 @@ export async function getFile(app: FastifyTypedInstance) {
 
       const { fileId } = request.params
 
-      const { organizationId, organizationSlug, teamId, expires } =
-        request.query
+      const { organizationId, organizationSlug, expires } = request.query
 
       const orgId =
         organizationId ||
@@ -60,7 +58,6 @@ export async function getFile(app: FastifyTypedInstance) {
       const context = {
         userId,
         organizationId: orgId,
-        teamId: teamId && teamId !== '~' ? teamId : null,
         isAdmin: orgId
           ? await queries.context.isOrganizationMemberAdmin({
               userId,

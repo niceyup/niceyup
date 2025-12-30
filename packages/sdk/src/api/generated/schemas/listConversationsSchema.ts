@@ -22,6 +22,7 @@ export const listConversationsQueryParamsSchema = z.object({
   organizationSlug: z.string().optional(),
   teamId: z.string().optional(),
   agentId: z.string(),
+  visibility: z.enum(['private', 'shared', 'team']).default('private'),
 }) as unknown as ToZod<ListConversationsQueryParams>
 
 export type ListConversationsQueryParamsSchema = ListConversationsQueryParams

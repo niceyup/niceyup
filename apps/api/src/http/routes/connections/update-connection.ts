@@ -21,8 +21,8 @@ export async function updateConnection(app: FastifyTypedInstance) {
           connectionId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().nullish(),
-          organizationSlug: z.string().nullish(),
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
           name: z.string(),
         }),
         response: withDefaultErrorResponses({
@@ -55,8 +55,6 @@ export async function updateConnection(app: FastifyTypedInstance) {
           message: 'Connection not found or you don’t have access',
         })
       }
-
-      // TODO: implement app validation
 
       await db
         .update(connections)

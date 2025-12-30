@@ -6,7 +6,6 @@ import * as React from 'react'
 
 type ContextParams = {
   organizationSlug: '$slug'
-  teamId: '~' | '$id'
   agentId: '$id'
   chatId: 'new' | '$id'
 }
@@ -55,7 +54,10 @@ export function useChatMessageRealtime({
         }
       }
     } catch (error) {
-      setError(error instanceof Error ? error.message : String(error))
+      setError(
+        (error as any)?.message ||
+          'An error occurred while connecting to the server',
+      )
     }
   }
 
@@ -63,7 +65,6 @@ export function useChatMessageRealtime({
     if (
       disable ||
       !params.organizationSlug ||
-      !params.teamId ||
       !params.agentId ||
       !params.chatId ||
       params.chatId === 'new' ||
@@ -75,7 +76,6 @@ export function useChatMessageRealtime({
     startStreaming()
   }, [
     params.organizationSlug,
-    params.teamId,
     params.agentId,
     params.chatId,
     messageId,

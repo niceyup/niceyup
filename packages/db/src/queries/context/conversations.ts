@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '../../db'
 import type { ConversationVisibility } from '../../lib/types'
-import { conversations } from '../../schema'
+import { conversations, conversationsToUsers, teamMembers } from '../../schema'
 import { getAgent } from './agents'
 
 type ContextListConversationsParams = {
@@ -12,6 +12,7 @@ type ContextListConversationsParams = {
 
 type ListConversationsParams = {
   agentId: string
+  visibility: ConversationVisibility
 }
 
 export async function listConversations(
@@ -26,9 +27,7 @@ export async function listConversations(
     return []
   }
 
-  // TODO: check if user has access to the conversations (private, shared, team)
-
-  const listConversations = await db
+  const selectQuery = db
     .select({
       id: conversations.id,
       title: conversations.title,
@@ -38,27 +37,65 @@ export async function listConversations(
           WHEN ${conversations.createdByUserId} = ${context.userId} THEN 'private'
           ELSE 'shared'
         END
-      `.as('visibility'),
+    `.as('visibility'),
       teamId: conversations.teamId,
       createdByUserId: conversations.createdByUserId,
       updatedAt: conversations.updatedAt,
     })
     .from(conversations)
-    .where(
-      and(
-        eq(conversations.agentId, params.agentId),
-        isNull(conversations.deletedAt),
-      ),
-    )
-    .orderBy(desc(conversations.updatedAt))
 
-  return listConversations
+  if (params.visibility === 'private') {
+    const listConversations = await selectQuery
+      .where(
+        and(
+          eq(conversations.createdByUserId, context.userId),
+          eq(conversations.agentId, params.agentId),
+          isNull(conversations.deletedAt),
+        ),
+      )
+      .orderBy(desc(conversations.updatedAt))
+
+    return listConversations
+  }
+
+  if (params.visibility === 'shared') {
+    const listConversations = await selectQuery
+      .innerJoin(
+        conversationsToUsers,
+        eq(conversations.id, conversationsToUsers.conversationId),
+      )
+      .where(
+        and(
+          eq(conversationsToUsers.userId, context.userId),
+          eq(conversations.agentId, params.agentId),
+          isNull(conversations.deletedAt),
+        ),
+      )
+      .orderBy(desc(conversations.updatedAt))
+
+    return listConversations
+  }
+
+  if (params.visibility === 'team' && context.teamId) {
+    const listConversations = await selectQuery
+      .where(
+        and(
+          eq(conversations.teamId, context.teamId),
+          eq(conversations.agentId, params.agentId),
+          isNull(conversations.deletedAt),
+        ),
+      )
+      .orderBy(desc(conversations.updatedAt))
+
+    return listConversations
+  }
+
+  return []
 }
 
 type ContextGetConversationParams = {
   userId: string
   organizationId: string
-  teamId?: string | null
 }
 
 type GetConversationParams = {
@@ -77,8 +114,6 @@ export async function getConversation(
   if (!checkAccessToAgent) {
     return null
   }
-
-  // TODO: check if user has access to the conversation (private, shared, team)
 
   const [conversation] = await db
     .select({
@@ -105,5 +140,47 @@ export async function getConversation(
     )
     .limit(1)
 
-  return conversation || null
+  if (conversation?.visibility === 'private') {
+    return conversation
+  }
+
+  if (conversation?.visibility === 'shared') {
+    const [checkAccessToConversation] = await db
+      .select({
+        userId: conversationsToUsers.userId,
+      })
+      .from(conversationsToUsers)
+      .where(
+        and(
+          eq(conversationsToUsers.conversationId, conversation.id),
+          eq(conversationsToUsers.userId, context.userId),
+        ),
+      )
+      .limit(1)
+
+    if (checkAccessToConversation) {
+      return conversation
+    }
+  }
+
+  if (conversation?.visibility === 'team' && conversation?.teamId) {
+    const [checkAccessToTeam] = await db
+      .select({
+        userId: teamMembers.userId,
+      })
+      .from(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.teamId, conversation.teamId),
+          eq(teamMembers.userId, context.userId),
+        ),
+      )
+      .limit(1)
+
+    if (checkAccessToTeam) {
+      return conversation
+    }
+  }
+
+  return null
 }

@@ -9,7 +9,10 @@ import type { AIMessage } from '@workspace/ai/types'
 import { queries } from '@workspace/db/queries'
 import { JsonLinesTransformStream } from '@workspace/realtime/stream'
 
-type ContextMessageParams = OrganizationTeamParams & AgentParams
+type ContextMessageParams = {
+  organizationSlug: OrganizationTeamParams['organizationSlug']
+  agentId: AgentParams['agentId']
+}
 
 type GetMessageParams = {
   conversationId: string

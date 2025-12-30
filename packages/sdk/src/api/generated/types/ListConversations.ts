@@ -3,6 +3,15 @@
  * Do not edit manually.
  */
 
+export const listConversationsQueryParamsVisibilityEnum = {
+  private: 'private',
+  shared: 'shared',
+  team: 'team',
+} as const
+
+export type ListConversationsQueryParamsVisibilityEnum =
+  (typeof listConversationsQueryParamsVisibilityEnum)[keyof typeof listConversationsQueryParamsVisibilityEnum]
+
 export type ListConversationsQueryParams = {
   /**
    * @type string | undefined
@@ -20,6 +29,11 @@ export type ListConversationsQueryParams = {
    * @type string
    */
   agentId: string
+  /**
+   * @default "private"
+   * @type string | undefined
+   */
+  visibility?: ListConversationsQueryParamsVisibilityEnum
 }
 
 export const conversationsVisibilityEnum = {

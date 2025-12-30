@@ -1,13 +1,19 @@
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { createAgent } from './agents/create-agent'
+import { deleteAgent } from './agents/delete-agent'
 import { getAgent } from './agents/get-agent'
+import { getAgentConfiguration } from './agents/get-agent-configuration'
 import { listAgentSources } from './agents/list-agent-sources'
 import { listAgents } from './agents/list-agents'
 import { manageAgentSources } from './agents/manage-agent-sources'
+import { updateAgent } from './agents/update-agent'
+import { updateAgentConfiguration } from './agents/update-agent-configuration'
 import { createConnection } from './connections/create-connection'
 import { deleteConnection } from './connections/delete-connection'
 import { getConnection } from './connections/get-connection'
 import { listConnections } from './connections/list-connections'
 import { updateConnection } from './connections/update-connection'
+import { createConversation } from './conversations/create-conversation'
 import { deleteConversation } from './conversations/delete-conversation'
 import { generateUploadSignatureConversation } from './conversations/files/generate-upload-signature'
 import { uploadFilesConversation } from './conversations/files/upload-files'
@@ -25,7 +31,13 @@ import { generateUploadSignature } from './files/generate-upload-signature'
 import { getFile } from './files/get-file'
 import { uploadFiles } from './files/upload-files'
 import { health } from './health'
+import { listModelCosts } from './models/list-costs'
 import { getProfile } from './profile/get-profile'
+import { createProvider } from './providers/create-provider'
+import { deleteProvider } from './providers/delete-provider'
+import { getProvider } from './providers/get-provider'
+import { listProviders } from './providers/list-providers'
+import { updateProvider } from './providers/update-provider'
 import { createSource } from './sources/create-source'
 import { getDatabaseSchema } from './sources/database/get-schema'
 import { deleteSource } from './sources/delete-source'
@@ -39,28 +51,22 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(health)
   // app.register(authRoutes)
 
+  app.register(listModelCosts)
   app.register(getProfile)
 
   app.register(listAgents)
   app.register(getAgent)
+  app.register(createAgent)
+  app.register(updateAgent)
+  app.register(deleteAgent)
+  app.register(getAgentConfiguration)
+  app.register(updateAgentConfiguration)
   app.register(listAgentSources)
   app.register(manageAgentSources)
 
-  app.register(listConnections)
-  app.register(getConnection)
-  app.register(createConnection)
-  app.register(updateConnection)
-  app.register(deleteConnection)
-
-  app.register(listSources)
-  app.register(getSource)
-  app.register(createSource)
-  app.register(updateSource)
-  app.register(deleteSource)
-  app.register(getDatabaseSchema)
-
   app.register(listConversations)
   app.register(getConversation)
+  app.register(createConversation)
   app.register(updateConversation)
   app.register(deleteConversation)
   app.register(listMessages)
@@ -70,6 +76,25 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(regenerateMessage)
   app.register(streamMessage)
   app.register(stopMessage)
+
+  app.register(listProviders)
+  app.register(getProvider)
+  app.register(createProvider)
+  app.register(updateProvider)
+  app.register(deleteProvider)
+
+  app.register(listSources)
+  app.register(getSource)
+  app.register(createSource)
+  app.register(updateSource)
+  app.register(deleteSource)
+  app.register(getDatabaseSchema)
+
+  app.register(listConnections)
+  app.register(getConnection)
+  app.register(createConnection)
+  app.register(updateConnection)
+  app.register(deleteConnection)
 
   app.register(getFile)
   app.register(generateUploadSignature)

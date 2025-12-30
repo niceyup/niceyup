@@ -1,7 +1,5 @@
 import os
 
-from typing import Union
-
 def tmp_dir() -> str:
     """
     Returns the temporary directory for the application.

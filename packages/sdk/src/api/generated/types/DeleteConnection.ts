@@ -113,13 +113,13 @@ export type DeleteConnection500 = {
 
 export type DeleteConnectionMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
+  organizationSlug?: string
 }
 
 export type DeleteConnectionMutationResponse = DeleteConnection204

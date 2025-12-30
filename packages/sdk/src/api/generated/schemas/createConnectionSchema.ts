@@ -4,7 +4,7 @@
  */
 
 import type {
-  CreateConnection200,
+  CreateConnection201,
   CreateConnection400,
   CreateConnection401,
   CreateConnection403,
@@ -20,13 +20,13 @@ import { z } from 'zod'
 /**
  * @description Success
  */
-export const createConnection200Schema = z
+export const createConnection201Schema = z
   .object({
     connectionId: z.string(),
   })
-  .describe('Success') as unknown as ToZod<CreateConnection200>
+  .describe('Success') as unknown as ToZod<CreateConnection201>
 
-export type CreateConnection200Schema = CreateConnection200
+export type CreateConnection201Schema = CreateConnection201
 
 /**
  * @description Bad Request. Usually due to missing parameters, or invalid parameters.
@@ -122,17 +122,18 @@ export const createConnection500Schema = z
 export type CreateConnection500Schema = CreateConnection500
 
 export const createConnectionMutationRequestSchema = z.object({
-  organizationId: z.string().nullable().nullish(),
-  organizationSlug: z.string().nullable().nullish(),
-  app: z.string(),
+  organizationId: z.string().optional(),
+  organizationSlug: z.string().optional(),
+  app: z.enum(['github', 'postgresql', 'mysql']),
   name: z.string(),
+  payload: z.object({}).catchall(z.any()),
 }) as unknown as ToZod<CreateConnectionMutationRequest>
 
 export type CreateConnectionMutationRequestSchema =
   CreateConnectionMutationRequest
 
 export const createConnectionMutationResponseSchema = z.lazy(
-  () => createConnection200Schema,
+  () => createConnection201Schema,
 ) as unknown as ToZod<CreateConnectionMutationResponse>
 
 export type CreateConnectionMutationResponseSchema =

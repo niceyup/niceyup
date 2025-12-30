@@ -113,17 +113,13 @@ export type UpdateConversation500 = {
 
 export type UpdateConversationMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationSlug?: string | null
-  /**
-   * @type string
-   */
-  teamId?: string | null
+  organizationSlug?: string
   /**
    * @type string
    */

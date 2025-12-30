@@ -8,11 +8,15 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@ai-sdk/gateway": "2.0.0",
-    "@ai-sdk/openai": "2.0.53",
-    "@ai-sdk/rsc": "1.0.77",
+    "@ai-sdk/anthropic": "3.0.1",
+    "@ai-sdk/gateway": "3.0.2",
+    "@ai-sdk/google": "3.0.1",
+    "@ai-sdk/openai": "3.0.1",
+    "@ai-sdk/openai-compatible": "^2.0.1",
+    "@ai-sdk/rsc": "2.0.3",
+    "@ai-sdk/xai": "3.0.1",
     "@workspace/env": "workspace:*",
-    "ai": "5.0.77",
+    "ai": "6.0.3",
     "zod": "4.1.12"
   },
   "devDependencies": {

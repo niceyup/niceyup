@@ -1,15 +1,14 @@
 import { and, asc, eq } from 'drizzle-orm'
 import { db } from '../../db'
-import { agents, teamMembers, teamsToAgents } from '../../schema'
+import { agents, members, organizations } from '../../schema'
 
 type ContextListAgentsParams = {
   userId: string
   organizationId: string
-  teamId?: string | null
 }
 
 export async function listAgents(context: ContextListAgentsParams) {
-  const listAgents = await db
+  const selectQuery = db
     .select({
       id: agents.id,
       name: agents.name,
@@ -19,13 +18,14 @@ export async function listAgents(context: ContextListAgentsParams) {
       tags: agents.tags,
     })
     .from(agents)
-    .innerJoin(teamsToAgents, eq(agents.id, teamsToAgents.agentId))
-    .innerJoin(teamMembers, eq(teamMembers.teamId, teamsToAgents.teamId))
+
+  const listAgents = await selectQuery
+    .innerJoin(organizations, eq(agents.organizationId, organizations.id))
+    .innerJoin(members, eq(organizations.id, members.organizationId))
     .where(
       and(
         eq(agents.organizationId, context.organizationId),
-        context.teamId ? eq(teamsToAgents.teamId, context.teamId) : undefined,
-        eq(teamMembers.userId, context.userId),
+        eq(members.userId, context.userId),
       ),
     )
     .orderBy(asc(agents.createdAt))
@@ -36,7 +36,6 @@ export async function listAgents(context: ContextListAgentsParams) {
 type ContextGetAgentParams = {
   userId: string
   organizationId: string
-  teamId?: string | null
 }
 
 type GetAgentParams = {
@@ -47,7 +46,7 @@ export async function getAgent(
   context: ContextGetAgentParams,
   params: GetAgentParams,
 ) {
-  const [agent] = await db
+  const selectQuery = db
     .select({
       id: agents.id,
       name: agents.name,
@@ -57,14 +56,15 @@ export async function getAgent(
       tags: agents.tags,
     })
     .from(agents)
-    .innerJoin(teamsToAgents, eq(agents.id, teamsToAgents.agentId))
-    .innerJoin(teamMembers, eq(teamMembers.teamId, teamsToAgents.teamId))
+
+  const [agent] = await selectQuery
+    .innerJoin(organizations, eq(agents.organizationId, organizations.id))
+    .innerJoin(members, eq(organizations.id, members.organizationId))
     .where(
       and(
         eq(agents.id, params.agentId),
         eq(agents.organizationId, context.organizationId),
-        eq(teamMembers.userId, context.userId),
-        context.teamId ? eq(teamsToAgents.teamId, context.teamId) : undefined,
+        eq(members.userId, context.userId),
       ),
     )
     .limit(1)
