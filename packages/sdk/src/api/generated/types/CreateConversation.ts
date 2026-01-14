@@ -12,10 +12,6 @@ export type CreateConversation201 = {
    */
   conversationId: string
   /**
-   * @type string
-   */
-  systemMessageId: string
-  /**
    * @type object | undefined
    */
   explorerNode?: {
@@ -143,9 +139,9 @@ export type CreateConversationMutationRequest = {
    */
   agentId: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  title: string
+  title?: string
   /**
    * @default "private"
    * @type string | undefined

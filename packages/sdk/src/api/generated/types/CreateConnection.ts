@@ -133,9 +133,9 @@ export type CreateConnectionMutationRequest = {
   /**
    * @type object
    */
-  payload: {
+  credentials?: {
     [key: string]: any
-  }
+  } | null
 }
 
 export type CreateConnectionMutationResponse = CreateConnection201

@@ -1,6 +1,5 @@
 'use client'
 
-import { useAppearance } from '@/store/use-appearance'
 import {
   ResizableHandle,
   ResizablePanel,
@@ -9,6 +8,7 @@ import {
 import { cn } from '@workspace/ui/lib/utils'
 import * as React from 'react'
 import { useComponentSize } from 'react-use-size'
+import { useChatAppearance } from '../../../_store/use-chat-appearance'
 
 const DEFAULT_MIN_SIZE = 220 // 220px
 const DEFAULT_MAX_SIZE = 30 // 30% of the width
@@ -25,7 +25,7 @@ export function Resizable({
 } & React.ComponentProps<'div'>) {
   const { ref, width } = useComponentSize()
 
-  const { topbar, primarySidebar, secondarySidebar } = useAppearance()
+  const { topbar, primarySidebar, secondarySidebar } = useChatAppearance()
 
   const [minSidebarSize, setMinSidebarSize] = React.useState(0)
 

@@ -120,7 +120,7 @@ export function MemberList({
             onClick={() => setInviteMemberDialogOpen(true)}
           >
             <PlusIcon />
-            Invite Member
+            Invite member
           </Button>
         )}
       </div>
@@ -139,7 +139,7 @@ export function MemberList({
               <EmptyContent>
                 <Button onClick={() => setInviteMemberDialogOpen(true)}>
                   <PlusIcon />
-                  Invite Member
+                  Invite member
                 </Button>
               </EmptyContent>
             )}
@@ -198,7 +198,7 @@ export function MemberList({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <MoreHorizontalIcon className="size-4" />
+                          <MoreHorizontalIcon />
                         </Button>
                       </DropdownMenuTrigger>
 
@@ -209,7 +209,7 @@ export function MemberList({
                             disabled={true}
                           >
                             Remove from organization
-                            <LockIcon className="ml-auto size-4" />
+                            <LockIcon className="ml-auto" />
                           </DropdownMenuItem>
                         ) : (
                           <MemberActionRemove

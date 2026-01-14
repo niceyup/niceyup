@@ -21,15 +21,13 @@ export type GetProviderQueryParams = {
   organizationSlug?: string
 }
 
-export const providerAppEnum3 = {
+export const providerProviderEnum = {
   openai: 'openai',
-  anthropic: 'anthropic',
   google: 'google',
-  'openai-compatible': 'openai-compatible',
 } as const
 
-export type ProviderAppEnum3 =
-  (typeof providerAppEnum3)[keyof typeof providerAppEnum3]
+export type ProviderProviderEnum =
+  (typeof providerProviderEnum)[keyof typeof providerProviderEnum]
 
 /**
  * @description Success
@@ -46,11 +44,13 @@ export type GetProvider200 = {
     /**
      * @type string
      */
-    app: ProviderAppEnum3
+    provider: ProviderProviderEnum
     /**
-     * @type string
+     * @type object
      */
-    name: string
+    credentials: {
+      [key: string]: any
+    } | null
     /**
      * @type string, date-time
      */

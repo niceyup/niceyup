@@ -10,6 +10,7 @@ export default defineConfig({
     '@workspace/auth',
     '@workspace/billing',
     '@workspace/cache',
+    '@workspace/core',
     '@workspace/db',
     '@workspace/engine',
     '@workspace/env',

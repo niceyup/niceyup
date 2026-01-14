@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@workspace/ai": "workspace:*",
+    "@workspace/core": "workspace:*",
     "@workspace/encryption": "workspace:*",
     "@workspace/env": "workspace:*",
     "drizzle-orm": "0.44.7",

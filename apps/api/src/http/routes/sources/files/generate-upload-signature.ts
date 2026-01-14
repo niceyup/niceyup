@@ -1,5 +1,5 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { generateSignatureForUpload } from '@/http/functions/upload-file-to-storage'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
@@ -14,7 +14,7 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
         description: 'Generate upload signature for source',
         operationId: 'generateUploadSignatureSource',
         body: z.object({
-          organizationId: z.string().nullish(),
+          organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           sourceType: z.enum(['file', 'database']).default('file'),
           explorerNode: z
@@ -40,7 +40,7 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
       const { organizationId, organizationSlug, sourceType, explorerNode } =
         request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -60,7 +60,7 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
           sourceType,
           explorerNode,
         },
-        expires: 15 * 60, // 15 minutes
+        expires: 24 * 60 * 60, // 24 hours
       })
 
       return { signature }

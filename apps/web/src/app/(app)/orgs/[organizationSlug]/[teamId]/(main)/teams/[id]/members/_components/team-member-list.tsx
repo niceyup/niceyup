@@ -99,7 +99,7 @@ export function TeamMemberList({
             onClick={() => setAddTeamMemberDialogOpen(true)}
           >
             <PlusIcon />
-            Add Team Member
+            Add team member
           </Button>
         )}
       </div>
@@ -118,7 +118,7 @@ export function TeamMemberList({
               <EmptyContent>
                 <Button onClick={() => setAddTeamMemberDialogOpen(true)}>
                   <PlusIcon />
-                  Add Team Member
+                  Add team member
                 </Button>
               </EmptyContent>
             )}
@@ -176,7 +176,7 @@ export function TeamMemberList({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
-                        <MoreHorizontalIcon className="size-4" />
+                        <MoreHorizontalIcon />
                       </Button>
                     </DropdownMenuTrigger>
 

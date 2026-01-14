@@ -1,7 +1,7 @@
 'use server'
 
 import { authenticatedUser } from '@/lib/auth/server'
-import { getOrganizationContext } from '@/lib/organization-context'
+import { resolveOrganizationContext } from '@/lib/organization'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { queries } from '@workspace/db/queries'
 import { cacheTag } from 'next/cache'
@@ -20,7 +20,7 @@ export async function getTeam({ organizationSlug, teamId }: GetTeamParams) {
     user: { id: userId },
   } = await authenticatedUser()
 
-  const ctx = await getOrganizationContext({ userId, organizationSlug })
+  const ctx = await resolveOrganizationContext({ userId, organizationSlug })
 
   if (!ctx) {
     return null
@@ -45,7 +45,7 @@ export async function listTeams({ organizationSlug }: ListTeamsParams) {
     user: { id: userId },
   } = await authenticatedUser()
 
-  const ctx = await getOrganizationContext({ userId, organizationSlug })
+  const ctx = await resolveOrganizationContext({ userId, organizationSlug })
 
   if (!ctx) {
     return []
@@ -74,7 +74,7 @@ export async function listTeamMembers({
     user: { id: userId },
   } = await authenticatedUser()
 
-  const ctx = await getOrganizationContext({ userId, organizationSlug })
+  const ctx = await resolveOrganizationContext({ userId, organizationSlug })
 
   if (!ctx) {
     return []

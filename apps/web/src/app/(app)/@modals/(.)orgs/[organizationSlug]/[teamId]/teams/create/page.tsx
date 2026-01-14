@@ -2,11 +2,11 @@ import { getMembership } from '@/actions/membership'
 import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Dialog,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog'
 import { InterceptedDialogContent } from '@workspace/ui/components/intercepted-dialog-content'
-import { Users2Icon } from 'lucide-react'
 import { CreateTeamForm } from '../../../../../../orgs/[organizationSlug]/[teamId]/(main)/teams/(admin)/create/_components/create-team-form'
 
 export default async function Page({
@@ -26,24 +26,19 @@ export default async function Page({
 
   return (
     <Dialog defaultOpen>
-      <InterceptedDialogContent>
+      <InterceptedDialogContent className="max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="mx-auto flex size-12 items-center justify-center rounded-full border border-border">
-            <Users2Icon className="size-6 text-muted-foreground" />
-          </div>
-
-          <DialogTitle className="text-center font-semibold text-xl leading-none">
-            Create a Team
-          </DialogTitle>
+          <DialogTitle>Create Team</DialogTitle>
+          <DialogDescription>
+            Create a team within your organization.
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-5">
-          <CreateTeamForm
-            modal
-            organizationSlug={organizationSlug}
-            organizationId={membership.organizationId}
-          />
-        </div>
+        <CreateTeamForm
+          modal
+          organizationSlug={organizationSlug}
+          organizationId={membership.organizationId}
+        />
       </InterceptedDialogContent>
     </Dialog>
   )

@@ -17,8 +17,8 @@ export async function ManageBillingCard() {
 
       <Button asChild>
         <Link href={url} target="_blank">
-          Billing Portal
-          <SquareArrowOutUpRightIcon className="ml-auto size-4" />
+          Billing portal
+          <SquareArrowOutUpRightIcon className="ml-auto" />
         </Link>
       </Button>
     </div>

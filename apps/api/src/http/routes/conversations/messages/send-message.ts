@@ -1,12 +1,12 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { sendUserMessageToAssistant } from '@/http/functions/ai-assistant'
 import {
   createConversationExplorerNodeItem,
   getConversationExplorerNodeFolder,
 } from '@/http/functions/explorer-nodes/conversation-explorer-nodes'
-import { generateTitleFromUserMessage } from '@/http/functions/generate-title-from-user-message'
-import { getMembershipContext } from '@/http/functions/membership'
+import { generateConversationTitle } from '@/http/functions/generate-conversation-title'
+import { resolveMembershipContext } from '@/http/functions/membership'
+import { streamAgentResponse } from '@/http/functions/stream-agent-response'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import {
@@ -20,7 +20,6 @@ import { db } from '@workspace/db'
 import { and, desc, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { conversations, messages } from '@workspace/db/schema'
-import { getAgentConfiguration } from '@workspace/engine/agents'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
 
@@ -116,7 +115,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
         explorerNode,
       } = request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -174,27 +173,24 @@ export async function sendMessage(app: FastifyTypedInstance) {
       }
 
       let _conversationId = conversationId
-      let _parentMessageId = parentMessageId
 
       const { userMessage, assistantMessage, itemExplorerNode } =
         await db.transaction(async (tx) => {
           let _itemExplorerNode = null
 
           if (conversationId === 'new') {
-            let title = message.parts.find((part) => part.type === 'text')?.text
+            const title = message.parts.find(
+              (part) => part.type === 'text',
+            )?.text
 
-            if (title) {
-              try {
-                title = await generateTitleFromUserMessage({
-                  userMessage: title,
-                })
-              } catch {}
-            }
+            const generatedTitle = await generateConversationTitle({
+              userMessage: title,
+            })
 
             const [conversation] = await tx
               .insert(conversations)
               .values({
-                title,
+                title: generatedTitle || 'New conversation',
                 agentId,
                 teamId: visibility === 'team' ? context.teamId : null,
                 createdByUserId: context.userId,
@@ -212,31 +208,6 @@ export async function sendMessage(app: FastifyTypedInstance) {
 
             _conversationId = conversation.id
 
-            const agentConfiguration = await getAgentConfiguration({ agentId })
-
-            const [systemMessage] = await tx
-              .insert(messages)
-              .values({
-                conversationId: conversation.id,
-                status: 'finished',
-                role: 'system',
-                parts: agentConfiguration.systemMessage
-                  ? [{ type: 'text', text: agentConfiguration.systemMessage }]
-                  : [],
-              })
-              .returning({
-                id: messages.id,
-              })
-
-            if (!systemMessage) {
-              throw new BadRequestError({
-                code: 'SYSTEM_MESSAGE_NOT_CREATED',
-                message: 'System message not created',
-              })
-            }
-
-            _parentMessageId = systemMessage.id
-
             // Create a new conversation in the explorerNode
             if (explorerNode) {
               const itemExplorerNode = await createConversationExplorerNodeItem(
@@ -253,32 +224,28 @@ export async function sendMessage(app: FastifyTypedInstance) {
 
               _itemExplorerNode = itemExplorerNode
             }
-          } else {
-            const [parentMessage] = await tx
-              .select({
-                id: messages.id,
-              })
-              .from(messages)
-              .where(
-                and(
-                  eq(messages.conversationId, _conversationId),
-                  parentMessageId
-                    ? eq(messages.id, parentMessageId)
-                    : undefined,
-                  isNull(messages.deletedAt),
-                ),
-              )
-              .orderBy(desc(messages.createdAt))
-              .limit(1)
+          }
 
-            if (!parentMessage) {
-              throw new BadRequestError({
-                code: 'PARENT_MESSAGE_NOT_FOUND',
-                message: 'Parent message not found',
-              })
-            }
+          const [parentMessage] = await tx
+            .select({
+              id: messages.id,
+            })
+            .from(messages)
+            .where(
+              and(
+                eq(messages.conversationId, _conversationId),
+                parentMessageId ? eq(messages.id, parentMessageId) : undefined,
+                isNull(messages.deletedAt),
+              ),
+            )
+            .orderBy(desc(messages.createdAt))
+            .limit(1)
 
-            _parentMessageId = parentMessage.id
+          if (parentMessageId && !parentMessage) {
+            throw new BadRequestError({
+              code: 'PARENT_MESSAGE_NOT_FOUND',
+              message: 'Parent message not found',
+            })
           }
 
           const [userMessage] = await tx
@@ -290,7 +257,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
               parts: message.parts,
               metadata: message.metadata as AIMessageMetadata,
               authorId: userId,
-              parentId: _parentMessageId,
+              parentId: parentMessageId,
             })
             .returning({
               id: messages.id,
@@ -345,7 +312,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
           }
         })
 
-      sendUserMessageToAssistant({
+      streamAgentResponse({
         conversationId: _conversationId,
         userMessage: {
           id: userMessage.id,

@@ -28,23 +28,23 @@ export const ThemeSwitcher = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon">
-          {theme === 'system' && <MonitorIcon className="size-4" />}
-          {theme === 'light' && <SunIcon className="size-4" />}
-          {theme === 'dark' && <MoonIcon className="size-4" />}
+          {theme === 'system' && <MonitorIcon />}
+          {theme === 'light' && <SunIcon />}
+          {theme === 'dark' && <MoonIcon />}
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => nextSetTheme('light')}>
-          <SunIcon className="size-4" />
+          <SunIcon />
           Light
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => nextSetTheme('dark')}>
-          <MoonIcon className="size-4" />
+          <MoonIcon />
           Dark
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => nextSetTheme('system')}>
-          <MonitorIcon className="size-4" />
+          <MonitorIcon />
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

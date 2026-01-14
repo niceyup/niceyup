@@ -69,7 +69,7 @@ export function OrganizationSwitcher({
             ) : (
               <span className="text-muted-foreground">Select organization</span>
             )}
-            <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground" />
+            <ChevronsUpDownIcon className="ml-auto text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -107,7 +107,7 @@ export function OrganizationSwitcher({
           {pathname !== '/onboarding/create-organization' && (
             <DropdownMenuItem asChild>
               <Link href="/onboarding/create-organization">
-                <PlusCircleIcon className="size-4" />
+                <PlusCircleIcon />
                 Create organization
               </Link>
             </DropdownMenuItem>

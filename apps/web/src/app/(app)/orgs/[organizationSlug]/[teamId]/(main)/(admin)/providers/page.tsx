@@ -7,7 +7,9 @@ async function listProviders(params: { organizationSlug: string }) {
   'use cache: private'
   cacheTag('create-provider', 'delete-provider')
 
-  const { data } = await sdk.listProviders({ params })
+  const { data } = await sdk.listProviders({
+    params: { organizationSlug: params.organizationSlug },
+  })
 
   return data?.providers || []
 }

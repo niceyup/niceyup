@@ -111,6 +111,30 @@ export type UpdateAgentConfiguration500 = {
   message: string
 }
 
+export const languageModelSettingsProviderEnum = {
+  openai: 'openai',
+  google: 'google',
+} as const
+
+export type LanguageModelSettingsProviderEnum =
+  (typeof languageModelSettingsProviderEnum)[keyof typeof languageModelSettingsProviderEnum]
+
+export const embeddingModelSettingsProviderEnum2 = {
+  openai: 'openai',
+  google: 'google',
+} as const
+
+export type EmbeddingModelSettingsProviderEnum2 =
+  (typeof embeddingModelSettingsProviderEnum2)[keyof typeof embeddingModelSettingsProviderEnum2]
+
+export const promptMessagesRoleEnum2 = {
+  user: 'user',
+  assistant: 'assistant',
+} as const
+
+export type PromptMessagesRoleEnum2 =
+  (typeof promptMessagesRoleEnum2)[keyof typeof promptMessagesRoleEnum2]
+
 export type UpdateAgentConfigurationMutationRequest = {
   /**
    * @type string | undefined
@@ -121,13 +145,74 @@ export type UpdateAgentConfigurationMutationRequest = {
    */
   organizationSlug?: string
   /**
-   * @type string | undefined
+   * @type object
    */
-  languageModel?: string
+  languageModelSettings?: {
+    /**
+     * @type string
+     */
+    id: string
+    /**
+     * @type string
+     */
+    provider: LanguageModelSettingsProviderEnum
+    /**
+     * @type string
+     */
+    model: string
+    /**
+     * @type object
+     */
+    options?: {
+      [key: string]: any
+    } | null
+  } | null
+  /**
+   * @type object
+   */
+  embeddingModelSettings?: {
+    /**
+     * @type string
+     */
+    id: string
+    /**
+     * @type string
+     */
+    provider: EmbeddingModelSettingsProviderEnum2
+    /**
+     * @type string
+     */
+    model: string
+    /**
+     * @type object
+     */
+    options?: {
+      [key: string]: any
+    } | null
+  } | null
   /**
    * @type string
    */
-  embeddingModel?: string | null
+  systemMessage?: string | null
+  /**
+   * @type array
+   */
+  promptMessages?:
+    | {
+        /**
+         * @type string
+         */
+        role: PromptMessagesRoleEnum2
+        /**
+         * @type string
+         */
+        content: string
+      }[]
+    | null
+  /**
+   * @type array
+   */
+  suggestions?: string[] | null
 }
 
 export type UpdateAgentConfigurationMutationResponse =

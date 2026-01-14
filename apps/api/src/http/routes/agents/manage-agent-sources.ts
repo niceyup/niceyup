@@ -4,11 +4,14 @@ import { z } from 'zod'
 
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { agentsToSources, sources } from '@workspace/db/schema'
+import type { CreateAgentSourceEmbeddingTask } from '@workspace/engine/tasks/create-agent-source-embedding'
+import type { DeleteAgentSourceEmbeddingTask } from '@workspace/engine/tasks/delete-agent-source-embedding'
+import { tasks } from '@workspace/engine/trigger'
 
 export async function manageAgentSources(app: FastifyTypedInstance) {
   app.register(authenticate).patch(
@@ -42,7 +45,7 @@ export async function manageAgentSources(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug, add, remove } = request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -78,11 +81,12 @@ export async function manageAgentSources(app: FastifyTypedInstance) {
           ),
       ])
 
-      const sourceAddIdsNotFound = add.filter(
-        (id) => !sourcesAdd.some((source) => source.id === id),
-      )
+      const sourcesAddIds = new Set(sourcesAdd.map((source) => source.id))
+      const sourcesRemoveIds = new Set(sourcesRemove.map((source) => source.id))
+
+      const sourceAddIdsNotFound = add.filter((id) => !sourcesAddIds.has(id))
       const sourceRemoveIdsNotFound = remove.filter(
-        (id) => !sourcesRemove.some((source) => source.id === id),
+        (id) => !sourcesRemoveIds.has(id),
       )
 
       if (sourceAddIdsNotFound.length || sourceRemoveIdsNotFound.length) {
@@ -99,7 +103,7 @@ export async function manageAgentSources(app: FastifyTypedInstance) {
 
       await db.transaction(async (tx) => {
         if (add.length) {
-          await tx
+          const createdAgentsToSources = await tx
             .insert(agentsToSources)
             .values(
               sourcesAdd.map((source) => ({
@@ -108,17 +112,63 @@ export async function manageAgentSources(app: FastifyTypedInstance) {
               })),
             )
             .onConflictDoNothing()
+            .returning({
+              agentId: agentsToSources.agentId,
+              sourceId: agentsToSources.sourceId,
+            })
+
+          const sourcesToUpdateIds = new Set(
+            createdAgentsToSources.map((item) => item.sourceId),
+          )
+
+          const sourcesToUpdate = sourcesAdd.filter(
+            (source) => !sourcesToUpdateIds.has(source.id),
+          )
+
+          if (sourcesToUpdate.length) {
+            await tx
+              .update(agentsToSources)
+              .set({
+                status: 'queued',
+              })
+              .where(
+                and(
+                  eq(agentsToSources.agentId, agentId),
+                  inArray(
+                    agentsToSources.sourceId,
+                    sourcesToUpdate.map((source) => source.id),
+                  ),
+                ),
+              )
+          }
+
+          await tasks.batchTrigger<CreateAgentSourceEmbeddingTask>(
+            'create-agent-source-embedding',
+            sourcesAdd.map((source) => ({
+              payload: { agentId, sourceId: source.id },
+            })),
+          )
         }
 
         if (remove.length) {
           await tx
-            .delete(agentsToSources)
+            .update(agentsToSources)
+            .set({
+              status: 'delete-queued',
+            })
             .where(
               and(
                 eq(agentsToSources.agentId, agentId),
                 inArray(agentsToSources.sourceId, remove),
               ),
             )
+
+          await tasks.batchTrigger<DeleteAgentSourceEmbeddingTask>(
+            'delete-agent-source-embedding',
+            sourcesRemove.map((source) => ({
+              payload: { agentId, sourceId: source.id },
+            })),
+          )
         }
       })
 

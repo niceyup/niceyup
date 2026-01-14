@@ -21,9 +21,7 @@ export const listProvidersQueryParamsSchema = z
   .object({
     organizationId: z.string().optional(),
     organizationSlug: z.string().optional(),
-    app: z
-      .enum(['openai', 'anthropic', 'google', 'openai-compatible'])
-      .optional(),
+    provider: z.enum(['openai', 'google']).optional(),
   })
   .optional() as unknown as ToZod<ListProvidersQueryParams>
 
@@ -37,8 +35,7 @@ export const listProviders200Schema = z
     providers: z.array(
       z.object({
         id: z.string(),
-        app: z.enum(['openai', 'anthropic', 'google', 'openai-compatible']),
-        name: z.string(),
+        provider: z.enum(['openai', 'google']),
         updatedAt: z.string().datetime(),
       }),
     ),

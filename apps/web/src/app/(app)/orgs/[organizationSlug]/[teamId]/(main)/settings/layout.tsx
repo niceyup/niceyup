@@ -29,7 +29,7 @@ export default async function Layout({
       label: 'Documentation',
       href: 'https://docs.niceyup.com/organizations',
       target: '_blank',
-      icon: <SquareArrowOutUpRightIcon className="ml-auto size-4" />,
+      icon: <SquareArrowOutUpRightIcon className="ml-auto" />,
     },
   ]
 

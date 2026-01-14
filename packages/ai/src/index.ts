@@ -9,6 +9,7 @@ export {
   embed,
   embedMany,
   type LanguageModel,
+  type EmbeddingModel,
   type ToolSet,
   tool,
   extractReasoningMiddleware,

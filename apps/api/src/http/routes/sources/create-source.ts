@@ -4,7 +4,7 @@ import {
   createSourceExplorerNodeItem,
   getSourceExplorerNodeFolder,
 } from '@/http/functions/explorer-nodes/source-explorer-nodes'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
@@ -16,8 +16,6 @@ import {
   sources,
   textSources,
 } from '@workspace/db/schema'
-import type { runIngestionTask } from '@workspace/engine/tasks/run-ingestion'
-import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 const textSourceSchema = z.object({
@@ -95,7 +93,7 @@ export async function createSource(app: FastifyTypedInstance) {
       const { organizationId, organizationSlug, type, name, explorerNode } =
         request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -235,12 +233,6 @@ export async function createSource(app: FastifyTypedInstance) {
 
         return { source, itemExplorerNode }
       })
-
-      if (type === 'text' || type === 'question-answer') {
-        await tasks.trigger<typeof runIngestionTask>('run-ingestion', {
-          sourceId: source.id,
-        })
-      }
 
       return reply.status(201).send({
         sourceId: source.id,

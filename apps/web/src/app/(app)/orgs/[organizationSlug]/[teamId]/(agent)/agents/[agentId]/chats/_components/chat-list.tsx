@@ -226,7 +226,7 @@ function ChatListItem() {
       )}
     >
       <span className="flex flex-1 items-center gap-2">
-        {item.loading && <Spinner className="size-4 text-muted-foreground" />}
+        {item.loading && <Spinner className="text-muted-foreground" />}
 
         {renaming ? (
           <Input
@@ -291,7 +291,7 @@ function ChatListItemActions() {
             className="size-6 rounded-sm"
             disabled={item.loading}
           >
-            <MoreVerticalIcon className="size-4" />
+            <MoreVerticalIcon />
           </Button>
         </DropdownMenuTrigger>
 

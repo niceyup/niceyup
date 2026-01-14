@@ -1,6 +1,6 @@
+import type { ConnectionApp } from '@workspace/core/connections'
 import { and, eq } from 'drizzle-orm'
 import { db } from '../../db'
-import type { ConnectionApp } from '../../lib/types'
 import { connections } from '../../schema'
 
 type ContextListConnectionsParams = {
@@ -25,7 +25,7 @@ export async function listConnections(
       id: connections.id,
       app: connections.app,
       name: connections.name,
-      payload: connections.payload,
+      credentials: connections.credentials,
     })
     .from(connections)
     .where(
@@ -61,7 +61,7 @@ export async function getConnection(
       id: connections.id,
       app: connections.app,
       name: connections.name,
-      payload: connections.payload,
+      credentials: connections.credentials,
     })
     .from(connections)
     .where(

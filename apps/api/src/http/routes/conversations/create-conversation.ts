@@ -4,13 +4,12 @@ import {
   createConversationExplorerNodeItem,
   getConversationExplorerNodeFolder,
 } from '@/http/functions/explorer-nodes/conversation-explorer-nodes'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { queries } from '@workspace/db/queries'
-import { conversations, messages } from '@workspace/db/schema'
-import { getAgentConfiguration } from '@workspace/engine/agents'
+import { conversations } from '@workspace/db/schema'
 import { z } from 'zod'
 
 export async function createConversation(app: FastifyTypedInstance) {
@@ -26,7 +25,7 @@ export async function createConversation(app: FastifyTypedInstance) {
           organizationSlug: z.string().optional(),
           teamId: z.string().nullish(),
           agentId: z.string(),
-          title: z.string(),
+          title: z.string().optional(),
           visibility: z.enum(['private', 'team']).default('private'),
           explorerNode: z
             .object({
@@ -38,7 +37,7 @@ export async function createConversation(app: FastifyTypedInstance) {
           201: z
             .object({
               conversationId: z.string(),
-              systemMessageId: z.string(),
+              // systemMessageId: z.string(),
               explorerNode: z
                 .object({
                   itemId: z.string(),
@@ -64,7 +63,7 @@ export async function createConversation(app: FastifyTypedInstance) {
         explorerNode,
       } = request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -107,12 +106,12 @@ export async function createConversation(app: FastifyTypedInstance) {
         }
       }
 
-      const { conversation, systemMessage, itemExplorerNode } =
-        await db.transaction(async (tx) => {
+      const { conversation, itemExplorerNode } = await db.transaction(
+        async (tx) => {
           const [conversation] = await tx
             .insert(conversations)
             .values({
-              title,
+              title: title ?? 'New conversation',
               agentId,
               teamId: visibility === 'team' ? context.teamId : null,
               createdByUserId: context.userId,
@@ -128,28 +127,28 @@ export async function createConversation(app: FastifyTypedInstance) {
             })
           }
 
-          const agentConfiguration = await getAgentConfiguration({ agentId })
+          // const agentConfig = await resolveAgentConfiguration({ agentId })
 
-          const [systemMessage] = await tx
-            .insert(messages)
-            .values({
-              conversationId: conversation.id,
-              status: 'finished',
-              role: 'system',
-              parts: agentConfiguration.systemMessage
-                ? [{ type: 'text', text: agentConfiguration.systemMessage }]
-                : [],
-            })
-            .returning({
-              id: messages.id,
-            })
+          // const [systemMessage] = await tx
+          //   .insert(messages)
+          //   .values({
+          //     conversationId: conversation.id,
+          //     status: 'finished',
+          //     role: 'system',
+          //     parts: agentConfig.systemMessage
+          //       ? [{ type: 'text', text: agentConfig.systemMessage }]
+          //       : [],
+          //   })
+          //   .returning({
+          //     id: messages.id,
+          //   })
 
-          if (!systemMessage) {
-            throw new BadRequestError({
-              code: 'SYSTEM_MESSAGE_NOT_CREATED',
-              message: 'System message not created',
-            })
-          }
+          // if (!systemMessage) {
+          //   throw new BadRequestError({
+          //     code: 'SYSTEM_MESSAGE_NOT_CREATED',
+          //     message: 'System message not created',
+          //   })
+          // }
 
           let _itemExplorerNode = null
 
@@ -172,14 +171,15 @@ export async function createConversation(app: FastifyTypedInstance) {
 
           return {
             conversation,
-            systemMessage,
+            // systemMessage,
             itemExplorerNode: _itemExplorerNode,
           }
-        })
+        },
+      )
 
       return reply.status(201).send({
         conversationId: conversation.id,
-        systemMessageId: systemMessage.id,
+        // systemMessageId: systemMessage.id,
         ...(itemExplorerNode && {
           explorerNode: { itemId: itemExplorerNode.id },
         }),

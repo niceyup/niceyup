@@ -1,7 +1,7 @@
 'use server'
 
 import { authenticatedUser } from '@/lib/auth/server'
-import { getOrganizationContext } from '@/lib/organization-context'
+import { resolveOrganizationContext } from '@/lib/organization'
 import { queries } from '@workspace/db/queries'
 import { cacheTag } from 'next/cache'
 
@@ -17,7 +17,7 @@ export async function listAgents(params: ListAgentsParams) {
     user: { id: userId },
   } = await authenticatedUser()
 
-  const ctx = await getOrganizationContext({ userId, ...params })
+  const ctx = await resolveOrganizationContext({ userId, ...params })
 
   if (!ctx) {
     return []

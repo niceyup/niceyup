@@ -37,7 +37,7 @@ export async function ProfileButton() {
               {getInitials(user.name)}
             </AvatarFallback>
           </Avatar>
-          <ChevronDownIcon className="size-4 text-muted-foreground" />
+          <ChevronDownIcon className="text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={12} className="w-[200px]">
@@ -61,20 +61,20 @@ export async function ProfileButton() {
           <DropdownMenuItem asChild>
             <Link href="https://docs.niceyup.com" target="_blank">
               Documentation
-              <BookIcon className="ml-auto size-4" />
+              <BookIcon className="ml-auto" />
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="mailto:hello@niceyup.team">
               Support
-              <MessageSquareMoreIcon className="ml-auto size-4" />
+              <MessageSquareMoreIcon className="ml-auto" />
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <SignOutLink>
               Sign out
-              <LogOutIcon className="ml-auto size-4" />
+              <LogOutIcon className="ml-auto" />
             </SignOutLink>
           </DropdownMenuItem>
         </DropdownMenuGroup>

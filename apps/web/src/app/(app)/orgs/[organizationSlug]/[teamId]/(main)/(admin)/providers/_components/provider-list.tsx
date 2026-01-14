@@ -5,6 +5,7 @@ import { sdk } from '@/lib/sdk'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { getInitials } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { Provider } from '@workspace/core/providers'
 import {
   Avatar,
   AvatarFallback,
@@ -43,7 +44,7 @@ import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import type { Provider, ProviderAppEnum } from '../_lib/utils'
+import type { Providers } from '../_lib/utils'
 
 type Params = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
@@ -54,47 +55,50 @@ export function ProviderList({
   providers,
 }: {
   params: Params
-  providers?: Provider[]
+  providers?: Providers
 }) {
   const availableProviders = [
     {
-      app: 'openai' as const,
+      provider: 'openai' as const,
       name: 'OpenAI',
     },
     {
-      app: 'anthropic' as const,
-      name: 'Anthropic',
-    },
-    {
-      app: 'google' as const,
+      provider: 'google' as const,
       name: 'Google',
     },
   ]
 
   return (
     <div className="flex w-full max-w-4xl flex-col divide-y divide-border rounded-lg border bg-background">
-      {availableProviders.map(({ app, name }) => {
-        const provider = providers?.find((provider) => provider.app === app)
+      {availableProviders.map((availableProvider) => {
+        const existingProvider = providers?.find(
+          ({ provider }) => provider === availableProvider.provider,
+        )
 
         return (
-          <div key={app} className="flex items-center justify-start gap-4 p-4">
+          <div
+            key={availableProvider.provider}
+            className="flex items-center justify-start gap-4 p-4"
+          >
             <Avatar className="size-8 border">
               <AvatarImage
-                src={`https://7nyt0uhk7sse4zvn.public.blob.vercel-storage.com/docs-assets/static/docs/ai-gateway/logos/${app}.png`}
+                src={`https://7nyt0uhk7sse4zvn.public.blob.vercel-storage.com/docs-assets/static/docs/ai-gateway/logos/${availableProvider.provider}.png`}
               />
               <AvatarFallback className="text-xs">
-                {getInitials(name)}
+                {getInitials(availableProvider.name)}
               </AvatarFallback>
             </Avatar>
 
-            <span className="font-medium text-sm">{name}</span>
+            <span className="font-medium text-sm">
+              {availableProvider.name}
+            </span>
 
             <div className="ml-auto flex items-center">
-              {provider ? (
+              {existingProvider ? (
                 <div className="flex items-center gap-2">
                   <div className="text-muted-foreground text-sm">
                     Updated{' '}
-                    {formatDistanceToNow(new Date(provider.updatedAt), {
+                    {formatDistanceToNow(new Date(existingProvider.updatedAt), {
                       addSuffix: true,
                     })}
                   </div>
@@ -102,14 +106,14 @@ export function ProviderList({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
-                        <MoreHorizontalIcon className="size-4" />
+                        <MoreHorizontalIcon />
                       </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent>
                       <ProviderActionDelete
                         params={{ organizationSlug: params.organizationSlug }}
-                        providerId={provider.id}
+                        providerId={existingProvider.id}
                       />
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -117,8 +121,8 @@ export function ProviderList({
               ) : (
                 <ProviderActionAdd
                   params={{ organizationSlug: params.organizationSlug }}
-                  app={app}
-                  name={name}
+                  provider={availableProvider.provider}
+                  name={availableProvider.name}
                 />
               )}
             </div>
@@ -175,11 +179,11 @@ const formSchema = z.object({
 
 function ProviderActionAdd({
   params,
-  app,
+  provider,
   name,
 }: {
   params: Params
-  app: ProviderAppEnum
+  provider: Provider
   name: string
 }) {
   const [open, setOpen] = React.useState(false)
@@ -195,9 +199,8 @@ function ProviderActionAdd({
     const { data, error } = await sdk.createProvider({
       data: {
         organizationSlug: params.organizationSlug,
-        app,
-        name,
-        payload: {
+        provider,
+        credentials: {
           apiKey: values.apiKey,
         },
       },

@@ -41,9 +41,20 @@ export const getDatabaseSchema200Schema = z
     tablesMetadata: z.array(
       z.object({
         name: z.string(),
+        meta: z
+          .object({
+            description: z.string().optional(),
+          })
+          .optional(),
         columns: z.array(
           z.object({
             name: z.string(),
+            meta: z
+              .object({
+                description: z.string().optional(),
+                properNoun: z.boolean().optional(),
+              })
+              .optional(),
             data_type: z.string(),
             foreign_table: z.string().optional(),
             foreign_column: z.string().optional(),

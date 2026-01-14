@@ -9,7 +9,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { CirclePlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 import { ManageSourcesWithPreview } from './_components/manage-sources-with-preview'
 
@@ -26,7 +26,7 @@ export default async function Page({
     [
       sdk.listAgentSources({
         agentId,
-        params: { organizationSlug, teamId },
+        params: { organizationSlug },
       }),
       sdk.listSources({
         params: { organizationSlug },
@@ -43,17 +43,15 @@ export default async function Page({
           <Empty>
             <EmptyHeader>
               <EmptyTitle>No Sources Yet</EmptyTitle>
-              <EmptyDescription>
-                Create a source to get started.
-              </EmptyDescription>
+              <EmptyDescription>Add a source to get started.</EmptyDescription>
             </EmptyHeader>
 
             {isAdmin && (
               <EmptyContent>
                 <Button asChild>
                   <Link href={`/orgs/${organizationSlug}/~/sources`}>
-                    New Source
-                    <CirclePlusIcon className="size-4" />
+                    <PlusIcon />
+                    Add source
                   </Link>
                 </Button>
               </EmptyContent>

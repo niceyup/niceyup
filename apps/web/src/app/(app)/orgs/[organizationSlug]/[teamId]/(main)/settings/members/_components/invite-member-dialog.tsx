@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -119,6 +120,9 @@ export function InviteMemberDialog({
           >
             <DialogHeader>
               <DialogTitle>Invite Member</DialogTitle>
+              <DialogDescription>
+                Invite a member to your organization.
+              </DialogDescription>
             </DialogHeader>
 
             <FormField
@@ -236,7 +240,7 @@ function RoleSelect({ disabled }: { disabled?: boolean }) {
             disabled={disabled}
           >
             {getValues(name)}
-            <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" />
+            <ChevronsUpDownIcon className="shrink-0 opacity-50" />
           </Button>
         </FormControl>
       </PopoverTrigger>
@@ -254,7 +258,7 @@ function RoleSelect({ disabled }: { disabled?: boolean }) {
                     className="capitalize"
                   >
                     {getValues(name)}
-                    <CheckIcon className="ml-auto size-4 shrink-0 opacity-100" />
+                    <CheckIcon className="ml-auto shrink-0 opacity-100" />
                   </CommandItem>
                   <CommandSeparator className="m-1" />
                 </>
@@ -310,7 +314,7 @@ function TeamSelect({
             disabled={disabled}
           >
             {selectedTeam ? selectedTeam.name : 'Select a team'}
-            <ChevronsUpDownIcon className="size-4 shrink-0 opacity-50" />
+            <ChevronsUpDownIcon className="shrink-0 opacity-50" />
           </Button>
         </FormControl>
       </PopoverTrigger>
@@ -325,7 +329,7 @@ function TeamSelect({
                 <>
                   <CommandItem onSelect={() => setOpen(false)}>
                     {selectedTeam.name}
-                    <CheckIcon className="ml-auto size-4 shrink-0 opacity-100" />
+                    <CheckIcon className="ml-auto shrink-0 opacity-100" />
                   </CommandItem>
                   <CommandSeparator className="m-1" />
                 </>

@@ -113,6 +113,7 @@ function ManageSourcesContent({
       const { error } = await sdk.manageAgentSources({
         agentId: params.agentId,
         data: {
+          organizationSlug: params.organizationSlug,
           add: addSourceIds,
           remove: removeSourceIds,
         },

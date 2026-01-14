@@ -9,7 +9,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { CirclePlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 import { TeamList } from './_components/team-list'
 
@@ -41,8 +41,8 @@ export default async function Page({
             <div className="flex items-center gap-4">
               <Button asChild>
                 <Link href={`/orgs/${organizationSlug}/~/teams/create`}>
-                  New Team
-                  <CirclePlusIcon className="size-4" />
+                  <PlusIcon />
+                  Create team
                 </Link>
               </Button>
             </div>
@@ -65,8 +65,8 @@ export default async function Page({
                 <EmptyContent>
                   <Button asChild>
                     <Link href={`/orgs/${organizationSlug}/~/teams/create`}>
-                      New Team
-                      <CirclePlusIcon className="size-4" />
+                      <PlusIcon />
+                      Create team
                     </Link>
                   </Button>
                 </EmptyContent>

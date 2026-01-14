@@ -40,8 +40,8 @@ export const getProvider200Schema = z
   .object({
     provider: z.object({
       id: z.string(),
-      app: z.enum(['openai', 'anthropic', 'google', 'openai-compatible']),
-      name: z.string(),
+      provider: z.enum(['openai', 'google']),
+      credentials: z.object({}).catchall(z.any()).nullable(),
       updatedAt: z.string().datetime(),
     }),
   })

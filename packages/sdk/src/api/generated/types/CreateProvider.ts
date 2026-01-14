@@ -104,15 +104,13 @@ export type CreateProvider500 = {
   message: string
 }
 
-export const createProviderMutationRequestAppEnum = {
+export const createProviderMutationRequestProviderEnum = {
   openai: 'openai',
-  anthropic: 'anthropic',
   google: 'google',
-  'openai-compatible': 'openai-compatible',
 } as const
 
-export type CreateProviderMutationRequestAppEnum =
-  (typeof createProviderMutationRequestAppEnum)[keyof typeof createProviderMutationRequestAppEnum]
+export type CreateProviderMutationRequestProviderEnum =
+  (typeof createProviderMutationRequestProviderEnum)[keyof typeof createProviderMutationRequestProviderEnum]
 
 export type CreateProviderMutationRequest = {
   /**
@@ -126,17 +124,13 @@ export type CreateProviderMutationRequest = {
   /**
    * @type string
    */
-  app: CreateProviderMutationRequestAppEnum
-  /**
-   * @type string
-   */
-  name: string
+  provider: CreateProviderMutationRequestProviderEnum
   /**
    * @type object
    */
-  payload: {
+  credentials?: {
     [key: string]: any
-  }
+  } | null
 }
 
 export type CreateProviderMutationResponse = CreateProvider201

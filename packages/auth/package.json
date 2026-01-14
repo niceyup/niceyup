@@ -14,6 +14,7 @@
     "@polar-sh/better-auth": "1.6.3",
     "@workspace/billing": "workspace:*",
     "@workspace/cache": "workspace:*",
+    "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/email": "workspace:*",
     "@workspace/env": "workspace:*",

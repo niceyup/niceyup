@@ -45,7 +45,7 @@ export function AgentSwitcher({
           ) : (
             <span className="text-muted-foreground">Select agent</span>
           )}
-          <ChevronsUpDownIcon className="ml-auto size-4 text-muted-foreground" />
+          <ChevronsUpDownIcon className="ml-auto text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={12} className="w-[200px]">
@@ -74,7 +74,7 @@ export function AgentSwitcher({
         {pathname !== `/orgs/${organizationSlug}/${teamId}/agents/create` && (
           <DropdownMenuItem asChild>
             <Link href={`/orgs/${organizationSlug}/${teamId}/agents/create`}>
-              <PlusCircleIcon className="size-4" />
+              <PlusCircleIcon />
               Create agent
             </Link>
           </DropdownMenuItem>

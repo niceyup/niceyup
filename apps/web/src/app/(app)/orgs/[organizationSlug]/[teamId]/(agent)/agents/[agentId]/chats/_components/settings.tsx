@@ -1,6 +1,5 @@
 'use client'
 
-import { useAppearance } from '@/store/use-appearance'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -14,6 +13,7 @@ import {
   PanelTopIcon,
   SettingsIcon,
 } from 'lucide-react'
+import { useChatAppearance } from '../../../_store/use-chat-appearance'
 
 export function Settings() {
   const {
@@ -23,30 +23,30 @@ export function Settings() {
     setTopbar,
     setPrimarySidebar,
     setSecondarySidebar,
-  } = useAppearance()
+  } = useChatAppearance()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="size-8">
-          <SettingsIcon className="size-4" />
+          <SettingsIcon />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTopbar(!topbar)}>
-          <PanelTopIcon className="size-4" />
-          Top Bar
+          <PanelTopIcon />
+          Top bar
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setPrimarySidebar(!primarySidebar)}>
-          <PanelLeftIcon className="size-4" />
-          Primary Sidebar
+          <PanelLeftIcon />
+          Primary sidebar
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setSecondarySidebar(!secondarySidebar)}
         >
-          <PanelRightIcon className="size-4" />
-          Secondary Sidebar
+          <PanelRightIcon />
+          Secondary sidebar
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

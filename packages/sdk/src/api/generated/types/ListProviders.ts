@@ -3,15 +3,13 @@
  * Do not edit manually.
  */
 
-export const listProvidersQueryParamsAppEnum = {
+export const listProvidersQueryParamsProviderEnum = {
   openai: 'openai',
-  anthropic: 'anthropic',
   google: 'google',
-  'openai-compatible': 'openai-compatible',
 } as const
 
-export type ListProvidersQueryParamsAppEnum =
-  (typeof listProvidersQueryParamsAppEnum)[keyof typeof listProvidersQueryParamsAppEnum]
+export type ListProvidersQueryParamsProviderEnum =
+  (typeof listProvidersQueryParamsProviderEnum)[keyof typeof listProvidersQueryParamsProviderEnum]
 
 export type ListProvidersQueryParams = {
   /**
@@ -25,18 +23,16 @@ export type ListProvidersQueryParams = {
   /**
    * @type string | undefined
    */
-  app?: ListProvidersQueryParamsAppEnum
+  provider?: ListProvidersQueryParamsProviderEnum
 }
 
-export const providersAppEnum = {
+export const providersProviderEnum = {
   openai: 'openai',
-  anthropic: 'anthropic',
   google: 'google',
-  'openai-compatible': 'openai-compatible',
 } as const
 
-export type ProvidersAppEnum =
-  (typeof providersAppEnum)[keyof typeof providersAppEnum]
+export type ProvidersProviderEnum =
+  (typeof providersProviderEnum)[keyof typeof providersProviderEnum]
 
 /**
  * @description Success
@@ -53,11 +49,7 @@ export type ListProviders200 = {
     /**
      * @type string
      */
-    app: ProvidersAppEnum
-    /**
-     * @type string
-     */
-    name: string
+    provider: ProvidersProviderEnum
     /**
      * @type string, date-time
      */

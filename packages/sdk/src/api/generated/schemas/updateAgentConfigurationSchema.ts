@@ -131,8 +131,35 @@ export type UpdateAgentConfiguration500Schema = UpdateAgentConfiguration500
 export const updateAgentConfigurationMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
-  languageModel: z.string().optional(),
-  embeddingModel: z.string().nullable().nullish(),
+  languageModelSettings: z
+    .object({
+      id: z.string(),
+      provider: z.enum(['openai', 'google']),
+      model: z.string(),
+      options: z.object({}).catchall(z.any()).nullable().nullish(),
+    })
+    .nullable()
+    .nullish(),
+  embeddingModelSettings: z
+    .object({
+      id: z.string(),
+      provider: z.enum(['openai', 'google']),
+      model: z.string(),
+      options: z.object({}).catchall(z.any()).nullable().nullish(),
+    })
+    .nullable()
+    .nullish(),
+  systemMessage: z.string().nullable().nullish(),
+  promptMessages: z
+    .array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string(),
+      }),
+    )
+    .nullable()
+    .nullish(),
+  suggestions: z.array(z.string()).nullable().nullish(),
 }) as unknown as ToZod<UpdateAgentConfigurationMutationRequest>
 
 export type UpdateAgentConfigurationMutationRequestSchema =

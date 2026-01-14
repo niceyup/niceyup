@@ -7,7 +7,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { CirclePlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function Page({
@@ -33,8 +33,8 @@ export default async function Page({
           <div className="flex items-center gap-4">
             <Button asChild>
               <Link href={`/orgs/${organizationSlug}/~/sources/create`}>
-                New Source
-                <CirclePlusIcon className="size-4" />
+                <PlusIcon />
+                Add source
               </Link>
             </Button>
           </div>
@@ -46,16 +46,14 @@ export default async function Page({
           <Empty>
             <EmptyHeader>
               <EmptyTitle>No Sources Yet</EmptyTitle>
-              <EmptyDescription>
-                Create a source to get started.
-              </EmptyDescription>
+              <EmptyDescription>Add a source to get started.</EmptyDescription>
             </EmptyHeader>
 
             <EmptyContent>
               <Button asChild>
                 <Link href={`/orgs/${organizationSlug}/~/sources/create`}>
-                  New Source
-                  <CirclePlusIcon className="size-4" />
+                  <PlusIcon />
+                  Add source
                 </Link>
               </Button>
             </EmptyContent>

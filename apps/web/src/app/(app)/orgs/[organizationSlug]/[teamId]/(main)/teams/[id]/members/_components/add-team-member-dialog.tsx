@@ -15,6 +15,7 @@ import { Button } from '@workspace/ui/components/button'
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog'
@@ -78,6 +79,7 @@ export function AddTeamMemberDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Team Member</DialogTitle>
+          <DialogDescription>Add a member to this team.</DialogDescription>
         </DialogHeader>
 
         {isPending ? (

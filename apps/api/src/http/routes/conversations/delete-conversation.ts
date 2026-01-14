@@ -1,6 +1,6 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
@@ -45,7 +45,7 @@ export async function deleteConversation(app: FastifyTypedInstance) {
       const { organizationId, organizationSlug, agentId, destroy } =
         request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,

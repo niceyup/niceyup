@@ -31,13 +31,11 @@ import { generateUploadSignature } from './files/generate-upload-signature'
 import { getFile } from './files/get-file'
 import { uploadFiles } from './files/upload-files'
 import { health } from './health'
-import { listModelCosts } from './models/list-costs'
 import { getProfile } from './profile/get-profile'
 import { createProvider } from './providers/create-provider'
 import { deleteProvider } from './providers/delete-provider'
 import { getProvider } from './providers/get-provider'
 import { listProviders } from './providers/list-providers'
-import { updateProvider } from './providers/update-provider'
 import { createSource } from './sources/create-source'
 import { getDatabaseSchema } from './sources/database/get-schema'
 import { deleteSource } from './sources/delete-source'
@@ -51,7 +49,6 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(health)
   // app.register(authRoutes)
 
-  app.register(listModelCosts)
   app.register(getProfile)
 
   app.register(listAgents)
@@ -80,7 +77,6 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(listProviders)
   app.register(getProvider)
   app.register(createProvider)
-  app.register(updateProvider)
   app.register(deleteProvider)
 
   app.register(listSources)

@@ -126,7 +126,7 @@ export const createConnectionMutationRequestSchema = z.object({
   organizationSlug: z.string().optional(),
   app: z.enum(['github', 'postgresql', 'mysql']),
   name: z.string(),
-  payload: z.object({}).catchall(z.any()),
+  credentials: z.object({}).catchall(z.any()).nullable().nullish(),
 }) as unknown as ToZod<CreateConnectionMutationRequest>
 
 export type CreateConnectionMutationRequestSchema =

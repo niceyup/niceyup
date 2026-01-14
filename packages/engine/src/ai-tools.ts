@@ -1,8 +1,18 @@
-import { tool } from '@workspace/ai'
+import { type EmbeddingModel, tool } from '@workspace/ai'
 import { z } from 'zod'
 import { retrieveSources } from './retrievers'
 
-export function retrieveSourcesTool({ namespace }: { namespace: string }) {
+export function retrieveSourcesTool({
+  embeddingModel,
+  agentId,
+  organizationId,
+  topK,
+}: {
+  embeddingModel: EmbeddingModel
+  agentId: string
+  organizationId: string
+  topK?: number
+}) {
   return tool({
     description:
       'Retrieve sources from your knowledge base to answer the user’s question.',
@@ -10,15 +20,26 @@ export function retrieveSourcesTool({ namespace }: { namespace: string }) {
       question: z.string().describe('The user’s question.'),
     }),
     execute: async ({ question }) => {
-      return retrieveSources({ namespace, question })
+      return retrieveSources({
+        embeddingModel,
+        agentId,
+        organizationId,
+        question,
+        topK,
+      })
     },
   })
 }
 
 // export function searchProperNounsTool({
-//   namespace,
+//   embeddingModel,
+//   organizationId,
 //   sourceId,
-// }: { namespace: string; sourceId: string }) {
+// }: {
+//   embeddingModel: EmbeddingModel
+//   organizationId: string
+//   sourceId: string
+// }) {
 //   return tool({
 //     description: 'Search for proper nouns in the knowledge base.',
 //     inputSchema: z.object({
@@ -28,7 +49,8 @@ export function retrieveSourcesTool({ namespace }: { namespace: string }) {
 //     }),
 //     execute: async ({ tableName, columnName, search }) => {
 //       return retrieveDatabaseSourceProperNouns({
-//         namespace,
+//         embeddingModel,
+//         organizationId,
 //         sourceId,
 //         tableName,
 //         columnName,

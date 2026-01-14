@@ -5,6 +5,8 @@ import { connections, databaseSources, files } from '@workspace/db/schema'
 import { z } from 'zod'
 import { python } from '../python'
 
+export type GetDbSchemaTask = typeof getDbSchemaTask
+
 export const getDbSchemaTask = schemaTask({
   id: 'get-db-schema',
   schema: z.object({
@@ -44,7 +46,7 @@ export const getDbSchemaTask = schemaTask({
           throw new AbortTaskRunError('Connection app not supported')
         }
 
-        type DatabaseConnectionPayload = {
+        type DatabaseConnectionCredentials = {
           host: string
           port: string
           user: string
@@ -56,7 +58,7 @@ export const getDbSchemaTask = schemaTask({
         return await python.getDbSchema(
           { dialect: databaseSource.dialect },
           {
-            envVars: connection.payload as DatabaseConnectionPayload,
+            envVars: connection.credentials as DatabaseConnectionCredentials,
           },
         )
 

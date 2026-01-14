@@ -50,7 +50,7 @@ export default async function Layout({
 
   const tabs: TabItem[] = [
     {
-      label: <ChevronLeftIcon className="size-4" />,
+      label: <ChevronLeftIcon />,
       href: `/orgs/${organizationSlug}/${teamId}/agents`,
     },
     {

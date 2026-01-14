@@ -21,41 +21,37 @@ export type GetAgentConfigurationQueryParams = {
   organizationSlug?: string
 }
 
-export const languageModelTypeEnum = {
-  language_model: 'language_model',
-  embedding_model: 'embedding_model',
-} as const
-
-export type LanguageModelTypeEnum =
-  (typeof languageModelTypeEnum)[keyof typeof languageModelTypeEnum]
-
-export const providerAppEnum = {
+export const languageModeSettingsProviderEnum = {
   openai: 'openai',
-  anthropic: 'anthropic',
   google: 'google',
-  'openai-compatible': 'openai-compatible',
 } as const
 
-export type ProviderAppEnum =
-  (typeof providerAppEnum)[keyof typeof providerAppEnum]
+export type LanguageModeSettingsProviderEnum =
+  (typeof languageModeSettingsProviderEnum)[keyof typeof languageModeSettingsProviderEnum]
 
-export const embeddingModelTypeEnum = {
-  language_model: 'language_model',
-  embedding_model: 'embedding_model',
+export const languageModeSettingsTypeEnum = {
+  'language-model': 'language-model',
+  'embedding-model': 'embedding-model',
 } as const
 
-export type EmbeddingModelTypeEnum =
-  (typeof embeddingModelTypeEnum)[keyof typeof embeddingModelTypeEnum]
+export type LanguageModeSettingsTypeEnum =
+  (typeof languageModeSettingsTypeEnum)[keyof typeof languageModeSettingsTypeEnum]
 
-export const providerAppEnum2 = {
+export const embeddingModelSettingsProviderEnum = {
   openai: 'openai',
-  anthropic: 'anthropic',
   google: 'google',
-  'openai-compatible': 'openai-compatible',
 } as const
 
-export type ProviderAppEnum2 =
-  (typeof providerAppEnum2)[keyof typeof providerAppEnum2]
+export type EmbeddingModelSettingsProviderEnum =
+  (typeof embeddingModelSettingsProviderEnum)[keyof typeof embeddingModelSettingsProviderEnum]
+
+export const embeddingModelSettingsTypeEnum = {
+  'language-model': 'language-model',
+  'embedding-model': 'embedding-model',
+} as const
+
+export type EmbeddingModelSettingsTypeEnum =
+  (typeof embeddingModelSettingsTypeEnum)[keyof typeof embeddingModelSettingsTypeEnum]
 
 export const promptMessagesRoleEnum = {
   user: 'user',
@@ -80,7 +76,7 @@ export type GetAgentConfiguration200 = {
     /**
      * @type object
      */
-    languageModel?: {
+    languageModeSettings?: {
       /**
        * @type string
        */
@@ -88,41 +84,26 @@ export type GetAgentConfiguration200 = {
       /**
        * @type string
        */
-      type: LanguageModelTypeEnum
+      provider: LanguageModeSettingsProviderEnum
       /**
        * @type string
        */
       model: string
       /**
+       * @type string
+       */
+      type: LanguageModeSettingsTypeEnum
+      /**
        * @type object
        */
       options?: {
         [key: string]: any
-      } | null
-      /**
-       * @type object
-       */
-      provider?: {
-        /**
-         * @type string
-         */
-        id: string
-        /**
-         * @type string
-         */
-        app: ProviderAppEnum
-        /**
-         * @type object
-         */
-        payload?: {
-          [key: string]: any
-        } | null
       } | null
     } | null
     /**
      * @type object
      */
-    embeddingModel?: {
+    embeddingModelSettings?: {
       /**
        * @type string
        */
@@ -130,35 +111,20 @@ export type GetAgentConfiguration200 = {
       /**
        * @type string
        */
-      type: EmbeddingModelTypeEnum
+      provider: EmbeddingModelSettingsProviderEnum
       /**
        * @type string
        */
       model: string
       /**
+       * @type string
+       */
+      type: EmbeddingModelSettingsTypeEnum
+      /**
        * @type object
        */
       options?: {
         [key: string]: any
-      } | null
-      /**
-       * @type object
-       */
-      provider?: {
-        /**
-         * @type string
-         */
-        id: string
-        /**
-         * @type string
-         */
-        app: ProviderAppEnum2
-        /**
-         * @type object
-         */
-        payload?: {
-          [key: string]: any
-        } | null
       } | null
     } | null
     /**

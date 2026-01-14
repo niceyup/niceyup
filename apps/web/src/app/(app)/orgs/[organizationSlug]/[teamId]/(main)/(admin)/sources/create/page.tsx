@@ -1,22 +1,29 @@
+import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from '@workspace/ui/components/card'
 import { CreateSourceForm } from './_components/create-source-form'
 
-export default async function Page() {
+export default async function Page({
+  params,
+}: Readonly<{
+  params: Promise<OrganizationTeamParams>
+}>) {
+  const { organizationSlug } = await params
+
   return (
-    <div className="w-full max-w-xl p-4 md:p-10">
+    <div className="w-full max-w-2xl p-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-center font-semibold text-xl leading-none">
-            Create a Source
-          </CardTitle>
+          <CardTitle className="text-lg">Add Source</CardTitle>
+          <CardDescription>Add a data source to an agent.</CardDescription>
         </CardHeader>
-        <CardContent className="mt-5">
-          <CreateSourceForm />
+        <CardContent>
+          <CreateSourceForm organizationSlug={organizationSlug} />
         </CardContent>
       </Card>
     </div>

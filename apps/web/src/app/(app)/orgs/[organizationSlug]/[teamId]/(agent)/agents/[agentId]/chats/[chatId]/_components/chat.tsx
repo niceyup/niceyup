@@ -805,7 +805,7 @@ function ChatMessageActions() {
         tooltip="Copy to clipboard"
         disabled={!parts.text.trim()}
       >
-        <CopyIcon className="size-4" />
+        <CopyIcon />
       </MessageAction>
 
       {message.role === 'assistant' && (
@@ -814,7 +814,7 @@ function ChatMessageActions() {
           onClick={handleRetry}
           tooltip="Regenerate response"
         >
-          <RefreshCcwIcon className="size-4" />
+          <RefreshCcwIcon />
         </MessageAction>
       )}
 
@@ -825,10 +825,7 @@ function ChatMessageActions() {
           tooltip="Edit message"
           disabled={editing}
         >
-          <PencilIcon
-            className="size-4"
-            fill={editing ? 'currentColor' : 'none'}
-          />
+          <PencilIcon fill={editing ? 'currentColor' : 'none'} />
         </MessageAction>
       )}
     </MessageActions>

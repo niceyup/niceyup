@@ -24,6 +24,7 @@
     "@workspace/auth": "workspace:*",
     "@workspace/billing": "workspace:*",
     "@workspace/cache": "workspace:*",
+    "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/engine": "workspace:*",
     "@workspace/env": "workspace:*",

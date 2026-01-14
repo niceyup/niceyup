@@ -28,6 +28,10 @@ type UploadedFile =
 export function useUploadFiles(params: GenerateUploadSignatureParams) {
   const [uploading, setUploading] = React.useState<string[]>([])
 
+  const generateSignature = async () => {
+    return await generateUploadSignature(params)
+  }
+
   const uploadFiles = async ({ files: filesToUpload }: { files: File[] }) => {
     try {
       setUploading((prev) => [
@@ -35,7 +39,7 @@ export function useUploadFiles(params: GenerateUploadSignatureParams) {
         ...filesToUpload.map((f) => `${f.name}-${f.size}`),
       ])
 
-      const { data, error } = await generateUploadSignature(params)
+      const { data, error } = await generateSignature()
 
       if (error) {
         return { data: null, error }
@@ -43,7 +47,11 @@ export function useUploadFiles(params: GenerateUploadSignatureParams) {
 
       const files: UploadedFile[] = await Promise.all(
         filesToUpload.map((file) =>
-          _uploadFile({ signature: data.signature, file }),
+          uploadFileWithSignature({
+            scope: params.scope,
+            signature: data.signature,
+            file,
+          }),
         ),
       )
 
@@ -70,13 +78,14 @@ export function useUploadFiles(params: GenerateUploadSignatureParams) {
         `${fileToUpload.name}-${fileToUpload.size}`,
       ])
 
-      const { data, error } = await generateUploadSignature(params)
+      const { data, error } = await generateSignature()
 
       if (error) {
         return { data: null, error }
       }
 
-      const file = await _uploadFile({
+      const file = await uploadFileWithSignature({
+        scope: params.scope,
         signature: data.signature,
         file: fileToUpload,
       })
@@ -96,54 +105,60 @@ export function useUploadFiles(params: GenerateUploadSignatureParams) {
     }
   }
 
-  const _uploadFile = async ({
-    signature,
-    file,
-  }: { signature: string; file: File }): Promise<UploadedFile> => {
-    try {
-      let url = '/api/files'
-
-      if (params.scope === 'conversations') {
-        url = '/api/conversations/files'
-      } else if (params.scope === 'sources') {
-        url = '/api/sources/files'
-      }
-
-      const formData = new FormData()
-      formData.set('file', file as File)
-
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'x-upload-signature': signature,
-        },
-        body: formData,
-      })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error()
-      }
-
-      const [uploadedFile] = result.files
-
-      return uploadedFile
-    } catch {
-      return {
-        status: 'error' as const,
-        error: {
-          code: 'FAILED_TO_UPLOAD_FILE',
-          message: 'Failed to upload file',
-        },
-        fileName: file.name,
-      }
-    }
-  }
-
   return {
     uploading: Boolean(uploading.length),
+    generateSignature,
     uploadFiles,
     uploadFile,
+  }
+}
+
+export const uploadFileWithSignature = async ({
+  scope = 'public',
+  signature,
+  file,
+}: {
+  scope: GenerateUploadSignatureParams['scope']
+  signature: string
+  file: File
+}): Promise<UploadedFile> => {
+  try {
+    let url = '/api/files'
+
+    if (scope === 'conversations') {
+      url = '/api/conversations/files'
+    } else if (scope === 'sources') {
+      url = '/api/sources/files'
+    }
+
+    const formData = new FormData()
+    formData.set('file', file as File)
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'x-upload-signature': signature,
+      },
+      body: formData,
+    })
+
+    const result = await response.json()
+
+    if (!response.ok) {
+      throw new Error()
+    }
+
+    const [uploadedFile] = result.files
+
+    return uploadedFile
+  } catch {
+    return {
+      status: 'error' as const,
+      error: {
+        code: 'FAILED_TO_UPLOAD_FILE',
+        message: 'Failed to upload file',
+      },
+      fileName: file.name,
+    }
   }
 }

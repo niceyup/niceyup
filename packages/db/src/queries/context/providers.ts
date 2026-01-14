@@ -1,6 +1,6 @@
+import type { Provider } from '@workspace/core/providers'
 import { and, eq } from 'drizzle-orm'
 import { db } from '../../db'
-import type { ProviderApp } from '../../lib/types'
 import { providers } from '../../schema'
 
 type ContextListProvidersParams = {
@@ -9,7 +9,7 @@ type ContextListProvidersParams = {
 }
 
 type ListProvidersParams = {
-  app?: ProviderApp
+  provider?: Provider
 }
 
 export async function listProviders(
@@ -23,16 +23,15 @@ export async function listProviders(
   const listProviders = await db
     .select({
       id: providers.id,
-      app: providers.app,
-      name: providers.name,
-      payload: providers.payload,
+      provider: providers.provider,
+      credentials: providers.credentials,
       updatedAt: providers.updatedAt,
     })
     .from(providers)
     .where(
       and(
         eq(providers.organizationId, context.organizationId),
-        params.app ? eq(providers.app, params.app) : undefined,
+        params.provider ? eq(providers.provider, params.provider) : undefined,
       ),
     )
 
@@ -60,9 +59,8 @@ export async function getProvider(
   const [provider] = await db
     .select({
       id: providers.id,
-      app: providers.app,
-      name: providers.name,
-      payload: providers.payload,
+      provider: providers.provider,
+      credentials: providers.credentials,
       updatedAt: providers.updatedAt,
     })
     .from(providers)

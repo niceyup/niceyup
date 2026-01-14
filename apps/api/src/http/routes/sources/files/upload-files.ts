@@ -14,8 +14,6 @@ import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { databaseSources, fileSources, sources } from '@workspace/db/schema'
-import type { runIngestionTask } from '@workspace/engine/tasks/run-ingestion'
-import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 export async function uploadFilesSource(app: FastifyTypedInstance) {
@@ -135,11 +133,14 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                 })
               }
 
-              const itemExplorerNode = await createSourceExplorerNodeItem({
-                parentId: explorerNode.folderId,
-                sourceId: source.id,
-                organizationId: data.organizationId,
-              })
+              const itemExplorerNode = await createSourceExplorerNodeItem(
+                {
+                  parentId: explorerNode.folderId,
+                  sourceId: source.id,
+                  organizationId: data.organizationId,
+                },
+                tx,
+              )
 
               if (!itemExplorerNode) {
                 throw new BadRequestError({
@@ -251,17 +252,6 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           code: 'FILES_NOT_UPLOADED',
           message: 'Files not uploaded',
         })
-      }
-
-      if (sourceType === 'file') {
-        await tasks.batchTrigger<typeof runIngestionTask>(
-          'run-ingestion',
-          uploadedFiles
-            .filter((file) => file.status === 'success')
-            .map((file) => ({
-              payload: { sourceId: file.source.sourceId },
-            })),
-        )
       }
 
       return { files: uploadedFiles }

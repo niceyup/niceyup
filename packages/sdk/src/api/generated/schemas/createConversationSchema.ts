@@ -23,7 +23,6 @@ import { z } from 'zod'
 export const createConversation201Schema = z
   .object({
     conversationId: z.string(),
-    systemMessageId: z.string(),
     explorerNode: z
       .object({
         itemId: z.string(),
@@ -132,7 +131,7 @@ export const createConversationMutationRequestSchema = z.object({
   organizationSlug: z.string().optional(),
   teamId: z.string().nullable().nullish(),
   agentId: z.string(),
-  title: z.string(),
+  title: z.string().optional(),
   visibility: z.enum(['private', 'team']).default('private'),
   explorerNode: z
     .object({

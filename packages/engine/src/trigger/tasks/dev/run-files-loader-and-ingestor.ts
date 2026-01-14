@@ -7,12 +7,13 @@ import {
   sources,
 } from '@workspace/db/schema'
 import { z } from 'zod'
-import { runIngestionTask } from '../run-ingestion'
+import { createAgentSourceEmbeddingTask } from '../create-agent-source-embedding'
 
 export const runFilesLoaderAndIngestorTask = schemaTask({
   id: 'run-files-loader-and-ingestor',
   schema: z.object({
     organizationId: z.string(),
+    agentId: z.string(),
     source: z.object({
       chunkSize: z.number(),
       chunkOverlap: z.number(),
@@ -27,7 +28,7 @@ export const runFilesLoaderAndIngestorTask = schemaTask({
     }[] = []
 
     for (const file of listFiles) {
-      const sourceId = await logger.trace('Create Source', async () => {
+      const sourceId = await logger.trace('Create File Source', async () => {
         return await db.transaction(async (tx) => {
           const [createSource] = await tx
             .insert(sources)
@@ -85,8 +86,9 @@ export const runFilesLoaderAndIngestorTask = schemaTask({
         })
       })
 
-      await logger.trace('Run Ingestion', async () => {
-        await runIngestionTask.triggerAndWait({ sourceId })
+      await createAgentSourceEmbeddingTask.triggerAndWait({
+        agentId: payload.agentId,
+        sourceId,
       })
     }
 

@@ -1,6 +1,6 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import { resumableStreamContext } from '@/lib/resumable-stream'
 import type { FastifyTypedInstance } from '@/types/fastify'
@@ -43,7 +43,7 @@ export async function streamMessage(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug, agentId } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,

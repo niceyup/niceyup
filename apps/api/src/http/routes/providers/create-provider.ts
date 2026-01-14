@@ -1,11 +1,11 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { providerSchema, validateProvider } from '@workspace/core/providers'
 import { db } from '@workspace/db'
 import { providers } from '@workspace/db/schema'
-import { providerAppSchema, providerSchema } from '@workspace/engine/providers'
 import { z } from 'zod'
 
 export async function createProvider(app: FastifyTypedInstance) {
@@ -19,9 +19,8 @@ export async function createProvider(app: FastifyTypedInstance) {
         body: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          app: providerAppSchema,
-          name: z.string(),
-          payload: z.record(z.string(), z.unknown()),
+          provider: providerSchema,
+          credentials: z.record(z.string(), z.unknown()).nullish(),
         }),
         response: withDefaultErrorResponses({
           201: z
@@ -37,33 +36,28 @@ export async function createProvider(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, app, name, payload } =
+      const { organizationId, organizationSlug, provider, credentials } =
         request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
       })
 
-      const { payload: validatedPayload } = providerSchema.parse({
-        app,
-        payload,
-      })
+      const validatedData = validateProvider({ provider, credentials })
 
-      const [provider] = await db
+      const [createdProvider] = await db
         .insert(providers)
         .values({
-          app,
-          name,
-          payload: validatedPayload,
+          ...validatedData,
           organizationId: context.organizationId,
         })
         .returning({
           id: providers.id,
         })
 
-      if (!provider) {
+      if (!createdProvider) {
         throw new BadRequestError({
           code: 'PROVIDER_NOT_CREATED',
           message: 'Provider not created',
@@ -71,7 +65,7 @@ export async function createProvider(app: FastifyTypedInstance) {
       }
 
       return reply.status(201).send({
-        providerId: provider.id,
+        providerId: createdProvider.id,
       })
     },
   )

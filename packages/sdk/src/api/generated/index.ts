@@ -41,8 +41,6 @@ export type { ListConversationsQueryKey } from './react-query/hooks/useListConve
 export type { ListConversationsSuspenseQueryKey } from './react-query/hooks/useListConversationsSuspense'
 export type { ListMessagesQueryKey } from './react-query/hooks/useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './react-query/hooks/useListMessagesSuspense'
-export type { ListModelCostsQueryKey } from './react-query/hooks/useListModelCosts'
-export type { ListModelCostsSuspenseQueryKey } from './react-query/hooks/useListModelCostsSuspense'
 export type { ListProvidersQueryKey } from './react-query/hooks/useListProviders'
 export type { ListProvidersSuspenseQueryKey } from './react-query/hooks/useListProvidersSuspense'
 export type { ListSourcesQueryKey } from './react-query/hooks/useListSources'
@@ -58,7 +56,6 @@ export type { UpdateAgentMutationKey } from './react-query/hooks/useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './react-query/hooks/useUpdateAgentConfiguration'
 export type { UpdateConnectionMutationKey } from './react-query/hooks/useUpdateConnection'
 export type { UpdateConversationMutationKey } from './react-query/hooks/useUpdateConversation'
-export type { UpdateProviderMutationKey } from './react-query/hooks/useUpdateProvider'
 export type { UpdateSourceMutationKey } from './react-query/hooks/useUpdateSource'
 export type { UploadFilesMutationKey } from './react-query/hooks/useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './react-query/hooks/useUploadFilesConversation'
@@ -386,16 +383,6 @@ export type {
   ListMessagesQueryResponseSchema,
 } from './schemas/listMessagesSchema'
 export type {
-  ListModelCosts200Schema,
-  ListModelCosts400Schema,
-  ListModelCosts401Schema,
-  ListModelCosts403Schema,
-  ListModelCosts404Schema,
-  ListModelCosts429Schema,
-  ListModelCosts500Schema,
-  ListModelCostsQueryResponseSchema,
-} from './schemas/listModelCostsSchema'
-export type {
   ListProvidersQueryParamsSchema,
   ListProviders200Schema,
   ListProviders400Schema,
@@ -538,18 +525,6 @@ export type {
   UpdateConversationMutationResponseSchema,
 } from './schemas/updateConversationSchema'
 export type {
-  UpdateProviderPathParamsSchema,
-  UpdateProvider204Schema,
-  UpdateProvider400Schema,
-  UpdateProvider401Schema,
-  UpdateProvider403Schema,
-  UpdateProvider404Schema,
-  UpdateProvider429Schema,
-  UpdateProvider500Schema,
-  UpdateProviderMutationRequestSchema,
-  UpdateProviderMutationResponseSchema,
-} from './schemas/updateProviderSchema'
-export type {
   UpdateSourcePathParamsSchema,
   UpdateSource204Schema,
   UpdateSource400Schema,
@@ -643,7 +618,7 @@ export type {
   CreateProvider404,
   CreateProvider429,
   CreateProvider500,
-  CreateProviderMutationRequestAppEnum,
+  CreateProviderMutationRequestProviderEnum,
   CreateProviderMutationRequest,
   CreateProviderMutationResponse,
   CreateProviderMutation,
@@ -789,10 +764,10 @@ export type {
 export type {
   GetAgentConfigurationPathParams,
   GetAgentConfigurationQueryParams,
-  LanguageModelTypeEnum,
-  ProviderAppEnum,
-  EmbeddingModelTypeEnum,
-  ProviderAppEnum2,
+  LanguageModeSettingsProviderEnum,
+  LanguageModeSettingsTypeEnum,
+  EmbeddingModelSettingsProviderEnum,
+  EmbeddingModelSettingsTypeEnum,
   PromptMessagesRoleEnum,
   GetAgentConfiguration200,
   GetAgentConfiguration400,
@@ -874,7 +849,7 @@ export type {
 export type {
   GetProviderPathParams,
   GetProviderQueryParams,
-  ProviderAppEnum3,
+  ProviderProviderEnum,
   GetProvider200,
   GetProvider400,
   GetProvider401,
@@ -1014,21 +989,9 @@ export type {
   ListMessagesQuery,
 } from './types/ListMessages'
 export type {
-  ModelCostsOperatorEnum,
-  ListModelCosts200,
-  ListModelCosts400,
-  ListModelCosts401,
-  ListModelCosts403,
-  ListModelCosts404,
-  ListModelCosts429,
-  ListModelCosts500,
-  ListModelCostsQueryResponse,
-  ListModelCostsQuery,
-} from './types/ListModelCosts'
-export type {
-  ListProvidersQueryParamsAppEnum,
+  ListProvidersQueryParamsProviderEnum,
   ListProvidersQueryParams,
-  ProvidersAppEnum,
+  ProvidersProviderEnum,
   ListProviders200,
   ListProviders400,
   ListProviders401,
@@ -1346,6 +1309,9 @@ export type {
   UpdateAgentConfiguration404,
   UpdateAgentConfiguration429,
   UpdateAgentConfiguration500,
+  LanguageModelSettingsProviderEnum,
+  EmbeddingModelSettingsProviderEnum2,
+  PromptMessagesRoleEnum2,
   UpdateAgentConfigurationMutationRequest,
   UpdateAgentConfigurationMutationResponse,
   UpdateAgentConfigurationMutation,
@@ -1378,20 +1344,6 @@ export type {
   UpdateConversationMutationResponse,
   UpdateConversationMutation,
 } from './types/UpdateConversation'
-export type {
-  UpdateProviderPathParams,
-  UpdateProvider204Enum,
-  UpdateProvider204,
-  UpdateProvider400,
-  UpdateProvider401,
-  UpdateProvider403,
-  UpdateProvider404,
-  UpdateProvider429,
-  UpdateProvider500,
-  UpdateProviderMutationRequest,
-  UpdateProviderMutationResponse,
-  UpdateProviderMutation,
-} from './types/UpdateProvider'
 export type {
   UpdateSourcePathParams,
   UpdateSource204Enum,
@@ -1479,7 +1431,6 @@ export { listAgentSources } from './operations/listAgentSources'
 export { listConnections } from './operations/listConnections'
 export { listConversations } from './operations/listConversations'
 export { listMessages } from './operations/listMessages'
-export { listModelCosts } from './operations/listModelCosts'
 export { listProviders } from './operations/listProviders'
 export { listSources } from './operations/listSources'
 export { manageAgentSources } from './operations/manageAgentSources'
@@ -1492,7 +1443,6 @@ export { updateAgent } from './operations/updateAgent'
 export { updateAgentConfiguration } from './operations/updateAgentConfiguration'
 export { updateConnection } from './operations/updateConnection'
 export { updateConversation } from './operations/updateConversation'
-export { updateProvider } from './operations/updateProvider'
 export { updateSource } from './operations/updateSource'
 export { uploadFiles } from './operations/uploadFiles'
 export { uploadFilesConversation } from './operations/uploadFilesConversation'
@@ -1700,16 +1650,6 @@ export {
   useListMessagesSuspense,
 } from './react-query/hooks/useListMessagesSuspense'
 export {
-  listModelCostsQueryKey,
-  listModelCostsQueryOptions,
-  useListModelCosts,
-} from './react-query/hooks/useListModelCosts'
-export {
-  listModelCostsSuspenseQueryKey,
-  listModelCostsSuspenseQueryOptions,
-  useListModelCostsSuspense,
-} from './react-query/hooks/useListModelCostsSuspense'
-export {
   listProvidersQueryKey,
   listProvidersQueryOptions,
   useListProviders,
@@ -1775,10 +1715,6 @@ export {
   updateConversationMutationKey,
   useUpdateConversation,
 } from './react-query/hooks/useUpdateConversation'
-export {
-  updateProviderMutationKey,
-  useUpdateProvider,
-} from './react-query/hooks/useUpdateProvider'
 export {
   updateSourceMutationKey,
   useUpdateSource,
@@ -2118,16 +2054,6 @@ export {
   listMessagesQueryResponseSchema,
 } from './schemas/listMessagesSchema'
 export {
-  listModelCosts200Schema,
-  listModelCosts400Schema,
-  listModelCosts401Schema,
-  listModelCosts403Schema,
-  listModelCosts404Schema,
-  listModelCosts429Schema,
-  listModelCosts500Schema,
-  listModelCostsQueryResponseSchema,
-} from './schemas/listModelCostsSchema'
-export {
   listProvidersQueryParamsSchema,
   listProviders200Schema,
   listProviders400Schema,
@@ -2270,18 +2196,6 @@ export {
   updateConversationMutationResponseSchema,
 } from './schemas/updateConversationSchema'
 export {
-  updateProviderPathParamsSchema,
-  updateProvider204Schema,
-  updateProvider400Schema,
-  updateProvider401Schema,
-  updateProvider403Schema,
-  updateProvider404Schema,
-  updateProvider429Schema,
-  updateProvider500Schema,
-  updateProviderMutationRequestSchema,
-  updateProviderMutationResponseSchema,
-} from './schemas/updateProviderSchema'
-export {
   updateSourcePathParamsSchema,
   updateSource204Schema,
   updateSource400Schema,
@@ -2331,7 +2245,7 @@ export {
 } from './schemas/uploadFilesSourceSchema'
 export { createConnectionMutationRequestAppEnum } from './types/CreateConnection'
 export { createConversationMutationRequestVisibilityEnum } from './types/CreateConversation'
-export { createProviderMutationRequestAppEnum } from './types/CreateProvider'
+export { createProviderMutationRequestProviderEnum } from './types/CreateProvider'
 export {
   createSourceMutationRequestTypeEnum2,
   createSourceMutationRequestTypeEnum3,
@@ -2346,16 +2260,16 @@ export { deleteProvider204Enum } from './types/DeleteProvider'
 export { deleteSource204Enum } from './types/DeleteSource'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './types/GenerateUploadSignatureSource'
 export {
-  languageModelTypeEnum,
-  providerAppEnum,
-  embeddingModelTypeEnum,
-  providerAppEnum2,
+  languageModeSettingsProviderEnum,
+  languageModeSettingsTypeEnum,
+  embeddingModelSettingsProviderEnum,
+  embeddingModelSettingsTypeEnum,
   promptMessagesRoleEnum,
 } from './types/GetAgentConfiguration'
 export { connectionAppEnum } from './types/GetConnection'
 export { conversationVisibilityEnum } from './types/GetConversation'
 export { fileBucketEnum, fileScopeEnum } from './types/GetFile'
-export { providerAppEnum3 } from './types/GetProvider'
+export { providerProviderEnum } from './types/GetProvider'
 export { sourceTypeEnum } from './types/GetSource'
 export {
   listConnectionsQueryParamsAppEnum,
@@ -2404,10 +2318,9 @@ export {
   partsStateEnum16,
   approvalApprovedEnum6,
 } from './types/ListMessages'
-export { modelCostsOperatorEnum } from './types/ListModelCosts'
 export {
-  listProvidersQueryParamsAppEnum,
-  providersAppEnum,
+  listProvidersQueryParamsProviderEnum,
+  providersProviderEnum,
 } from './types/ListProviders'
 export { sourcesTypeEnum } from './types/ListSources'
 export { manageAgentSources204Enum } from './types/ManageAgentSources'
@@ -2609,10 +2522,14 @@ export {
 } from './types/SendMessage'
 export { stopMessage204Enum } from './types/StopMessage'
 export { updateAgent204Enum } from './types/UpdateAgent'
-export { updateAgentConfiguration204Enum } from './types/UpdateAgentConfiguration'
+export {
+  updateAgentConfiguration204Enum,
+  languageModelSettingsProviderEnum,
+  embeddingModelSettingsProviderEnum2,
+  promptMessagesRoleEnum2,
+} from './types/UpdateAgentConfiguration'
 export { updateConnection204Enum } from './types/UpdateConnection'
 export { updateConversation204Enum } from './types/UpdateConversation'
-export { updateProvider204Enum } from './types/UpdateProvider'
 export { updateSource204Enum } from './types/UpdateSource'
 export { filesStatusEnum, filesStatusEnum2 } from './types/UploadFiles'
 export {

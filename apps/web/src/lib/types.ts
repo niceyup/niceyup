@@ -51,20 +51,12 @@ export type Chat = {
 
 export type ConversationVisibility = 'private' | 'shared' | 'team'
 
-export type MessageStatus = AIMessageStatus
-
-export type MessageRole = AIMessageRole
-
-export type MessagePart = AIMessagePart
-
-export type MessageMetadata = AIMessageMetadata
-
 export type Message = {
   id: string
-  status: MessageStatus
-  role: MessageRole
-  parts: MessagePart[] | null
-  metadata?: MessageMetadata | null
+  status: AIMessageStatus
+  role: AIMessageRole
+  parts: AIMessagePart[] | null
+  metadata?: AIMessageMetadata | null
   authorId?: string | null
 }
 

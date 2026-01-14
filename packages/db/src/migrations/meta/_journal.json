@@ -239,6 +239,27 @@
       "when": 1767107501368,
       "tag": "0033_eminent_paibok",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1767923185423,
+      "tag": "0034_broken_spirit",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1768087922454,
+      "tag": "0035_romantic_ma_gnuci",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1768259181036,
+      "tag": "0036_abnormal_ronan",
+      "breakpoints": true
     }
   ]
 }

@@ -34,6 +34,15 @@ export type GetDatabaseSchema200 = {
      */
     name: string
     /**
+     * @type object | undefined
+     */
+    meta?: {
+      /**
+       * @type string | undefined
+       */
+      description?: string
+    }
+    /**
      * @type array
      */
     columns: {
@@ -41,6 +50,19 @@ export type GetDatabaseSchema200 = {
        * @type string
        */
       name: string
+      /**
+       * @type object | undefined
+       */
+      meta?: {
+        /**
+         * @type string | undefined
+         */
+        description?: string
+        /**
+         * @type boolean | undefined
+         */
+        properNoun?: boolean
+      }
       /**
        * @type string
        */

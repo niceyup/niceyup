@@ -1,9 +1,9 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { connectionAppSchema } from '@workspace/core/connections'
 import { queries } from '@workspace/db/queries'
-import { connectionAppSchema } from '@workspace/engine/connections'
 import { z } from 'zod'
 
 export async function listConnections(app: FastifyTypedInstance) {
@@ -41,7 +41,7 @@ export async function listConnections(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug, app } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,

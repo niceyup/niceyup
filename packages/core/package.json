@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/core",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@workspace/ai": "workspace:*",
+    "@workspace/env": "workspace:*",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@workspace/tsconfig": "workspace:*",
+    "typescript": "^5.7.3"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./conversations": "./src/conversations/index.ts",
+    "./models": "./src/models/index.ts",
+    "./connections": "./src/connections/index.ts",
+    "./providers": "./src/providers/index.ts",
+    "./sources": "./src/sources/index.ts"
+  }
+}

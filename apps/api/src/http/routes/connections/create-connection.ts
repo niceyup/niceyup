@@ -1,14 +1,14 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
-import { db } from '@workspace/db'
-import { connections } from '@workspace/db/schema'
 import {
   connectionAppSchema,
-  connectionSchema,
-} from '@workspace/engine/connections'
+  validateConnection,
+} from '@workspace/core/connections'
+import { db } from '@workspace/db'
+import { connections } from '@workspace/db/schema'
 import { z } from 'zod'
 
 export async function createConnection(app: FastifyTypedInstance) {
@@ -24,7 +24,7 @@ export async function createConnection(app: FastifyTypedInstance) {
           organizationSlug: z.string().optional(),
           app: connectionAppSchema,
           name: z.string(),
-          payload: z.record(z.string(), z.unknown()),
+          credentials: z.record(z.string(), z.unknown()).nullish(),
         }),
         response: withDefaultErrorResponses({
           201: z
@@ -40,26 +40,22 @@ export async function createConnection(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, app, name, payload } =
+      const { organizationId, organizationSlug, app, name, credentials } =
         request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
       })
 
-      const { payload: validatedPayload } = connectionSchema.parse({
-        app,
-        payload,
-      })
+      const validatedData = validateConnection({ app, credentials })
 
       const [connection] = await db
         .insert(connections)
         .values({
-          app,
           name,
-          payload: validatedPayload,
+          ...validatedData,
           organizationId: context.organizationId,
         })
         .returning({

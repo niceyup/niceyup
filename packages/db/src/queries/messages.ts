@@ -1,11 +1,11 @@
+import type {
+  AIMessageMetadata,
+  AIMessagePart,
+  AIMessageRole,
+  AIMessageStatus,
+} from '@workspace/ai/types'
 import { and, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '../db'
-import type {
-  MessageMetadata,
-  MessagePart,
-  MessageRole,
-  MessageStatus,
-} from '../lib/types'
 import { messages } from '../schema'
 
 type GetMessageParams = {
@@ -32,9 +32,9 @@ export async function getMessage(params: GetMessageParams) {
 
 type UpdateMessageParams = {
   messageId: string
-  status?: MessageStatus
-  parts?: MessagePart[]
-  metadata?: MessageMetadata
+  status?: AIMessageStatus
+  parts?: AIMessagePart[]
+  metadata?: AIMessageMetadata
 }
 
 export async function updateMessage(params: UpdateMessageParams) {
@@ -52,10 +52,10 @@ export async function updateMessage(params: UpdateMessageParams) {
 
 type MessageNode = {
   id: string
-  status: MessageStatus
-  role: MessageRole
-  parts: MessagePart[] | null
-  metadata: MessageMetadata | null
+  status: AIMessageStatus
+  role: AIMessageRole
+  parts: AIMessagePart[] | null
+  metadata: AIMessageMetadata | null
   authorId?: string | null
   parentId?: string | null
   children?: string[]

@@ -1,4 +1,5 @@
-import type { SourceType } from '@workspace/db/types'
+import type { EmbeddingModel } from '@workspace/ai'
+import type { SourceType } from '@workspace/core/sources'
 import { generateEmbeddings } from '../lib/embeddings'
 import type { Collection, SourcesDocument } from '../lib/types'
 import { index } from '../upstash-vector'
@@ -9,9 +10,12 @@ import type {
 } from './upsert'
 
 type QueryParams<T> = {
+  embeddingModel: EmbeddingModel
   namespace: string
   collection: T
+  agentId?: string
   sourceId?: string
+  sourceIds?: string[]
   sourceType?: SourceType
   query: string
   filter?: string
@@ -54,21 +58,32 @@ type QueryResult = {
 }
 
 export async function query<T extends Collection>(params: QueryParams<T>) {
-  let filter = `__collection = '${params.collection}'`
+  let filter = `__meta.collection = '${params.collection}'`
+
+  if (params.agentId) {
+    filter += ` AND __meta.agentId = '${params.agentId}'`
+  }
 
   if (params.sourceId) {
-    filter += ` AND __sourceId = '${params.sourceId}'`
+    filter += ` AND __meta.sourceId = '${params.sourceId}'`
+  }
+
+  if (params.sourceIds) {
+    filter += ` AND __meta.sourceId IN (${params.sourceIds.map((id) => `'${id}'`).join(', ')})`
   }
 
   if (params.sourceType) {
-    filter += ` AND __sourceType = '${params.sourceType}'`
+    filter += ` AND __meta.sourceType = '${params.sourceType}'`
   }
 
   if (params.filter) {
     filter += ` AND (${params.filter})`
   }
 
-  const [vector] = await generateEmbeddings({ value: params.query })
+  const [vector] = await generateEmbeddings({
+    embeddingModel: params.embeddingModel,
+    value: params.query,
+  })
 
   const documents = await index.namespace(params.namespace).query({
     vector: vector || [],
@@ -79,14 +94,14 @@ export async function query<T extends Collection>(params: QueryParams<T>) {
   })
 
   const result = documents.map((doc) => {
-    const { __collection, __sourceId, __sourceType, ...metadata } =
-      doc.metadata as any
+    const { __meta, ...metadata } = doc.metadata as any
 
     return {
       id: doc.id,
-      collection: __collection,
-      sourceId: __sourceId,
-      sourceType: __sourceType,
+      collection: __meta.collection,
+      agentId: __meta.agentId,
+      sourceId: __meta.sourceId,
+      sourceType: __meta.sourceType,
       data: {
         content: doc.data,
         metadata,

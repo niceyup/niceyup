@@ -8,8 +8,8 @@ import type {
   AgentParams,
   Chat,
   ChatParams,
+  Message,
   MessageNode,
-  MessageRole,
   OrganizationTeamParams,
   PromptInputStatus,
   PromptMessagePart,
@@ -24,7 +24,7 @@ type Params = OrganizationTeamParams & AgentParams & ChatParams
 
 export type ChatMessageNode = MessageNode & { isPersisted?: boolean }
 
-type ChatLoadingMessage = { id: string; role: MessageRole }
+type ChatLoadingMessage = { id: string; role: Message['role'] }
 
 // Memoized message index for O(1) lookups
 const createMessageNodeIndex = (messageNodes: ChatMessageNode[]) => {
@@ -146,7 +146,7 @@ const createBranchChangeHandler = (
     }: {
       previousNodeId: string
       targetNodeId: string
-      role: MessageRole
+      role: Message['role']
     }) => {
       // Check if message node is already loaded using the index
       const messageNodeIndex = createMessageNodeIndex(loadedMessageNodes)

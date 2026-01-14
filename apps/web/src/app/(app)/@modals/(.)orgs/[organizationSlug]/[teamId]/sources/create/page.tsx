@@ -2,6 +2,7 @@ import { isOrganizationMemberAdmin } from '@/actions/membership'
 import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Dialog,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@workspace/ui/components/dialog'
@@ -23,16 +24,13 @@ export default async function Page({
 
   return (
     <Dialog defaultOpen>
-      <InterceptedDialogContent>
+      <InterceptedDialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-center font-semibold text-xl leading-none">
-            Create a Source
-          </DialogTitle>
+          <DialogTitle>Add Source</DialogTitle>
+          <DialogDescription>Add a data source to an agent.</DialogDescription>
         </DialogHeader>
 
-        <div className="mt-5">
-          <CreateSourceForm />
-        </div>
+        <CreateSourceForm modal organizationSlug={organizationSlug} />
       </InterceptedDialogContent>
     </Dialog>
   )

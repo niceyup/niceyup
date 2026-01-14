@@ -56,7 +56,7 @@ export default async function Page({
       <Header selectedOrganizationLabel="Onboarding" />
 
       <main className="flex flex-1 flex-col items-center justify-center gap-4">
-        <div className="w-full max-w-xl p-4 md:p-10">
+        <div className="w-full max-w-xl p-4">
           <Card>
             <CardHeader>
               <div className="mx-auto flex flex-row items-center justify-center gap-4">

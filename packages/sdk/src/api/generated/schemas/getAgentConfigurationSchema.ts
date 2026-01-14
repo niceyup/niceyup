@@ -42,47 +42,23 @@ export const getAgentConfiguration200Schema = z
   .object({
     agent: z.object({
       id: z.string(),
-      languageModel: z
+      languageModeSettings: z
         .object({
           id: z.string(),
-          type: z.enum(['language_model', 'embedding_model']),
+          provider: z.enum(['openai', 'google']),
           model: z.string(),
+          type: z.enum(['language-model', 'embedding-model']),
           options: z.object({}).catchall(z.any()).nullable().nullish(),
-          provider: z
-            .object({
-              id: z.string(),
-              app: z.enum([
-                'openai',
-                'anthropic',
-                'google',
-                'openai-compatible',
-              ]),
-              payload: z.object({}).catchall(z.any()).nullable().nullish(),
-            })
-            .nullable()
-            .nullish(),
         })
         .nullable()
         .nullish(),
-      embeddingModel: z
+      embeddingModelSettings: z
         .object({
           id: z.string(),
-          type: z.enum(['language_model', 'embedding_model']),
+          provider: z.enum(['openai', 'google']),
           model: z.string(),
+          type: z.enum(['language-model', 'embedding-model']),
           options: z.object({}).catchall(z.any()).nullable().nullish(),
-          provider: z
-            .object({
-              id: z.string(),
-              app: z.enum([
-                'openai',
-                'anthropic',
-                'google',
-                'openai-compatible',
-              ]),
-              payload: z.object({}).catchall(z.any()).nullable().nullish(),
-            })
-            .nullable()
-            .nullish(),
         })
         .nullable()
         .nullish(),

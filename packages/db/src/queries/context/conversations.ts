@@ -1,6 +1,6 @@
+import type { ConversationVisibility } from '@workspace/core/conversations'
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '../../db'
-import type { ConversationVisibility } from '../../lib/types'
 import { conversations, conversationsToUsers, teamMembers } from '../../schema'
 import { getAgent } from './agents'
 

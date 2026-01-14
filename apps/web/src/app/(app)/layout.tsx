@@ -1,4 +1,5 @@
 import { checkAccess } from '../access-required/_actions/check-access'
+import { UploadLocalFileSourceOverlay } from './orgs/[organizationSlug]/[teamId]/(main)/(admin)/sources/create/_components/upload-local-file-source-overlay'
 
 export default async function Layout({
   children,
@@ -16,6 +17,8 @@ export default async function Layout({
       </div>
 
       {modals}
+
+      <UploadLocalFileSourceOverlay />
     </>
   )
 }

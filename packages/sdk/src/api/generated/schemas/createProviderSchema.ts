@@ -124,9 +124,8 @@ export type CreateProvider500Schema = CreateProvider500
 export const createProviderMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
-  app: z.enum(['openai', 'anthropic', 'google', 'openai-compatible']),
-  name: z.string(),
-  payload: z.object({}).catchall(z.any()),
+  provider: z.enum(['openai', 'google']),
+  credentials: z.object({}).catchall(z.any()).nullable().nullish(),
 }) as unknown as ToZod<CreateProviderMutationRequest>
 
 export type CreateProviderMutationRequestSchema = CreateProviderMutationRequest

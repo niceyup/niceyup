@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
     '@workspace/auth',
     '@workspace/billing',
     '@workspace/cache',
+    '@workspace/core',
     '@workspace/db',
     '@workspace/engine',
     '@workspace/env',

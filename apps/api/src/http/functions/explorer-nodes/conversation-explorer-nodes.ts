@@ -1,8 +1,8 @@
+import type { ConversationVisibility } from '@workspace/core/conversations'
 import type { DBTransaction } from '@workspace/db'
 import { db } from '@workspace/db'
 import { and, eq, isNull, sql } from '@workspace/db/orm'
 import { conversationExplorerNodes } from '@workspace/db/schema'
-import type { ConversationVisibility } from '@workspace/db/types'
 import { generateKeyBetween } from 'jittered-fractional-indexing'
 
 type GetConversationExplorerNodeFolderParams = {

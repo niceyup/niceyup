@@ -1,14 +1,14 @@
+import type { ProviderCredentials } from '@workspace/core/providers'
 import { db, generateId } from '@workspace/db'
 import {
   agents,
   members,
-  models,
+  modelSettings,
   organizations,
   providers,
   teamMembers,
   teams,
 } from '@workspace/db/schema'
-import type { ProviderPayload } from '@workspace/db/types'
 
 export async function setupDefaultIndividualOrganization(user: {
   id: string
@@ -68,36 +68,39 @@ export async function setupDefaultTeamAndAgent(member: {
       userId: member.userId,
     })
 
-    const [provider] = await tx
+    await tx
       .insert(providers)
       .values({
-        app: 'openai',
-        name: 'OpenAI',
-        payload: {
+        provider: 'openai',
+        credentials: {
           apiKey: process.env.OPENAI_API_KEY,
-        } as ProviderPayload,
+        } as ProviderCredentials,
         organizationId: member.organizationId,
       })
       .returning({
         id: providers.id,
       })
 
-    const [languageModel] = await tx
-      .insert(models)
+    const [languageModelSettings] = await tx
+      .insert(modelSettings)
       .values({
-        type: 'language_model',
-        model: 'openai/gpt-4.1',
-        options: {
-          maxOutputTokens: 64000,
-          temperature: 0.7,
-          topP: 1,
-          frequencyPenalty: 0,
-          presencePenalty: 0,
-        },
-        providerId: provider?.id,
+        provider: 'openai',
+        model: 'gpt-4.1',
+        type: 'language-model',
       })
       .returning({
-        id: models.id,
+        id: modelSettings.id,
+      })
+
+    const [embeddingModelSettings] = await tx
+      .insert(modelSettings)
+      .values({
+        provider: 'openai',
+        model: 'text-embedding-3-small',
+        type: 'embedding-model',
+      })
+      .returning({
+        id: modelSettings.id,
       })
 
     await tx.insert(agents).values({
@@ -106,10 +109,20 @@ export async function setupDefaultTeamAndAgent(member: {
       description: 'Your AI-Powered Assistant for Work and Life',
       tags: ['OpenAI', 'Anthropic', 'Google'],
 
-      languageModelId: languageModel?.id,
+      languageModelSettingsId: languageModelSettings?.id,
+      embeddingModelSettingsId: embeddingModelSettings?.id,
 
-      systemMessage:
-        'You are a helpful assistant. Check your knowledge base before answering any questions.\nOnly respond to questions using information from tool calls.\nIf no relevant information is found in the tool calls, respond, "Sorry, I don\'t know."',
+      systemMessage: `
+You are a helpful assistant that answers questions using only your knowledge base.
+
+CRITICAL RULES:
+1. ALWAYS call retrieve_sources tool first for every question
+2. Answer ONLY with information from the tool
+3. Respond in the SAME LANGUAGE as the user's question
+4. If tool returns nothing, say you don't have that information (in user's language)
+
+Never use external knowledge. Never answer without calling the tool.
+`,
       promptMessages: [],
       suggestions: [
         'What are the latest trends in AI?',

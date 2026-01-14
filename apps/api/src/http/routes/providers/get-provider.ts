@@ -1,10 +1,10 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { providerSchema } from '@workspace/core/providers'
 import { queries } from '@workspace/db/queries'
-import { providerAppSchema } from '@workspace/engine/providers'
 import { z } from 'zod'
 
 export async function getProvider(app: FastifyTypedInstance) {
@@ -27,8 +27,8 @@ export async function getProvider(app: FastifyTypedInstance) {
             .object({
               provider: z.object({
                 id: z.string(),
-                app: providerAppSchema,
-                name: z.string(),
+                provider: providerSchema,
+                credentials: z.record(z.string(), z.unknown()).nullable(),
                 updatedAt: z.date(),
               }),
             })
@@ -45,7 +45,7 @@ export async function getProvider(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,

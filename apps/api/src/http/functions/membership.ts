@@ -1,7 +1,7 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { queries } from '@workspace/db/queries'
 
-export async function getMembershipContext({
+export async function resolveMembershipContext({
   userId,
   organizationId,
   organizationSlug,

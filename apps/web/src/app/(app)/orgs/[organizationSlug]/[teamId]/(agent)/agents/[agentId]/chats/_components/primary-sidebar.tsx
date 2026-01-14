@@ -27,7 +27,7 @@ export function PrimarySidebar({ params }: { params: Params }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="secondary" size="icon" className="size-8">
-              <MessagesSquareIcon className="size-4" />
+              <MessagesSquareIcon />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Chats</TooltipContent>
@@ -36,7 +36,7 @@ export function PrimarySidebar({ params }: { params: Params }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8">
-              <FolderTreeIcon className="size-4" />
+              <FolderTreeIcon />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Explorer</TooltipContent>
@@ -45,7 +45,7 @@ export function PrimarySidebar({ params }: { params: Params }) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="size-8">
-              <SearchIcon className="size-4" />
+              <SearchIcon />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Search</TooltipContent>
@@ -87,7 +87,7 @@ async function ChatList({ params }: { params: Params }) {
         <Link
           href={`/orgs/${params.organizationSlug}/${params.teamId}/agents/${params.agentId}/chats/new`}
         >
-          <PlusIcon className="size-4" /> New chat
+          <PlusIcon /> New chat
         </Link>
       </Button>
 

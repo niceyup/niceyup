@@ -1,7 +1,7 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { sendUserMessageToAssistant } from '@/http/functions/ai-assistant'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
+import { streamAgentResponse } from '@/http/functions/stream-agent-response'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import {
@@ -64,7 +64,7 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
       const { organizationId, organizationSlug, agentId, parentMessageId } =
         request.body
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -137,7 +137,7 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         return { assistantMessage: { ...assistantMessage, children: [] } }
       })
 
-      sendUserMessageToAssistant({
+      streamAgentResponse({
         conversationId,
         userMessage: {
           id: parentMessage.id,

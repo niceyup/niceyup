@@ -98,7 +98,7 @@ export function TeamList({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      <MoreHorizontalIcon className="size-4" />
+                      <MoreHorizontalIcon />
                     </Button>
                   </DropdownMenuTrigger>
 

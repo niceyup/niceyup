@@ -426,7 +426,7 @@ function ChatExplorerItem() {
     return (
       <TreeItemLabel>
         <span className="flex items-center gap-2">
-          <Spinner className="size-4 text-muted-foreground" />
+          <Spinner className="text-muted-foreground" />
           <p className="text-muted-foreground italic">Loading</p>
         </span>
       </TreeItemLabel>
@@ -462,7 +462,7 @@ function ChatExplorerItemLabel() {
   return (
     <span className="flex flex-1 items-center gap-2">
       {item.isLoading() ? (
-        <Spinner className="size-4 text-muted-foreground" />
+        <Spinner className="text-muted-foreground" />
       ) : item.isFolder() ? (
         item.isExpanded() ? (
           <FolderOpenIcon className="size-4 text-muted-foreground" />
@@ -523,7 +523,7 @@ function ChatExplorerItemActions() {
             className="size-6 rounded-sm"
             disabled={item.isLoading()}
           >
-            <MoreVerticalIcon className="size-4" />
+            <MoreVerticalIcon />
           </Button>
         </DropdownMenuTrigger>
 

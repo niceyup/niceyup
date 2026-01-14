@@ -96,7 +96,7 @@ export function PendingInvitationsList({
           onClick={() => setInviteMemberDialogOpen(true)}
         >
           <PlusIcon />
-          Invite Member
+          Invite member
         </Button>
       </div>
 
@@ -113,7 +113,7 @@ export function PendingInvitationsList({
             <EmptyContent>
               <Button onClick={() => setInviteMemberDialogOpen(true)}>
                 <PlusIcon />
-                Invite Member
+                Invite member
               </Button>
             </EmptyContent>
           </Empty>
@@ -174,7 +174,7 @@ export function PendingInvitationsList({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
-                        <MoreHorizontalIcon className="size-4" />
+                        <MoreHorizontalIcon />
                       </Button>
                     </DropdownMenuTrigger>
 

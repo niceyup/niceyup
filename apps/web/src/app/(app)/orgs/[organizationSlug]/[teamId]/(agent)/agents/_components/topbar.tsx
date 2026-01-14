@@ -1,14 +1,14 @@
 'use client'
 
 import type { ChatParams } from '@/lib/types'
-import { useAppearance } from '@/store/use-appearance'
 import { cn } from '@workspace/ui/lib/utils'
 import { useParams } from 'next/navigation'
+import { useChatAppearance } from '../_store/use-chat-appearance'
 
 export function Topbar({ children }: { children: React.ReactNode }) {
   const params = useParams<ChatParams>()
 
-  const { topbar } = useAppearance()
+  const { topbar } = useChatAppearance()
 
   if (params.chatId) {
     return (

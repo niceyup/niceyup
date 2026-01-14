@@ -1,7 +1,8 @@
+import type { EmbeddingModel } from '@workspace/ai'
 import type {
   DatabaseSourceTableMetadata,
   SourceType,
-} from '@workspace/db/types'
+} from '@workspace/core/sources'
 import { generateEmbeddings } from '../lib/embeddings'
 import type { SingleOrMultiple, SourcesDocument } from '../lib/types'
 import { deterministicUuid } from '../lib/utils'
@@ -28,6 +29,7 @@ export type DatabaseSourceQueryExamplesDocument = {
 
 type SourcesCollectionUpsertParams = {
   collection: 'sources'
+  agentId: string
   sourceId: string
   sourceType: SourceType
   data: SingleOrMultiple<SourcesDocument>
@@ -35,6 +37,7 @@ type SourcesCollectionUpsertParams = {
 
 type DatabaseSourceTablesMetadataCollectionUpsertParams = {
   collection: 'database-source-tables-metadata'
+  agentId: string
   sourceId: string
   sourceType: 'database'
   data: SingleOrMultiple<DatabaseSourceTablesMetadataDocument>
@@ -42,6 +45,7 @@ type DatabaseSourceTablesMetadataCollectionUpsertParams = {
 
 type DatabaseSourceProperNounsCollectionUpsertParams = {
   collection: 'database-source-proper-nouns'
+  agentId: string
   sourceId: string
   sourceType: 'database'
   data: SingleOrMultiple<DatabaseSourceProperNounsDocument>
@@ -49,12 +53,14 @@ type DatabaseSourceProperNounsCollectionUpsertParams = {
 
 type DatabaseSourceQueryExamplesCollectionUpsertParams = {
   collection: 'database-source-query-examples'
+  agentId: string
   sourceId: string
   sourceType: 'database'
   data: SingleOrMultiple<DatabaseSourceQueryExamplesDocument>
 }
 
 type UpsertParams = {
+  embeddingModel: EmbeddingModel
   namespace: string
 } & (
   | SourcesCollectionUpsertParams
@@ -67,21 +73,29 @@ export async function upsert(params: UpsertParams) {
   const data = Array.isArray(params.data) ? params.data : [params.data]
 
   const embeddings = await generateEmbeddings({
+    embeddingModel: params.embeddingModel,
     value: data.map((d) => d.content),
   })
 
   const documents = data.map((d, index) => ({
     id: deterministicUuid(
-      [params.collection, params.sourceId, params.sourceType, d.content].join(
-        ':',
-      ),
+      [
+        params.collection,
+        params.agentId,
+        params.sourceId,
+        params.sourceType,
+        d.content,
+      ].join(':'),
     ),
     vector: embeddings[index],
     data: d.content,
     metadata: {
-      __collection: params.collection,
-      __sourceId: params.sourceId,
-      __sourceType: params.sourceType,
+      __meta: {
+        collection: params.collection,
+        agentId: params.agentId,
+        sourceId: params.sourceId,
+        sourceType: params.sourceType,
+      },
       ...d.metadata,
     },
   }))

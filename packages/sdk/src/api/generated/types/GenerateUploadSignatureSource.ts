@@ -114,9 +114,9 @@ export type GenerateUploadSignatureSourceMutationRequestSourceTypeEnum =
 
 export type GenerateUploadSignatureSourceMutationRequest = {
   /**
-   * @type string
+   * @type string | undefined
    */
-  organizationId?: string | null
+  organizationId?: string
   /**
    * @type string | undefined
    */

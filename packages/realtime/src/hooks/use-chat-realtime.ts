@@ -1,6 +1,6 @@
 'use client'
 
-import type { ConversationVisibility } from '@workspace/db/types'
+import type { ConversationVisibility } from '@workspace/core/conversations'
 import * as React from 'react'
 import type { AIMessageNode } from '../lib/types'
 

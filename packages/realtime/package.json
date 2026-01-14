@@ -10,6 +10,7 @@
   "dependencies": {
     "@workspace/ai": "workspace:*",
     "@workspace/cache": "workspace:*",
+    "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/env": "workspace:*",
     "resumable-stream": "^2.2.8",

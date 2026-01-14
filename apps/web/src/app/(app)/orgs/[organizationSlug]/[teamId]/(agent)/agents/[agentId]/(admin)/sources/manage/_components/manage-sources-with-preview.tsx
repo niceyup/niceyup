@@ -58,7 +58,7 @@ export function ManageSourcesWithPreview({
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetContent className="sm:max-w-xl">
             <SheetHeader>
-              <SheetTitle>Source Preview</SheetTitle>
+              <SheetTitle>Source preview</SheetTitle>
               <SheetDescription>Preview the source here.</SheetDescription>
             </SheetHeader>
             <SourcePreview
@@ -74,7 +74,7 @@ export function ManageSourcesWithPreview({
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerContent className="h-full">
             <DrawerHeader className="text-left">
-              <DrawerTitle>Source Preview</DrawerTitle>
+              <DrawerTitle>Source preview</DrawerTitle>
               <DrawerDescription>Preview the source here.</DrawerDescription>
             </DrawerHeader>
             <SourcePreview

@@ -1,14 +1,26 @@
+import type { EmbeddingModel } from '@workspace/ai'
 import { vectorStore } from '@workspace/vector-store'
 
 export async function retrieveSources({
-  namespace,
+  embeddingModel,
+  agentId,
+  organizationId,
   question,
-}: { namespace: string; question: string }) {
+  topK,
+}: {
+  embeddingModel: EmbeddingModel
+  agentId: string
+  organizationId: string
+  question: string
+  topK?: number
+}) {
   const documents = await vectorStore.query({
-    namespace,
+    embeddingModel,
+    namespace: organizationId,
     collection: 'sources',
+    agentId,
     query: question,
-    topK: 10,
+    topK,
   })
 
   return documents.map(
@@ -35,7 +47,7 @@ export async function retrieveSources({
   // const databaseSourcesContent = await Promise.all(
   //   databaseSources.map(async (source) => {
   //     const structuredContent = await retrieveDatabaseSourceTablesMetadata({
-  //       namespace,
+  //       organizationId,
   //       question,
   //       sourceId: source.sourceId,
   //     })
@@ -55,13 +67,22 @@ export async function retrieveSources({
 }
 
 // export async function retrieveDatabaseSourceTablesMetadata({
-//   namespace,
+//   embeddingModel,
+//   languageModel,
+//   organizationId,
 //   question,
 //   sourceId,
-// }: { namespace: string; question: string; sourceId: string }) {
+// }: {
+//   embeddingModel: EmbeddingModel
+//   languageModel: LanguageModel
+//   organizationId: string
+//   question: string
+//   sourceId: string
+// }) {
 //   const [relevantTablesMetadata, relevantQueryExamples] = await Promise.all([
 //     vectorStore.query({
-//       namespace,
+//       embeddingModel,
+//       namespace: organizationId,
 //       collection: 'database-source-tables-metadata',
 //       sourceId,
 //       query: question,
@@ -69,7 +90,8 @@ export async function retrieveSources({
 //     }),
 
 //     vectorStore.query({
-//       namespace,
+//       embeddingModel,
+//       namespace: organizationId,
 //       collection: 'database-source-query-examples',
 //       sourceId,
 //       query: question,
@@ -90,17 +112,17 @@ export async function retrieveSources({
 //     .join('\n')
 
 //   const generatedQuery = await generateText({
-//     model: gateway.languageModel('openai/gpt-4.1'),
+//     model: languageModel,
 //     messages: templatePromptWriteQuery({ schema, queryExamples, question }),
 //   })
 
 //   const generatedEnhancedQuery = await generateText({
-//     model: gateway.languageModel('openai/gpt-4.1'),
+//     model: languageModel,
 //     tools: {
-//       searchProperNouns: searchProperNounsTool({ namespace, sourceId }),
+//       searchProperNouns: searchProperNounsTool({ organizationId, sourceId }),
 //     },
 //     stopWhen: stepCountIs(50),
-//     experimental_output: Output.object({
+//     output: Output.object({
 //       schema: z.object({
 //         query: z.string().describe('Query to get the data.'),
 //         properNouns: z.string().describe('Proper nouns replaced in the query.'),
@@ -115,7 +137,7 @@ export async function retrieveSources({
 //     'execute-query-db',
 //     {
 //       sourceId,
-//       query: generatedEnhancedQuery.experimental_output.query,
+//       query: generatedEnhancedQuery.output.query,
 //       tableNames: tables,
 //     },
 //   )
@@ -124,13 +146,15 @@ export async function retrieveSources({
 // }
 
 // export async function retrieveDatabaseSourceProperNouns({
-//   namespace,
+//   embeddingModel,
+//   organizationId,
 //   sourceId,
 //   tableName,
 //   columnName,
 //   search,
 // }: {
-//   namespace: string
+//   embeddingModel: EmbeddingModel
+//   organizationId: string
 //   sourceId: string
 //   tableName: string
 //   columnName: string
@@ -139,7 +163,8 @@ export async function retrieveSources({
 //   const key = `"${tableName}"."${columnName}"`
 
 //   const relevantProperNouns = await vectorStore.query({
-//     namespace,
+//     embeddingModel,
+//     namespace: organizationId,
 //     collection: 'database-source-proper-nouns',
 //     sourceId,
 //     query: search,

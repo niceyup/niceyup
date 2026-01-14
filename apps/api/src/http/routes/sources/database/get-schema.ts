@@ -1,10 +1,11 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { databaseSourceTableMetadataSchema } from '@workspace/core/sources'
 import { queries } from '@workspace/db/queries'
-import type { getDbSchemaTask } from '@workspace/engine/tasks/get-db-schema'
+import type { GetDbSchemaTask } from '@workspace/engine/tasks/get-db-schema'
 import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
@@ -26,19 +27,7 @@ export async function getDatabaseSchema(app: FastifyTypedInstance) {
         response: withDefaultErrorResponses({
           200: z
             .object({
-              tablesMetadata: z.array(
-                z.object({
-                  name: z.string(),
-                  columns: z.array(
-                    z.object({
-                      name: z.string(),
-                      data_type: z.string(),
-                      foreign_table: z.string().optional(),
-                      foreign_column: z.string().optional(),
-                    }),
-                  ),
-                }),
-              ),
+              tablesMetadata: z.array(databaseSourceTableMetadataSchema),
             })
             .describe('Success'),
         }),
@@ -53,7 +42,7 @@ export async function getDatabaseSchema(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -75,7 +64,7 @@ export async function getDatabaseSchema(app: FastifyTypedInstance) {
         })
       }
 
-      const result = await tasks.triggerAndWait<typeof getDbSchemaTask>(
+      const result = await tasks.triggerAndWait<GetDbSchemaTask>(
         'get-db-schema',
         { sourceId },
       )

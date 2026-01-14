@@ -1,3 +1,24 @@
+import type {
+  AIMessageMetadata,
+  AIMessagePart,
+  AIMessageRole,
+  AIMessageStatus,
+} from '@workspace/ai/types'
+import type {
+  ConnectionApp,
+  ConnectionCredentials,
+  ConnectionTokens,
+} from '@workspace/core/connections'
+import type { ConversationVisibility } from '@workspace/core/conversations'
+import type { ModelSettingsOptions, ModelType } from '@workspace/core/models'
+import type { Provider, ProviderCredentials } from '@workspace/core/providers'
+import type {
+  DatabaseSourceDialect,
+  DatabaseSourceQueryExample,
+  DatabaseSourceTableMetadata,
+  SourceEmbeddingStatus,
+  SourceType,
+} from '@workspace/core/sources'
 import { relations } from 'drizzle-orm'
 import {
   boolean,
@@ -9,25 +30,10 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 import type {
-  ConnectionApp,
-  ConnectionPayload,
-  ConversationVisibility,
-  DatabaseSourceDialect,
-  DatabaseSourceQueryExample,
-  DatabaseSourceTableMetadata,
   FileBucket,
   FileMetadata,
   FileScope,
-  MessageMetadata,
-  MessagePart,
-  MessageRole,
-  MessageStatus,
-  ModelOptions,
-  ModelType,
   PromptMessage,
-  ProviderApp,
-  ProviderPayload,
-  SourceType,
 } from '../lib/types'
 import { encryptedJson, id, timestamps } from '../utils'
 import { organizations, teams, users } from './auth'
@@ -76,15 +82,12 @@ export const flagsToOrganizationsRelations = relations(
   }),
 )
 
-export const models = pgTable('models', {
+export const modelSettings = pgTable('model_settings', {
   ...id,
-  type: text('type').notNull().default('language_model').$type<ModelType>(),
+  provider: text('provider').notNull().$type<Provider>(),
   model: text('model').notNull(),
-  options: jsonb('options').$type<ModelOptions>(),
-
-  providerId: text('provider_id').references(() => providers.id, {
-    onDelete: 'set null',
-  }),
+  type: text('type').notNull().default('language-model').$type<ModelType>(),
+  options: jsonb('options').$type<ModelSettingsOptions>(),
 
   ...timestamps,
 })
@@ -99,12 +102,21 @@ export const agents = pgTable('agents', {
   published: boolean('published').notNull().default(false),
 
   // agent configuration
-  languageModelId: text('language_model_id').references(() => models.id, {
-    onDelete: 'set null',
-  }),
-  embeddingModelId: text('embedding_model_id').references(() => models.id, {
-    onDelete: 'set null',
-  }),
+  languageModelSettingsId: text('language_model_settings_id').references(
+    () => modelSettings.id,
+    {
+      onDelete: 'set null',
+    },
+  ),
+  embeddingModelSettingsId: text('embedding_model_settings_id').references(
+    () => modelSettings.id,
+    {
+      onDelete: 'set null',
+    },
+  ),
+  // vectorStoreId: text('vector_store_id').references(() => vectorStores.id, {
+  //   onDelete: 'set null',
+  // }),
 
   systemMessage: text('system_message'),
   promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
@@ -118,13 +130,13 @@ export const agents = pgTable('agents', {
 })
 
 export const agentsRelations = relations(agents, ({ one, many }) => ({
-  languageModel: one(models, {
-    fields: [agents.languageModelId],
-    references: [models.id],
+  languageModel: one(modelSettings, {
+    fields: [agents.languageModelSettingsId],
+    references: [modelSettings.id],
   }),
-  embeddingModel: one(models, {
-    fields: [agents.embeddingModelId],
-    references: [models.id],
+  embeddingModel: one(modelSettings, {
+    fields: [agents.embeddingModelSettingsId],
+    references: [modelSettings.id],
   }),
   conversations: many(conversations),
 }))
@@ -134,9 +146,12 @@ export const conversations = pgTable('conversations', {
   title: text('title').notNull().default('Untitled'),
 
   // conversation configuration
-  languageModelId: text('language_model_id').references(() => models.id, {
-    onDelete: 'set null',
-  }),
+  languageModelSettingsId: text('language_model_settings_id').references(
+    () => modelSettings.id,
+    {
+      onDelete: 'set null',
+    },
+  ),
 
   agentId: text('agent_id').references(() => agents.id, {
     onDelete: 'cascade',
@@ -155,9 +170,9 @@ export const conversations = pgTable('conversations', {
 export const conversationsRelations = relations(
   conversations,
   ({ one, many }) => ({
-    languageModel: one(models, {
-      fields: [conversations.languageModelId],
-      references: [models.id],
+    languageModel: one(modelSettings, {
+      fields: [conversations.languageModelSettingsId],
+      references: [modelSettings.id],
     }),
     agent: one(agents, {
       fields: [conversations.agentId],
@@ -170,10 +185,10 @@ export const conversationsRelations = relations(
 
 export const messages = pgTable('messages', {
   ...id,
-  status: text('status').notNull().default('queued').$type<MessageStatus>(),
-  role: text('role').notNull().default('user').$type<MessageRole>(),
-  parts: jsonb('parts').$type<MessagePart[]>(),
-  metadata: jsonb('metadata').$type<MessageMetadata>(),
+  status: text('status').notNull().default('queued').$type<AIMessageStatus>(),
+  role: text('role').notNull().default('user').$type<AIMessageRole>(),
+  parts: jsonb('parts').$type<AIMessagePart[]>(),
+  metadata: jsonb('metadata').$type<AIMessageMetadata>(),
 
   conversationId: text('conversation_id')
     .notNull()
@@ -223,6 +238,11 @@ export const agentsToSources = pgTable(
         onUpdate: 'cascade',
         onDelete: 'cascade',
       }),
+
+    status: text('status')
+      .notNull()
+      .default('not-started')
+      .$type<SourceEmbeddingStatus>(),
   },
   (t) => [primaryKey({ columns: [t.agentId, t.sourceId] })],
 )
@@ -276,9 +296,8 @@ export const conversationsToUsersRelations = relations(
 
 export const providers = pgTable('providers', {
   ...id,
-  app: text('app').notNull().$type<ProviderApp>(),
-  name: text('name').notNull().default('Unnamed'),
-  payload: encryptedJson('payload').$type<ProviderPayload>(),
+  provider: text('provider').notNull().unique().$type<Provider>(),
+  credentials: encryptedJson('credentials').$type<ProviderCredentials>(),
 
   organizationId: text('organization_id').references(() => organizations.id, {
     onDelete: 'cascade',
@@ -453,7 +472,12 @@ export const connections = pgTable('connections', {
   ...id,
   app: text('app').notNull().$type<ConnectionApp>(),
   name: text('name').notNull().default('Unnamed'),
-  payload: encryptedJson('payload').$type<ConnectionPayload>(),
+  // authorization: text('authorization')
+  //   .notNull()
+  //   .default('custom')
+  //   .$type<ConnectionAuthorization>(),
+  credentials: encryptedJson('credentials').$type<ConnectionCredentials>(),
+  tokens: encryptedJson('tokens').$type<ConnectionTokens>(),
 
   organizationId: text('organization_id').references(() => organizations.id, {
     onDelete: 'cascade',

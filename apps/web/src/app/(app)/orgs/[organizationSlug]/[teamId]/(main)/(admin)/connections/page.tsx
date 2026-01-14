@@ -6,7 +6,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { CirclePlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 
 export default async function Page() {
   return (
@@ -25,8 +25,8 @@ export default async function Page() {
 
           <div className="flex items-center gap-4">
             <Button disabled>
-              New Connection
-              <CirclePlusIcon className="size-4" />
+              <PlusIcon />
+              Add connection
             </Button>
           </div>
         </div>
@@ -38,14 +38,14 @@ export default async function Page() {
             <EmptyHeader>
               <EmptyTitle>No Connections Yet</EmptyTitle>
               <EmptyDescription>
-                Create a connection to get started.
+                Add a connection to get started.
               </EmptyDescription>
             </EmptyHeader>
 
             <EmptyContent>
               <Button disabled>
-                New Connection
-                <CirclePlusIcon className="size-4" />
+                <PlusIcon />
+                Add connection
               </Button>
             </EmptyContent>
           </Empty>

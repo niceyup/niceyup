@@ -14,7 +14,7 @@ export async function SecondarySidebar() {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="secondary" size="icon" className="size-8">
-              <Settings2Icon className="size-4" />
+              <Settings2Icon />
             </Button>
           </TooltipTrigger>
           <TooltipContent>Configure</TooltipContent>

@@ -1,8 +1,9 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { conversationVisibilitySchema } from '@workspace/core/conversations'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -31,7 +32,7 @@ export async function getConversation(app: FastifyTypedInstance) {
               conversation: z.object({
                 id: z.string(),
                 title: z.string(),
-                visibility: z.enum(['private', 'shared', 'team']),
+                visibility: conversationVisibilitySchema,
                 teamId: z.string().nullish(),
                 createdByUserId: z.string().nullish(),
                 updatedAt: z.date(),
@@ -58,7 +59,7 @@ export async function getConversation(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug, agentId } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,

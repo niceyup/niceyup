@@ -21,7 +21,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { CirclePlusIcon, MoreHorizontalIcon } from 'lucide-react'
+import { MoreHorizontalIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function Page({
@@ -56,8 +56,8 @@ export default async function Page({
                 <Link
                   href={`/orgs/${organizationSlug}/${teamId}/agents/create`}
                 >
-                  New Agent
-                  <CirclePlusIcon className="size-4" />
+                  <PlusIcon />
+                  Create agent
                 </Link>
               </Button>
             </div>
@@ -82,8 +82,8 @@ export default async function Page({
                     <Link
                       href={`/orgs/${organizationSlug}/${teamId}/agents/create`}
                     >
-                      New Agent
-                      <CirclePlusIcon className="size-4" />
+                      <PlusIcon />
+                      Create agent
                     </Link>
                   </Button>
                 </EmptyContent>
@@ -117,7 +117,7 @@ export default async function Page({
                         size="icon"
                         className="opacity-0 transition-opacity group-hover/card:opacity-100"
                       >
-                        <MoreHorizontalIcon className="size-4" />
+                        <MoreHorizontalIcon />
                       </Button>
                     </DropdownMenuTrigger>
 

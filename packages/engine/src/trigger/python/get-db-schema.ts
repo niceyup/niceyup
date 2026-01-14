@@ -1,6 +1,6 @@
 import { python } from '@trigger.dev/python'
+import type { DatabaseSourceTableMetadata } from '@workspace/core/sources'
 import { env } from '../../lib/env'
-import type { DatabaseSourceTableMetadata } from '../../lib/types'
 import { tmpDir } from '../../lib/utils'
 import { pyArgs, pyPath, pyStreamingResult } from '../lib/python'
 

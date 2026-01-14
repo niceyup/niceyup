@@ -13,6 +13,7 @@ import {
   selectionFeature,
 } from '@headless-tree/core'
 import { useTree } from '@headless-tree/react'
+import type { SourceEmbeddingStatus } from '@workspace/core/sources'
 import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import { Checkbox } from '@workspace/ui/components/checkbox'
@@ -23,10 +24,18 @@ import {
   InputGroupInput,
 } from '@workspace/ui/components/input-group'
 import { Spinner } from '@workspace/ui/components/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@workspace/ui/components/tooltip'
 import { Tree, TreeItem, TreeItemLabel } from '@workspace/ui/components/tree'
 import { cn } from '@workspace/ui/lib/utils'
 import {
+  AlertCircleIcon,
+  CircleCheckIcon,
   CircleXIcon,
+  ClockIcon,
   FileIcon,
   FileTextIcon,
   FilterIcon,
@@ -51,6 +60,7 @@ type Item = {
   name?: string
   sourceId?: string | null
   sourceType?: string | null
+  sourceEmbeddingStatus?: SourceEmbeddingStatus | null
   fractionalIndex?: string | null
   folder?: boolean
   loading?: boolean
@@ -480,10 +490,10 @@ export function SourceExplorer() {
         <SourceExplorerSearch />
 
         <Button onClick={() => tree.expandAll()} size="icon" variant="outline">
-          <ListTreeIcon className="size-4" />
+          <ListTreeIcon />
         </Button>
         <Button onClick={tree.collapseAll} size="icon" variant="outline">
-          <ListCollapseIcon className="size-4" />
+          <ListCollapseIcon />
         </Button>
       </div>
 
@@ -527,7 +537,7 @@ function SourceExplorerTreeItem({ item }: { item: ItemInstance<Item> }) {
         data-visible={shouldShowItem(item.getId())}
       >
         {loadingPropagationItems.includes(item.getId()) ? (
-          <Spinner className="size-4 text-muted-foreground" />
+          <Spinner className="text-muted-foreground" />
         ) : (
           <Checkbox
             checked={
@@ -578,7 +588,7 @@ function SourceExplorerItem() {
     return (
       <TreeItemLabel className="before:-inset-y-0.5 before:-z-10 relative before:absolute before:inset-x-0 before:bg-background">
         <span className="flex items-center gap-2">
-          <Spinner className="size-4 text-muted-foreground" />
+          <Spinner className="text-muted-foreground" />
           <p className="text-muted-foreground italic">Loading</p>
         </span>
       </TreeItemLabel>
@@ -597,6 +607,7 @@ function SourceExplorerItem() {
       }}
     >
       <SourceExplorerItemLabel />
+      <SourceExplorerItemActions />
     </TreeItemLabel>
   )
 }
@@ -625,7 +636,7 @@ function SourceExplorerItemLabel() {
   return (
     <span className="flex flex-1 items-center gap-2">
       {item.isLoading() ? (
-        <Spinner className="size-4 text-muted-foreground" />
+        <Spinner className="text-muted-foreground" />
       ) : item.isFolder() ? (
         item.isExpanded() ? (
           <FolderOpenIcon className="size-4 text-muted-foreground" />
@@ -656,5 +667,47 @@ function SourceExplorerItemLabel() {
         </Badge>
       )}
     </span>
+  )
+}
+
+function SourceExplorerItemActions() {
+  const { item } = useSourceExplorerItemContext()
+
+  const status = item.getItemData().sourceEmbeddingStatus
+
+  if (!status) {
+    return null
+  }
+
+  const sourceStatusIcon = (sourceStatus: string | null | undefined) => {
+    switch (sourceStatus) {
+      case 'queued':
+        return <ClockIcon className="size-4 text-muted-foreground" />
+      case 'processing':
+        return <Spinner className="text-muted-foreground" />
+      case 'completed':
+        return <CircleCheckIcon className="size-4 text-muted-foreground" />
+      case 'failed':
+        return <AlertCircleIcon className="size-4 text-muted-foreground" />
+      case 'delete-queued':
+        return <ClockIcon className="size-4 text-destructive" />
+      case 'deleting':
+        return <Spinner className="text-destructive" />
+      case 'delete-failed':
+        return <AlertCircleIcon className="size-4 text-destructive" />
+    }
+  }
+
+  return (
+    <div className="-my-0.5 flex items-center">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="size-6 rounded-sm">
+            {sourceStatusIcon(status)}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="capitalize">{status}</TooltipContent>
+      </Tooltip>
+    </div>
   )
 }

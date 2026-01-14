@@ -25,7 +25,7 @@ export default async function Layout({
       label: 'Documentation',
       href: 'https://docs.niceyup.com/sources',
       target: '_blank',
-      icon: <SquareArrowOutUpRightIcon className="ml-auto size-4" />,
+      icon: <SquareArrowOutUpRightIcon className="ml-auto" />,
     },
   ]
 

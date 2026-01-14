@@ -2,6 +2,7 @@ import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
 } from '@workspace/ui/components/card'
@@ -15,14 +16,13 @@ export default async function Page({
   const { organizationSlug, teamId } = await params
 
   return (
-    <div className="w-full max-w-xl p-4 md:p-10">
+    <div className="w-full max-w-xl p-4">
       <Card>
         <CardHeader>
-          <CardTitle className="text-center font-semibold text-xl leading-none">
-            Create an Agent
-          </CardTitle>
+          <CardTitle className="text-lg">Create Agent</CardTitle>
+          <CardDescription>Create and configure an AI agent.</CardDescription>
         </CardHeader>
-        <CardContent className="mt-5">
+        <CardContent>
           <CreateAgentForm
             organizationSlug={organizationSlug}
             teamId={teamId}

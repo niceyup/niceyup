@@ -6,7 +6,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { CirclePlusIcon } from 'lucide-react'
+import { PlusIcon } from 'lucide-react'
 
 export default async function Page() {
   return (
@@ -17,15 +17,16 @@ export default async function Page() {
             <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Tools</h2>
               <p className="mt-1 text-muted-foreground text-sm">
-                Manage the tools your agent can use to perform actions.
+                Manage the tools this AI agent can use to perform actions and
+                tasks.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             <Button disabled>
-              New Tool
-              <CirclePlusIcon className="size-4" />
+              <PlusIcon />
+              Add tool
             </Button>
           </div>
         </div>
@@ -36,13 +37,13 @@ export default async function Page() {
           <Empty>
             <EmptyHeader>
               <EmptyTitle>No Tools Yet</EmptyTitle>
-              <EmptyDescription>Create a tool to get started.</EmptyDescription>
+              <EmptyDescription>Add a tool to get started.</EmptyDescription>
             </EmptyHeader>
 
             <EmptyContent>
               <Button disabled>
-                New Tool
-                <CirclePlusIcon className="size-4" />
+                <PlusIcon />
+                Add tool
               </Button>
             </EmptyContent>
           </Empty>

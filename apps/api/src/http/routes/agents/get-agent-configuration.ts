@@ -1,25 +1,20 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { modelTypeSchema } from '@workspace/core/models'
+import { providerSchema } from '@workspace/core/providers'
 import { queries } from '@workspace/db/queries'
-import { getAgentConfiguration as getAgentConfigurationFn } from '@workspace/engine/agents'
-import { providerAppSchema } from '@workspace/engine/providers'
+import { resolveAgentConfiguration } from '@workspace/engine/agents'
 import { z } from 'zod'
 
-const modelSchema = z.object({
+const modelSettingsSchema = z.object({
   id: z.string(),
-  type: z.enum(['language_model', 'embedding_model']),
+  provider: providerSchema,
   model: z.string(),
+  type: modelTypeSchema,
   options: z.record(z.string(), z.unknown()).nullish(),
-  provider: z
-    .object({
-      id: z.string(),
-      app: providerAppSchema,
-      payload: z.record(z.string(), z.unknown()).nullish(),
-    })
-    .nullish(),
 })
 
 export async function getAgentConfiguration(app: FastifyTypedInstance) {
@@ -42,8 +37,8 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
             .object({
               agent: z.object({
                 id: z.string(),
-                languageModel: modelSchema.nullish(),
-                embeddingModel: modelSchema.nullish(),
+                languageModeSettings: modelSettingsSchema.nullish(),
+                embeddingModelSettings: modelSettingsSchema.nullish(),
                 systemMessage: z.string().nullish(),
                 promptMessages: z
                   .array(
@@ -69,7 +64,7 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
 
       const { organizationId, organizationSlug } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
@@ -86,18 +81,18 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
         })
       }
 
-      const agentConfiguration = await getAgentConfigurationFn({
+      const agentConfig = await resolveAgentConfiguration({
         agentId,
       })
 
       return {
         agent: {
           id: agent.id,
-          languageModel: agentConfiguration.languageModel?._model,
-          embeddingModel: agentConfiguration.embeddingModel?._model,
-          systemMessage: agentConfiguration.systemMessage,
-          promptMessages: agentConfiguration.promptMessages,
-          suggestions: agentConfiguration.suggestions,
+          languageModelSettings: agentConfig.languageModel?.settings,
+          embeddingModelSettings: agentConfig.embeddingModel?.settings,
+          systemMessage: agentConfig.systemMessage,
+          promptMessages: agentConfig.promptMessages,
+          suggestions: agentConfig.suggestions,
         },
       }
     },

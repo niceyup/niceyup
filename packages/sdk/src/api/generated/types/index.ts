@@ -44,7 +44,7 @@ export type {
   CreateProvider404,
   CreateProvider429,
   CreateProvider500,
-  CreateProviderMutationRequestAppEnum,
+  CreateProviderMutationRequestProviderEnum,
   CreateProviderMutationRequest,
   CreateProviderMutationResponse,
   CreateProviderMutation,
@@ -190,10 +190,10 @@ export type {
 export type {
   GetAgentConfigurationPathParams,
   GetAgentConfigurationQueryParams,
-  LanguageModelTypeEnum,
-  ProviderAppEnum,
-  EmbeddingModelTypeEnum,
-  ProviderAppEnum2,
+  LanguageModeSettingsProviderEnum,
+  LanguageModeSettingsTypeEnum,
+  EmbeddingModelSettingsProviderEnum,
+  EmbeddingModelSettingsTypeEnum,
   PromptMessagesRoleEnum,
   GetAgentConfiguration200,
   GetAgentConfiguration400,
@@ -275,7 +275,7 @@ export type {
 export type {
   GetProviderPathParams,
   GetProviderQueryParams,
-  ProviderAppEnum3,
+  ProviderProviderEnum,
   GetProvider200,
   GetProvider400,
   GetProvider401,
@@ -415,21 +415,9 @@ export type {
   ListMessagesQuery,
 } from './ListMessages'
 export type {
-  ModelCostsOperatorEnum,
-  ListModelCosts200,
-  ListModelCosts400,
-  ListModelCosts401,
-  ListModelCosts403,
-  ListModelCosts404,
-  ListModelCosts429,
-  ListModelCosts500,
-  ListModelCostsQueryResponse,
-  ListModelCostsQuery,
-} from './ListModelCosts'
-export type {
-  ListProvidersQueryParamsAppEnum,
+  ListProvidersQueryParamsProviderEnum,
   ListProvidersQueryParams,
-  ProvidersAppEnum,
+  ProvidersProviderEnum,
   ListProviders200,
   ListProviders400,
   ListProviders401,
@@ -747,6 +735,9 @@ export type {
   UpdateAgentConfiguration404,
   UpdateAgentConfiguration429,
   UpdateAgentConfiguration500,
+  LanguageModelSettingsProviderEnum,
+  EmbeddingModelSettingsProviderEnum2,
+  PromptMessagesRoleEnum2,
   UpdateAgentConfigurationMutationRequest,
   UpdateAgentConfigurationMutationResponse,
   UpdateAgentConfigurationMutation,
@@ -779,20 +770,6 @@ export type {
   UpdateConversationMutationResponse,
   UpdateConversationMutation,
 } from './UpdateConversation'
-export type {
-  UpdateProviderPathParams,
-  UpdateProvider204Enum,
-  UpdateProvider204,
-  UpdateProvider400,
-  UpdateProvider401,
-  UpdateProvider403,
-  UpdateProvider404,
-  UpdateProvider429,
-  UpdateProvider500,
-  UpdateProviderMutationRequest,
-  UpdateProviderMutationResponse,
-  UpdateProviderMutation,
-} from './UpdateProvider'
 export type {
   UpdateSourcePathParams,
   UpdateSource204Enum,
@@ -854,7 +831,7 @@ export type {
 } from './UploadFilesSource'
 export { createConnectionMutationRequestAppEnum } from './CreateConnection'
 export { createConversationMutationRequestVisibilityEnum } from './CreateConversation'
-export { createProviderMutationRequestAppEnum } from './CreateProvider'
+export { createProviderMutationRequestProviderEnum } from './CreateProvider'
 export {
   createSourceMutationRequestTypeEnum2,
   createSourceMutationRequestTypeEnum3,
@@ -869,16 +846,16 @@ export { deleteProvider204Enum } from './DeleteProvider'
 export { deleteSource204Enum } from './DeleteSource'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './GenerateUploadSignatureSource'
 export {
-  languageModelTypeEnum,
-  providerAppEnum,
-  embeddingModelTypeEnum,
-  providerAppEnum2,
+  languageModeSettingsProviderEnum,
+  languageModeSettingsTypeEnum,
+  embeddingModelSettingsProviderEnum,
+  embeddingModelSettingsTypeEnum,
   promptMessagesRoleEnum,
 } from './GetAgentConfiguration'
 export { connectionAppEnum } from './GetConnection'
 export { conversationVisibilityEnum } from './GetConversation'
 export { fileBucketEnum, fileScopeEnum } from './GetFile'
-export { providerAppEnum3 } from './GetProvider'
+export { providerProviderEnum } from './GetProvider'
 export { sourceTypeEnum } from './GetSource'
 export {
   listConnectionsQueryParamsAppEnum,
@@ -927,10 +904,9 @@ export {
   partsStateEnum16,
   approvalApprovedEnum6,
 } from './ListMessages'
-export { modelCostsOperatorEnum } from './ListModelCosts'
 export {
-  listProvidersQueryParamsAppEnum,
-  providersAppEnum,
+  listProvidersQueryParamsProviderEnum,
+  providersProviderEnum,
 } from './ListProviders'
 export { sourcesTypeEnum } from './ListSources'
 export { manageAgentSources204Enum } from './ManageAgentSources'
@@ -1132,10 +1108,14 @@ export {
 } from './SendMessage'
 export { stopMessage204Enum } from './StopMessage'
 export { updateAgent204Enum } from './UpdateAgent'
-export { updateAgentConfiguration204Enum } from './UpdateAgentConfiguration'
+export {
+  updateAgentConfiguration204Enum,
+  languageModelSettingsProviderEnum,
+  embeddingModelSettingsProviderEnum2,
+  promptMessagesRoleEnum2,
+} from './UpdateAgentConfiguration'
 export { updateConnection204Enum } from './UpdateConnection'
 export { updateConversation204Enum } from './UpdateConversation'
-export { updateProvider204Enum } from './UpdateProvider'
 export { updateSource204Enum } from './UpdateSource'
 export { filesStatusEnum, filesStatusEnum2 } from './UploadFiles'
 export { filesStatusEnum5, filesStatusEnum6 } from './UploadFilesConversation'

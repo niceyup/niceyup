@@ -66,10 +66,11 @@ export function OrganizationList({
         <Button variant="outline" className="h-10" asChild>
           <Link href="/onboarding/create-organization">
             <PlusIcon />
-            Create Organization
+            Create organization
           </Link>
         </Button>
       </div>
+
       {!organizations?.length && (
         <div className="w-full rounded-lg border bg-background p-4">
           <Empty>
@@ -84,7 +85,7 @@ export function OrganizationList({
               <Button asChild>
                 <Link href="/onboarding/create-organization">
                   <PlusIcon />
-                  Create Organization
+                  Create organization
                 </Link>
               </Button>
             </EmptyContent>
@@ -140,7 +141,7 @@ export function OrganizationList({
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
-                      <MoreHorizontalIcon className="size-4" />
+                      <MoreHorizontalIcon />
                     </Button>
                   </DropdownMenuTrigger>
 

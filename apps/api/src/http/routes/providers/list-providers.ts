@@ -1,9 +1,9 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { getMembershipContext } from '@/http/functions/membership'
+import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { providerSchema } from '@workspace/core/providers'
 import { queries } from '@workspace/db/queries'
-import { providerAppSchema } from '@workspace/engine/providers'
 import { z } from 'zod'
 
 export async function listProviders(app: FastifyTypedInstance) {
@@ -17,7 +17,7 @@ export async function listProviders(app: FastifyTypedInstance) {
         querystring: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          app: providerAppSchema.optional(),
+          provider: providerSchema.optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -25,8 +25,7 @@ export async function listProviders(app: FastifyTypedInstance) {
               providers: z.array(
                 z.object({
                   id: z.string(),
-                  app: providerAppSchema,
-                  name: z.string(),
+                  provider: providerSchema,
                   updatedAt: z.date(),
                 }),
               ),
@@ -40,16 +39,16 @@ export async function listProviders(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, app } = request.query
+      const { organizationId, organizationSlug, provider } = request.query
 
-      const { context } = await getMembershipContext({
+      const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
       })
 
       const providers = await queries.context.listProviders(context, {
-        app,
+        provider,
       })
 
       return { providers }

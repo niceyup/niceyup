@@ -1,6 +1,6 @@
 import path from 'node:path'
+import type { DatabaseSourceTableMetadata } from '@workspace/core/sources'
 import { env } from './env'
-import type { DatabaseSourceTableMetadata } from './types'
 
 export function tmpDir(...paths: string[]): string {
   const rootPath = '/tmp/.niceyup-engine' as const

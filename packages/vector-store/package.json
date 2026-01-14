@@ -10,6 +10,7 @@
   "dependencies": {
     "@upstash/vector": "1.2.2",
     "@workspace/ai": "workspace:*",
+    "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",
     "@workspace/env": "workspace:*",
     "uuid": "^13.0.0"

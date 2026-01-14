@@ -2,13 +2,17 @@
 
 import { isOrganizationMemberAdmin } from '@/actions/membership'
 import { authenticatedUser } from '@/lib/auth/server'
-import { getOrganizationContext } from '@/lib/organization-context'
-import type { OrganizationTeamParams } from '@/lib/types'
+import { resolveOrganizationContext } from '@/lib/organization'
+import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { db } from '@workspace/db'
 import { and, eq, isNull, sql } from '@workspace/db/orm'
-import { sourceExplorerNodes, sources } from '@workspace/db/schema'
+import {
+  agentsToSources,
+  sourceExplorerNodes,
+  sources,
+} from '@workspace/db/schema'
 
-type ContextSourceExplorerNodeParams = OrganizationTeamParams
+type ContextSourceExplorerNodeParams = OrganizationTeamParams & AgentParams
 
 async function checkAdminAccess(
   context: { userId: string } & ContextSourceExplorerNodeParams,
@@ -34,7 +38,7 @@ export async function getItemInSourceExplorerNode(
     return null
   }
 
-  const ctx = await getOrganizationContext({ userId, ...context })
+  const ctx = await resolveOrganizationContext({ userId, ...context })
 
   if (!ctx) {
     return null
@@ -52,6 +56,7 @@ export async function getItemInSourceExplorerNode(
         `.as('name'),
       sourceId: sourceExplorerNodes.sourceId,
       sourceType: sourceExplorerNodes.sourceType,
+      sourceEmbeddingStatus: agentsToSources.status,
       fractionalIndex: sourceExplorerNodes.fractionalIndex,
       children: sql<string[]>`
           (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
@@ -62,6 +67,13 @@ export async function getItemInSourceExplorerNode(
     })
     .from(sourceExplorerNodes)
     .leftJoin(sources, eq(sourceExplorerNodes.sourceId, sources.id))
+    .leftJoin(
+      agentsToSources,
+      and(
+        eq(agentsToSources.agentId, context.agentId),
+        eq(agentsToSources.sourceId, sourceExplorerNodes.sourceId),
+      ),
+    )
     .where(
       and(
         eq(sourceExplorerNodes.id, itemId),
@@ -90,7 +102,7 @@ export async function getChildrenWithDataInSourceExplorerNode(
     return []
   }
 
-  const ctx = await getOrganizationContext({ userId, ...context })
+  const ctx = await resolveOrganizationContext({ userId, ...context })
 
   if (!ctx) {
     return []
@@ -111,6 +123,7 @@ export async function getChildrenWithDataInSourceExplorerNode(
           `.as('name'),
           sourceId: sourceExplorerNodes.sourceId,
           sourceType: sourceExplorerNodes.sourceType,
+          sourceEmbeddingStatus: agentsToSources.status,
           fractionalIndex: sourceExplorerNodes.fractionalIndex,
           children: sql<string[]>`
             (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
@@ -122,6 +135,13 @@ export async function getChildrenWithDataInSourceExplorerNode(
       })
       .from(sourceExplorerNodes)
       .leftJoin(sources, eq(sourceExplorerNodes.sourceId, sources.id))
+      .leftJoin(
+        agentsToSources,
+        and(
+          eq(agentsToSources.agentId, context.agentId),
+          eq(agentsToSources.sourceId, sourceExplorerNodes.sourceId),
+        ),
+      )
       .where(
         and(
           eq(sourceExplorerNodes.organizationId, ctx.organizationId),
@@ -148,6 +168,7 @@ export async function getChildrenWithDataInSourceExplorerNode(
         `.as('name'),
         sourceId: sourceExplorerNodes.sourceId,
         sourceType: sourceExplorerNodes.sourceType,
+        sourceEmbeddingStatus: agentsToSources.status,
         fractionalIndex: sourceExplorerNodes.fractionalIndex,
         children: sql<string[]>`
           (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
@@ -159,6 +180,13 @@ export async function getChildrenWithDataInSourceExplorerNode(
     })
     .from(sourceExplorerNodes)
     .leftJoin(sources, eq(sourceExplorerNodes.sourceId, sources.id))
+    .leftJoin(
+      agentsToSources,
+      and(
+        eq(agentsToSources.agentId, context.agentId),
+        eq(agentsToSources.sourceId, sourceExplorerNodes.sourceId),
+      ),
+    )
     .where(
       and(
         eq(sourceExplorerNodes.parentId, itemId),

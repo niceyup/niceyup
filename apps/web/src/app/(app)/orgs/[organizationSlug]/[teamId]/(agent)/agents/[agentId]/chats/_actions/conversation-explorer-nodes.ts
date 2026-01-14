@@ -2,7 +2,7 @@
 
 import { isOrganizationMemberAdmin } from '@/actions/membership'
 import { authenticatedUser } from '@/lib/auth/server'
-import { getOrganizationContext } from '@/lib/organization-context'
+import { resolveOrganizationContext } from '@/lib/organization'
 import type {
   AgentParams,
   ConversationVisibility,
@@ -35,7 +35,7 @@ async function checkAdminAccess(
 async function checkAccessToAgent(
   context: { userId: string } & ContextConversationExplorerNodeParams,
 ) {
-  const ctx = await getOrganizationContext(context)
+  const ctx = await resolveOrganizationContext(context)
 
   if (!ctx) {
     return false
