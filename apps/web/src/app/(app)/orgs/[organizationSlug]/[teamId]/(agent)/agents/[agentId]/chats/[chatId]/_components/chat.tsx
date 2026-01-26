@@ -127,8 +127,8 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100 MB
 const messageStatusToPromptInputStatus = {
   queued: 'submitted',
   processing: 'streaming',
-  stopped: 'ready',
-  finished: 'ready',
+  cancelled: 'ready',
+  completed: 'ready',
   failed: 'error',
 } as const
 
@@ -533,8 +533,8 @@ function ChatAssistantMessageStreaming({
       setStreamingMessageId(chunk.id)
     } else {
       if (
-        chunk.status === 'stopped' ||
-        chunk.status === 'finished' ||
+        chunk.status === 'cancelled' ||
+        chunk.status === 'completed' ||
         chunk.status === 'failed'
       ) {
         updateMessageNodeById(chunk.id, chunk)

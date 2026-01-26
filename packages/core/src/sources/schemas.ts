@@ -8,15 +8,9 @@ export const sourceTypeSchema = z.enum([
   'database',
 ])
 
-export const sourceEmbeddingStatusSchema = z.enum([
-  'queued',
-  'processing',
-  'completed',
-  'failed',
-  'delete-queued',
-  'deleting',
-  'delete-failed',
-])
+export const sourceStatusSchema = z.enum(['draft', 'ready', 'completed'])
+
+export const sourceIndexStatusSchema = z.enum(['idle', 'completed'])
 
 export const databaseSourceDialectSchema = z.enum([
   'postgresql',
@@ -51,3 +45,19 @@ export const databaseSourceQueryExampleSchema = z.object({
   input: z.string(),
   query: z.string(),
 })
+
+// Source Operations
+
+export const sourceOperationTypeSchema = z.enum([
+  'ingest',
+  'ingest-delete',
+  'index',
+  'index-delete',
+])
+
+export const sourceOperationStatusSchema = z.enum([
+  'queued',
+  'processing',
+  'completed',
+  'failed',
+])

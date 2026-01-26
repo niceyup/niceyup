@@ -54,7 +54,12 @@ export async function updateSource(app: FastifyTypedInstance) {
         })
       }
 
-      await db.update(sources).set({ name }).where(eq(sources.id, sourceId))
+      await db
+        .update(sources)
+        .set({
+          name,
+        })
+        .where(eq(sources.id, sourceId))
 
       return reply.status(204).send()
     },

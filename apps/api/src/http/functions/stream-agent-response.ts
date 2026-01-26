@@ -90,7 +90,7 @@ export async function streamAgentResponse({
           messageId: assistantMessage.id,
         })
 
-        if (message?.status === 'stopped') {
+        if (message?.status === 'cancelled') {
           stopSignal.abort()
         }
       }, 1000)

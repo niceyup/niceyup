@@ -105,7 +105,8 @@ export async function createConversationExplorerNodeItem(
       visibility: params.visibility,
       agentId: params.agentId,
       conversationId: params.conversationId,
-      parentId: params.parentId === 'root' ? null : params.parentId,
+      parentId:
+        !params.parentId || params.parentId === 'root' ? null : params.parentId,
       fractionalIndex,
       ...ownerTypeCondition,
     })

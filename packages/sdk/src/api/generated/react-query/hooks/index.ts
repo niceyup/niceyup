@@ -3,11 +3,13 @@ export type { CreateConnectionMutationKey } from './useCreateConnection'
 export type { CreateConversationMutationKey } from './useCreateConversation'
 export type { CreateProviderMutationKey } from './useCreateProvider'
 export type { CreateSourceMutationKey } from './useCreateSource'
+export type { CreateSourceFolderMutationKey } from './useCreateSourceFolder'
 export type { DeleteAgentMutationKey } from './useDeleteAgent'
 export type { DeleteConnectionMutationKey } from './useDeleteConnection'
 export type { DeleteConversationMutationKey } from './useDeleteConversation'
 export type { DeleteProviderMutationKey } from './useDeleteProvider'
 export type { DeleteSourceMutationKey } from './useDeleteSource'
+export type { DeleteSourceFolderMutationKey } from './useDeleteSourceFolder'
 export type { GenerateUploadSignatureMutationKey } from './useGenerateUploadSignature'
 export type { GenerateUploadSignatureConversationMutationKey } from './useGenerateUploadSignatureConversation'
 export type { GenerateUploadSignatureSourceMutationKey } from './useGenerateUploadSignatureSource'
@@ -28,12 +30,12 @@ export type { GetProfileSuspenseQueryKey } from './useGetProfileSuspense'
 export type { GetProviderQueryKey } from './useGetProvider'
 export type { GetProviderSuspenseQueryKey } from './useGetProviderSuspense'
 export type { GetSourceQueryKey } from './useGetSource'
+export type { GetSourceIndexingStatusQueryKey } from './useGetSourceIndexingStatus'
+export type { GetSourceIndexingStatusSuspenseQueryKey } from './useGetSourceIndexingStatusSuspense'
 export type { GetSourceSuspenseQueryKey } from './useGetSourceSuspense'
 export type { HealthQueryKey } from './useHealth'
 export type { HealthSuspenseQueryKey } from './useHealthSuspense'
 export type { ListAgentsQueryKey } from './useListAgents'
-export type { ListAgentSourcesQueryKey } from './useListAgentSources'
-export type { ListAgentSourcesSuspenseQueryKey } from './useListAgentSourcesSuspense'
 export type { ListAgentsSuspenseQueryKey } from './useListAgentsSuspense'
 export type { ListConnectionsQueryKey } from './useListConnections'
 export type { ListConnectionsSuspenseQueryKey } from './useListConnectionsSuspense'
@@ -43,20 +45,24 @@ export type { ListMessagesQueryKey } from './useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './useListMessagesSuspense'
 export type { ListProvidersQueryKey } from './useListProviders'
 export type { ListProvidersSuspenseQueryKey } from './useListProvidersSuspense'
+export type { ListSourceIndexesQueryKey } from './useListSourceIndexes'
+export type { ListSourceIndexesSuspenseQueryKey } from './useListSourceIndexesSuspense'
 export type { ListSourcesQueryKey } from './useListSources'
 export type { ListSourcesSuspenseQueryKey } from './useListSourcesSuspense'
-export type { ManageAgentSourcesMutationKey } from './useManageAgentSources'
 export type { RegenerateMessageMutationKey } from './useRegenerateMessage'
 export type { ResendMessageMutationKey } from './useResendMessage'
 export type { SendMessageMutationKey } from './useSendMessage'
 export type { StopMessageMutationKey } from './useStopMessage'
 export type { StreamMessageQueryKey } from './useStreamMessage'
 export type { StreamMessageSuspenseQueryKey } from './useStreamMessageSuspense'
+export type { TriggerSourceIndexingMutationKey } from './useTriggerSourceIndexing'
 export type { UpdateAgentMutationKey } from './useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './useUpdateAgentConfiguration'
 export type { UpdateConnectionMutationKey } from './useUpdateConnection'
 export type { UpdateConversationMutationKey } from './useUpdateConversation'
 export type { UpdateSourceMutationKey } from './useUpdateSource'
+export type { UpdateSourceFolderMutationKey } from './useUpdateSourceFolder'
+export type { UpdateSourceIndexesMutationKey } from './useUpdateSourceIndexes'
 export type { UploadFilesMutationKey } from './useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './useUploadFilesConversation'
 export type { UploadFilesSourceMutationKey } from './useUploadFilesSource'
@@ -74,6 +80,10 @@ export {
   useCreateProvider,
 } from './useCreateProvider'
 export { createSourceMutationKey, useCreateSource } from './useCreateSource'
+export {
+  createSourceFolderMutationKey,
+  useCreateSourceFolder,
+} from './useCreateSourceFolder'
 export { deleteAgentMutationKey, useDeleteAgent } from './useDeleteAgent'
 export {
   deleteConnectionMutationKey,
@@ -88,6 +98,10 @@ export {
   useDeleteProvider,
 } from './useDeleteProvider'
 export { deleteSourceMutationKey, useDeleteSource } from './useDeleteSource'
+export {
+  deleteSourceFolderMutationKey,
+  useDeleteSourceFolder,
+} from './useDeleteSourceFolder'
 export {
   generateUploadSignatureMutationKey,
   useGenerateUploadSignature,
@@ -182,6 +196,16 @@ export {
   useGetSource,
 } from './useGetSource'
 export {
+  getSourceIndexingStatusQueryKey,
+  getSourceIndexingStatusQueryOptions,
+  useGetSourceIndexingStatus,
+} from './useGetSourceIndexingStatus'
+export {
+  getSourceIndexingStatusSuspenseQueryKey,
+  getSourceIndexingStatusSuspenseQueryOptions,
+  useGetSourceIndexingStatusSuspense,
+} from './useGetSourceIndexingStatusSuspense'
+export {
   getSourceSuspenseQueryKey,
   getSourceSuspenseQueryOptions,
   useGetSourceSuspense,
@@ -197,16 +221,6 @@ export {
   listAgentsQueryOptions,
   useListAgents,
 } from './useListAgents'
-export {
-  listAgentSourcesQueryKey,
-  listAgentSourcesQueryOptions,
-  useListAgentSources,
-} from './useListAgentSources'
-export {
-  listAgentSourcesSuspenseQueryKey,
-  listAgentSourcesSuspenseQueryOptions,
-  useListAgentSourcesSuspense,
-} from './useListAgentSourcesSuspense'
 export {
   listAgentsSuspenseQueryKey,
   listAgentsSuspenseQueryOptions,
@@ -253,6 +267,16 @@ export {
   useListProvidersSuspense,
 } from './useListProvidersSuspense'
 export {
+  listSourceIndexesQueryKey,
+  listSourceIndexesQueryOptions,
+  useListSourceIndexes,
+} from './useListSourceIndexes'
+export {
+  listSourceIndexesSuspenseQueryKey,
+  listSourceIndexesSuspenseQueryOptions,
+  useListSourceIndexesSuspense,
+} from './useListSourceIndexesSuspense'
+export {
   listSourcesQueryKey,
   listSourcesQueryOptions,
   useListSources,
@@ -262,10 +286,6 @@ export {
   listSourcesSuspenseQueryOptions,
   useListSourcesSuspense,
 } from './useListSourcesSuspense'
-export {
-  manageAgentSourcesMutationKey,
-  useManageAgentSources,
-} from './useManageAgentSources'
 export {
   regenerateMessageMutationKey,
   useRegenerateMessage,
@@ -283,6 +303,10 @@ export {
   streamMessageSuspenseQueryOptions,
   useStreamMessageSuspense,
 } from './useStreamMessageSuspense'
+export {
+  triggerSourceIndexingMutationKey,
+  useTriggerSourceIndexing,
+} from './useTriggerSourceIndexing'
 export { updateAgentMutationKey, useUpdateAgent } from './useUpdateAgent'
 export {
   updateAgentConfigurationMutationKey,
@@ -297,6 +321,14 @@ export {
   useUpdateConversation,
 } from './useUpdateConversation'
 export { updateSourceMutationKey, useUpdateSource } from './useUpdateSource'
+export {
+  updateSourceFolderMutationKey,
+  useUpdateSourceFolder,
+} from './useUpdateSourceFolder'
+export {
+  updateSourceIndexesMutationKey,
+  useUpdateSourceIndexes,
+} from './useUpdateSourceIndexes'
 export { uploadFilesMutationKey, useUploadFiles } from './useUploadFiles'
 export {
   uploadFilesConversationMutationKey,

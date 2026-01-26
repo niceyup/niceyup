@@ -13,7 +13,14 @@ import {
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
-import { databaseSources, fileSources, sources } from '@workspace/db/schema'
+import {
+  databaseSources,
+  fileSources,
+  sourceOperations,
+  sources,
+} from '@workspace/db/schema'
+import type { CreateSourceIngestionTask } from '@workspace/engine/tasks/create-source-ingestion'
+import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 export async function uploadFilesSource(app: FastifyTypedInstance) {
@@ -212,6 +219,12 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                   .where(eq(fileSources.sourceId, source.id))
               }
 
+              await tx.insert(sourceOperations).values({
+                sourceId: source.id,
+                type: 'ingest' as const,
+                status: 'queued' as const,
+              })
+
               return { source, itemExplorerNode, uploadedFile }
             })
 
@@ -252,6 +265,19 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           code: 'FILES_NOT_UPLOADED',
           message: 'Files not uploaded',
         })
+      }
+
+      const successfulFiles = uploadedFiles.filter(
+        (file) => file.status === 'success',
+      )
+
+      if (successfulFiles.length) {
+        await tasks.batchTrigger<CreateSourceIngestionTask>(
+          'create-source-ingestion',
+          successfulFiles.map(({ source }) => ({
+            payload: { sourceId: source.sourceId },
+          })),
+        )
       }
 
       return { files: uploadedFiles }

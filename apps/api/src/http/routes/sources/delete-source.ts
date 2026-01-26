@@ -3,8 +3,11 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { db } from '@workspace/db'
+import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
-import type { DeleteIngestionSourceEmbeddingsTask } from '@workspace/engine/tasks/delete-ingestion-source-embeddings'
+import { sourceOperations } from '@workspace/db/schema'
+import type { DeleteSourceIngestionTask } from '@workspace/engine/tasks/delete-source-ingestion'
 import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
@@ -55,8 +58,16 @@ export async function deleteSource(app: FastifyTypedInstance) {
         })
       }
 
-      await tasks.trigger<DeleteIngestionSourceEmbeddingsTask>(
-        'delete-ingestion-source-embeddings',
+      await db
+        .update(sourceOperations)
+        .set({
+          type: 'ingest-delete' as const,
+          status: 'queued' as const,
+        })
+        .where(eq(sourceOperations.sourceId, sourceId))
+
+      await tasks.trigger<DeleteSourceIngestionTask>(
+        'delete-source-ingestion',
         { sourceId, destroy },
       )
 

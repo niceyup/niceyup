@@ -18,8 +18,8 @@ export default async function Layout({
       href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/sources/overview`,
     },
     {
-      label: 'Manage',
-      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/sources/manage`,
+      label: 'Indexing',
+      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/sources/indexing`,
     },
     {
       label: 'Documentation',
@@ -42,8 +42,8 @@ export default async function Layout({
             <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Sources</h2>
               <p className="mt-1 text-muted-foreground text-sm">
-                View and manage the data sources used to train and power this AI
-                agent.
+                Manage the data sources this AI agent can use to learn and
+                respond.
               </p>
             </div>
           </div>

@@ -60,7 +60,9 @@ export async function updateConversation(app: FastifyTypedInstance) {
 
       await db
         .update(conversations)
-        .set({ title })
+        .set({
+          title,
+        })
         .where(eq(conversations.id, conversationId))
 
       return reply.status(204).send()

@@ -13,9 +13,12 @@ import {
   connections,
   databaseSources,
   questionAnswerSources,
+  sourceOperations,
   sources,
   textSources,
 } from '@workspace/db/schema'
+import type { CreateSourceIngestionTask } from '@workspace/engine/tasks/create-source-ingestion'
+import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 const textSourceSchema = z.object({
@@ -231,8 +234,19 @@ export async function createSource(app: FastifyTypedInstance) {
           })
         }
 
+        await tx.insert(sourceOperations).values({
+          sourceId: source.id,
+          type: 'ingest' as const,
+          status: 'queued' as const,
+        })
+
         return { source, itemExplorerNode }
       })
+
+      await tasks.trigger<CreateSourceIngestionTask>(
+        'create-source-ingestion',
+        { sourceId: source.id },
+      )
 
       return reply.status(201).send({
         sourceId: source.id,

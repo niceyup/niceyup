@@ -1,0 +1,11 @@
+export type SourceExplorerNodeStatus =
+  | 'ingest-draft'
+  | 'ingest-ready'
+  | 'ingest-queued'
+  | 'ingest-processing'
+  | 'ingest-completed'
+  | 'ingest-failed'
+  | 'ingest-delete-queued'
+  | 'ingest-delete-processing'
+  | 'ingest-delete-completed'
+  | 'ingest-delete-failed'

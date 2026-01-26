@@ -3,7 +3,7 @@
 import { Button } from '@workspace/ui/components/button'
 import { Separator } from '@workspace/ui/components/separator'
 import { useQueryStates } from 'nuqs'
-import { type TabValue, searchParams } from '../_lib/searchParams'
+import { type TabValue, searchParams } from '../_lib/search-params'
 
 export type TabItem = {
   value: TabValue

@@ -42,6 +42,7 @@ export const listSources200Schema = z
           'file',
           'database',
         ]),
+        status: z.enum(['draft', 'ready', 'completed']),
       }),
     ),
   })

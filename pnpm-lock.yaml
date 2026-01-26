@@ -517,14 +517,14 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(@langchain/core@1.0.1(@opentelemetry/api@1.9.0)(@opentelemetry/exporter-trace-otlp-proto@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(openai@6.6.0(ws@8.18.3)(zod@4.1.12)))
       '@trigger.dev/core':
-        specifier: 4.3.2
-        version: 4.3.2(typescript@5.7.3)
+        specifier: 4.3.3
+        version: 4.3.3(typescript@5.7.3)
       '@trigger.dev/python':
-        specifier: 4.3.2
-        version: 4.3.2(@trigger.dev/build@4.0.0-v4-beta.23(typescript@5.7.3))(@trigger.dev/sdk@4.3.2(ai@5.0.77(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12))(typescript@5.7.3)
+        specifier: 4.3.3
+        version: 4.3.3(@trigger.dev/build@4.0.0-v4-beta.23(typescript@5.7.3))(@trigger.dev/sdk@4.3.3(ai@6.0.3(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12))(typescript@5.7.3)
       '@trigger.dev/sdk':
-        specifier: 4.3.2
-        version: 4.3.2(ai@5.0.77(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12)
+        specifier: 4.3.3
+        version: 4.3.3(ai@6.0.3(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12)
       '@workspace/ai':
         specifier: workspace:*
         version: link:../ai
@@ -932,12 +932,6 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/gateway@2.0.0':
-    resolution: {integrity: sha512-Gj0PuawK7NkZuyYgO/h5kDK/l6hFOjhLdTq3/Lli1FTl47iGmwhH1IZQpAL3Z09BeFYWakcwUmn02ovIm2wy9g==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4.1.8
-
   '@ai-sdk/gateway@3.0.2':
     resolution: {integrity: sha512-giJEg9ob45htbu3iautK+2kvplY2JnTj7ir4wZzYSQWvqGatWfBBfDuNCU5wSJt9BCGjymM5ZS9ziD42JGCZBw==}
     engines: {node: '>=18'}
@@ -962,21 +956,11 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider-utils@3.0.12':
-    resolution: {integrity: sha512-ZtbdvYxdMoria+2SlNarEk6Hlgyf+zzcznlD55EAl+7VZvJaSg2sqPvwArY7L6TfDEDJsnCq0fdhBSkYo0Xqdg==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4.1.8
-
   '@ai-sdk/provider-utils@4.0.1':
     resolution: {integrity: sha512-de2v8gH9zj47tRI38oSxhQIewmNc+OZjYIOOaMoVWKL65ERSav2PYYZHPSPCrfOeLMkv+Dyh8Y0QGwkO29wMWQ==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
-
-  '@ai-sdk/provider@2.0.0':
-    resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
-    engines: {node: '>=18'}
 
   '@ai-sdk/provider@3.0.0':
     resolution: {integrity: sha512-m9ka3ptkPQbaHHZHqDXDF9C9B5/Mav0KTdky1k2HZ3/nrW2t1AgObxIVPyGDWQNS9FXT/FS6PIoSjpcP/No8rQ==}
@@ -4980,22 +4964,22 @@ packages:
     resolution: {integrity: sha512-n8XPKzotMAHtZTcChdAcddCKoDhKp5ZXDU2U3tnLbIL1LAtWxvKW56fzuFBmf6e69wb9rrFL+xyOsf5YIoH/rg==}
     engines: {node: '>=18.20.0'}
 
-  '@trigger.dev/core@4.3.2':
-    resolution: {integrity: sha512-CToEt1w1jOmpvwOh/gqgC3UKHw36nrHSxaMYRnv5csXFOMgH2BksD/fZ2M/R2Q8kNehlQGagFWoussGmItxZqw==}
+  '@trigger.dev/core@4.3.3':
+    resolution: {integrity: sha512-HPPxbesDiEEuA1U/Qi1RWXVMkQNDCNyB7zhd3cIYd6T0KUTIt6i7ZdaqSRDhkAxva2hpaWXQsQIYwr5Jnsyohw==}
     engines: {node: '>=18.20.0'}
 
-  '@trigger.dev/python@4.3.2':
-    resolution: {integrity: sha512-hpe1Omt55mEFET3G7btKq8C4FynbYt51f+0P7w2Jus7pCn7QIBvFLHMZ8tS21eVEJdVknOsoIHDNlpT901qFfA==}
+  '@trigger.dev/python@4.3.3':
+    resolution: {integrity: sha512-nJwHYTVOt5GEhVFYboY5GkWywME3tfkSILRlUCU224DJwXFMvYo2/4VZ5kxrCuuSRAt6NvNWQSYksTMl5sHxcQ==}
     engines: {node: '>=18.20.0'}
     peerDependencies:
-      '@trigger.dev/build': ^4.3.2
-      '@trigger.dev/sdk': ^4.3.2
+      '@trigger.dev/build': ^4.3.3
+      '@trigger.dev/sdk': ^4.3.3
 
-  '@trigger.dev/sdk@4.3.2':
-    resolution: {integrity: sha512-XbzWBHoVFwvW1uyEbiEmztF86gvLgt0OO/aUqgeOixBAsTXRFxI/zd/scBMHK8vE9jB1D2biI8x5of6gRPEK4g==}
+  '@trigger.dev/sdk@4.3.3':
+    resolution: {integrity: sha512-aNKbmn6O8XfAJsQ3j9A8tVUm6nr+5SktHxUs804i7S4BG//b0YX0yhrKwPUe8rUGmFCYxmb3B43OOtZ0MsPyfA==}
     engines: {node: '>=18.20.0'}
     peerDependencies:
-      ai: ^4.2.0 || ^5.0.0
+      ai: ^4.2.0 || ^5.0.0 || ^6.0.0
       zod: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       ai:
@@ -5253,10 +5237,6 @@ packages:
   '@upstash/vector@1.2.2':
     resolution: {integrity: sha512-ptQ9xnxtKqmpNK52PCcHCszlPOLxIBfjsv7ty8RoF95pkjctS9rSjTQ3Pl9bx5VFbpDj+0dMXw88WLt6swDkgQ==}
 
-  '@vercel/oidc@3.0.3':
-    resolution: {integrity: sha512-yNEQvPcVrK9sIe637+I0jD6leluPxzwJKx/Haw6F4H77CdDsszUn5V3o96LPziXkSNE2B83+Z3mjqGKBK/R6Gg==}
-    engines: {node: '>= 20'}
-
   '@vercel/oidc@3.0.5':
     resolution: {integrity: sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw==}
     engines: {node: '>= 20'}
@@ -5323,12 +5303,6 @@ packages:
   aggregate-error@4.0.1:
     resolution: {integrity: sha512-0poP0T7el6Vq3rstR8Mn4V/IQrpBLO6POkUSrN7RhyY+GF/InCFShQzsQ39T25gkHhLgSLByyAz+Kjb+c2L98w==}
     engines: {node: '>=12'}
-
-  ai@5.0.77:
-    resolution: {integrity: sha512-w0xP/guV27qLUR+60ru7dSDfF1Wlk6lPEHtXPBLfa8TNQ8Qc4FZ1RE9UGAdZmZU396FA6lKtP9P89Jzb5Z+Hnw==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4.1.8
 
   ai@6.0.3:
     resolution: {integrity: sha512-OOo+/C+sEyscoLnbY3w42vjQDICioVNyS+F+ogwq6O5RJL/vgWGuiLzFwuP7oHTeni/MkmX8tIge48GTdaV7QQ==}
@@ -11091,14 +11065,6 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.1(zod@4.1.12)
       zod: 4.1.12
 
-  '@ai-sdk/gateway@2.0.0(zod@4.1.12)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.12(zod@4.1.12)
-      '@vercel/oidc': 3.0.3
-      zod: 4.1.12
-    optional: true
-
   '@ai-sdk/gateway@3.0.2(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 3.0.0
@@ -11124,25 +11090,12 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.1(zod@4.1.12)
       zod: 4.1.12
 
-  '@ai-sdk/provider-utils@3.0.12(zod@4.1.12)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@standard-schema/spec': 1.1.0
-      eventsource-parser: 3.0.6
-      zod: 4.1.12
-    optional: true
-
   '@ai-sdk/provider-utils@4.0.1(zod@4.1.12)':
     dependencies:
       '@ai-sdk/provider': 3.0.0
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.6
       zod: 4.1.12
-
-  '@ai-sdk/provider@2.0.0':
-    dependencies:
-      json-schema: 0.4.0
-    optional: true
 
   '@ai-sdk/provider@3.0.0':
     dependencies:
@@ -15783,7 +15736,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@trigger.dev/core@4.3.2(typescript@5.7.3)':
+  '@trigger.dev/core@4.3.3(typescript@5.7.3)':
     dependencies:
       '@bugsnag/cuid': 3.2.1
       '@electric-sql/client': 1.0.14
@@ -15824,11 +15777,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@trigger.dev/python@4.3.2(@trigger.dev/build@4.0.0-v4-beta.23(typescript@5.7.3))(@trigger.dev/sdk@4.3.2(ai@5.0.77(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12))(typescript@5.7.3)':
+  '@trigger.dev/python@4.3.3(@trigger.dev/build@4.0.0-v4-beta.23(typescript@5.7.3))(@trigger.dev/sdk@4.3.3(ai@6.0.3(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12))(typescript@5.7.3)':
     dependencies:
       '@trigger.dev/build': 4.0.0-v4-beta.23(typescript@5.7.3)
-      '@trigger.dev/core': 4.3.2(typescript@5.7.3)
-      '@trigger.dev/sdk': 4.3.2(ai@5.0.77(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12)
+      '@trigger.dev/core': 4.3.3(typescript@5.7.3)
+      '@trigger.dev/sdk': 4.3.3(ai@6.0.3(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12)
       tinyexec: 0.3.2
     transitivePeerDependencies:
       - bufferutil
@@ -15836,11 +15789,11 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@trigger.dev/sdk@4.3.2(ai@5.0.77(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12)':
+  '@trigger.dev/sdk@4.3.3(ai@6.0.3(zod@4.1.12))(typescript@5.7.3)(zod@4.1.12)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.36.0
-      '@trigger.dev/core': 4.3.2(typescript@5.7.3)
+      '@trigger.dev/core': 4.3.3(typescript@5.7.3)
       chalk: 5.6.2
       cronstrue: 2.59.0
       debug: 4.4.3
@@ -15852,7 +15805,7 @@ snapshots:
       ws: 8.18.3
       zod: 4.1.12
     optionalDependencies:
-      ai: 5.0.77(zod@4.1.12)
+      ai: 6.0.3(zod@4.1.12)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -16163,9 +16116,6 @@ snapshots:
 
   '@upstash/vector@1.2.2': {}
 
-  '@vercel/oidc@3.0.3':
-    optional: true
-
   '@vercel/oidc@3.0.5': {}
 
   '@xmldom/xmldom@0.8.11': {}
@@ -16220,15 +16170,6 @@ snapshots:
     dependencies:
       clean-stack: 4.2.0
       indent-string: 5.0.0
-
-  ai@5.0.77(zod@4.1.12):
-    dependencies:
-      '@ai-sdk/gateway': 2.0.0(zod@4.1.12)
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.12(zod@4.1.12)
-      '@opentelemetry/api': 1.9.0
-      zod: 4.1.12
-    optional: true
 
   ai@6.0.3(zod@4.1.12):
     dependencies:

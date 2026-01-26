@@ -32,8 +32,8 @@ const formSchema = z.object({
 })
 
 type UploadFileSourceProps = {
-  onSuccess: () => void
   onBack: () => void
+  onSuccess: () => void
   sourceType: {
     value: 'file'
     label: string
@@ -44,8 +44,8 @@ type UploadFileSourceProps = {
 }
 
 export function UploadFileSource({
-  onSuccess,
   onBack,
+  onSuccess,
   sourceType,
   folderId,
 }: UploadFileSourceProps) {

@@ -13,8 +13,8 @@ export type SendMessagePathParams = {
 export const userMessageStatusEnum = {
   queued: 'queued',
   processing: 'processing',
-  finished: 'finished',
-  stopped: 'stopped',
+  cancelled: 'cancelled',
+  completed: 'completed',
   failed: 'failed',
 } as const
 
@@ -280,8 +280,8 @@ export type ApprovalApprovedEnum12 =
 export const assistantMessageStatusEnum = {
   queued: 'queued',
   processing: 'processing',
-  finished: 'finished',
-  stopped: 'stopped',
+  cancelled: 'cancelled',
+  completed: 'completed',
   failed: 'failed',
 } as const
 

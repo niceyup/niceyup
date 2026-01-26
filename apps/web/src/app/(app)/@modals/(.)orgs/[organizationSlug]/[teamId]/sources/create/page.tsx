@@ -1,4 +1,5 @@
 import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { loadSearchParams } from '@/app/(app)/orgs/[organizationSlug]/[teamId]/(main)/(admin)/sources/_lib/search-params'
 import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Dialog,
@@ -7,14 +8,18 @@ import {
   DialogTitle,
 } from '@workspace/ui/components/dialog'
 import { InterceptedDialogContent } from '@workspace/ui/components/intercepted-dialog-content'
+import type { SearchParams } from 'nuqs/server'
 import { CreateSourceForm } from '../../../../../../orgs/[organizationSlug]/[teamId]/(main)/(admin)/sources/create/_components/create-source-form'
 
 export default async function Page({
   params,
+  searchParams,
 }: Readonly<{
   params: Promise<OrganizationTeamParams>
+  searchParams: Promise<SearchParams>
 }>) {
   const { organizationSlug } = await params
+  const { folderId } = await loadSearchParams(searchParams)
 
   const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
 
@@ -30,7 +35,11 @@ export default async function Page({
           <DialogDescription>Add a data source to an agent.</DialogDescription>
         </DialogHeader>
 
-        <CreateSourceForm modal organizationSlug={organizationSlug} />
+        <CreateSourceForm
+          modal
+          organizationSlug={organizationSlug}
+          folderId={folderId}
+        />
       </InterceptedDialogContent>
     </Dialog>
   )

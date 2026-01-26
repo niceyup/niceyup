@@ -8,7 +8,7 @@ import type { SearchParams } from 'nuqs/server'
 import { MemberList } from './_components/member-list'
 import { PendingInvitationsList } from './_components/pending-invitations-list'
 import { TabBar, type TabItem } from './_components/tab-bar'
-import { loadSearchParams } from './_lib/searchParams'
+import { loadSearchParams } from './_lib/search-params'
 
 export default async function Page({
   params,

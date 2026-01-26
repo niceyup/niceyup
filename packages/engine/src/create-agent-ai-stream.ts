@@ -100,7 +100,7 @@ export async function createAgentAIStream<
 
       await onFailed?.({ message, error })
     } else {
-      message.status = abortSignal?.aborted ? 'stopped' : 'finished'
+      message.status = abortSignal?.aborted ? 'cancelled' : 'completed'
 
       await onFinish?.({ message })
     }

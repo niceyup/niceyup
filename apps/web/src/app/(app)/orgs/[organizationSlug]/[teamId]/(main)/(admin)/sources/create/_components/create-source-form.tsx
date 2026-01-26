@@ -28,14 +28,14 @@ const sourceTypes = {
     value: 'file' as const,
     label: 'File',
     description:
-      'Upload documents to train your AI. Extract text from PDFs, DOCX, and TXT files.',
+      'Upload documents to index your AI. Extract text from PDFs, DOCX, and TXT files.',
     icon: <FileTextIcon className="size-4" />,
   },
   text: {
     value: 'text' as const,
     label: 'Text',
     description:
-      'Add plain text-based sources to train your AI Agent with precise information.',
+      'Add plain text-based sources to index your AI Agent with precise information.',
     icon: <TextIcon className="size-4" />,
   },
   // website: {
@@ -61,11 +61,13 @@ type Step = 'source-type' | 'source-configuration'
 type CreateSourceFormProps = {
   modal?: boolean
   organizationSlug: OrganizationTeamParams['organizationSlug']
+  folderId?: string
 }
 
 export function CreateSourceForm({
   modal,
   organizationSlug,
+  folderId,
 }: CreateSourceFormProps) {
   const [step, setStep] = React.useState<Step>('source-type')
 
@@ -75,27 +77,29 @@ export function CreateSourceForm({
   if (step === 'source-configuration') {
     return (
       <SourceConfigurationStep
-        modal={modal}
-        organizationSlug={organizationSlug}
-        setStep={setStep}
         selectedSourceType={selectedSourceType}
         setSelectedSourceType={setSelectedSourceType}
+        modal={modal}
+        organizationSlug={organizationSlug}
+        folderId={folderId}
+        setStep={setStep}
       />
     )
   }
 
   return (
     <SourceTypeStep
-      modal={modal}
-      organizationSlug={organizationSlug}
       setStep={setStep}
       selectedSourceType={selectedSourceType}
       setSelectedSourceType={setSelectedSourceType}
+      modal={modal}
+      organizationSlug={organizationSlug}
+      folderId={folderId}
     />
   )
 }
 
-type SourceTypeStepProps = CreateSourceFormProps & {
+type SourceTypeStepProps = {
   setStep: (step: Step) => void
   selectedSourceType: SourceType | null
   setSelectedSourceType: (sourceType: SourceType) => void
@@ -107,7 +111,8 @@ function SourceTypeStep({
   setSelectedSourceType,
   modal,
   organizationSlug,
-}: SourceTypeStepProps) {
+  folderId,
+}: SourceTypeStepProps & CreateSourceFormProps) {
   const [search, setSearch] = React.useState('')
 
   const filteredSourceTypes = React.useMemo(() => {
@@ -184,7 +189,11 @@ function SourceTypeStep({
           </DialogClose>
         ) : (
           <Button variant="outline" asChild>
-            <Link href={`/orgs/${organizationSlug}/~/sources`}>Cancel</Link>
+            <Link
+              href={`/orgs/${organizationSlug}/~/sources${folderId ? `?folderId=${folderId}` : ''}`}
+            >
+              Cancel
+            </Link>
           </Button>
         )}
 
@@ -203,7 +212,7 @@ type SourceConfigurationStepProps = {
   setStep: (step: Step) => void
   selectedSourceType: SourceType | null
   setSelectedSourceType: (sourceType: SourceType | null) => void
-} & CreateSourceFormProps
+}
 
 function SourceConfigurationStep({
   setStep,
@@ -211,12 +220,17 @@ function SourceConfigurationStep({
   setSelectedSourceType,
   modal,
   organizationSlug,
-}: SourceConfigurationStepProps) {
+  folderId,
+}: SourceConfigurationStepProps & CreateSourceFormProps) {
   const router = useRouter()
 
   const onReset = () => {
     setStep('source-type')
     setSelectedSourceType(null)
+  }
+
+  const onBack = () => {
+    setStep('source-type')
   }
 
   const onSuccess = () => {
@@ -228,19 +242,22 @@ function SourceConfigurationStep({
     onReset()
 
     // Fix: The router is not updated immediately
-    setTimeout(() => router.push(`/orgs/${organizationSlug}/~/sources`), 300)
-  }
-
-  const onBack = () => {
-    setStep('source-type')
+    setTimeout(
+      () =>
+        router.push(
+          `/orgs/${organizationSlug}/~/sources${folderId ? `?folderId=${folderId}` : ''}`,
+        ),
+      300,
+    )
   }
 
   if (selectedSourceType === 'file') {
     return (
       <UploadFileSource
-        onSuccess={onSuccess}
         onBack={onBack}
+        onSuccess={onSuccess}
         sourceType={sourceTypes[selectedSourceType]}
+        folderId={folderId}
       />
     )
   }
@@ -251,6 +268,7 @@ function SourceConfigurationStep({
         onSuccess={onSuccess}
         onBack={onBack}
         sourceType={sourceTypes[selectedSourceType]}
+        folderId={folderId}
       />
     )
   }

@@ -133,7 +133,7 @@ export async function createConversation(app: FastifyTypedInstance) {
           //   .insert(messages)
           //   .values({
           //     conversationId: conversation.id,
-          //     status: 'finished',
+          //     status: 'completed',
           //     role: 'system',
           //     parts: agentConfig.systemMessage
           //       ? [{ type: 'text', text: agentConfig.systemMessage }]

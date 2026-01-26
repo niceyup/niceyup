@@ -1,0 +1,1 @@
+ALTER TABLE "agents_to_sources" ALTER COLUMN "status" SET DEFAULT 'queued';

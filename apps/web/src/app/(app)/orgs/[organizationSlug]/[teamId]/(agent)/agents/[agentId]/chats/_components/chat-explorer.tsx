@@ -72,6 +72,7 @@ type Item = {
 
 function toItemData(item: Item) {
   const folder = !item.conversationId
+
   return { ...item, folder, children: folder ? item.children : undefined }
 }
 
@@ -396,7 +397,11 @@ export function ChatExplorer() {
 function ChatExplorerTreeItem({ item }: { item: ItemInstance<Item> }) {
   return (
     <ChatExplorerItemProvider item={item}>
-      <TreeItem item={item} data-disabled={item.getItemData().disabled} asChild>
+      <TreeItem
+        item={item}
+        data-disabled={item.getItemData().disabled ? true : undefined}
+        asChild
+      >
         <div>
           <ChatExplorerItem />
         </div>
@@ -486,7 +491,8 @@ function ChatExplorerItemLabel() {
               italic: !item.getItemName(),
             })}
           >
-            {item.getItemName() || 'Untitled'}
+            {item.getItemName() ||
+              (item.isFolder() ? 'Unnamed folder' : 'Untitled')}
           </span>
         </p>
       )}
@@ -560,7 +566,7 @@ function ChatExplorerItemActionsContent() {
 }
 
 function ChatExplorerItemActionNewChat({
-  label = 'New Chat',
+  label = 'New chat',
 }: { label?: string }) {
   const { params, setFocusedSelectedItem } = useChatExplorerContext()
   const { item } = useChatExplorerItemContext()
@@ -589,7 +595,7 @@ function ChatExplorerItemActionNewChat({
 }
 
 function ChatExplorerItemActionNewFolder({
-  label = 'New Folder',
+  label = 'New folder',
 }: { label?: string; shortcut?: string }) {
   const { params, visibility, setFocusedSelectedItem, setLoadingItemData } =
     useChatExplorerContext()

@@ -3,11 +3,13 @@ export type { CreateConnectionMutationKey } from './react-query/hooks/useCreateC
 export type { CreateConversationMutationKey } from './react-query/hooks/useCreateConversation'
 export type { CreateProviderMutationKey } from './react-query/hooks/useCreateProvider'
 export type { CreateSourceMutationKey } from './react-query/hooks/useCreateSource'
+export type { CreateSourceFolderMutationKey } from './react-query/hooks/useCreateSourceFolder'
 export type { DeleteAgentMutationKey } from './react-query/hooks/useDeleteAgent'
 export type { DeleteConnectionMutationKey } from './react-query/hooks/useDeleteConnection'
 export type { DeleteConversationMutationKey } from './react-query/hooks/useDeleteConversation'
 export type { DeleteProviderMutationKey } from './react-query/hooks/useDeleteProvider'
 export type { DeleteSourceMutationKey } from './react-query/hooks/useDeleteSource'
+export type { DeleteSourceFolderMutationKey } from './react-query/hooks/useDeleteSourceFolder'
 export type { GenerateUploadSignatureMutationKey } from './react-query/hooks/useGenerateUploadSignature'
 export type { GenerateUploadSignatureConversationMutationKey } from './react-query/hooks/useGenerateUploadSignatureConversation'
 export type { GenerateUploadSignatureSourceMutationKey } from './react-query/hooks/useGenerateUploadSignatureSource'
@@ -28,12 +30,12 @@ export type { GetProfileSuspenseQueryKey } from './react-query/hooks/useGetProfi
 export type { GetProviderQueryKey } from './react-query/hooks/useGetProvider'
 export type { GetProviderSuspenseQueryKey } from './react-query/hooks/useGetProviderSuspense'
 export type { GetSourceQueryKey } from './react-query/hooks/useGetSource'
+export type { GetSourceIndexingStatusQueryKey } from './react-query/hooks/useGetSourceIndexingStatus'
+export type { GetSourceIndexingStatusSuspenseQueryKey } from './react-query/hooks/useGetSourceIndexingStatusSuspense'
 export type { GetSourceSuspenseQueryKey } from './react-query/hooks/useGetSourceSuspense'
 export type { HealthQueryKey } from './react-query/hooks/useHealth'
 export type { HealthSuspenseQueryKey } from './react-query/hooks/useHealthSuspense'
 export type { ListAgentsQueryKey } from './react-query/hooks/useListAgents'
-export type { ListAgentSourcesQueryKey } from './react-query/hooks/useListAgentSources'
-export type { ListAgentSourcesSuspenseQueryKey } from './react-query/hooks/useListAgentSourcesSuspense'
 export type { ListAgentsSuspenseQueryKey } from './react-query/hooks/useListAgentsSuspense'
 export type { ListConnectionsQueryKey } from './react-query/hooks/useListConnections'
 export type { ListConnectionsSuspenseQueryKey } from './react-query/hooks/useListConnectionsSuspense'
@@ -43,20 +45,24 @@ export type { ListMessagesQueryKey } from './react-query/hooks/useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './react-query/hooks/useListMessagesSuspense'
 export type { ListProvidersQueryKey } from './react-query/hooks/useListProviders'
 export type { ListProvidersSuspenseQueryKey } from './react-query/hooks/useListProvidersSuspense'
+export type { ListSourceIndexesQueryKey } from './react-query/hooks/useListSourceIndexes'
+export type { ListSourceIndexesSuspenseQueryKey } from './react-query/hooks/useListSourceIndexesSuspense'
 export type { ListSourcesQueryKey } from './react-query/hooks/useListSources'
 export type { ListSourcesSuspenseQueryKey } from './react-query/hooks/useListSourcesSuspense'
-export type { ManageAgentSourcesMutationKey } from './react-query/hooks/useManageAgentSources'
 export type { RegenerateMessageMutationKey } from './react-query/hooks/useRegenerateMessage'
 export type { ResendMessageMutationKey } from './react-query/hooks/useResendMessage'
 export type { SendMessageMutationKey } from './react-query/hooks/useSendMessage'
 export type { StopMessageMutationKey } from './react-query/hooks/useStopMessage'
 export type { StreamMessageQueryKey } from './react-query/hooks/useStreamMessage'
 export type { StreamMessageSuspenseQueryKey } from './react-query/hooks/useStreamMessageSuspense'
+export type { TriggerSourceIndexingMutationKey } from './react-query/hooks/useTriggerSourceIndexing'
 export type { UpdateAgentMutationKey } from './react-query/hooks/useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './react-query/hooks/useUpdateAgentConfiguration'
 export type { UpdateConnectionMutationKey } from './react-query/hooks/useUpdateConnection'
 export type { UpdateConversationMutationKey } from './react-query/hooks/useUpdateConversation'
 export type { UpdateSourceMutationKey } from './react-query/hooks/useUpdateSource'
+export type { UpdateSourceFolderMutationKey } from './react-query/hooks/useUpdateSourceFolder'
+export type { UpdateSourceIndexesMutationKey } from './react-query/hooks/useUpdateSourceIndexes'
 export type { UploadFilesMutationKey } from './react-query/hooks/useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './react-query/hooks/useUploadFilesConversation'
 export type { UploadFilesSourceMutationKey } from './react-query/hooks/useUploadFilesSource'
@@ -104,6 +110,17 @@ export type {
   CreateProviderMutationRequestSchema,
   CreateProviderMutationResponseSchema,
 } from './schemas/createProviderSchema'
+export type {
+  CreateSourceFolder201Schema,
+  CreateSourceFolder400Schema,
+  CreateSourceFolder401Schema,
+  CreateSourceFolder403Schema,
+  CreateSourceFolder404Schema,
+  CreateSourceFolder429Schema,
+  CreateSourceFolder500Schema,
+  CreateSourceFolderMutationRequestSchema,
+  CreateSourceFolderMutationResponseSchema,
+} from './schemas/createSourceFolderSchema'
 export type {
   CreateSource201Schema,
   CreateSource400Schema,
@@ -163,6 +180,18 @@ export type {
   DeleteProviderMutationRequestSchema,
   DeleteProviderMutationResponseSchema,
 } from './schemas/deleteProviderSchema'
+export type {
+  DeleteSourceFolderPathParamsSchema,
+  DeleteSourceFolder204Schema,
+  DeleteSourceFolder400Schema,
+  DeleteSourceFolder401Schema,
+  DeleteSourceFolder403Schema,
+  DeleteSourceFolder404Schema,
+  DeleteSourceFolder429Schema,
+  DeleteSourceFolder500Schema,
+  DeleteSourceFolderMutationRequestSchema,
+  DeleteSourceFolderMutationResponseSchema,
+} from './schemas/deleteSourceFolderSchema'
 export type {
   DeleteSourcePathParamsSchema,
   DeleteSource204Schema,
@@ -304,6 +333,18 @@ export type {
   GetProviderQueryResponseSchema,
 } from './schemas/getProviderSchema'
 export type {
+  GetSourceIndexingStatusPathParamsSchema,
+  GetSourceIndexingStatusQueryParamsSchema,
+  GetSourceIndexingStatus200Schema,
+  GetSourceIndexingStatus400Schema,
+  GetSourceIndexingStatus401Schema,
+  GetSourceIndexingStatus403Schema,
+  GetSourceIndexingStatus404Schema,
+  GetSourceIndexingStatus429Schema,
+  GetSourceIndexingStatus500Schema,
+  GetSourceIndexingStatusQueryResponseSchema,
+} from './schemas/getSourceIndexingStatusSchema'
+export type {
   GetSourcePathParamsSchema,
   GetSourceQueryParamsSchema,
   GetSource200Schema,
@@ -325,18 +366,6 @@ export type {
   Health500Schema,
   HealthQueryResponseSchema,
 } from './schemas/healthSchema'
-export type {
-  ListAgentSourcesPathParamsSchema,
-  ListAgentSourcesQueryParamsSchema,
-  ListAgentSources200Schema,
-  ListAgentSources400Schema,
-  ListAgentSources401Schema,
-  ListAgentSources403Schema,
-  ListAgentSources404Schema,
-  ListAgentSources429Schema,
-  ListAgentSources500Schema,
-  ListAgentSourcesQueryResponseSchema,
-} from './schemas/listAgentSourcesSchema'
 export type {
   ListAgentsQueryParamsSchema,
   ListAgents200Schema,
@@ -394,6 +423,18 @@ export type {
   ListProvidersQueryResponseSchema,
 } from './schemas/listProvidersSchema'
 export type {
+  ListSourceIndexesPathParamsSchema,
+  ListSourceIndexesQueryParamsSchema,
+  ListSourceIndexes200Schema,
+  ListSourceIndexes400Schema,
+  ListSourceIndexes401Schema,
+  ListSourceIndexes403Schema,
+  ListSourceIndexes404Schema,
+  ListSourceIndexes429Schema,
+  ListSourceIndexes500Schema,
+  ListSourceIndexesQueryResponseSchema,
+} from './schemas/listSourceIndexesSchema'
+export type {
   ListSourcesQueryParamsSchema,
   ListSources200Schema,
   ListSources400Schema,
@@ -404,18 +445,6 @@ export type {
   ListSources500Schema,
   ListSourcesQueryResponseSchema,
 } from './schemas/listSourcesSchema'
-export type {
-  ManageAgentSourcesPathParamsSchema,
-  ManageAgentSources204Schema,
-  ManageAgentSources400Schema,
-  ManageAgentSources401Schema,
-  ManageAgentSources403Schema,
-  ManageAgentSources404Schema,
-  ManageAgentSources429Schema,
-  ManageAgentSources500Schema,
-  ManageAgentSourcesMutationRequestSchema,
-  ManageAgentSourcesMutationResponseSchema,
-} from './schemas/manageAgentSourcesSchema'
 export type {
   RegenerateMessagePathParamsSchema,
   RegenerateMessage200Schema,
@@ -477,6 +506,18 @@ export type {
   StreamMessageQueryResponseSchema,
 } from './schemas/streamMessageSchema'
 export type {
+  TriggerSourceIndexingPathParamsSchema,
+  TriggerSourceIndexing204Schema,
+  TriggerSourceIndexing400Schema,
+  TriggerSourceIndexing401Schema,
+  TriggerSourceIndexing403Schema,
+  TriggerSourceIndexing404Schema,
+  TriggerSourceIndexing429Schema,
+  TriggerSourceIndexing500Schema,
+  TriggerSourceIndexingMutationRequestSchema,
+  TriggerSourceIndexingMutationResponseSchema,
+} from './schemas/triggerSourceIndexingSchema'
+export type {
   UpdateAgentConfigurationPathParamsSchema,
   UpdateAgentConfiguration204Schema,
   UpdateAgentConfiguration400Schema,
@@ -524,6 +565,30 @@ export type {
   UpdateConversationMutationRequestSchema,
   UpdateConversationMutationResponseSchema,
 } from './schemas/updateConversationSchema'
+export type {
+  UpdateSourceFolderPathParamsSchema,
+  UpdateSourceFolder204Schema,
+  UpdateSourceFolder400Schema,
+  UpdateSourceFolder401Schema,
+  UpdateSourceFolder403Schema,
+  UpdateSourceFolder404Schema,
+  UpdateSourceFolder429Schema,
+  UpdateSourceFolder500Schema,
+  UpdateSourceFolderMutationRequestSchema,
+  UpdateSourceFolderMutationResponseSchema,
+} from './schemas/updateSourceFolderSchema'
+export type {
+  UpdateSourceIndexesPathParamsSchema,
+  UpdateSourceIndexes204Schema,
+  UpdateSourceIndexes400Schema,
+  UpdateSourceIndexes401Schema,
+  UpdateSourceIndexes403Schema,
+  UpdateSourceIndexes404Schema,
+  UpdateSourceIndexes429Schema,
+  UpdateSourceIndexes500Schema,
+  UpdateSourceIndexesMutationRequestSchema,
+  UpdateSourceIndexesMutationResponseSchema,
+} from './schemas/updateSourceIndexesSchema'
 export type {
   UpdateSourcePathParamsSchema,
   UpdateSource204Schema,
@@ -641,6 +706,18 @@ export type {
   CreateSourceMutation,
 } from './types/CreateSource'
 export type {
+  CreateSourceFolder201,
+  CreateSourceFolder400,
+  CreateSourceFolder401,
+  CreateSourceFolder403,
+  CreateSourceFolder404,
+  CreateSourceFolder429,
+  CreateSourceFolder500,
+  CreateSourceFolderMutationRequest,
+  CreateSourceFolderMutationResponse,
+  CreateSourceFolderMutation,
+} from './types/CreateSourceFolder'
+export type {
   DeleteAgentPathParams,
   DeleteAgent204Enum,
   DeleteAgent204,
@@ -710,6 +787,20 @@ export type {
   DeleteSourceMutationResponse,
   DeleteSourceMutation,
 } from './types/DeleteSource'
+export type {
+  DeleteSourceFolderPathParams,
+  DeleteSourceFolder204Enum,
+  DeleteSourceFolder204,
+  DeleteSourceFolder400,
+  DeleteSourceFolder401,
+  DeleteSourceFolder403,
+  DeleteSourceFolder404,
+  DeleteSourceFolder429,
+  DeleteSourceFolder500,
+  DeleteSourceFolderMutationRequest,
+  DeleteSourceFolderMutationResponse,
+  DeleteSourceFolderMutation,
+} from './types/DeleteSourceFolder'
 export type {
   GenerateUploadSignatureHeaderParams,
   GenerateUploadSignature200,
@@ -864,6 +955,7 @@ export type {
   GetSourcePathParams,
   GetSourceQueryParams,
   SourceTypeEnum,
+  SourceStatusEnum,
   GetSource200,
   GetSource400,
   GetSource401,
@@ -874,6 +966,19 @@ export type {
   GetSourceQueryResponse,
   GetSourceQuery,
 } from './types/GetSource'
+export type {
+  GetSourceIndexingStatusPathParams,
+  GetSourceIndexingStatusQueryParams,
+  GetSourceIndexingStatus200,
+  GetSourceIndexingStatus400,
+  GetSourceIndexingStatus401,
+  GetSourceIndexingStatus403,
+  GetSourceIndexingStatus404,
+  GetSourceIndexingStatus429,
+  GetSourceIndexingStatus500,
+  GetSourceIndexingStatusQueryResponse,
+  GetSourceIndexingStatusQuery,
+} from './types/GetSourceIndexingStatus'
 export type {
   Health200,
   Health400,
@@ -897,19 +1002,6 @@ export type {
   ListAgentsQueryResponse,
   ListAgentsQuery,
 } from './types/ListAgents'
-export type {
-  ListAgentSourcesPathParams,
-  ListAgentSourcesQueryParams,
-  ListAgentSources200,
-  ListAgentSources400,
-  ListAgentSources401,
-  ListAgentSources403,
-  ListAgentSources404,
-  ListAgentSources429,
-  ListAgentSources500,
-  ListAgentSourcesQueryResponse,
-  ListAgentSourcesQuery,
-} from './types/ListAgentSources'
 export type {
   ListConnectionsQueryParamsAppEnum,
   ListConnectionsQueryParams,
@@ -1003,8 +1095,23 @@ export type {
   ListProvidersQuery,
 } from './types/ListProviders'
 export type {
+  ListSourceIndexesPathParams,
+  ListSourceIndexesQueryParams,
+  SourceIndexesStatusEnum,
+  ListSourceIndexes200,
+  ListSourceIndexes400,
+  ListSourceIndexes401,
+  ListSourceIndexes403,
+  ListSourceIndexes404,
+  ListSourceIndexes429,
+  ListSourceIndexes500,
+  ListSourceIndexesQueryResponse,
+  ListSourceIndexesQuery,
+} from './types/ListSourceIndexes'
+export type {
   ListSourcesQueryParams,
   SourcesTypeEnum,
+  SourcesStatusEnum,
   ListSources200,
   ListSources400,
   ListSources401,
@@ -1015,20 +1122,6 @@ export type {
   ListSourcesQueryResponse,
   ListSourcesQuery,
 } from './types/ListSources'
-export type {
-  ManageAgentSourcesPathParams,
-  ManageAgentSources204Enum,
-  ManageAgentSources204,
-  ManageAgentSources400,
-  ManageAgentSources401,
-  ManageAgentSources403,
-  ManageAgentSources404,
-  ManageAgentSources429,
-  ManageAgentSources500,
-  ManageAgentSourcesMutationRequest,
-  ManageAgentSourcesMutationResponse,
-  ManageAgentSourcesMutation,
-} from './types/ManageAgentSources'
 export type {
   RegenerateMessagePathParams,
   AssistantMessageStatusEnum3,
@@ -1286,6 +1379,21 @@ export type {
   StreamMessageQuery,
 } from './types/StreamMessage'
 export type {
+  TriggerSourceIndexingPathParams,
+  TriggerSourceIndexing204Enum,
+  TriggerSourceIndexing204,
+  TriggerSourceIndexing400,
+  TriggerSourceIndexing401,
+  TriggerSourceIndexing403,
+  TriggerSourceIndexing404,
+  TriggerSourceIndexing429,
+  TriggerSourceIndexing500,
+  TriggerSourceIndexingMutationRequestStatusEnum,
+  TriggerSourceIndexingMutationRequest,
+  TriggerSourceIndexingMutationResponse,
+  TriggerSourceIndexingMutation,
+} from './types/TriggerSourceIndexing'
+export type {
   UpdateAgentPathParams,
   UpdateAgent204Enum,
   UpdateAgent204,
@@ -1359,6 +1467,34 @@ export type {
   UpdateSourceMutation,
 } from './types/UpdateSource'
 export type {
+  UpdateSourceFolderPathParams,
+  UpdateSourceFolder204Enum,
+  UpdateSourceFolder204,
+  UpdateSourceFolder400,
+  UpdateSourceFolder401,
+  UpdateSourceFolder403,
+  UpdateSourceFolder404,
+  UpdateSourceFolder429,
+  UpdateSourceFolder500,
+  UpdateSourceFolderMutationRequest,
+  UpdateSourceFolderMutationResponse,
+  UpdateSourceFolderMutation,
+} from './types/UpdateSourceFolder'
+export type {
+  UpdateSourceIndexesPathParams,
+  UpdateSourceIndexes204Enum,
+  UpdateSourceIndexes204,
+  UpdateSourceIndexes400,
+  UpdateSourceIndexes401,
+  UpdateSourceIndexes403,
+  UpdateSourceIndexes404,
+  UpdateSourceIndexes429,
+  UpdateSourceIndexes500,
+  UpdateSourceIndexesMutationRequest,
+  UpdateSourceIndexesMutationResponse,
+  UpdateSourceIndexesMutation,
+} from './types/UpdateSourceIndexes'
+export type {
   UploadFilesHeaderParams,
   FilesStatusEnum,
   FilesStatusEnum2,
@@ -1408,11 +1544,13 @@ export { createConnection } from './operations/createConnection'
 export { createConversation } from './operations/createConversation'
 export { createProvider } from './operations/createProvider'
 export { createSource } from './operations/createSource'
+export { createSourceFolder } from './operations/createSourceFolder'
 export { deleteAgent } from './operations/deleteAgent'
 export { deleteConnection } from './operations/deleteConnection'
 export { deleteConversation } from './operations/deleteConversation'
 export { deleteProvider } from './operations/deleteProvider'
 export { deleteSource } from './operations/deleteSource'
+export { deleteSourceFolder } from './operations/deleteSourceFolder'
 export { generateUploadSignature } from './operations/generateUploadSignature'
 export { generateUploadSignatureConversation } from './operations/generateUploadSignatureConversation'
 export { generateUploadSignatureSource } from './operations/generateUploadSignatureSource'
@@ -1425,25 +1563,28 @@ export { getFile } from './operations/getFile'
 export { getProfile } from './operations/getProfile'
 export { getProvider } from './operations/getProvider'
 export { getSource } from './operations/getSource'
+export { getSourceIndexingStatus } from './operations/getSourceIndexingStatus'
 export { health } from './operations/health'
 export { listAgents } from './operations/listAgents'
-export { listAgentSources } from './operations/listAgentSources'
 export { listConnections } from './operations/listConnections'
 export { listConversations } from './operations/listConversations'
 export { listMessages } from './operations/listMessages'
 export { listProviders } from './operations/listProviders'
+export { listSourceIndexes } from './operations/listSourceIndexes'
 export { listSources } from './operations/listSources'
-export { manageAgentSources } from './operations/manageAgentSources'
 export { regenerateMessage } from './operations/regenerateMessage'
 export { resendMessage } from './operations/resendMessage'
 export { sendMessage } from './operations/sendMessage'
 export { stopMessage } from './operations/stopMessage'
 export { streamMessage } from './operations/streamMessage'
+export { triggerSourceIndexing } from './operations/triggerSourceIndexing'
 export { updateAgent } from './operations/updateAgent'
 export { updateAgentConfiguration } from './operations/updateAgentConfiguration'
 export { updateConnection } from './operations/updateConnection'
 export { updateConversation } from './operations/updateConversation'
 export { updateSource } from './operations/updateSource'
+export { updateSourceFolder } from './operations/updateSourceFolder'
+export { updateSourceIndexes } from './operations/updateSourceIndexes'
 export { uploadFiles } from './operations/uploadFiles'
 export { uploadFilesConversation } from './operations/uploadFilesConversation'
 export { uploadFilesSource } from './operations/uploadFilesSource'
@@ -1468,6 +1609,10 @@ export {
   useCreateSource,
 } from './react-query/hooks/useCreateSource'
 export {
+  createSourceFolderMutationKey,
+  useCreateSourceFolder,
+} from './react-query/hooks/useCreateSourceFolder'
+export {
   deleteAgentMutationKey,
   useDeleteAgent,
 } from './react-query/hooks/useDeleteAgent'
@@ -1487,6 +1632,10 @@ export {
   deleteSourceMutationKey,
   useDeleteSource,
 } from './react-query/hooks/useDeleteSource'
+export {
+  deleteSourceFolderMutationKey,
+  useDeleteSourceFolder,
+} from './react-query/hooks/useDeleteSourceFolder'
 export {
   generateUploadSignatureMutationKey,
   useGenerateUploadSignature,
@@ -1585,6 +1734,16 @@ export {
   useGetSource,
 } from './react-query/hooks/useGetSource'
 export {
+  getSourceIndexingStatusQueryKey,
+  getSourceIndexingStatusQueryOptions,
+  useGetSourceIndexingStatus,
+} from './react-query/hooks/useGetSourceIndexingStatus'
+export {
+  getSourceIndexingStatusSuspenseQueryKey,
+  getSourceIndexingStatusSuspenseQueryOptions,
+  useGetSourceIndexingStatusSuspense,
+} from './react-query/hooks/useGetSourceIndexingStatusSuspense'
+export {
   getSourceSuspenseQueryKey,
   getSourceSuspenseQueryOptions,
   useGetSourceSuspense,
@@ -1604,16 +1763,6 @@ export {
   listAgentsQueryOptions,
   useListAgents,
 } from './react-query/hooks/useListAgents'
-export {
-  listAgentSourcesQueryKey,
-  listAgentSourcesQueryOptions,
-  useListAgentSources,
-} from './react-query/hooks/useListAgentSources'
-export {
-  listAgentSourcesSuspenseQueryKey,
-  listAgentSourcesSuspenseQueryOptions,
-  useListAgentSourcesSuspense,
-} from './react-query/hooks/useListAgentSourcesSuspense'
 export {
   listAgentsSuspenseQueryKey,
   listAgentsSuspenseQueryOptions,
@@ -1660,6 +1809,16 @@ export {
   useListProvidersSuspense,
 } from './react-query/hooks/useListProvidersSuspense'
 export {
+  listSourceIndexesQueryKey,
+  listSourceIndexesQueryOptions,
+  useListSourceIndexes,
+} from './react-query/hooks/useListSourceIndexes'
+export {
+  listSourceIndexesSuspenseQueryKey,
+  listSourceIndexesSuspenseQueryOptions,
+  useListSourceIndexesSuspense,
+} from './react-query/hooks/useListSourceIndexesSuspense'
+export {
   listSourcesQueryKey,
   listSourcesQueryOptions,
   useListSources,
@@ -1669,10 +1828,6 @@ export {
   listSourcesSuspenseQueryOptions,
   useListSourcesSuspense,
 } from './react-query/hooks/useListSourcesSuspense'
-export {
-  manageAgentSourcesMutationKey,
-  useManageAgentSources,
-} from './react-query/hooks/useManageAgentSources'
 export {
   regenerateMessageMutationKey,
   useRegenerateMessage,
@@ -1700,6 +1855,10 @@ export {
   useStreamMessageSuspense,
 } from './react-query/hooks/useStreamMessageSuspense'
 export {
+  triggerSourceIndexingMutationKey,
+  useTriggerSourceIndexing,
+} from './react-query/hooks/useTriggerSourceIndexing'
+export {
   updateAgentMutationKey,
   useUpdateAgent,
 } from './react-query/hooks/useUpdateAgent'
@@ -1719,6 +1878,14 @@ export {
   updateSourceMutationKey,
   useUpdateSource,
 } from './react-query/hooks/useUpdateSource'
+export {
+  updateSourceFolderMutationKey,
+  useUpdateSourceFolder,
+} from './react-query/hooks/useUpdateSourceFolder'
+export {
+  updateSourceIndexesMutationKey,
+  useUpdateSourceIndexes,
+} from './react-query/hooks/useUpdateSourceIndexes'
 export {
   uploadFilesMutationKey,
   useUploadFiles,
@@ -1775,6 +1942,17 @@ export {
   createProviderMutationRequestSchema,
   createProviderMutationResponseSchema,
 } from './schemas/createProviderSchema'
+export {
+  createSourceFolder201Schema,
+  createSourceFolder400Schema,
+  createSourceFolder401Schema,
+  createSourceFolder403Schema,
+  createSourceFolder404Schema,
+  createSourceFolder429Schema,
+  createSourceFolder500Schema,
+  createSourceFolderMutationRequestSchema,
+  createSourceFolderMutationResponseSchema,
+} from './schemas/createSourceFolderSchema'
 export {
   createSource201Schema,
   createSource400Schema,
@@ -1834,6 +2012,18 @@ export {
   deleteProviderMutationRequestSchema,
   deleteProviderMutationResponseSchema,
 } from './schemas/deleteProviderSchema'
+export {
+  deleteSourceFolderPathParamsSchema,
+  deleteSourceFolder204Schema,
+  deleteSourceFolder400Schema,
+  deleteSourceFolder401Schema,
+  deleteSourceFolder403Schema,
+  deleteSourceFolder404Schema,
+  deleteSourceFolder429Schema,
+  deleteSourceFolder500Schema,
+  deleteSourceFolderMutationRequestSchema,
+  deleteSourceFolderMutationResponseSchema,
+} from './schemas/deleteSourceFolderSchema'
 export {
   deleteSourcePathParamsSchema,
   deleteSource204Schema,
@@ -1975,6 +2165,18 @@ export {
   getProviderQueryResponseSchema,
 } from './schemas/getProviderSchema'
 export {
+  getSourceIndexingStatusPathParamsSchema,
+  getSourceIndexingStatusQueryParamsSchema,
+  getSourceIndexingStatus200Schema,
+  getSourceIndexingStatus400Schema,
+  getSourceIndexingStatus401Schema,
+  getSourceIndexingStatus403Schema,
+  getSourceIndexingStatus404Schema,
+  getSourceIndexingStatus429Schema,
+  getSourceIndexingStatus500Schema,
+  getSourceIndexingStatusQueryResponseSchema,
+} from './schemas/getSourceIndexingStatusSchema'
+export {
   getSourcePathParamsSchema,
   getSourceQueryParamsSchema,
   getSource200Schema,
@@ -1996,18 +2198,6 @@ export {
   health500Schema,
   healthQueryResponseSchema,
 } from './schemas/healthSchema'
-export {
-  listAgentSourcesPathParamsSchema,
-  listAgentSourcesQueryParamsSchema,
-  listAgentSources200Schema,
-  listAgentSources400Schema,
-  listAgentSources401Schema,
-  listAgentSources403Schema,
-  listAgentSources404Schema,
-  listAgentSources429Schema,
-  listAgentSources500Schema,
-  listAgentSourcesQueryResponseSchema,
-} from './schemas/listAgentSourcesSchema'
 export {
   listAgentsQueryParamsSchema,
   listAgents200Schema,
@@ -2065,6 +2255,18 @@ export {
   listProvidersQueryResponseSchema,
 } from './schemas/listProvidersSchema'
 export {
+  listSourceIndexesPathParamsSchema,
+  listSourceIndexesQueryParamsSchema,
+  listSourceIndexes200Schema,
+  listSourceIndexes400Schema,
+  listSourceIndexes401Schema,
+  listSourceIndexes403Schema,
+  listSourceIndexes404Schema,
+  listSourceIndexes429Schema,
+  listSourceIndexes500Schema,
+  listSourceIndexesQueryResponseSchema,
+} from './schemas/listSourceIndexesSchema'
+export {
   listSourcesQueryParamsSchema,
   listSources200Schema,
   listSources400Schema,
@@ -2075,18 +2277,6 @@ export {
   listSources500Schema,
   listSourcesQueryResponseSchema,
 } from './schemas/listSourcesSchema'
-export {
-  manageAgentSourcesPathParamsSchema,
-  manageAgentSources204Schema,
-  manageAgentSources400Schema,
-  manageAgentSources401Schema,
-  manageAgentSources403Schema,
-  manageAgentSources404Schema,
-  manageAgentSources429Schema,
-  manageAgentSources500Schema,
-  manageAgentSourcesMutationRequestSchema,
-  manageAgentSourcesMutationResponseSchema,
-} from './schemas/manageAgentSourcesSchema'
 export {
   regenerateMessagePathParamsSchema,
   regenerateMessage200Schema,
@@ -2148,6 +2338,18 @@ export {
   streamMessageQueryResponseSchema,
 } from './schemas/streamMessageSchema'
 export {
+  triggerSourceIndexingPathParamsSchema,
+  triggerSourceIndexing204Schema,
+  triggerSourceIndexing400Schema,
+  triggerSourceIndexing401Schema,
+  triggerSourceIndexing403Schema,
+  triggerSourceIndexing404Schema,
+  triggerSourceIndexing429Schema,
+  triggerSourceIndexing500Schema,
+  triggerSourceIndexingMutationRequestSchema,
+  triggerSourceIndexingMutationResponseSchema,
+} from './schemas/triggerSourceIndexingSchema'
+export {
   updateAgentConfigurationPathParamsSchema,
   updateAgentConfiguration204Schema,
   updateAgentConfiguration400Schema,
@@ -2195,6 +2397,30 @@ export {
   updateConversationMutationRequestSchema,
   updateConversationMutationResponseSchema,
 } from './schemas/updateConversationSchema'
+export {
+  updateSourceFolderPathParamsSchema,
+  updateSourceFolder204Schema,
+  updateSourceFolder400Schema,
+  updateSourceFolder401Schema,
+  updateSourceFolder403Schema,
+  updateSourceFolder404Schema,
+  updateSourceFolder429Schema,
+  updateSourceFolder500Schema,
+  updateSourceFolderMutationRequestSchema,
+  updateSourceFolderMutationResponseSchema,
+} from './schemas/updateSourceFolderSchema'
+export {
+  updateSourceIndexesPathParamsSchema,
+  updateSourceIndexes204Schema,
+  updateSourceIndexes400Schema,
+  updateSourceIndexes401Schema,
+  updateSourceIndexes403Schema,
+  updateSourceIndexes404Schema,
+  updateSourceIndexes429Schema,
+  updateSourceIndexes500Schema,
+  updateSourceIndexesMutationRequestSchema,
+  updateSourceIndexesMutationResponseSchema,
+} from './schemas/updateSourceIndexesSchema'
 export {
   updateSourcePathParamsSchema,
   updateSource204Schema,
@@ -2258,6 +2484,7 @@ export { deleteConnection204Enum } from './types/DeleteConnection'
 export { deleteConversation204Enum } from './types/DeleteConversation'
 export { deleteProvider204Enum } from './types/DeleteProvider'
 export { deleteSource204Enum } from './types/DeleteSource'
+export { deleteSourceFolder204Enum } from './types/DeleteSourceFolder'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './types/GenerateUploadSignatureSource'
 export {
   languageModeSettingsProviderEnum,
@@ -2270,7 +2497,7 @@ export { connectionAppEnum } from './types/GetConnection'
 export { conversationVisibilityEnum } from './types/GetConversation'
 export { fileBucketEnum, fileScopeEnum } from './types/GetFile'
 export { providerProviderEnum } from './types/GetProvider'
-export { sourceTypeEnum } from './types/GetSource'
+export { sourceTypeEnum, sourceStatusEnum } from './types/GetSource'
 export {
   listConnectionsQueryParamsAppEnum,
   connectionsAppEnum,
@@ -2322,8 +2549,8 @@ export {
   listProvidersQueryParamsProviderEnum,
   providersProviderEnum,
 } from './types/ListProviders'
-export { sourcesTypeEnum } from './types/ListSources'
-export { manageAgentSources204Enum } from './types/ManageAgentSources'
+export { sourceIndexesStatusEnum } from './types/ListSourceIndexes'
+export { sourcesTypeEnum, sourcesStatusEnum } from './types/ListSources'
 export {
   assistantMessageStatusEnum3,
   assistantMessageRoleEnum3,
@@ -2521,6 +2748,10 @@ export {
   sendMessageMutationRequestVisibilityEnum,
 } from './types/SendMessage'
 export { stopMessage204Enum } from './types/StopMessage'
+export {
+  triggerSourceIndexing204Enum,
+  triggerSourceIndexingMutationRequestStatusEnum,
+} from './types/TriggerSourceIndexing'
 export { updateAgent204Enum } from './types/UpdateAgent'
 export {
   updateAgentConfiguration204Enum,
@@ -2531,6 +2762,8 @@ export {
 export { updateConnection204Enum } from './types/UpdateConnection'
 export { updateConversation204Enum } from './types/UpdateConversation'
 export { updateSource204Enum } from './types/UpdateSource'
+export { updateSourceFolder204Enum } from './types/UpdateSourceFolder'
+export { updateSourceIndexes204Enum } from './types/UpdateSourceIndexes'
 export { filesStatusEnum, filesStatusEnum2 } from './types/UploadFiles'
 export {
   filesStatusEnum5,

@@ -134,7 +134,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
             .insert(messages)
             .values({
               conversationId: conversationId,
-              status: 'finished',
+              status: 'completed',
               role: 'user',
               parts: message.parts,
               metadata: message.metadata as AIMessageMetadata,

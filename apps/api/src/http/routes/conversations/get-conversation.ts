@@ -7,7 +7,7 @@ import { conversationVisibilitySchema } from '@workspace/core/conversations'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
-import { conversationsToUsers, teamMembers, users } from '@workspace/db/schema'
+import { participants, teamMembers, users } from '@workspace/db/schema'
 import { z } from 'zod'
 
 export async function getConversation(app: FastifyTypedInstance) {
@@ -86,18 +86,15 @@ export async function getConversation(app: FastifyTypedInstance) {
         })
         .from(users)
 
-      const participants = conversation.teamId
+      const listParticipants = conversation.teamId
         ? await participantsSelectQuery
             .innerJoin(teamMembers, eq(users.id, teamMembers.userId))
             .where(eq(teamMembers.teamId, conversation.teamId))
         : await participantsSelectQuery
-            .innerJoin(
-              conversationsToUsers,
-              eq(users.id, conversationsToUsers.userId),
-            )
-            .where(eq(conversationsToUsers.conversationId, conversation.id))
+            .innerJoin(participants, eq(users.id, participants.userId))
+            .where(eq(participants.conversationId, conversation.id))
 
-      return { conversation, participants }
+      return { conversation, participants: listParticipants }
     },
   )
 }

@@ -25,6 +25,15 @@ export const sourcesTypeEnum = {
 export type SourcesTypeEnum =
   (typeof sourcesTypeEnum)[keyof typeof sourcesTypeEnum]
 
+export const sourcesStatusEnum = {
+  draft: 'draft',
+  ready: 'ready',
+  completed: 'completed',
+} as const
+
+export type SourcesStatusEnum =
+  (typeof sourcesStatusEnum)[keyof typeof sourcesStatusEnum]
+
 /**
  * @description Success
  */
@@ -45,6 +54,10 @@ export type ListSources200 = {
      * @type string
      */
     type: SourcesTypeEnum
+    /**
+     * @type string
+     */
+    status: SourcesStatusEnum
   }[]
 }
 

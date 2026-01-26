@@ -17,6 +17,7 @@ export async function listSources(context: ContextListSourcesParams) {
       id: sources.id,
       name: sources.name,
       type: sources.type,
+      status: sources.status,
     })
     .from(sources)
     .where(
@@ -52,6 +53,7 @@ export async function getSource(
       id: sources.id,
       name: sources.name,
       type: sources.type,
+      status: sources.status,
     })
     .from(sources)
     .where(

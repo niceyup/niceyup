@@ -13,3 +13,8 @@ export type FileMetadata = {
   // conversationIds?: string[]
   sourceId?: string
 }
+
+export type OperationError = {
+  code: string
+  message: string
+}

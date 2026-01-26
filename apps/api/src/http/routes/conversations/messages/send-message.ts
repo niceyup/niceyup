@@ -252,7 +252,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
             .insert(messages)
             .values({
               conversationId: _conversationId,
-              status: 'finished',
+              status: 'completed',
               role: 'user',
               parts: message.parts,
               metadata: message.metadata as AIMessageMetadata,

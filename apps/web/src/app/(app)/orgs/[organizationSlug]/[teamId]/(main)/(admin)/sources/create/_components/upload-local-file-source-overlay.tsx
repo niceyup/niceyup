@@ -70,7 +70,9 @@ export function UploadLocalFileSourceOverlay() {
                     {file.file.name}
                   </span>
                   <span className="ml-auto shrink-0">
-                    {file.uploaded && <CircleCheckIcon className="size-4" />}
+                    {file.uploaded && (
+                      <CircleCheckIcon className="size-4 text-green-500" />
+                    )}
                     {file.error && (
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -79,7 +81,9 @@ export function UploadLocalFileSourceOverlay() {
                         <TooltipContent>{file.error}</TooltipContent>
                       </Tooltip>
                     )}
-                    {!file.uploaded && !file.error && <Spinner />}
+                    {!file.uploaded && !file.error && (
+                      <Spinner className="text-blue-500" />
+                    )}
                   </span>
                 </div>
               ))}

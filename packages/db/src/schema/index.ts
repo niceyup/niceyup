@@ -16,7 +16,10 @@ import type {
   DatabaseSourceDialect,
   DatabaseSourceQueryExample,
   DatabaseSourceTableMetadata,
-  SourceEmbeddingStatus,
+  SourceIndexStatus,
+  SourceOperationStatus,
+  SourceOperationType,
+  SourceStatus,
   SourceType,
 } from '@workspace/core/sources'
 import { relations } from 'drizzle-orm'
@@ -28,11 +31,13 @@ import {
   primaryKey,
   text,
   timestamp,
+  unique,
 } from 'drizzle-orm/pg-core'
 import type {
   FileBucket,
   FileMetadata,
   FileScope,
+  OperationError,
   PromptMessage,
 } from '../lib/types'
 import { encryptedJson, id, timestamps } from '../utils'
@@ -92,6 +97,18 @@ export const modelSettings = pgTable('model_settings', {
   ...timestamps,
 })
 
+export const modelSettingsRelations = relations(modelSettings, ({ many }) => ({
+  agentLanguageModelSettings: many(agents, {
+    relationName: 'language_model_settings',
+  }),
+  agentEmbeddingModelSettings: many(agents, {
+    relationName: 'embedding_model_settings',
+  }),
+  conversationLanguageModelSettings: many(conversations, {
+    relationName: 'language_model_settings',
+  }),
+}))
+
 export const agents = pgTable('agents', {
   ...id,
   name: text('name').notNull().default('Unnamed'),
@@ -130,15 +147,22 @@ export const agents = pgTable('agents', {
 })
 
 export const agentsRelations = relations(agents, ({ one, many }) => ({
-  languageModel: one(modelSettings, {
+  languageModelSettings: one(modelSettings, {
+    relationName: 'language_model_settings',
     fields: [agents.languageModelSettingsId],
     references: [modelSettings.id],
   }),
-  embeddingModel: one(modelSettings, {
+  embeddingModelSettings: one(modelSettings, {
+    relationName: 'embedding_model_settings',
     fields: [agents.embeddingModelSettingsId],
     references: [modelSettings.id],
   }),
+  // vectorStore: one(vectorStores, {
+  //   fields: [agents.vectorStoreId],
+  //   references: [vectorStores.id],
+  // }),
   conversations: many(conversations),
+  sourceIndexes: many(sourceIndexes),
 }))
 
 export const conversations = pgTable('conversations', {
@@ -170,7 +194,8 @@ export const conversations = pgTable('conversations', {
 export const conversationsRelations = relations(
   conversations,
   ({ one, many }) => ({
-    languageModel: one(modelSettings, {
+    languageModelSettings: one(modelSettings, {
+      relationName: 'language_model_settings',
       fields: [conversations.languageModelSettingsId],
       references: [modelSettings.id],
     }),
@@ -179,7 +204,7 @@ export const conversationsRelations = relations(
       references: [agents.id],
     }),
     messages: many(messages),
-    participants: many(conversationsToUsers),
+    participants: many(participants),
   }),
 )
 
@@ -223,76 +248,33 @@ export const messagesRelations = relations(messages, ({ one, many }) => ({
   }),
 }))
 
-export const agentsToSources = pgTable(
-  'agents_to_sources',
+export const participants = pgTable(
+  'participants',
   {
-    agentId: text('agent_id')
-      .notNull()
-      .references(() => agents.id, {
-        onUpdate: 'cascade',
-        onDelete: 'cascade',
-      }),
-    sourceId: text('source_id')
-      .notNull()
-      .references(() => sources.id, {
-        onUpdate: 'cascade',
-        onDelete: 'cascade',
-      }),
+    ...id,
 
-    status: text('status')
-      .notNull()
-      .default('not-started')
-      .$type<SourceEmbeddingStatus>(),
-  },
-  (t) => [primaryKey({ columns: [t.agentId, t.sourceId] })],
-)
-
-export const agentsToSourcesRelations = relations(
-  agentsToSources,
-  ({ one }) => ({
-    agent: one(agents, {
-      fields: [agentsToSources.agentId],
-      references: [agents.id],
-    }),
-    source: one(sources, {
-      fields: [agentsToSources.sourceId],
-      references: [sources.id],
-    }),
-  }),
-)
-
-export const conversationsToUsers = pgTable(
-  'conversations_to_users',
-  {
     conversationId: text('conversation_id')
       .notNull()
       .references(() => conversations.id, {
-        onUpdate: 'cascade',
         onDelete: 'cascade',
       }),
     userId: text('user_id')
       .notNull()
       .references(() => users.id, {
-        onUpdate: 'cascade',
         onDelete: 'cascade',
       }),
+
+    ...timestamps,
   },
-  (t) => [primaryKey({ columns: [t.conversationId, t.userId] })],
+  (table) => [unique().on(table.conversationId, table.userId)],
 )
 
-export const conversationsToUsersRelations = relations(
-  conversationsToUsers,
-  ({ one }) => ({
-    conversation: one(conversations, {
-      fields: [conversationsToUsers.conversationId],
-      references: [conversations.id],
-    }),
-    user: one(users, {
-      fields: [conversationsToUsers.userId],
-      references: [users.id],
-    }),
+export const participantsRelations = relations(participants, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [participants.conversationId],
+    references: [conversations.id],
   }),
-)
+}))
 
 export const providers = pgTable('providers', {
   ...id,
@@ -310,6 +292,7 @@ export const sources = pgTable('sources', {
   ...id,
   name: text('name').notNull().default('Unnamed'),
   type: text('type').notNull().$type<SourceType>(),
+  status: text('status').notNull().default('draft').$type<SourceStatus>(),
 
   // source configuration
   chunkSize: integer('chunk_size'),
@@ -329,7 +312,8 @@ export const sourcesRelations = relations(sources, ({ one, many }) => ({
   websiteSource: one(websiteSources),
   fileSource: one(fileSources),
   databaseSource: one(databaseSources),
-  agents: many(agentsToSources),
+  sourceIndexes: many(sourceIndexes),
+  sourceOperations: many(sourceOperations),
 }))
 
 export const textSources = pgTable('text_sources', {
@@ -464,6 +448,81 @@ export const databaseSourcesRelations = relations(
     connection: one(connections, {
       fields: [databaseSources.connectionId],
       references: [connections.id],
+    }),
+  }),
+)
+
+export const sourceIndexes = pgTable(
+  'source_indexes',
+  {
+    ...id,
+    status: text('status').notNull().default('idle').$type<SourceIndexStatus>(),
+
+    agentId: text('agent_id')
+      .notNull()
+      .references(() => agents.id, {
+        onDelete: 'cascade',
+      }),
+    sourceId: text('source_id')
+      .notNull()
+      .references(() => sources.id, {
+        onDelete: 'cascade',
+      }),
+
+    ...timestamps,
+  },
+  (table) => [unique().on(table.agentId, table.sourceId)],
+)
+
+export const sourceIndexesRelations = relations(
+  sourceIndexes,
+  ({ one, many }) => ({
+    agent: one(agents, {
+      fields: [sourceIndexes.agentId],
+      references: [agents.id],
+    }),
+    source: one(sources, {
+      fields: [sourceIndexes.sourceId],
+      references: [sources.id],
+    }),
+    sourceOperations: many(sourceOperations),
+  }),
+)
+
+export const sourceOperations = pgTable('source_operations', {
+  ...id,
+  type: text('type').notNull().$type<SourceOperationType>(),
+  status: text('status')
+    .notNull()
+    .default('queued')
+    .$type<SourceOperationStatus>(),
+
+  sourceId: text('source_id')
+    .unique()
+    .references(() => sources.id, {
+      onDelete: 'cascade',
+    }),
+  sourceIndexId: text('source_index_id')
+    .unique()
+    .references(() => sourceIndexes.id, {
+      onDelete: 'cascade',
+    }),
+
+  error: jsonb('error').$type<OperationError>(),
+  attempts: integer('attempts').notNull().default(0),
+  ...timestamps,
+})
+
+export const sourceOperationsRelations = relations(
+  sourceOperations,
+  ({ one }) => ({
+    source: one(sources, {
+      fields: [sourceOperations.sourceId],
+      references: [sources.id],
+    }),
+    sourceIndex: one(sourceIndexes, {
+      fields: [sourceOperations.sourceIndexId],
+      references: [sourceIndexes.id],
     }),
   }),
 )

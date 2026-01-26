@@ -24,6 +24,10 @@ export async function del(params: DeleteParams) {
   }
 
   if (params.sourceId) {
+    if (filter) {
+      filter += ' AND '
+    }
+
     filter += `__meta.sourceId = '${params.sourceId}'`
   }
 

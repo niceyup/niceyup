@@ -1,7 +1,7 @@
 import type { ConversationVisibility } from '@workspace/core/conversations'
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '../../db'
-import { conversations, conversationsToUsers, teamMembers } from '../../schema'
+import { conversations, participants, teamMembers } from '../../schema'
 import { getAgent } from './agents'
 
 type ContextListConversationsParams = {
@@ -61,12 +61,12 @@ export async function listConversations(
   if (params.visibility === 'shared') {
     const listConversations = await selectQuery
       .innerJoin(
-        conversationsToUsers,
-        eq(conversations.id, conversationsToUsers.conversationId),
+        participants,
+        eq(conversations.id, participants.conversationId),
       )
       .where(
         and(
-          eq(conversationsToUsers.userId, context.userId),
+          eq(participants.userId, context.userId),
           eq(conversations.agentId, params.agentId),
           isNull(conversations.deletedAt),
         ),
@@ -147,13 +147,13 @@ export async function getConversation(
   if (conversation?.visibility === 'shared') {
     const [checkAccessToConversation] = await db
       .select({
-        userId: conversationsToUsers.userId,
+        userId: participants.userId,
       })
-      .from(conversationsToUsers)
+      .from(participants)
       .where(
         and(
-          eq(conversationsToUsers.conversationId, conversation.id),
-          eq(conversationsToUsers.userId, context.userId),
+          eq(participants.conversationId, conversation.id),
+          eq(participants.userId, context.userId),
         ),
       )
       .limit(1)
@@ -163,7 +163,7 @@ export async function getConversation(
     }
   }
 
-  if (conversation?.visibility === 'team' && conversation?.teamId) {
+  if (conversation?.visibility === 'team' && conversation.teamId) {
     const [checkAccessToTeam] = await db
       .select({
         userId: teamMembers.userId,

@@ -1,0 +1,2 @@
+ALTER TABLE "participants" ADD CONSTRAINT "participants_conversation_id_user_id_unique" UNIQUE("conversation_id","user_id");--> statement-breakpoint
+ALTER TABLE "source_embeddings" ADD CONSTRAINT "source_embeddings_agent_id_source_id_unique" UNIQUE("agent_id","source_id");

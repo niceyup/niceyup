@@ -3,9 +3,11 @@ import { createAgent } from './agents/create-agent'
 import { deleteAgent } from './agents/delete-agent'
 import { getAgent } from './agents/get-agent'
 import { getAgentConfiguration } from './agents/get-agent-configuration'
-import { listAgentSources } from './agents/list-agent-sources'
 import { listAgents } from './agents/list-agents'
-import { manageAgentSources } from './agents/manage-agent-sources'
+import { getSourceIndexingStatus } from './agents/source-indexes/get-source indexing-status'
+import { listSourceIndexes } from './agents/source-indexes/list-source-indexes'
+import { triggerSourceIndexing } from './agents/source-indexes/trigger-source-indexing'
+import { updateSourceIndexes } from './agents/source-indexes/update-source-indexes'
 import { updateAgent } from './agents/update-agent'
 import { updateAgentConfiguration } from './agents/update-agent-configuration'
 import { createConnection } from './connections/create-connection'
@@ -37,13 +39,16 @@ import { deleteProvider } from './providers/delete-provider'
 import { getProvider } from './providers/get-provider'
 import { listProviders } from './providers/list-providers'
 import { createSource } from './sources/create-source'
+import { createSourceFolder } from './sources/create-source-folder'
 import { getDatabaseSchema } from './sources/database/get-schema'
 import { deleteSource } from './sources/delete-source'
+import { deleteSourceFolder } from './sources/delete-source-folder'
 import { generateUploadSignatureSource } from './sources/files/generate-upload-signature'
 import { uploadFilesSource } from './sources/files/upload-files'
 import { getSource } from './sources/get-source'
 import { listSources } from './sources/list-sources'
 import { updateSource } from './sources/update-source'
+import { updateSourceFolder } from './sources/update-source-folder'
 
 export async function routes(app: FastifyTypedInstance) {
   app.register(health)
@@ -58,8 +63,10 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(deleteAgent)
   app.register(getAgentConfiguration)
   app.register(updateAgentConfiguration)
-  app.register(listAgentSources)
-  app.register(manageAgentSources)
+  app.register(listSourceIndexes)
+  app.register(updateSourceIndexes)
+  app.register(getSourceIndexingStatus)
+  app.register(triggerSourceIndexing)
 
   app.register(listConversations)
   app.register(getConversation)
@@ -84,6 +91,9 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(createSource)
   app.register(updateSource)
   app.register(deleteSource)
+  app.register(createSourceFolder)
+  app.register(updateSourceFolder)
+  app.register(deleteSourceFolder)
   app.register(getDatabaseSchema)
 
   app.register(listConnections)

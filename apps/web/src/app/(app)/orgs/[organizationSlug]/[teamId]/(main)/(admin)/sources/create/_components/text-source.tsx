@@ -108,11 +108,11 @@ export function TextSource({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Enter your source name here..."
+                      placeholder="e.g. Customer Support Docs"
                     />
                   </FormControl>
                   <FormMessage />
@@ -129,7 +129,7 @@ export function TextSource({
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder="Enter your text here..."
+                      placeholder="Paste or write the content you want this agent to learn from"
                     />
                   </FormControl>
                   <FormMessage />

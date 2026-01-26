@@ -10,8 +10,8 @@ export type AIMessageRole = 'system' | 'user' | 'assistant'
 export type AIMessageStatus =
   | 'queued'
   | 'processing'
-  | 'finished'
-  | 'stopped'
+  | 'cancelled'
+  | 'completed'
   | 'failed'
 
 export type AIMessage<

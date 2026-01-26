@@ -14,7 +14,7 @@ import { queries } from '@workspace/db/queries'
 import {
   conversationExplorerNodes,
   conversations,
-  conversationsToUsers,
+  participants,
 } from '@workspace/db/schema'
 import {
   generateKeyBetween,
@@ -623,14 +623,11 @@ export async function deleteItemInConversationExplorerNode(
 
       if (leaveConversationIds.length) {
         await tx
-          .delete(conversationsToUsers)
+          .delete(participants)
           .where(
             and(
-              inArray(
-                conversationsToUsers.conversationId,
-                leaveConversationIds,
-              ),
-              eq(conversationsToUsers.userId, userId),
+              inArray(participants.conversationId, leaveConversationIds),
+              eq(participants.userId, userId),
             ),
           )
       }

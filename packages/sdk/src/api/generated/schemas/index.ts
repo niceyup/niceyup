@@ -43,6 +43,17 @@ export type {
   CreateProviderMutationResponseSchema,
 } from './createProviderSchema'
 export type {
+  CreateSourceFolder201Schema,
+  CreateSourceFolder400Schema,
+  CreateSourceFolder401Schema,
+  CreateSourceFolder403Schema,
+  CreateSourceFolder404Schema,
+  CreateSourceFolder429Schema,
+  CreateSourceFolder500Schema,
+  CreateSourceFolderMutationRequestSchema,
+  CreateSourceFolderMutationResponseSchema,
+} from './createSourceFolderSchema'
+export type {
   CreateSource201Schema,
   CreateSource400Schema,
   CreateSource401Schema,
@@ -101,6 +112,18 @@ export type {
   DeleteProviderMutationRequestSchema,
   DeleteProviderMutationResponseSchema,
 } from './deleteProviderSchema'
+export type {
+  DeleteSourceFolderPathParamsSchema,
+  DeleteSourceFolder204Schema,
+  DeleteSourceFolder400Schema,
+  DeleteSourceFolder401Schema,
+  DeleteSourceFolder403Schema,
+  DeleteSourceFolder404Schema,
+  DeleteSourceFolder429Schema,
+  DeleteSourceFolder500Schema,
+  DeleteSourceFolderMutationRequestSchema,
+  DeleteSourceFolderMutationResponseSchema,
+} from './deleteSourceFolderSchema'
 export type {
   DeleteSourcePathParamsSchema,
   DeleteSource204Schema,
@@ -242,6 +265,18 @@ export type {
   GetProviderQueryResponseSchema,
 } from './getProviderSchema'
 export type {
+  GetSourceIndexingStatusPathParamsSchema,
+  GetSourceIndexingStatusQueryParamsSchema,
+  GetSourceIndexingStatus200Schema,
+  GetSourceIndexingStatus400Schema,
+  GetSourceIndexingStatus401Schema,
+  GetSourceIndexingStatus403Schema,
+  GetSourceIndexingStatus404Schema,
+  GetSourceIndexingStatus429Schema,
+  GetSourceIndexingStatus500Schema,
+  GetSourceIndexingStatusQueryResponseSchema,
+} from './getSourceIndexingStatusSchema'
+export type {
   GetSourcePathParamsSchema,
   GetSourceQueryParamsSchema,
   GetSource200Schema,
@@ -263,18 +298,6 @@ export type {
   Health500Schema,
   HealthQueryResponseSchema,
 } from './healthSchema'
-export type {
-  ListAgentSourcesPathParamsSchema,
-  ListAgentSourcesQueryParamsSchema,
-  ListAgentSources200Schema,
-  ListAgentSources400Schema,
-  ListAgentSources401Schema,
-  ListAgentSources403Schema,
-  ListAgentSources404Schema,
-  ListAgentSources429Schema,
-  ListAgentSources500Schema,
-  ListAgentSourcesQueryResponseSchema,
-} from './listAgentSourcesSchema'
 export type {
   ListAgentsQueryParamsSchema,
   ListAgents200Schema,
@@ -332,6 +355,18 @@ export type {
   ListProvidersQueryResponseSchema,
 } from './listProvidersSchema'
 export type {
+  ListSourceIndexesPathParamsSchema,
+  ListSourceIndexesQueryParamsSchema,
+  ListSourceIndexes200Schema,
+  ListSourceIndexes400Schema,
+  ListSourceIndexes401Schema,
+  ListSourceIndexes403Schema,
+  ListSourceIndexes404Schema,
+  ListSourceIndexes429Schema,
+  ListSourceIndexes500Schema,
+  ListSourceIndexesQueryResponseSchema,
+} from './listSourceIndexesSchema'
+export type {
   ListSourcesQueryParamsSchema,
   ListSources200Schema,
   ListSources400Schema,
@@ -342,18 +377,6 @@ export type {
   ListSources500Schema,
   ListSourcesQueryResponseSchema,
 } from './listSourcesSchema'
-export type {
-  ManageAgentSourcesPathParamsSchema,
-  ManageAgentSources204Schema,
-  ManageAgentSources400Schema,
-  ManageAgentSources401Schema,
-  ManageAgentSources403Schema,
-  ManageAgentSources404Schema,
-  ManageAgentSources429Schema,
-  ManageAgentSources500Schema,
-  ManageAgentSourcesMutationRequestSchema,
-  ManageAgentSourcesMutationResponseSchema,
-} from './manageAgentSourcesSchema'
 export type {
   RegenerateMessagePathParamsSchema,
   RegenerateMessage200Schema,
@@ -415,6 +438,18 @@ export type {
   StreamMessageQueryResponseSchema,
 } from './streamMessageSchema'
 export type {
+  TriggerSourceIndexingPathParamsSchema,
+  TriggerSourceIndexing204Schema,
+  TriggerSourceIndexing400Schema,
+  TriggerSourceIndexing401Schema,
+  TriggerSourceIndexing403Schema,
+  TriggerSourceIndexing404Schema,
+  TriggerSourceIndexing429Schema,
+  TriggerSourceIndexing500Schema,
+  TriggerSourceIndexingMutationRequestSchema,
+  TriggerSourceIndexingMutationResponseSchema,
+} from './triggerSourceIndexingSchema'
+export type {
   UpdateAgentConfigurationPathParamsSchema,
   UpdateAgentConfiguration204Schema,
   UpdateAgentConfiguration400Schema,
@@ -462,6 +497,30 @@ export type {
   UpdateConversationMutationRequestSchema,
   UpdateConversationMutationResponseSchema,
 } from './updateConversationSchema'
+export type {
+  UpdateSourceFolderPathParamsSchema,
+  UpdateSourceFolder204Schema,
+  UpdateSourceFolder400Schema,
+  UpdateSourceFolder401Schema,
+  UpdateSourceFolder403Schema,
+  UpdateSourceFolder404Schema,
+  UpdateSourceFolder429Schema,
+  UpdateSourceFolder500Schema,
+  UpdateSourceFolderMutationRequestSchema,
+  UpdateSourceFolderMutationResponseSchema,
+} from './updateSourceFolderSchema'
+export type {
+  UpdateSourceIndexesPathParamsSchema,
+  UpdateSourceIndexes204Schema,
+  UpdateSourceIndexes400Schema,
+  UpdateSourceIndexes401Schema,
+  UpdateSourceIndexes403Schema,
+  UpdateSourceIndexes404Schema,
+  UpdateSourceIndexes429Schema,
+  UpdateSourceIndexes500Schema,
+  UpdateSourceIndexesMutationRequestSchema,
+  UpdateSourceIndexesMutationResponseSchema,
+} from './updateSourceIndexesSchema'
 export type {
   UpdateSourcePathParamsSchema,
   UpdateSource204Schema,
@@ -555,6 +614,17 @@ export {
   createProviderMutationResponseSchema,
 } from './createProviderSchema'
 export {
+  createSourceFolder201Schema,
+  createSourceFolder400Schema,
+  createSourceFolder401Schema,
+  createSourceFolder403Schema,
+  createSourceFolder404Schema,
+  createSourceFolder429Schema,
+  createSourceFolder500Schema,
+  createSourceFolderMutationRequestSchema,
+  createSourceFolderMutationResponseSchema,
+} from './createSourceFolderSchema'
+export {
   createSource201Schema,
   createSource400Schema,
   createSource401Schema,
@@ -613,6 +683,18 @@ export {
   deleteProviderMutationRequestSchema,
   deleteProviderMutationResponseSchema,
 } from './deleteProviderSchema'
+export {
+  deleteSourceFolderPathParamsSchema,
+  deleteSourceFolder204Schema,
+  deleteSourceFolder400Schema,
+  deleteSourceFolder401Schema,
+  deleteSourceFolder403Schema,
+  deleteSourceFolder404Schema,
+  deleteSourceFolder429Schema,
+  deleteSourceFolder500Schema,
+  deleteSourceFolderMutationRequestSchema,
+  deleteSourceFolderMutationResponseSchema,
+} from './deleteSourceFolderSchema'
 export {
   deleteSourcePathParamsSchema,
   deleteSource204Schema,
@@ -754,6 +836,18 @@ export {
   getProviderQueryResponseSchema,
 } from './getProviderSchema'
 export {
+  getSourceIndexingStatusPathParamsSchema,
+  getSourceIndexingStatusQueryParamsSchema,
+  getSourceIndexingStatus200Schema,
+  getSourceIndexingStatus400Schema,
+  getSourceIndexingStatus401Schema,
+  getSourceIndexingStatus403Schema,
+  getSourceIndexingStatus404Schema,
+  getSourceIndexingStatus429Schema,
+  getSourceIndexingStatus500Schema,
+  getSourceIndexingStatusQueryResponseSchema,
+} from './getSourceIndexingStatusSchema'
+export {
   getSourcePathParamsSchema,
   getSourceQueryParamsSchema,
   getSource200Schema,
@@ -775,18 +869,6 @@ export {
   health500Schema,
   healthQueryResponseSchema,
 } from './healthSchema'
-export {
-  listAgentSourcesPathParamsSchema,
-  listAgentSourcesQueryParamsSchema,
-  listAgentSources200Schema,
-  listAgentSources400Schema,
-  listAgentSources401Schema,
-  listAgentSources403Schema,
-  listAgentSources404Schema,
-  listAgentSources429Schema,
-  listAgentSources500Schema,
-  listAgentSourcesQueryResponseSchema,
-} from './listAgentSourcesSchema'
 export {
   listAgentsQueryParamsSchema,
   listAgents200Schema,
@@ -844,6 +926,18 @@ export {
   listProvidersQueryResponseSchema,
 } from './listProvidersSchema'
 export {
+  listSourceIndexesPathParamsSchema,
+  listSourceIndexesQueryParamsSchema,
+  listSourceIndexes200Schema,
+  listSourceIndexes400Schema,
+  listSourceIndexes401Schema,
+  listSourceIndexes403Schema,
+  listSourceIndexes404Schema,
+  listSourceIndexes429Schema,
+  listSourceIndexes500Schema,
+  listSourceIndexesQueryResponseSchema,
+} from './listSourceIndexesSchema'
+export {
   listSourcesQueryParamsSchema,
   listSources200Schema,
   listSources400Schema,
@@ -854,18 +948,6 @@ export {
   listSources500Schema,
   listSourcesQueryResponseSchema,
 } from './listSourcesSchema'
-export {
-  manageAgentSourcesPathParamsSchema,
-  manageAgentSources204Schema,
-  manageAgentSources400Schema,
-  manageAgentSources401Schema,
-  manageAgentSources403Schema,
-  manageAgentSources404Schema,
-  manageAgentSources429Schema,
-  manageAgentSources500Schema,
-  manageAgentSourcesMutationRequestSchema,
-  manageAgentSourcesMutationResponseSchema,
-} from './manageAgentSourcesSchema'
 export {
   regenerateMessagePathParamsSchema,
   regenerateMessage200Schema,
@@ -927,6 +1009,18 @@ export {
   streamMessageQueryResponseSchema,
 } from './streamMessageSchema'
 export {
+  triggerSourceIndexingPathParamsSchema,
+  triggerSourceIndexing204Schema,
+  triggerSourceIndexing400Schema,
+  triggerSourceIndexing401Schema,
+  triggerSourceIndexing403Schema,
+  triggerSourceIndexing404Schema,
+  triggerSourceIndexing429Schema,
+  triggerSourceIndexing500Schema,
+  triggerSourceIndexingMutationRequestSchema,
+  triggerSourceIndexingMutationResponseSchema,
+} from './triggerSourceIndexingSchema'
+export {
   updateAgentConfigurationPathParamsSchema,
   updateAgentConfiguration204Schema,
   updateAgentConfiguration400Schema,
@@ -974,6 +1068,30 @@ export {
   updateConversationMutationRequestSchema,
   updateConversationMutationResponseSchema,
 } from './updateConversationSchema'
+export {
+  updateSourceFolderPathParamsSchema,
+  updateSourceFolder204Schema,
+  updateSourceFolder400Schema,
+  updateSourceFolder401Schema,
+  updateSourceFolder403Schema,
+  updateSourceFolder404Schema,
+  updateSourceFolder429Schema,
+  updateSourceFolder500Schema,
+  updateSourceFolderMutationRequestSchema,
+  updateSourceFolderMutationResponseSchema,
+} from './updateSourceFolderSchema'
+export {
+  updateSourceIndexesPathParamsSchema,
+  updateSourceIndexes204Schema,
+  updateSourceIndexes400Schema,
+  updateSourceIndexes401Schema,
+  updateSourceIndexes403Schema,
+  updateSourceIndexes404Schema,
+  updateSourceIndexes429Schema,
+  updateSourceIndexes500Schema,
+  updateSourceIndexesMutationRequestSchema,
+  updateSourceIndexesMutationResponseSchema,
+} from './updateSourceIndexesSchema'
 export {
   updateSourcePathParamsSchema,
   updateSource204Schema,

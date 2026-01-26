@@ -4,6 +4,7 @@ import {
   type GenerateUploadSignatureParams,
   generateUploadSignature,
 } from '@/actions/upload-files'
+import { env } from '@/lib/env'
 import * as React from 'react'
 
 type UploadedFile =
@@ -123,18 +124,18 @@ export const uploadFileWithSignature = async ({
   file: File
 }): Promise<UploadedFile> => {
   try {
-    let url = '/api/files'
+    let path = '/api/files'
 
     if (scope === 'conversations') {
-      url = '/api/conversations/files'
+      path = '/api/conversations/files'
     } else if (scope === 'sources') {
-      url = '/api/sources/files'
+      path = '/api/sources/files'
     }
 
     const formData = new FormData()
     formData.set('file', file as File)
 
-    const response = await fetch(url, {
+    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
       method: 'POST',
       headers: {
         'x-upload-signature': signature,

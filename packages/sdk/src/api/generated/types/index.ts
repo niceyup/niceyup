@@ -67,6 +67,18 @@ export type {
   CreateSourceMutation,
 } from './CreateSource'
 export type {
+  CreateSourceFolder201,
+  CreateSourceFolder400,
+  CreateSourceFolder401,
+  CreateSourceFolder403,
+  CreateSourceFolder404,
+  CreateSourceFolder429,
+  CreateSourceFolder500,
+  CreateSourceFolderMutationRequest,
+  CreateSourceFolderMutationResponse,
+  CreateSourceFolderMutation,
+} from './CreateSourceFolder'
+export type {
   DeleteAgentPathParams,
   DeleteAgent204Enum,
   DeleteAgent204,
@@ -136,6 +148,20 @@ export type {
   DeleteSourceMutationResponse,
   DeleteSourceMutation,
 } from './DeleteSource'
+export type {
+  DeleteSourceFolderPathParams,
+  DeleteSourceFolder204Enum,
+  DeleteSourceFolder204,
+  DeleteSourceFolder400,
+  DeleteSourceFolder401,
+  DeleteSourceFolder403,
+  DeleteSourceFolder404,
+  DeleteSourceFolder429,
+  DeleteSourceFolder500,
+  DeleteSourceFolderMutationRequest,
+  DeleteSourceFolderMutationResponse,
+  DeleteSourceFolderMutation,
+} from './DeleteSourceFolder'
 export type {
   GenerateUploadSignatureHeaderParams,
   GenerateUploadSignature200,
@@ -290,6 +316,7 @@ export type {
   GetSourcePathParams,
   GetSourceQueryParams,
   SourceTypeEnum,
+  SourceStatusEnum,
   GetSource200,
   GetSource400,
   GetSource401,
@@ -300,6 +327,19 @@ export type {
   GetSourceQueryResponse,
   GetSourceQuery,
 } from './GetSource'
+export type {
+  GetSourceIndexingStatusPathParams,
+  GetSourceIndexingStatusQueryParams,
+  GetSourceIndexingStatus200,
+  GetSourceIndexingStatus400,
+  GetSourceIndexingStatus401,
+  GetSourceIndexingStatus403,
+  GetSourceIndexingStatus404,
+  GetSourceIndexingStatus429,
+  GetSourceIndexingStatus500,
+  GetSourceIndexingStatusQueryResponse,
+  GetSourceIndexingStatusQuery,
+} from './GetSourceIndexingStatus'
 export type {
   Health200,
   Health400,
@@ -323,19 +363,6 @@ export type {
   ListAgentsQueryResponse,
   ListAgentsQuery,
 } from './ListAgents'
-export type {
-  ListAgentSourcesPathParams,
-  ListAgentSourcesQueryParams,
-  ListAgentSources200,
-  ListAgentSources400,
-  ListAgentSources401,
-  ListAgentSources403,
-  ListAgentSources404,
-  ListAgentSources429,
-  ListAgentSources500,
-  ListAgentSourcesQueryResponse,
-  ListAgentSourcesQuery,
-} from './ListAgentSources'
 export type {
   ListConnectionsQueryParamsAppEnum,
   ListConnectionsQueryParams,
@@ -429,8 +456,23 @@ export type {
   ListProvidersQuery,
 } from './ListProviders'
 export type {
+  ListSourceIndexesPathParams,
+  ListSourceIndexesQueryParams,
+  SourceIndexesStatusEnum,
+  ListSourceIndexes200,
+  ListSourceIndexes400,
+  ListSourceIndexes401,
+  ListSourceIndexes403,
+  ListSourceIndexes404,
+  ListSourceIndexes429,
+  ListSourceIndexes500,
+  ListSourceIndexesQueryResponse,
+  ListSourceIndexesQuery,
+} from './ListSourceIndexes'
+export type {
   ListSourcesQueryParams,
   SourcesTypeEnum,
+  SourcesStatusEnum,
   ListSources200,
   ListSources400,
   ListSources401,
@@ -441,20 +483,6 @@ export type {
   ListSourcesQueryResponse,
   ListSourcesQuery,
 } from './ListSources'
-export type {
-  ManageAgentSourcesPathParams,
-  ManageAgentSources204Enum,
-  ManageAgentSources204,
-  ManageAgentSources400,
-  ManageAgentSources401,
-  ManageAgentSources403,
-  ManageAgentSources404,
-  ManageAgentSources429,
-  ManageAgentSources500,
-  ManageAgentSourcesMutationRequest,
-  ManageAgentSourcesMutationResponse,
-  ManageAgentSourcesMutation,
-} from './ManageAgentSources'
 export type {
   RegenerateMessagePathParams,
   AssistantMessageStatusEnum3,
@@ -712,6 +740,21 @@ export type {
   StreamMessageQuery,
 } from './StreamMessage'
 export type {
+  TriggerSourceIndexingPathParams,
+  TriggerSourceIndexing204Enum,
+  TriggerSourceIndexing204,
+  TriggerSourceIndexing400,
+  TriggerSourceIndexing401,
+  TriggerSourceIndexing403,
+  TriggerSourceIndexing404,
+  TriggerSourceIndexing429,
+  TriggerSourceIndexing500,
+  TriggerSourceIndexingMutationRequestStatusEnum,
+  TriggerSourceIndexingMutationRequest,
+  TriggerSourceIndexingMutationResponse,
+  TriggerSourceIndexingMutation,
+} from './TriggerSourceIndexing'
+export type {
   UpdateAgentPathParams,
   UpdateAgent204Enum,
   UpdateAgent204,
@@ -785,6 +828,34 @@ export type {
   UpdateSourceMutation,
 } from './UpdateSource'
 export type {
+  UpdateSourceFolderPathParams,
+  UpdateSourceFolder204Enum,
+  UpdateSourceFolder204,
+  UpdateSourceFolder400,
+  UpdateSourceFolder401,
+  UpdateSourceFolder403,
+  UpdateSourceFolder404,
+  UpdateSourceFolder429,
+  UpdateSourceFolder500,
+  UpdateSourceFolderMutationRequest,
+  UpdateSourceFolderMutationResponse,
+  UpdateSourceFolderMutation,
+} from './UpdateSourceFolder'
+export type {
+  UpdateSourceIndexesPathParams,
+  UpdateSourceIndexes204Enum,
+  UpdateSourceIndexes204,
+  UpdateSourceIndexes400,
+  UpdateSourceIndexes401,
+  UpdateSourceIndexes403,
+  UpdateSourceIndexes404,
+  UpdateSourceIndexes429,
+  UpdateSourceIndexes500,
+  UpdateSourceIndexesMutationRequest,
+  UpdateSourceIndexesMutationResponse,
+  UpdateSourceIndexesMutation,
+} from './UpdateSourceIndexes'
+export type {
   UploadFilesHeaderParams,
   FilesStatusEnum,
   FilesStatusEnum2,
@@ -844,6 +915,7 @@ export { deleteConnection204Enum } from './DeleteConnection'
 export { deleteConversation204Enum } from './DeleteConversation'
 export { deleteProvider204Enum } from './DeleteProvider'
 export { deleteSource204Enum } from './DeleteSource'
+export { deleteSourceFolder204Enum } from './DeleteSourceFolder'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './GenerateUploadSignatureSource'
 export {
   languageModeSettingsProviderEnum,
@@ -856,7 +928,7 @@ export { connectionAppEnum } from './GetConnection'
 export { conversationVisibilityEnum } from './GetConversation'
 export { fileBucketEnum, fileScopeEnum } from './GetFile'
 export { providerProviderEnum } from './GetProvider'
-export { sourceTypeEnum } from './GetSource'
+export { sourceTypeEnum, sourceStatusEnum } from './GetSource'
 export {
   listConnectionsQueryParamsAppEnum,
   connectionsAppEnum,
@@ -908,8 +980,8 @@ export {
   listProvidersQueryParamsProviderEnum,
   providersProviderEnum,
 } from './ListProviders'
-export { sourcesTypeEnum } from './ListSources'
-export { manageAgentSources204Enum } from './ManageAgentSources'
+export { sourceIndexesStatusEnum } from './ListSourceIndexes'
+export { sourcesTypeEnum, sourcesStatusEnum } from './ListSources'
 export {
   assistantMessageStatusEnum3,
   assistantMessageRoleEnum3,
@@ -1107,6 +1179,10 @@ export {
   sendMessageMutationRequestVisibilityEnum,
 } from './SendMessage'
 export { stopMessage204Enum } from './StopMessage'
+export {
+  triggerSourceIndexing204Enum,
+  triggerSourceIndexingMutationRequestStatusEnum,
+} from './TriggerSourceIndexing'
 export { updateAgent204Enum } from './UpdateAgent'
 export {
   updateAgentConfiguration204Enum,
@@ -1117,6 +1193,8 @@ export {
 export { updateConnection204Enum } from './UpdateConnection'
 export { updateConversation204Enum } from './UpdateConversation'
 export { updateSource204Enum } from './UpdateSource'
+export { updateSourceFolder204Enum } from './UpdateSourceFolder'
+export { updateSourceIndexes204Enum } from './UpdateSourceIndexes'
 export { filesStatusEnum, filesStatusEnum2 } from './UploadFiles'
 export { filesStatusEnum5, filesStatusEnum6 } from './UploadFilesConversation'
 export { filesStatusEnum3, filesStatusEnum4 } from './UploadFilesSource'
