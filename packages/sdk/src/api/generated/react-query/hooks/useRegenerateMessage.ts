@@ -24,7 +24,9 @@ import { regenerateMessage } from '../operations/regenerateMessage'
 import { useMutation } from '@tanstack/react-query'
 
 export const regenerateMessageMutationKey = () =>
-  [{ url: '/conversations/{conversationId}/messages/regenerate' }] as const
+  [
+    { url: '/conversations/{conversationId}/messages/{messageId}/regenerate' },
+  ] as const
 
 export type RegenerateMessageMutationKey = ReturnType<
   typeof regenerateMessageMutationKey
@@ -32,7 +34,7 @@ export type RegenerateMessageMutationKey = ReturnType<
 
 /**
  * @description Regenerate assistant message
- * {@link /conversations/:conversationId/messages/regenerate}
+ * {@link /conversations/:conversationId/messages/:messageId/regenerate}
  */
 export function useRegenerateMessage<TContext>(
   options: {
@@ -48,6 +50,7 @@ export function useRegenerateMessage<TContext>(
       >,
       {
         conversationId: RegenerateMessagePathParams['conversationId']
+        messageId: RegenerateMessagePathParams['messageId']
         data: RegenerateMessageMutationRequest
       },
       TContext
@@ -74,13 +77,14 @@ export function useRegenerateMessage<TContext>(
     >,
     {
       conversationId: RegenerateMessagePathParams['conversationId']
+      messageId: RegenerateMessagePathParams['messageId']
       data: RegenerateMessageMutationRequest
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, data }) => {
-        return regenerateMessage({ conversationId, data }, config)
+      mutationFn: async ({ conversationId, messageId, data }) => {
+        return regenerateMessage({ conversationId, messageId, data }, config)
       },
       mutationKey,
       ...mutationOptions,

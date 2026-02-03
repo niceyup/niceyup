@@ -24,7 +24,9 @@ import { resendMessage } from '../operations/resendMessage'
 import { useMutation } from '@tanstack/react-query'
 
 export const resendMessageMutationKey = () =>
-  [{ url: '/conversations/{conversationId}/messages/resend' }] as const
+  [
+    { url: '/conversations/{conversationId}/messages/{messageId}/resend' },
+  ] as const
 
 export type ResendMessageMutationKey = ReturnType<
   typeof resendMessageMutationKey
@@ -32,7 +34,7 @@ export type ResendMessageMutationKey = ReturnType<
 
 /**
  * @description Resend user message
- * {@link /conversations/:conversationId/messages/resend}
+ * {@link /conversations/:conversationId/messages/:messageId/resend}
  */
 export function useResendMessage<TContext>(
   options: {
@@ -48,6 +50,7 @@ export function useResendMessage<TContext>(
       >,
       {
         conversationId: ResendMessagePathParams['conversationId']
+        messageId: ResendMessagePathParams['messageId']
         data: ResendMessageMutationRequest
       },
       TContext
@@ -73,13 +76,14 @@ export function useResendMessage<TContext>(
     >,
     {
       conversationId: ResendMessagePathParams['conversationId']
+      messageId: ResendMessagePathParams['messageId']
       data: ResendMessageMutationRequest
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, data }) => {
-        return resendMessage({ conversationId, data }, config)
+      mutationFn: async ({ conversationId, messageId, data }) => {
+        return resendMessage({ conversationId, messageId, data }, config)
       },
       mutationKey,
       ...mutationOptions,

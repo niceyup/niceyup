@@ -53,7 +53,7 @@ export async function updateConversation(app: FastifyTypedInstance) {
 
       if (!conversation) {
         throw new BadRequestError({
-          code: 'CONVERSATION_NOT_FOUND',
+          code: 'CONVERSATION_UNAVAILABLE',
           message: 'Conversation not found or you don’t have access',
         })
       }

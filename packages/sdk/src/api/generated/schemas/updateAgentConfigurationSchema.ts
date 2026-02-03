@@ -133,18 +133,16 @@ export const updateAgentConfigurationMutationRequestSchema = z.object({
   organizationSlug: z.string().optional(),
   languageModelSettings: z
     .object({
-      id: z.string(),
       provider: z.enum(['openai', 'google']),
-      model: z.string(),
+      model: z.string().min(1),
       options: z.object({}).catchall(z.any()).nullable().nullish(),
     })
     .nullable()
     .nullish(),
   embeddingModelSettings: z
     .object({
-      id: z.string(),
       provider: z.enum(['openai', 'google']),
-      model: z.string(),
+      model: z.string().min(1),
       options: z.object({}).catchall(z.any()).nullable().nullish(),
     })
     .nullable()

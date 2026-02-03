@@ -44,7 +44,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@workspace/ui/components/popover'
-import { ScrollArea } from '@workspace/ui/components/scroll-area'
 import { Separator } from '@workspace/ui/components/separator'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { cn } from '@workspace/ui/lib/utils'
@@ -250,36 +249,34 @@ function RoleSelect({ disabled }: { disabled?: boolean }) {
           <CommandInput placeholder="Search" />
           <CommandEmpty>No results found</CommandEmpty>
           <CommandGroup>
-            <ScrollArea className="flex max-h-[300px] flex-col">
-              {getValues(name) && (
-                <>
-                  <CommandItem
-                    onSelect={() => setOpen(false)}
-                    className="capitalize"
-                  >
-                    {getValues(name)}
-                    <CheckIcon className="ml-auto shrink-0 opacity-100" />
-                  </CommandItem>
-                  <CommandSeparator className="m-1" />
-                </>
-              )}
+            {getValues(name) && (
+              <>
+                <CommandItem
+                  onSelect={() => setOpen(false)}
+                  className="capitalize"
+                >
+                  {getValues(name)}
+                  <CheckIcon className="ml-auto shrink-0 opacity-100" />
+                </CommandItem>
+                <CommandSeparator className="m-1" />
+              </>
+            )}
 
-              {['member', 'admin', 'billing']
-                .filter((value) => value !== getValues(name))
-                .map((value) => (
-                  <CommandItem
-                    key={value}
-                    value={value}
-                    onSelect={() => {
-                      setValue(name, value, { shouldDirty: true })
-                      setOpen(false)
-                    }}
-                    className="capitalize"
-                  >
-                    {value}
-                  </CommandItem>
-                ))}
-            </ScrollArea>
+            {['member', 'admin', 'billing']
+              .filter((value) => value !== getValues(name))
+              .map((value) => (
+                <CommandItem
+                  key={value}
+                  value={value}
+                  onSelect={() => {
+                    setValue(name, value, { shouldDirty: true })
+                    setOpen(false)
+                  }}
+                  className="capitalize"
+                >
+                  {value}
+                </CommandItem>
+              ))}
           </CommandGroup>
         </Command>
       </PopoverContent>
@@ -324,32 +321,30 @@ function TeamSelect({
           <CommandInput placeholder="Search" />
           <CommandEmpty>No results found</CommandEmpty>
           <CommandGroup>
-            <ScrollArea className="flex max-h-[300px] flex-col">
-              {selectedTeam && (
-                <>
-                  <CommandItem onSelect={() => setOpen(false)}>
-                    {selectedTeam.name}
-                    <CheckIcon className="ml-auto shrink-0 opacity-100" />
-                  </CommandItem>
-                  <CommandSeparator className="m-1" />
-                </>
-              )}
+            {selectedTeam && (
+              <>
+                <CommandItem onSelect={() => setOpen(false)}>
+                  {selectedTeam.name}
+                  <CheckIcon className="ml-auto shrink-0 opacity-100" />
+                </CommandItem>
+                <CommandSeparator className="m-1" />
+              </>
+            )}
 
-              {teams
-                ?.filter(({ id }) => id !== selectedTeam?.id)
-                .map((team) => (
-                  <CommandItem
-                    key={team.id}
-                    value={team.name}
-                    onSelect={() => {
-                      setValue(name, team.id, { shouldDirty: true })
-                      setOpen(false)
-                    }}
-                  >
-                    {team.name}
-                  </CommandItem>
-                ))}
-            </ScrollArea>
+            {teams
+              ?.filter(({ id }) => id !== selectedTeam?.id)
+              .map((team) => (
+                <CommandItem
+                  key={team.id}
+                  value={team.name}
+                  onSelect={() => {
+                    setValue(name, team.id, { shouldDirty: true })
+                    setOpen(false)
+                  }}
+                >
+                  {team.name}
+                </CommandItem>
+              ))}
           </CommandGroup>
         </Command>
       </PopoverContent>

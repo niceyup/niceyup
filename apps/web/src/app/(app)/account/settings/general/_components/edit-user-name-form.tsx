@@ -48,7 +48,7 @@ export function EditUserNameForm({ name }: { name: string }) {
         onSubmit={form.handleSubmit(onSubmit)}
         className="rounded-lg border border-border bg-background"
       >
-        <div className="relative flex flex-col gap-5 p-5 sm:gap-6 sm:p-6">
+        <div className="relative flex min-h-39 flex-col gap-5 p-5 sm:gap-6 sm:p-6">
           <FormField
             control={form.control}
             name="name"
@@ -73,7 +73,7 @@ export function EditUserNameForm({ name }: { name: string }) {
             )}
           />
         </div>
-        <div className="flex items-center justify-between gap-4 rounded-b-lg border-border border-t bg-foreground/2 p-3 sm:px-6">
+        <div className="flex min-h-15 items-center justify-between gap-4 rounded-b-lg border-border border-t bg-foreground/2 p-3 sm:px-6">
           <p className="text-muted-foreground text-sm">
             Please use 255 characters at maximum.
           </p>

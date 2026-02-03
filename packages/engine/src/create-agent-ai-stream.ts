@@ -107,6 +107,10 @@ export async function createAgentAIStream<
 
     return streamingResult
   } catch (error) {
-    onError?.({ error })
+    if (onError) {
+      onError({ error })
+    } else {
+      throw error
+    }
   }
 }

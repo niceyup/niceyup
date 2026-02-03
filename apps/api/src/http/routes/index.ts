@@ -20,6 +20,7 @@ import { deleteConversation } from './conversations/delete-conversation'
 import { generateUploadSignatureConversation } from './conversations/files/generate-upload-signature'
 import { uploadFilesConversation } from './conversations/files/upload-files'
 import { getConversation } from './conversations/get-conversation'
+import { getConversationConfiguration } from './conversations/get-conversation-configuration'
 import { listConversations } from './conversations/list-conversations'
 import { listMessages } from './conversations/messages/list-messages'
 import { realtimeMessages } from './conversations/messages/realtime-messages'
@@ -29,6 +30,7 @@ import { sendMessage } from './conversations/messages/send-message'
 import { stopMessage } from './conversations/messages/stop-message'
 import { streamMessage } from './conversations/messages/stream-message'
 import { updateConversation } from './conversations/update-conversation'
+import { updateConversationConfiguration } from './conversations/update-conversation-configuration'
 import { generateUploadSignature } from './files/generate-upload-signature'
 import { getFile } from './files/get-file'
 import { uploadFiles } from './files/upload-files'
@@ -73,6 +75,8 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(createConversation)
   app.register(updateConversation)
   app.register(deleteConversation)
+  app.register(getConversationConfiguration)
+  app.register(updateConversationConfiguration)
   app.register(listMessages)
   app.register(realtimeMessages)
   app.register(sendMessage)

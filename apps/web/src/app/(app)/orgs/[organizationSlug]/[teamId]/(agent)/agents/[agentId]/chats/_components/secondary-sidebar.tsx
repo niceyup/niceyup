@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from '@workspace/ui/components/tooltip'
 import { Settings2Icon } from 'lucide-react'
+import { ConversationConfiguration } from './conversation-configuration'
 
 export async function SecondarySidebar() {
   return (
@@ -23,11 +24,7 @@ export async function SecondarySidebar() {
 
       <Separator />
 
-      <div className="flex-1 overflow-y-auto p-2">
-        <p className="py-6 text-center text-muted-foreground text-xs">
-          Coming soon
-        </p>
-      </div>
+      <ConversationConfiguration />
     </div>
   )
 }

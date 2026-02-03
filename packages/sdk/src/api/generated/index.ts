@@ -855,8 +855,8 @@ export type {
 export type {
   GetAgentConfigurationPathParams,
   GetAgentConfigurationQueryParams,
-  LanguageModeSettingsProviderEnum,
-  LanguageModeSettingsTypeEnum,
+  LanguageModelSettingsProviderEnum,
+  LanguageModelSettingsTypeEnum,
   EmbeddingModelSettingsProviderEnum,
   EmbeddingModelSettingsTypeEnum,
   PromptMessagesRoleEnum,
@@ -1033,6 +1033,7 @@ export type {
 export type {
   ListMessagesPathParams,
   ListMessagesQueryParams,
+  PromptMessagesRoleEnum3,
   MessagesStatusEnum,
   MessagesRoleEnum,
   PartsTypeEnum,
@@ -1417,7 +1418,7 @@ export type {
   UpdateAgentConfiguration404,
   UpdateAgentConfiguration429,
   UpdateAgentConfiguration500,
-  LanguageModelSettingsProviderEnum,
+  LanguageModelSettingsProviderEnum2,
   EmbeddingModelSettingsProviderEnum2,
   PromptMessagesRoleEnum2,
   UpdateAgentConfigurationMutationRequest,
@@ -2487,8 +2488,8 @@ export { deleteSource204Enum } from './types/DeleteSource'
 export { deleteSourceFolder204Enum } from './types/DeleteSourceFolder'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './types/GenerateUploadSignatureSource'
 export {
-  languageModeSettingsProviderEnum,
-  languageModeSettingsTypeEnum,
+  languageModelSettingsProviderEnum,
+  languageModelSettingsTypeEnum,
   embeddingModelSettingsProviderEnum,
   embeddingModelSettingsTypeEnum,
   promptMessagesRoleEnum,
@@ -2507,6 +2508,7 @@ export {
   conversationsVisibilityEnum,
 } from './types/ListConversations'
 export {
+  promptMessagesRoleEnum3,
   messagesStatusEnum,
   messagesRoleEnum,
   partsTypeEnum,
@@ -2755,7 +2757,7 @@ export {
 export { updateAgent204Enum } from './types/UpdateAgent'
 export {
   updateAgentConfiguration204Enum,
-  languageModelSettingsProviderEnum,
+  languageModelSettingsProviderEnum2,
   embeddingModelSettingsProviderEnum2,
   promptMessagesRoleEnum2,
 } from './types/UpdateAgentConfiguration'

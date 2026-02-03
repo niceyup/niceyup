@@ -22,20 +22,26 @@ import type {
 
 function getRegenerateMessageUrl({
   conversationId,
-}: { conversationId: RegenerateMessagePathParams['conversationId'] }) {
-  return `/conversations/${conversationId}/messages/regenerate` as const
+  messageId,
+}: {
+  conversationId: RegenerateMessagePathParams['conversationId']
+  messageId: RegenerateMessagePathParams['messageId']
+}) {
+  return `/conversations/${conversationId}/messages/${messageId}/regenerate` as const
 }
 
 /**
  * @description Regenerate assistant message
- * {@link /conversations/:conversationId/messages/regenerate}
+ * {@link /conversations/:conversationId/messages/:messageId/regenerate}
  */
 export async function regenerateMessage(
   {
     conversationId,
+    messageId,
     data,
   }: {
     conversationId: RegenerateMessagePathParams['conversationId']
+    messageId: RegenerateMessagePathParams['messageId']
     data: RegenerateMessageMutationRequest
   },
   config: Partial<RequestConfig<RegenerateMessageMutationRequest>> & {
@@ -58,7 +64,7 @@ export async function regenerateMessage(
     RegenerateMessageMutationRequest
   >({
     method: 'POST',
-    url: getRegenerateMessageUrl({ conversationId }).toString(),
+    url: getRegenerateMessageUrl({ conversationId, messageId }).toString(),
     data: requestData,
     ...requestConfig,
   })

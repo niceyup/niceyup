@@ -87,8 +87,11 @@ type FilePart = {
 type ToolState =
   | 'input-streaming'
   | 'input-available'
+  | 'approval-requested'
+  | 'approval-responded'
   | 'output-available'
   | 'output-error'
+  | 'output-denied'
 
 type ToolImageGenerationPart = {
   type: 'tool-image_generation'
@@ -103,8 +106,11 @@ type MessageParts = {
   toolImageGenerationParts: ToolImageGenerationPart[]
 }
 
-function getMessageParts(message: MessageNode): MessageParts {
-  const textPart = message.parts?.find((part) => part.type === 'text')
+function extractMessageParts(message: MessageNode): MessageParts {
+  const text = message.parts
+    ?.filter((part) => part.type === 'text')
+    .map((part) => part.text)
+    .join('\n')
 
   const filesPart = message.parts?.filter((part) => part.type === 'file')
 
@@ -113,7 +119,7 @@ function getMessageParts(message: MessageNode): MessageParts {
   ) as unknown as MessageParts['toolImageGenerationParts']
 
   return {
-    text: textPart?.text || '',
+    text: text || '',
     files: filesPart || [],
     toolImageGenerationParts: toolImageGenerationParts || [],
   }
@@ -215,7 +221,7 @@ export function ChatMessageProvider({
 
   const contextValue: ChatMessageContextType = {
     message: mergedMessage,
-    parts: getMessageParts(mergedMessage),
+    parts: extractMessageParts(mergedMessage),
     updateMessage: setUpdatedMessage,
     streaming:
       mergedMessage.role === 'assistant' &&
@@ -359,25 +365,19 @@ export function ChatConversation() {
 }
 
 function ChatConversationMessages() {
-  const { messages, getMessageNodeById } = useChatContext()
-
-  function hasMultipleChildren(parentNode: MessageNode) {
-    return Boolean(
-      parentNode.children?.length && parentNode.children.length > 1,
-    )
-  }
+  const { messages, getMessageNodeChildIdsById } = useChatContext()
 
   return (
     <>
       {messages.map((message, i) => {
-        const parentNode = getMessageNodeById(message.parentId)
+        const siblings = getMessageNodeChildIdsById(message.parentId)
 
-        if (parentNode && hasMultipleChildren(parentNode)) {
+        if (siblings.length > 1) {
           return (
             <ChatMessageBranch
               key={`${message.id}-${i}`}
               message={message}
-              parentMessage={parentNode}
+              siblings={siblings}
             />
           )
         }
@@ -414,18 +414,18 @@ function ChatConversationScroll() {
 
 function ChatMessageBranch({
   message,
-  parentMessage,
+  siblings,
 }: {
   message: ChatMessageNode
-  parentMessage: ChatMessageNode
+  siblings: string[]
 }) {
   const { getMessageNodeById, handleBranchChange } = useChatContext()
 
   return (
     <MessageBranch
-      defaultBranch={parentMessage.children?.indexOf(message.id)}
+      defaultBranch={siblings.indexOf(message.id)}
       onBranchChange={async (branchIndex) => {
-        const targetNodeId = parentMessage.children?.at(branchIndex)
+        const targetNodeId = siblings.at(branchIndex)
 
         if (!targetNodeId) {
           return
@@ -439,7 +439,7 @@ function ChatMessageBranch({
       }}
     >
       <MessageBranchContent>
-        {parentMessage.children?.map((id) => {
+        {siblings.map((id) => {
           if (id === message.id) {
             return <ChatMessage key={id} message={message} branch />
           }
@@ -566,10 +566,7 @@ function ChatAssistantMessageStreaming({
   if (error) {
     return (
       <MessageContent>
-        <div className="flex flex-row items-center gap-2">
-          <XCircleIcon className="size-4 shrink-0 text-destructive" />
-          An error occurred while generating the response
-        </div>
+        <ChatMessageFailed />
 
         {messageStream && <ChatMessageResponseError error={error} />}
       </MessageContent>
@@ -687,10 +684,6 @@ function ChatUserMessageBodyEditing() {
 
     setEditing(false)
 
-    if (parts.text === newText && newFileParts.length === parts.files.length) {
-      return
-    }
-
     const newTextPart = {
       type: 'text' as const,
       text: newText,
@@ -762,7 +755,9 @@ function ChatAssistantMessageContent() {
         <ChatEmptyMessage />
       )}
 
-      {message.status === 'failed' && message.metadata?.error && (
+      <ChatMessageFailed />
+
+      {message.metadata?.error && (
         <ChatMessageResponseError error={message.metadata?.error} />
       )}
     </MessageContent>
@@ -776,7 +771,28 @@ function ChatUserMessageContent() {
 }
 
 function ChatEmptyMessage() {
+  const { message } = useChatMessageContext()
+
+  if (message.status === 'failed') {
+    return null
+  }
+
   return <p className="italic">No message content</p>
+}
+
+function ChatMessageFailed() {
+  const { message } = useChatMessageContext()
+
+  if (message.status !== 'failed') {
+    return null
+  }
+
+  return (
+    <div className="flex flex-row items-center gap-2">
+      <XCircleIcon className="size-4 shrink-0 text-destructive" />
+      An unexpected error occurred
+    </div>
+  )
 }
 
 function ChatMessageActions() {
@@ -835,7 +851,7 @@ function ChatMessageActions() {
 function ChatMessageResponseError({ error }: { error?: unknown }) {
   return (
     <MessageResponse className="rounded-md border border-destructive border-dashed p-3">
-      {`**Error message:**\n\`\`\`json\n${JSON.stringify(error, null, 2)}\n\`\`\``}
+      {`**Error message:**\n\`\`\`${typeof error === 'string' ? `\n${error}` : `json\n${JSON.stringify(error, null, 2)}`}\n\`\`\``}
     </MessageResponse>
   )
 }

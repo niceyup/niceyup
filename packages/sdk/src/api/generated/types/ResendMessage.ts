@@ -8,6 +8,10 @@ export type ResendMessagePathParams = {
    * @type string
    */
   conversationId: string
+  /**
+   * @type string
+   */
+  messageId: string
 }
 
 export const userMessageStatusEnum2 = {
@@ -2164,10 +2168,6 @@ export type ResendMessageMutationRequest = {
    * @type string
    */
   agentId: string
-  /**
-   * @type string
-   */
-  parentMessageId: string
   /**
    * @type object
    */

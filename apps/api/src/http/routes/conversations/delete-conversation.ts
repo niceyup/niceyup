@@ -9,7 +9,7 @@ import { queries } from '@workspace/db/queries'
 import {
   conversationExplorerNodes,
   conversations,
-  conversationsToUsers,
+  participants,
 } from '@workspace/db/schema'
 import { z } from 'zod'
 
@@ -75,11 +75,11 @@ export async function deleteConversation(app: FastifyTypedInstance) {
             )
 
           await tx
-            .delete(conversationsToUsers)
+            .delete(participants)
             .where(
               and(
-                eq(conversationsToUsers.conversationId, conversationId),
-                eq(conversationsToUsers.userId, userId),
+                eq(participants.conversationId, conversationId),
+                eq(participants.userId, userId),
               ),
             )
         } else {

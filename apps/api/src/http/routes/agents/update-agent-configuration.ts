@@ -11,9 +11,8 @@ import { agents, modelSettings } from '@workspace/db/schema'
 import { z } from 'zod'
 
 const modelSettingsSchema = z.object({
-  id: z.string(),
   provider: providerSchema,
-  model: z.string(),
+  model: z.string().nonempty(),
   options: z.record(z.string(), z.unknown()).nullish(),
 })
 
@@ -82,69 +81,84 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
       }
 
       await db.transaction(async (tx) => {
-        const [agentConfig] = await tx
-          .select({
-            languageModelSettingsId: agents.languageModelSettingsId,
-            embeddingModelSettingsId: agents.embeddingModelSettingsId,
-          })
-          .from(agents)
-          .where(eq(agents.id, agentId))
-          .limit(1)
+        if (
+          languageModelSettings !== undefined ||
+          embeddingModelSettings !== undefined
+        ) {
+          const [agentConfiguration] = await tx
+            .select({
+              languageModelSettingsId: agents.languageModelSettingsId,
+              embeddingModelSettingsId: agents.embeddingModelSettingsId,
+            })
+            .from(agents)
+            .where(eq(agents.id, agentId))
+            .limit(1)
 
-        if (languageModelSettings) {
-          if (agentConfig?.languageModelSettingsId) {
-            await tx
-              .update(modelSettings)
-              .set({
-                provider: languageModelSettings.provider,
-                model: languageModelSettings.model,
-                options: languageModelSettings.options,
-              })
-              .where(eq(modelSettings.id, agentConfig.languageModelSettingsId))
-          } else {
-            const [createdLanguageModelSettings] = await tx
-              .insert(modelSettings)
-              .values({
-                provider: languageModelSettings.provider,
-                model: languageModelSettings.model,
-                options: languageModelSettings.options,
-              })
-              .returning({
-                id: modelSettings.id,
-              })
+          if (languageModelSettings) {
+            if (agentConfiguration?.languageModelSettingsId) {
+              await tx
+                .update(modelSettings)
+                .set({
+                  provider: languageModelSettings.provider,
+                  model: languageModelSettings.model,
+                  options: languageModelSettings.options,
+                })
+                .where(
+                  eq(
+                    modelSettings.id,
+                    agentConfiguration.languageModelSettingsId,
+                  ),
+                )
+            } else {
+              const [createdLanguageModelSettings] = await tx
+                .insert(modelSettings)
+                .values({
+                  provider: languageModelSettings.provider,
+                  model: languageModelSettings.model,
+                  type: 'language-model',
+                  options: languageModelSettings.options,
+                })
+                .returning({
+                  id: modelSettings.id,
+                })
 
-            if (!createdLanguageModelSettings) {
-              throw new BadRequestError({
-                code: 'LANGUAGE_MODEL_SETTINGS_NOT_CREATED',
-                message: 'Language model settings not created',
-              })
+              if (!createdLanguageModelSettings) {
+                throw new BadRequestError({
+                  code: 'LANGUAGE_MODEL_SETTINGS_NOT_CREATED',
+                  message: 'Language model settings not created',
+                })
+              }
+
+              await tx
+                .update(agents)
+                .set({
+                  languageModelSettingsId: createdLanguageModelSettings.id,
+                })
+                .where(eq(agents.id, agentId))
             }
-
+          } else if (languageModelSettings === null) {
             await tx
               .update(agents)
               .set({
-                languageModelSettingsId: createdLanguageModelSettings.id,
+                languageModelSettingsId: null,
               })
               .where(eq(agents.id, agentId))
           }
-        }
 
-        if (embeddingModelSettings) {
-          if (agentConfig?.embeddingModelSettingsId) {
-            await tx
-              .update(modelSettings)
-              .set({
-                provider: embeddingModelSettings.provider,
-                model: embeddingModelSettings.model,
-                options: embeddingModelSettings.options,
+          if (embeddingModelSettings) {
+            if (agentConfiguration?.embeddingModelSettingsId) {
+              throw new BadRequestError({
+                code: 'EMBEDDING_MODEL_SETTINGS_ALREADY_SET',
+                message: 'Embedding model settings already set',
               })
-              .where(eq(modelSettings.id, agentConfig.embeddingModelSettingsId))
-          } else {
+            }
+
             const [createdEmbeddingModelSettings] = await tx
               .insert(modelSettings)
               .values({
                 provider: embeddingModelSettings.provider,
                 model: embeddingModelSettings.model,
+                type: 'embedding-model',
                 options: embeddingModelSettings.options,
               })
               .returning({
@@ -164,17 +178,30 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
                 embeddingModelSettingsId: createdEmbeddingModelSettings.id,
               })
               .where(eq(agents.id, agentId))
+          } else if (embeddingModelSettings === null) {
+            await tx
+              .update(agents)
+              .set({
+                embeddingModelSettingsId: null,
+              })
+              .where(eq(agents.id, agentId))
           }
         }
 
-        await tx
-          .update(agents)
-          .set({
-            systemMessage,
-            promptMessages,
-            suggestions,
-          })
-          .where(eq(agents.id, agentId))
+        if (
+          systemMessage !== undefined ||
+          promptMessages !== undefined ||
+          suggestions !== undefined
+        ) {
+          await tx
+            .update(agents)
+            .set({
+              systemMessage,
+              promptMessages,
+              suggestions,
+            })
+            .where(eq(agents.id, agentId))
+        }
       })
 
       return reply.status(204).send()

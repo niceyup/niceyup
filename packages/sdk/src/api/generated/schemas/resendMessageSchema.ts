@@ -20,6 +20,7 @@ import { z } from 'zod'
 
 export const resendMessagePathParamsSchema = z.object({
   conversationId: z.string(),
+  messageId: z.string(),
 }) as unknown as ToZod<ResendMessagePathParams>
 
 export type ResendMessagePathParamsSchema = ResendMessagePathParams
@@ -675,7 +676,6 @@ export const resendMessageMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
   agentId: z.string(),
-  parentMessageId: z.string(),
   message: z.object({
     parts: z
       .array(

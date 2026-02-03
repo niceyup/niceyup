@@ -22,20 +22,26 @@ import type {
 
 function getResendMessageUrl({
   conversationId,
-}: { conversationId: ResendMessagePathParams['conversationId'] }) {
-  return `/conversations/${conversationId}/messages/resend` as const
+  messageId,
+}: {
+  conversationId: ResendMessagePathParams['conversationId']
+  messageId: ResendMessagePathParams['messageId']
+}) {
+  return `/conversations/${conversationId}/messages/${messageId}/resend` as const
 }
 
 /**
  * @description Resend user message
- * {@link /conversations/:conversationId/messages/resend}
+ * {@link /conversations/:conversationId/messages/:messageId/resend}
  */
 export async function resendMessage(
   {
     conversationId,
+    messageId,
     data,
   }: {
     conversationId: ResendMessagePathParams['conversationId']
+    messageId: ResendMessagePathParams['messageId']
     data: ResendMessageMutationRequest
   },
   config: Partial<RequestConfig<ResendMessageMutationRequest>> & {
@@ -58,7 +64,7 @@ export async function resendMessage(
     ResendMessageMutationRequest
   >({
     method: 'POST',
-    url: getResendMessageUrl({ conversationId }).toString(),
+    url: getResendMessageUrl({ conversationId, messageId }).toString(),
     data: requestData,
     ...requestConfig,
   })

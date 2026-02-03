@@ -177,6 +177,9 @@ export const conversations = pgTable('conversations', {
     },
   ),
 
+  systemMessage: text('system_message'),
+  promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
+
   agentId: text('agent_id').references(() => agents.id, {
     onDelete: 'cascade',
   }),

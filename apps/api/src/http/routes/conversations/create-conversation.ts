@@ -37,7 +37,6 @@ export async function createConversation(app: FastifyTypedInstance) {
           201: z
             .object({
               conversationId: z.string(),
-              // systemMessageId: z.string(),
               explorerNode: z
                 .object({
                   itemId: z.string(),
@@ -127,29 +126,6 @@ export async function createConversation(app: FastifyTypedInstance) {
             })
           }
 
-          // const agentConfig = await resolveAgentConfiguration({ agentId })
-
-          // const [systemMessage] = await tx
-          //   .insert(messages)
-          //   .values({
-          //     conversationId: conversation.id,
-          //     status: 'completed',
-          //     role: 'system',
-          //     parts: agentConfig.systemMessage
-          //       ? [{ type: 'text', text: agentConfig.systemMessage }]
-          //       : [],
-          //   })
-          //   .returning({
-          //     id: messages.id,
-          //   })
-
-          // if (!systemMessage) {
-          //   throw new BadRequestError({
-          //     code: 'SYSTEM_MESSAGE_NOT_CREATED',
-          //     message: 'System message not created',
-          //   })
-          // }
-
           let _itemExplorerNode = null
 
           // Create a new conversation in the explorerNode
@@ -169,17 +145,12 @@ export async function createConversation(app: FastifyTypedInstance) {
             _itemExplorerNode = itemExplorerNode
           }
 
-          return {
-            conversation,
-            // systemMessage,
-            itemExplorerNode: _itemExplorerNode,
-          }
+          return { conversation, itemExplorerNode: _itemExplorerNode }
         },
       )
 
       return reply.status(201).send({
         conversationId: conversation.id,
-        // systemMessageId: systemMessage.id,
         ...(itemExplorerNode && {
           explorerNode: { itemId: itemExplorerNode.id },
         }),

@@ -7,6 +7,7 @@ import type {
   MessageNode,
   OrganizationTeamParams,
 } from '@/lib/types'
+import { queries } from '@workspace/db/queries'
 import { ChatView } from './chat-view'
 
 type Params = OrganizationTeamParams & AgentParams & ChatParams
@@ -38,12 +39,20 @@ export async function ChatViewWrapper({
       </div>
     )
   }
+  const [firstMessage] = data.messages
+
+  const siblingRootMessages = await queries.listRootMessages({
+    conversationId: chat.id,
+    not: firstMessage?.id ? { messageId: firstMessage.id } : undefined,
+  })
 
   return (
     <ChatView
       params={params}
       authorId={userId}
-      initialMessages={data.messages as MessageNode[]}
+      initialMessages={
+        [...siblingRootMessages, ...data.messages] as MessageNode[]
+      }
     />
   )
 }

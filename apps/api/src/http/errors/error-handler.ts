@@ -4,7 +4,7 @@ import type { FastifyInstance } from 'fastify'
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod'
 import { ZodError } from 'zod'
 import { BadRequestError } from './bad-request-error'
-import { BaseError, type BaseErrorParams } from './base-error'
+import { BaseError } from './base-error'
 import { UnauthorizedError } from './unauthorized-error'
 
 type FastifyErrorHandler = FastifyInstance['errorHandler']
@@ -27,16 +27,14 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
   }
 
   if (error instanceof BaseError) {
-    const { status, code, message } = JSON.parse(
-      error.message,
-    ) as BaseErrorParams
-
     if (error instanceof BadRequestError) {
-      reply.status(status || 400).send({ code, message })
+      reply
+        .status(error.status)
+        .send({ code: error.code, message: error.message })
     }
 
     if (error instanceof UnauthorizedError) {
-      reply.status(401).send({ code, message })
+      reply.status(401).send({ code: error.code, message: error.message })
     }
   }
 
@@ -54,9 +52,10 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
 
 export const errorHandlerWebsocket = (error: Error, socket: WebSocket) => {
   if (error instanceof BaseError) {
-    const { code, message } = JSON.parse(error.message) as BaseErrorParams
-
-    socket.close(1008, JSON.stringify({ code, message }))
+    socket.close(
+      1008,
+      JSON.stringify({ code: error.code, message: error.message }),
+    )
   }
 
   socket.close(

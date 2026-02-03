@@ -8,6 +8,10 @@ export type RegenerateMessagePathParams = {
    * @type string
    */
   conversationId: string
+  /**
+   * @type string
+   */
+  messageId: string
 }
 
 export const assistantMessageStatusEnum3 = {
@@ -1135,10 +1139,6 @@ export type RegenerateMessageMutationRequest = {
    * @type string
    */
   agentId: string
-  /**
-   * @type string
-   */
-  parentMessageId: string
 }
 
 export type RegenerateMessageMutationResponse = RegenerateMessage200

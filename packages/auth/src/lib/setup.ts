@@ -1,14 +1,12 @@
-import type { ProviderCredentials } from '@workspace/core/providers'
 import { db, generateId } from '@workspace/db'
 import {
   agents,
   members,
-  modelSettings,
   organizations,
-  providers,
   teamMembers,
   teams,
 } from '@workspace/db/schema'
+import { env } from './env'
 
 export async function setupDefaultIndividualOrganization(user: {
   id: string
@@ -52,7 +50,8 @@ export async function setupDefaultTeamAndAgent(member: {
     const [team] = await tx
       .insert(teams)
       .values({
-        name: 'Default Team',
+        name:
+          env.APP_ENV === 'development' ? 'Development Team' : 'Default Team',
         organizationId: member.organizationId,
       })
       .returning({
@@ -68,52 +67,14 @@ export async function setupDefaultTeamAndAgent(member: {
       userId: member.userId,
     })
 
-    await tx
-      .insert(providers)
-      .values({
-        provider: 'openai',
-        credentials: {
-          apiKey: process.env.OPENAI_API_KEY,
-        } as ProviderCredentials,
-        organizationId: member.organizationId,
-      })
-      .returning({
-        id: providers.id,
-      })
+    if (env.APP_ENV === 'development') {
+      await tx.insert(agents).values({
+        name: 'Atlas',
+        slug: `atlas-${generateId()}`,
+        description: 'AI agent specialized in large-scale system design.',
+        tags: ['OpenAI', 'Anthropic', 'Google'],
 
-    const [languageModelSettings] = await tx
-      .insert(modelSettings)
-      .values({
-        provider: 'openai',
-        model: 'gpt-4.1',
-        type: 'language-model',
-      })
-      .returning({
-        id: modelSettings.id,
-      })
-
-    const [embeddingModelSettings] = await tx
-      .insert(modelSettings)
-      .values({
-        provider: 'openai',
-        model: 'text-embedding-3-small',
-        type: 'embedding-model',
-      })
-      .returning({
-        id: modelSettings.id,
-      })
-
-    await tx.insert(agents).values({
-      name: 'Assistant',
-      slug: `assistant-${generateId()}`,
-      description: 'Your AI-Powered Assistant for Work and Life',
-      tags: ['OpenAI', 'Anthropic', 'Google'],
-
-      languageModelSettingsId: languageModelSettings?.id,
-      embeddingModelSettingsId: embeddingModelSettings?.id,
-
-      systemMessage: `
-You are a helpful assistant that answers questions using only your knowledge base.
+        systemMessage: `You are a helpful assistant that answers questions using only your knowledge base.
 
 CRITICAL RULES:
 1. ALWAYS call retrieve_sources tool first for every question
@@ -121,21 +82,21 @@ CRITICAL RULES:
 3. Respond in the SAME LANGUAGE as the user's question
 4. If tool returns nothing, say you don't have that information (in user's language)
 
-Never use external knowledge. Never answer without calling the tool.
-`,
-      promptMessages: [],
-      suggestions: [
-        'What are the latest trends in AI?',
-        'How does machine learning work?',
-        'Explain quantum computing',
-        'Best practices for React development',
-        'Tell me about TypeScript benefits',
-        'How to optimize database queries?',
-        'What is the difference between SQL and NoSQL?',
-        'Explain cloud computing basics',
-      ],
+Never use external knowledge. Never answer without calling the tool.`,
+        promptMessages: [],
+        suggestions: [
+          'Design a scalable URL shortening service.',
+          'How would you design Twitter at scale?',
+          'Explain the steps of a system design interview.',
+          'Estimate traffic and storage for a large-scale system.',
+          'Design a cache strategy for a read-heavy system.',
+          'How would you handle database sharding and replication?',
+          'Identify bottlenecks in a distributed system.',
+          'Compare SQL vs NoSQL for large-scale systems.',
+        ],
 
-      organizationId: member.organizationId,
-    })
+        organizationId: member.organizationId,
+      })
+    }
   })
 }

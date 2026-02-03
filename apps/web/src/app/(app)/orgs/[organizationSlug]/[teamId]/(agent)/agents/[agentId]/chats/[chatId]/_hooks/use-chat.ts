@@ -152,7 +152,7 @@ const createBranchChangeHandler = (
       const messageNodeIndex = createMessageNodeIndex(loadedMessageNodes)
       const targetNode = messageNodeIndex.index.get(targetNodeId)
 
-      if (targetNode) {
+      if (targetNode?.children) {
         setTargetNodeId(targetNodeId)
         return
       }
@@ -310,6 +310,25 @@ export function useChat({
     })
   }
 
+  // Memoized root message IDs for O(1) sibling lookup
+  const rootMessageIds = React.useMemo(
+    () => loadedMessageNodes.filter((m) => !m.parentId).map((m) => m.id),
+    [loadedMessageNodes],
+  )
+
+  const getMessageNodeChildIdsById = React.useCallback(
+    (messageId: string | null | undefined): string[] => {
+      if (messageId) {
+        const messageNode = getMessageNodeById(messageId)
+
+        return messageNode?.children || []
+      }
+
+      return rootMessageIds
+    },
+    [messageNodeIndex.childrenIndex, rootMessageIds],
+  )
+
   const getPersistentParentNode = React.useCallback(
     (parentNodeId: string | undefined): ChatMessageNode | undefined => {
       if (!parentNodeId) {
@@ -369,7 +388,7 @@ export function useChat({
   }:
     | {
         type: 'user'
-        parentNodeId?: string
+        parentNodeId: string | null | undefined
         fakeNodeId: string
         parts: PromptMessagePart[]
       }
@@ -413,7 +432,7 @@ export function useChat({
   }:
     | {
         type: 'user'
-        parentNodeId?: string
+        parentNodeId: string | null | undefined
         fakeNodeId: string
         userMessageNode: ChatMessageNode
         assistantMessageNode: ChatMessageNode
@@ -566,10 +585,6 @@ export function useChat({
 
     const parentNodeId = messageNode?.parentId
 
-    if (!parentNodeId) {
-      return
-    }
-
     const fakeNodeId = generateFakeNodeId()
 
     addFakeNode({ type: 'user', parentNodeId, fakeNodeId, parts })
@@ -579,18 +594,12 @@ export function useChat({
     conversationScrollRef.current?.scrollToBottom()
 
     try {
-      const persistentParentNodeId = getPersistentParentNode(parentNodeId)?.id
-
-      if (!persistentParentNodeId) {
-        return
-      }
-
       const { data, error } = await sdk.resendMessage({
         conversationId: params.chatId,
+        messageId,
         data: {
           organizationSlug: params.organizationSlug,
           agentId: params.agentId,
-          parentMessageId: persistentParentNodeId,
           message: { parts },
           // referenceMessageId: message.isPersisted === false ? undefined : message.id,
         },
@@ -643,19 +652,12 @@ export function useChat({
     conversationScrollRef.current?.scrollToBottom()
 
     try {
-      const persistentParentNodeId = getPersistentParentNode(parentNodeId)?.id
-
-      if (!persistentParentNodeId) {
-        return
-      }
-
       const { data, error } = await sdk.regenerateMessage({
         conversationId: params.chatId,
+        messageId,
         data: {
           organizationSlug: params.organizationSlug,
           agentId: params.agentId,
-          parentMessageId: persistentParentNodeId,
-          // referenceMessageId: message.isPersisted === false ? undefined : message.id,
         },
       })
 
@@ -750,6 +752,7 @@ export function useChat({
     loadingMessage,
     getMessageNodeById,
     updateMessageNodeById,
+    getMessageNodeChildIdsById,
     handleBranchChange,
     sendMessage,
     resendMessage,

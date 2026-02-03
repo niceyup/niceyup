@@ -1,8 +1,9 @@
-import { AbortTaskRunError, schemaTask } from '@trigger.dev/sdk'
+import { schemaTask } from '@trigger.dev/sdk'
 import { db } from '@workspace/db'
 import { and, eq } from '@workspace/db/orm'
 import { connections, databaseSources, files } from '@workspace/db/schema'
 import { z } from 'zod'
+import { InvalidArgumentError } from '../../erros'
 import { python } from '../python'
 
 export type GetDbSchemaTask = typeof getDbSchemaTask
@@ -20,16 +21,20 @@ export const getDbSchemaTask = schemaTask({
       .limit(1)
 
     if (!databaseSource) {
-      throw new AbortTaskRunError('Database source not found')
+      throw new InvalidArgumentError({
+        code: 'DATABASE_SOURCE_NOT_FOUND',
+        message: 'Database source not found',
+      })
     }
 
     switch (databaseSource.dialect) {
       case 'postgresql':
       case 'mysql':
         if (!databaseSource.connectionId) {
-          throw new AbortTaskRunError(
-            'Connection not found for database source',
-          )
+          throw new InvalidArgumentError({
+            code: 'CONNECTION_NOT_FOUND_FOR_DATABASE_SOURCE',
+            message: 'Connection not found for database source',
+          })
         }
 
         const [connection] = await db
@@ -39,11 +44,17 @@ export const getDbSchemaTask = schemaTask({
           .limit(1)
 
         if (!connection) {
-          throw new AbortTaskRunError('Connection not found')
+          throw new InvalidArgumentError({
+            code: 'CONNECTION_NOT_FOUND',
+            message: 'Connection not found',
+          })
         }
 
         if (connection.app !== 'postgresql' && connection.app !== 'mysql') {
-          throw new AbortTaskRunError('Connection app not supported')
+          throw new InvalidArgumentError({
+            code: 'CONNECTION_APP_NOT_SUPPORTED',
+            message: 'Connection app not supported',
+          })
         }
 
         type DatabaseConnectionCredentials = {
@@ -64,7 +75,10 @@ export const getDbSchemaTask = schemaTask({
 
       case 'sqlite':
         if (!databaseSource.fileId) {
-          throw new AbortTaskRunError('File not found for database source')
+          throw new InvalidArgumentError({
+            code: 'FILE_NOT_FOUND_FOR_DATABASE_SOURCE',
+            message: 'File not found for database source',
+          })
         }
 
         const [file] = await db
@@ -74,7 +88,10 @@ export const getDbSchemaTask = schemaTask({
           .limit(1)
 
         if (!file) {
-          throw new AbortTaskRunError('File not found')
+          throw new InvalidArgumentError({
+            code: 'FILE_NOT_FOUND',
+            message: 'File not found',
+          })
         }
 
         return await python.getDbSchema({
@@ -83,7 +100,15 @@ export const getDbSchemaTask = schemaTask({
         })
 
       default:
-        throw new AbortTaskRunError('Unsupported dialect')
+        throw new InvalidArgumentError({
+          code: 'UNSUPPORTED_DIALECT',
+          message: 'Unsupported dialect',
+        })
+    }
+  },
+  catchError: async ({ error }) => {
+    if (error instanceof InvalidArgumentError) {
+      return { skipRetrying: true }
     }
   },
 })

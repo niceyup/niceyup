@@ -312,7 +312,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
           }
         })
 
-      streamAgentResponse({
+      await streamAgentResponse({
         conversationId: _conversationId,
         userMessage: {
           id: userMessage.id,

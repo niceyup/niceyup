@@ -45,7 +45,7 @@ const messageSchema = z.object({
 
 export async function resendMessage(app: FastifyTypedInstance) {
   app.register(authenticate).post(
-    '/conversations/:conversationId/messages/resend',
+    '/conversations/:conversationId/messages/:messageId/resend',
     {
       schema: {
         tags: ['Conversations'],
@@ -53,12 +53,12 @@ export async function resendMessage(app: FastifyTypedInstance) {
         operationId: 'resendMessage',
         params: z.object({
           conversationId: z.string(),
+          messageId: z.string(),
         }),
         body: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           agentId: z.string(),
-          parentMessageId: z.string(),
           message: z.object({
             parts: z.array(promptMessagePartSchema).nonempty(),
             metadata: aiMessageMetadataSchema.nullish(),
@@ -79,14 +79,13 @@ export async function resendMessage(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { conversationId } = request.params
+      const { conversationId, messageId } = request.params
 
       const {
         organizationId,
         organizationSlug,
         agentId,
-        parentMessageId,
-        message,
+        message: newMessage,
       } = request.body
 
       const { context } = await resolveMembershipContext({
@@ -102,29 +101,30 @@ export async function resendMessage(app: FastifyTypedInstance) {
 
       if (!conversation) {
         throw new BadRequestError({
-          code: 'CONVERSATION_UNAVAILABLE',
+          code: 'CONVERSATION_NOT_FOUND',
           message: 'Conversation not found or you don’t have access',
         })
       }
 
-      const [parentMessage] = await db
+      const [message] = await db
         .select({
           id: messages.id,
+          parentId: messages.parentId,
         })
         .from(messages)
         .where(
           and(
             eq(messages.conversationId, conversationId),
-            eq(messages.id, parentMessageId),
+            eq(messages.id, messageId),
             isNull(messages.deletedAt),
           ),
         )
         .limit(1)
 
-      if (!parentMessage) {
+      if (!message) {
         throw new BadRequestError({
-          code: 'PARENT_MESSAGE_NOT_FOUND',
-          message: 'Parent message not found',
+          code: 'MESSAGE_NOT_FOUND',
+          message: 'Message not found',
         })
       }
 
@@ -136,10 +136,10 @@ export async function resendMessage(app: FastifyTypedInstance) {
               conversationId: conversationId,
               status: 'completed',
               role: 'user',
-              parts: message.parts,
-              metadata: message.metadata as AIMessageMetadata,
+              parts: newMessage.parts,
+              metadata: newMessage.metadata as AIMessageMetadata,
               authorId: userId,
-              parentId: parentMessageId,
+              parentId: message.parentId,
             })
             .returning({
               id: messages.id,
@@ -194,11 +194,11 @@ export async function resendMessage(app: FastifyTypedInstance) {
         },
       )
 
-      streamAgentResponse({
+      await streamAgentResponse({
         conversationId,
         userMessage: {
           id: userMessage.id,
-          parts: message.parts,
+          parts: newMessage.parts,
         },
         assistantMessage,
       })

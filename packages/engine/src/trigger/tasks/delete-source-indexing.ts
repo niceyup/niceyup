@@ -1,9 +1,10 @@
-import { AbortTaskRunError, schemaTask } from '@trigger.dev/sdk'
+import { schemaTask } from '@trigger.dev/sdk'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { agents, sourceIndexes, sourceOperations } from '@workspace/db/schema'
 import { vectorStore } from '@workspace/vector-store'
 import { z } from 'zod'
+import { InvalidArgumentError } from '../../erros'
 
 export type DeleteSourceIndexingTask = typeof deleteSourceIndexingTask
 
@@ -55,17 +56,24 @@ export const deleteSourceIndexingTask = schemaTask({
       .limit(1)
 
     if (!agent) {
-      throw new AbortTaskRunError('Agent not found')
+      throw new InvalidArgumentError({
+        code: 'AGENT_NOT_FOUND',
+        message: 'Agent not found',
+      })
     }
 
     if (!agent.organizationId) {
-      throw new AbortTaskRunError('Agent organization not found')
+      throw new InvalidArgumentError({
+        code: 'AGENT_ORGANIZATION_NOT_FOUND',
+        message: 'Agent organization not found',
+      })
     }
 
     await db
       .update(sourceOperations)
       .set({
         status: 'processing',
+        error: null,
       })
       .where(eq(sourceOperations.sourceIndexId, payload.sourceIndexId))
 
@@ -80,11 +88,20 @@ export const deleteSourceIndexingTask = schemaTask({
       message: 'Job completed successfully',
     }
   },
-  onFailure: async ({ payload }) => {
+  catchError: async ({ error }) => {
+    if (error instanceof InvalidArgumentError) {
+      return { skipRetrying: true }
+    }
+  },
+  onFailure: async ({ payload, error }) => {
     await db
       .update(sourceOperations)
       .set({
         status: 'failed',
+        error:
+          error instanceof InvalidArgumentError
+            ? { code: error.code, message: error.message }
+            : { code: 'UNKNOWN_ERROR', message: 'Unknown error' },
       })
       .where(eq(sourceOperations.sourceIndexId, payload.sourceIndexId))
   },

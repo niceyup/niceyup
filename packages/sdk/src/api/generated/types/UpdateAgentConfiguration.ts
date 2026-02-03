@@ -111,13 +111,13 @@ export type UpdateAgentConfiguration500 = {
   message: string
 }
 
-export const languageModelSettingsProviderEnum = {
+export const languageModelSettingsProviderEnum2 = {
   openai: 'openai',
   google: 'google',
 } as const
 
-export type LanguageModelSettingsProviderEnum =
-  (typeof languageModelSettingsProviderEnum)[keyof typeof languageModelSettingsProviderEnum]
+export type LanguageModelSettingsProviderEnum2 =
+  (typeof languageModelSettingsProviderEnum2)[keyof typeof languageModelSettingsProviderEnum2]
 
 export const embeddingModelSettingsProviderEnum2 = {
   openai: 'openai',
@@ -151,12 +151,9 @@ export type UpdateAgentConfigurationMutationRequest = {
     /**
      * @type string
      */
-    id: string
+    provider: LanguageModelSettingsProviderEnum2
     /**
-     * @type string
-     */
-    provider: LanguageModelSettingsProviderEnum
-    /**
+     * @minLength 1
      * @type string
      */
     model: string
@@ -174,12 +171,9 @@ export type UpdateAgentConfigurationMutationRequest = {
     /**
      * @type string
      */
-    id: string
-    /**
-     * @type string
-     */
     provider: EmbeddingModelSettingsProviderEnum2
     /**
+     * @minLength 1
      * @type string
      */
     model: string

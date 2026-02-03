@@ -5,7 +5,20 @@ export type BaseErrorParams = {
 }
 
 export class BaseError extends Error {
+  readonly status: number
+  readonly code: string
+
   constructor({ status, code, message }: BaseErrorParams = {}) {
-    super(JSON.stringify({ status, code, message }))
+    super(message || 'Internal server error')
+    this.status = status || 500
+    this.code = code || 'INTERNAL_SERVER_ERROR'
+  }
+
+  toJSON() {
+    return {
+      status: this.status,
+      code: this.code,
+      message: this.message,
+    }
   }
 }

@@ -20,6 +20,7 @@ import { z } from 'zod'
 
 export const regenerateMessagePathParamsSchema = z.object({
   conversationId: z.string(),
+  messageId: z.string(),
 }) as unknown as ToZod<RegenerateMessagePathParams>
 
 export type RegenerateMessagePathParamsSchema = RegenerateMessagePathParams
@@ -403,7 +404,6 @@ export const regenerateMessageMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
   agentId: z.string(),
-  parentMessageId: z.string(),
 }) as unknown as ToZod<RegenerateMessageMutationRequest>
 
 export type RegenerateMessageMutationRequestSchema =

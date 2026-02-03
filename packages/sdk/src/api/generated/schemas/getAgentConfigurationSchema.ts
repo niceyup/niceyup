@@ -42,7 +42,7 @@ export const getAgentConfiguration200Schema = z
   .object({
     agent: z.object({
       id: z.string(),
-      languageModeSettings: z
+      languageModelSettings: z
         .object({
           id: z.string(),
           provider: z.enum(['openai', 'google']),
@@ -50,8 +50,7 @@ export const getAgentConfiguration200Schema = z
           type: z.enum(['language-model', 'embedding-model']),
           options: z.object({}).catchall(z.any()).nullable().nullish(),
         })
-        .nullable()
-        .nullish(),
+        .nullable(),
       embeddingModelSettings: z
         .object({
           id: z.string(),
@@ -60,9 +59,8 @@ export const getAgentConfiguration200Schema = z
           type: z.enum(['language-model', 'embedding-model']),
           options: z.object({}).catchall(z.any()).nullable().nullish(),
         })
-        .nullable()
-        .nullish(),
-      systemMessage: z.string().nullable().nullish(),
+        .nullable(),
+      systemMessage: z.string().nullable(),
       promptMessages: z
         .array(
           z.object({
@@ -70,9 +68,8 @@ export const getAgentConfiguration200Schema = z
             content: z.string(),
           }),
         )
-        .nullable()
-        .nullish(),
-      suggestions: z.array(z.string()).nullable().nullish(),
+        .nullable(),
+      suggestions: z.array(z.string()).nullable(),
     }),
   })
   .describe('Success') as unknown as ToZod<GetAgentConfiguration200>

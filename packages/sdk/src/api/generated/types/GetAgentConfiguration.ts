@@ -21,21 +21,21 @@ export type GetAgentConfigurationQueryParams = {
   organizationSlug?: string
 }
 
-export const languageModeSettingsProviderEnum = {
+export const languageModelSettingsProviderEnum = {
   openai: 'openai',
   google: 'google',
 } as const
 
-export type LanguageModeSettingsProviderEnum =
-  (typeof languageModeSettingsProviderEnum)[keyof typeof languageModeSettingsProviderEnum]
+export type LanguageModelSettingsProviderEnum =
+  (typeof languageModelSettingsProviderEnum)[keyof typeof languageModelSettingsProviderEnum]
 
-export const languageModeSettingsTypeEnum = {
+export const languageModelSettingsTypeEnum = {
   'language-model': 'language-model',
   'embedding-model': 'embedding-model',
 } as const
 
-export type LanguageModeSettingsTypeEnum =
-  (typeof languageModeSettingsTypeEnum)[keyof typeof languageModeSettingsTypeEnum]
+export type LanguageModelSettingsTypeEnum =
+  (typeof languageModelSettingsTypeEnum)[keyof typeof languageModelSettingsTypeEnum]
 
 export const embeddingModelSettingsProviderEnum = {
   openai: 'openai',
@@ -76,7 +76,7 @@ export type GetAgentConfiguration200 = {
     /**
      * @type object
      */
-    languageModeSettings?: {
+    languageModelSettings: {
       /**
        * @type string
        */
@@ -84,7 +84,7 @@ export type GetAgentConfiguration200 = {
       /**
        * @type string
        */
-      provider: LanguageModeSettingsProviderEnum
+      provider: LanguageModelSettingsProviderEnum
       /**
        * @type string
        */
@@ -92,7 +92,7 @@ export type GetAgentConfiguration200 = {
       /**
        * @type string
        */
-      type: LanguageModeSettingsTypeEnum
+      type: LanguageModelSettingsTypeEnum
       /**
        * @type object
        */
@@ -103,7 +103,7 @@ export type GetAgentConfiguration200 = {
     /**
      * @type object
      */
-    embeddingModelSettings?: {
+    embeddingModelSettings: {
       /**
        * @type string
        */
@@ -130,11 +130,11 @@ export type GetAgentConfiguration200 = {
     /**
      * @type string
      */
-    systemMessage?: string | null
+    systemMessage: string | null
     /**
      * @type array
      */
-    promptMessages?:
+    promptMessages:
       | {
           /**
            * @type string
@@ -149,7 +149,7 @@ export type GetAgentConfiguration200 = {
     /**
      * @type array
      */
-    suggestions?: string[] | null
+    suggestions: string[] | null
   }
 }
 

@@ -37,9 +37,9 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
             .object({
               agent: z.object({
                 id: z.string(),
-                languageModeSettings: modelSettingsSchema.nullish(),
-                embeddingModelSettings: modelSettingsSchema.nullish(),
-                systemMessage: z.string().nullish(),
+                languageModelSettings: modelSettingsSchema.nullable(),
+                embeddingModelSettings: modelSettingsSchema.nullable(),
+                systemMessage: z.string().nullable(),
                 promptMessages: z
                   .array(
                     z.object({
@@ -47,8 +47,8 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
                       content: z.string(),
                     }),
                   )
-                  .nullish(),
-                suggestions: z.array(z.string()).nullish(),
+                  .nullable(),
+                suggestions: z.array(z.string()).nullable(),
               }),
             })
             .describe('Success'),
@@ -81,18 +81,32 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
         })
       }
 
-      const agentConfig = await resolveAgentConfiguration({
+      const agentConfiguration = await resolveAgentConfiguration({
         agentId,
       })
+
+      if (!agentConfiguration) {
+        throw new BadRequestError({
+          code: 'AGENT_CONFIGURATION_NOT_FOUND',
+          message: 'Agent configuration not found',
+        })
+      }
+
+      const [languageModelSettings, embeddingModelSettings] = await Promise.all(
+        [
+          agentConfiguration.languageModelSettings(),
+          agentConfiguration.embeddingModelSettings(),
+        ],
+      )
 
       return {
         agent: {
           id: agent.id,
-          languageModelSettings: agentConfig.languageModel?.settings,
-          embeddingModelSettings: agentConfig.embeddingModel?.settings,
-          systemMessage: agentConfig.systemMessage,
-          promptMessages: agentConfig.promptMessages,
-          suggestions: agentConfig.suggestions,
+          languageModelSettings,
+          embeddingModelSettings,
+          systemMessage: agentConfiguration.systemMessage,
+          promptMessages: agentConfiguration.promptMessages,
+          suggestions: agentConfiguration.suggestions,
         },
       }
     },

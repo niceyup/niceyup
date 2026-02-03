@@ -30,7 +30,7 @@ const messageSchema = z.object({
 
 export async function regenerateMessage(app: FastifyTypedInstance) {
   app.register(authenticate).post(
-    '/conversations/:conversationId/messages/regenerate',
+    '/conversations/:conversationId/messages/:messageId/regenerate',
     {
       schema: {
         tags: ['Conversations'],
@@ -38,12 +38,12 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         operationId: 'regenerateMessage',
         params: z.object({
           conversationId: z.string(),
+          messageId: z.string(),
         }),
         body: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           agentId: z.string(),
-          parentMessageId: z.string(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -59,10 +59,9 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { conversationId } = request.params
+      const { conversationId, messageId } = request.params
 
-      const { organizationId, organizationSlug, agentId, parentMessageId } =
-        request.body
+      const { organizationId, organizationSlug, agentId } = request.body
 
       const { context } = await resolveMembershipContext({
         userId,
@@ -82,22 +81,51 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         })
       }
 
-      const [parentMessage] = await db
+      const [message] = await db
         .select({
           id: messages.id,
           parts: messages.parts,
+          parentId: messages.parentId,
         })
         .from(messages)
         .where(
           and(
             eq(messages.conversationId, conversationId),
-            eq(messages.id, parentMessageId),
+            eq(messages.id, messageId),
             isNull(messages.deletedAt),
           ),
         )
         .limit(1)
 
-      if (!parentMessage) {
+      if (!message) {
+        throw new BadRequestError({
+          code: 'MESSAGE_NOT_FOUND',
+          message: 'Message not found',
+        })
+      }
+
+      let _parentMessage = null
+
+      if (message.parentId) {
+        const [parentMessage] = await db
+          .select({
+            id: messages.id,
+            parts: messages.parts,
+          })
+          .from(messages)
+          .where(
+            and(
+              eq(messages.conversationId, conversationId),
+              eq(messages.id, message.parentId),
+              isNull(messages.deletedAt),
+            ),
+          )
+          .limit(1)
+
+        _parentMessage = parentMessage
+      }
+
+      if (!_parentMessage) {
         throw new BadRequestError({
           code: 'PARENT_MESSAGE_NOT_FOUND',
           message: 'Parent message not found',
@@ -115,7 +143,7 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
             metadata: {
               authorId: userId,
             },
-            parentId: parentMessage.id,
+            parentId: _parentMessage.id,
           })
           .returning({
             id: messages.id,
@@ -137,11 +165,11 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         return { assistantMessage: { ...assistantMessage, children: [] } }
       })
 
-      streamAgentResponse({
+      await streamAgentResponse({
         conversationId,
         userMessage: {
-          id: parentMessage.id,
-          parts: parentMessage.parts || [],
+          id: _parentMessage.id,
+          parts: _parentMessage.parts || [],
         },
         assistantMessage,
       })

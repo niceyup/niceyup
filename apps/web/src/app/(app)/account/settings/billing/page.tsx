@@ -13,7 +13,7 @@ export default async function Page() {
 
   return (
     <div className="rounded-lg border border-border bg-background">
-      <div className="relative flex flex-col gap-5 p-5 sm:gap-6 sm:p-6">
+      <div className="relative flex min-h-39 flex-col gap-5 p-5 sm:gap-6 sm:p-6">
         <div className="flex flex-row items-center justify-between gap-3">
           <h2 className="font-semibold text-xl">
             {activeSubscription ? 'Standard' : 'Hobby'} Plan
@@ -51,7 +51,7 @@ export default async function Page() {
       </div>
       <div
         className={cn(
-          'flex items-center justify-between gap-4 rounded-b-lg border-border border-t bg-foreground/2 p-3 sm:px-6',
+          'flex min-h-15 items-center justify-between gap-4 rounded-b-lg border-border border-t bg-foreground/2 p-3 sm:px-6',
           activeSubscription && 'justify-end',
         )}
       >

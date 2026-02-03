@@ -43,7 +43,7 @@ export function DeleteTeamForm({ params }: { params: Params }) {
 
   return (
     <div className="rounded-lg border border-destructive bg-background">
-      <div className="relative flex flex-col gap-5 p-5 sm:gap-6 sm:p-6">
+      <div className="relative flex min-h-39 flex-col gap-5 p-5 sm:gap-6 sm:p-6">
         <div className="flex flex-col gap-3">
           <h2 className="font-semibold text-xl">Delete Team</h2>
           <p className="text-muted-foreground text-sm">
@@ -52,7 +52,7 @@ export function DeleteTeamForm({ params }: { params: Params }) {
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-end gap-4 rounded-b-lg border-destructive border-t bg-destructive/5 p-3 sm:px-6">
+      <div className="flex min-h-15 items-center justify-end gap-4 rounded-b-lg border-destructive border-t bg-destructive/5 p-3 sm:px-6">
         <Button variant="destructive" onClick={onSubmit} disabled={isPending}>
           {isPending && <Spinner />}
           Delete Team

@@ -1,149 +1,141 @@
 import type { ModelMessage, ToolSet } from '@workspace/ai'
 import { openai } from '@workspace/ai/providers'
 import { db } from '@workspace/db'
-import { and, eq } from '@workspace/db/orm'
-import { agents, conversations } from '@workspace/db/schema'
+import { eq } from '@workspace/db/orm'
+import { queries } from '@workspace/db/queries'
+import { agents } from '@workspace/db/schema'
 import { retrieveSourcesTool } from '@workspace/engine'
 import {
   resolveEmbeddingModelSettings,
   resolveLanguageModelSettings,
 } from './resolve-model-settings'
 
-export async function resolveAgentConfiguration(
-  params:
-    | {
-        agentId: string
-        conversationId: string
-      }
-    | {
-        agentId: string
-        conversationId?: string
-      }
-    | {
-        agentId?: string
-        conversationId: string
-      },
-) {
-  let agentConfiguration = null
-  let conversationConfiguration = null
+export async function resolveAgentConfiguration(params: {
+  agentId: string
+}) {
+  const [agentConfiguration] = await db
+    .select({
+      id: agents.id,
+      organizationId: agents.organizationId,
+      languageModelSettingsId: agents.languageModelSettingsId,
+      embeddingModelSettingsId: agents.embeddingModelSettingsId,
+      systemMessage: agents.systemMessage,
+      promptMessages: agents.promptMessages,
+      suggestions: agents.suggestions,
+    })
+    .from(agents)
+    .where(eq(agents.id, params.agentId))
+    .limit(1)
 
-  if (params.conversationId) {
-    const [conversation] = await db
-      .select({
-        agentId: conversations.agentId,
-        languageModelSettingsId: conversations.languageModelSettingsId,
-      })
-      .from(conversations)
-      .where(
-        and(
-          eq(conversations.id, params.conversationId),
-          params.agentId
-            ? eq(conversations.agentId, params.agentId)
-            : undefined,
-        ),
-      )
-
-    conversationConfiguration = conversation
+  if (!agentConfiguration) {
+    return null
   }
 
-  const agentId = params.agentId || conversationConfiguration?.agentId
+  const languageModelSettingsId =
+    agentConfiguration.languageModelSettingsId || null
 
-  if (agentId) {
-    const [agent] = await db
-      .select({
-        id: agents.id,
-        organizationId: agents.organizationId,
-        languageModelSettingsId: agents.languageModelSettingsId,
-        embeddingModelSettingsId: agents.embeddingModelSettingsId,
-        systemMessage: agents.systemMessage,
-        promptMessages: agents.promptMessages,
-        suggestions: agents.suggestions,
-      })
-      .from(agents)
-      .where(eq(agents.id, agentId))
+  const embeddingModelSettingsId =
+    agentConfiguration.embeddingModelSettingsId || null
 
-    agentConfiguration = agent
-  }
+  const systemMessage = agentConfiguration.systemMessage || ''
 
-  const [languageModel, embeddingModel] = await Promise.all([
-    resolveLanguageModelSettings({
-      modelSettingsId:
-        conversationConfiguration?.languageModelSettingsId ||
-        agentConfiguration?.languageModelSettingsId,
-    }),
-    resolveEmbeddingModelSettings({
-      modelSettingsId: agentConfiguration?.embeddingModelSettingsId,
-    }),
-  ])
+  const promptMessages = agentConfiguration.promptMessages || []
+
+  const suggestions = agentConfiguration.suggestions || []
 
   // TODO: make this dynamic based on the agent's configuration
-  const activeTools = ['image_generation', 'retrieve_sources']
-  const contextMessages = true
-  const maxContextMessages = 100
+  const topK = 20
 
-  let tools: ToolSet | undefined = undefined
+  const prompts: ModelMessage[] = [
+    { role: 'system', content: systemMessage },
+    ...promptMessages.map(({ role, content }) => ({ role, content })),
+  ]
 
-  if (activeTools.length) {
-    tools = {}
-
-    if (languageModel?.provider === 'openai') {
-      if (activeTools.includes('image_generation')) {
-        tools.image_generation = openai.tools.imageGeneration()
-      }
-
-      // TODO: add other tools here
+  const languageModelSettings = async () => {
+    if (!languageModelSettingsId) {
+      return null
     }
 
-    if (agentConfiguration?.organizationId) {
-      if (embeddingModel) {
-        tools.retrieve_sources = retrieveSourcesTool({
-          embeddingModel: embeddingModel.model,
-          agentId: agentConfiguration.id,
-          organizationId: agentConfiguration.organizationId,
-          topK: 20,
-        })
-
-        // TODO: add other tools here
-      }
-
-      // TODO: add other tools here
-    }
-
-    // TODO: add other tools here
-  }
-
-  const prompts: ModelMessage[] = []
-
-  if (agentConfiguration?.systemMessage) {
-    prompts.push({
-      role: 'system',
-      content: agentConfiguration.systemMessage,
+    return await queries.getModelSettings({
+      type: 'language-model',
+      modelSettingsId: languageModelSettingsId,
     })
   }
 
-  if (agentConfiguration?.promptMessages) {
-    prompts.push(
-      ...agentConfiguration.promptMessages.map((promptMessage) => ({
-        role: promptMessage.role,
-        content: promptMessage.content,
-      })),
-    )
+  const embeddingModelSettings = async () => {
+    if (!embeddingModelSettingsId) {
+      return null
+    }
+
+    return await queries.getModelSettings({
+      type: 'embedding-model',
+      modelSettingsId: embeddingModelSettingsId,
+    })
+  }
+
+  const languageModel = async () => {
+    return await resolveLanguageModelSettings({
+      modelSettingsId: languageModelSettingsId,
+    })
+  }
+
+  const embeddingModel = async () => {
+    return await resolveEmbeddingModelSettings({
+      modelSettingsId: embeddingModelSettingsId,
+    })
+  }
+
+  const activeTools = async () => {
+    return ['image_generation', 'web_search', 'retrieve_sources']
+  }
+
+  const tools = async (): Promise<ToolSet | undefined> => {
+    const _activeTools = await activeTools()
+
+    let tools: ToolSet | undefined = undefined
+
+    if (_activeTools.length) {
+      tools = {}
+
+      const _languageModel = await languageModel()
+
+      if (_languageModel.provider === 'openai') {
+        if (_activeTools.includes('image_generation')) {
+          tools.image_generation = openai.tools.imageGeneration()
+        }
+
+        if (_activeTools.includes('web_search')) {
+          tools.web_search = openai.tools.webSearch()
+        }
+      }
+
+      if (_activeTools.includes('retrieve_sources')) {
+        const _embeddingModel = await embeddingModel()
+
+        tools.retrieve_sources = retrieveSourcesTool({
+          embeddingModel: _embeddingModel.model,
+          agentId: agentConfiguration.id,
+          organizationId: agentConfiguration.organizationId!,
+          topK,
+        })
+      }
+    }
+
+    return tools
   }
 
   return {
-    agentId,
-
+    languageModelSettingsId,
+    embeddingModelSettingsId,
+    systemMessage,
+    promptMessages,
+    suggestions,
+    prompts,
+    languageModelSettings,
+    embeddingModelSettings,
     languageModel,
     embeddingModel,
-    tools,
     activeTools,
-    prompts,
-
-    systemMessage: agentConfiguration?.systemMessage,
-    promptMessages: agentConfiguration?.promptMessages,
-    suggestions: agentConfiguration?.suggestions,
-
-    contextMessages,
-    maxContextMessages,
+    tools,
   }
 }

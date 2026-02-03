@@ -1,4 +1,4 @@
-import { AbortTaskRunError, schemaTask } from '@trigger.dev/sdk'
+import { schemaTask } from '@trigger.dev/sdk'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import {
@@ -16,6 +16,7 @@ import {
 import { storage } from '@workspace/storage'
 import { z } from 'zod'
 import { resolveEmbeddingModelSettings } from '../../agents'
+import { InvalidArgumentError } from '../../erros'
 import {
   ingestDatabaseSource,
   ingestFileSource,
@@ -76,11 +77,17 @@ export const createSourceIndexingTask = schemaTask({
       .limit(1)
 
     if (!agent) {
-      throw new AbortTaskRunError('Agent not found')
+      throw new InvalidArgumentError({
+        code: 'AGENT_NOT_FOUND',
+        message: 'Agent not found',
+      })
     }
 
     if (!agent.organizationId) {
-      throw new AbortTaskRunError('Agent organization not found')
+      throw new InvalidArgumentError({
+        code: 'AGENT_ORGANIZATION_NOT_FOUND',
+        message: 'Agent organization not found',
+      })
     }
 
     const [source] = await db
@@ -96,25 +103,28 @@ export const createSourceIndexingTask = schemaTask({
       .limit(1)
 
     if (!source) {
-      throw new AbortTaskRunError('Source not found')
+      throw new InvalidArgumentError({
+        code: 'SOURCE_NOT_FOUND',
+        message: 'Source not found',
+      })
     }
 
     if (source.status !== 'completed') {
-      throw new AbortTaskRunError('Source is not completed')
+      throw new InvalidArgumentError({
+        code: 'SOURCE_NOT_COMPLETED',
+        message: 'Source is not completed',
+      })
     }
 
-    const embeddingModelSettings = await resolveEmbeddingModelSettings({
+    const embeddingModel = await resolveEmbeddingModelSettings({
       modelSettingsId: agent.embeddingModelSettingsId,
     })
-
-    if (!embeddingModelSettings) {
-      throw new AbortTaskRunError('Embedding model settings not found')
-    }
 
     await db
       .update(sourceOperations)
       .set({
         status: 'processing',
+        error: null,
       })
       .where(eq(sourceOperations.sourceIndexId, payload.sourceIndexId))
 
@@ -127,11 +137,14 @@ export const createSourceIndexingTask = schemaTask({
           .limit(1)
 
         if (!textSource) {
-          throw new AbortTaskRunError('Text source not found')
+          throw new InvalidArgumentError({
+            code: 'TEXT_SOURCE_NOT_FOUND',
+            message: 'Text source not found',
+          })
         }
 
         await ingestTextSource({
-          embeddingModel: embeddingModelSettings.model,
+          embeddingModel: embeddingModel.model,
           organizationId: agent.organizationId,
           agentId: sourceIndex.agentId,
           sourceId: sourceIndex.sourceId,
@@ -147,11 +160,14 @@ export const createSourceIndexingTask = schemaTask({
           .limit(1)
 
         if (!questionAnswerSource) {
-          throw new AbortTaskRunError('Question answer source not found')
+          throw new InvalidArgumentError({
+            code: 'QUESTION_ANSWER_SOURCE_NOT_FOUND',
+            message: 'Question answer source not found',
+          })
         }
 
         await ingestQuestionAnswerSource({
-          embeddingModel: embeddingModelSettings.model,
+          embeddingModel: embeddingModel.model,
           organizationId: agent.organizationId,
           agentId: sourceIndex.agentId,
           sourceId: sourceIndex.sourceId,
@@ -166,11 +182,14 @@ export const createSourceIndexingTask = schemaTask({
           .limit(1)
 
         if (!websiteSource) {
-          throw new AbortTaskRunError('Website source not found')
+          throw new InvalidArgumentError({
+            code: 'WEBSITE_SOURCE_NOT_FOUND',
+            message: 'Website source not found',
+          })
         }
 
         await ingestWebsiteSource({
-          embeddingModel: embeddingModelSettings.model,
+          embeddingModel: embeddingModel.model,
           organizationId: agent.organizationId,
           agentId: sourceIndex.agentId,
           sourceId: sourceIndex.sourceId,
@@ -185,11 +204,17 @@ export const createSourceIndexingTask = schemaTask({
           .limit(1)
 
         if (!fileSource) {
-          throw new AbortTaskRunError('File source not found')
+          throw new InvalidArgumentError({
+            code: 'FILE_SOURCE_NOT_FOUND',
+            message: 'File source not found',
+          })
         }
 
         if (!fileSource.fileId) {
-          throw new AbortTaskRunError('File not found for file source')
+          throw new InvalidArgumentError({
+            code: 'FILE_NOT_FOUND_FOR_FILE_SOURCE',
+            message: 'File not found for file source',
+          })
         }
 
         const [file] = await db
@@ -199,7 +224,10 @@ export const createSourceIndexingTask = schemaTask({
           .limit(1)
 
         if (!file) {
-          throw new AbortTaskRunError('File not found')
+          throw new InvalidArgumentError({
+            code: 'FILE_NOT_FOUND',
+            message: 'File not found',
+          })
         }
 
         const destinationPath = tmpDir(file.filePath)
@@ -214,7 +242,7 @@ export const createSourceIndexingTask = schemaTask({
         })
 
         await ingestFileSource({
-          embeddingModel: embeddingModelSettings.model,
+          embeddingModel: embeddingModel.model,
           organizationId: agent.organizationId,
           agentId: sourceIndex.agentId,
           sourceId: sourceIndex.sourceId,
@@ -232,7 +260,10 @@ export const createSourceIndexingTask = schemaTask({
           .limit(1)
 
         if (!databaseSource) {
-          throw new AbortTaskRunError('Database source not found')
+          throw new InvalidArgumentError({
+            code: 'DATABASE_SOURCE_NOT_FOUND',
+            message: 'Database source not found',
+          })
         }
 
         const {
@@ -241,7 +272,7 @@ export const createSourceIndexingTask = schemaTask({
         } = databaseSource
 
         await ingestDatabaseSource({
-          embeddingModel: embeddingModelSettings.model,
+          embeddingModel: embeddingModel.model,
           organizationId: agent.organizationId,
           agentId: sourceIndex.agentId,
           sourceId: sourceIndex.sourceId,
@@ -249,20 +280,20 @@ export const createSourceIndexingTask = schemaTask({
         })
 
         // await ingestDatabaseSourceTablesMetadata({
-        //   embeddingModel: embeddingModelSettings.model,
+        //   embeddingModel: embeddingModel.model,
         //   organizationId: agent.organizationId,
         //   sourceId: sourceIndex.sourceId,
         //   tablesMetadata: tablesMetadata || [],
         // })
 
         // await ingestDatabaseSourceProperNouns({
-        //   embeddingModel: embeddingModelSettings.model,
+        //   embeddingModel: embeddingModel.model,
         //   organizationId: agent.organizationId,
         //   sourceId: sourceIndex.sourceId,
         // })
 
         // await ingestDatabaseSourceQueryExamples({
-        //   embeddingModel: embeddingModelSettings.model,
+        //   embeddingModel: embeddingModel.model,
         //   organizationId: agent.organizationId,
         //   sourceId: sourceIndex.sourceId,
         //   queryExamples: queryExamples || [],
@@ -270,7 +301,10 @@ export const createSourceIndexingTask = schemaTask({
         break
 
       default:
-        throw new AbortTaskRunError('Source type not supported')
+        throw new InvalidArgumentError({
+          code: 'SOURCE_TYPE_NOT_SUPPORTED',
+          message: 'Source type not supported',
+        })
     }
 
     await db
@@ -285,11 +319,20 @@ export const createSourceIndexingTask = schemaTask({
       message: 'Job completed successfully',
     }
   },
-  onFailure: async ({ payload }) => {
+  catchError: async ({ error }) => {
+    if (error instanceof InvalidArgumentError) {
+      return { skipRetrying: true }
+    }
+  },
+  onFailure: async ({ payload, error }) => {
     await db
       .update(sourceOperations)
       .set({
         status: 'failed',
+        error:
+          error instanceof InvalidArgumentError
+            ? { code: error.code, message: error.message }
+            : { code: 'UNKNOWN_ERROR', message: 'Unknown error' },
       })
       .where(eq(sourceOperations.sourceIndexId, payload.sourceIndexId))
   },
@@ -299,6 +342,7 @@ export const createSourceIndexingTask = schemaTask({
         .update(sourceOperations)
         .set({
           status: 'completed',
+          error: null,
         })
         .where(eq(sourceOperations.sourceIndexId, payload.sourceIndexId))
     }

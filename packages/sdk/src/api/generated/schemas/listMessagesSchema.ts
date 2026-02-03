@@ -39,6 +39,13 @@ export type ListMessagesQueryParamsSchema = ListMessagesQueryParams
  */
 export const listMessages200Schema = z
   .object({
+    systemMessage: z.string(),
+    promptMessages: z.array(
+      z.object({
+        role: z.enum(['user', 'assistant']),
+        content: z.string(),
+      }),
+    ),
     messages: z.array(
       z.object({
         id: z.string(),

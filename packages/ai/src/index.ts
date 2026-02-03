@@ -17,6 +17,7 @@ export {
   Output,
   type ModelMessage,
   convertToModelMessages,
+  safeValidateUIMessages,
   validateUIMessages,
   readUIMessageStream,
   JsonToSseTransformStream,
