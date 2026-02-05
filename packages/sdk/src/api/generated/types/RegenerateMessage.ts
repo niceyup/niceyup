@@ -1032,6 +1032,10 @@ export type RegenerateMessage200 = {
      * @type array | undefined
      */
     children?: string[]
+    /**
+     * @type string | undefined
+     */
+    temporaryId?: string
   }
 }
 
@@ -1139,6 +1143,10 @@ export type RegenerateMessageMutationRequest = {
    * @type string
    */
   agentId: string
+  /**
+   * @type string | undefined
+   */
+  temporaryMessageId?: string
 }
 
 export type RegenerateMessageMutationResponse = RegenerateMessage200

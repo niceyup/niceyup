@@ -26,6 +26,7 @@ const messageSchema = z.object({
   authorId: z.string().nullish(),
   parentId: z.string().nullish(),
   children: z.array(z.string()).optional(),
+  temporaryId: z.string().optional(),
 })
 
 export async function regenerateMessage(app: FastifyTypedInstance) {
@@ -44,6 +45,7 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           agentId: z.string(),
+          temporaryMessageId: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -61,7 +63,8 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
 
       const { conversationId, messageId } = request.params
 
-      const { organizationId, organizationSlug, agentId } = request.body
+      const { organizationId, organizationSlug, agentId, temporaryMessageId } =
+        request.body
 
       const { context } = await resolveMembershipContext({
         userId,
@@ -174,12 +177,17 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         assistantMessage,
       })
 
+      const assistantMessageWithTemporaryId = {
+        ...assistantMessage,
+        temporaryId: temporaryMessageId,
+      }
+
       conversationPubSub.publish({
         channel: `conversations:${conversationId}:updated`,
-        messages: [assistantMessage],
+        messages: [assistantMessageWithTemporaryId],
       })
 
-      return { assistantMessage }
+      return { assistantMessage: assistantMessageWithTemporaryId }
     },
   )
 }

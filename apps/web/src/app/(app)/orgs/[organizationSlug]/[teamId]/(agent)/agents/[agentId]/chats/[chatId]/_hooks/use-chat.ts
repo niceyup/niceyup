@@ -14,6 +14,7 @@ import type {
   PromptInputStatus,
   PromptMessagePart,
 } from '@/lib/types'
+import { createEntityAdapter } from '@reduxjs/toolkit'
 import { useChatRealtime } from '@workspace/realtime/hooks'
 import type { ConversationScrollToBottom } from '@workspace/ui/components/ai-elements/conversation'
 import { useRouter } from 'next/navigation'
@@ -22,121 +23,121 @@ import { toast } from 'sonner'
 
 type Params = OrganizationTeamParams & AgentParams & ChatParams
 
-export type ChatMessageNode = MessageNode & { isPersisted?: boolean }
-
-type ChatLoadingMessage = { id: string; role: Message['role'] }
-
-// Memoized message index for O(1) lookups
-const createMessageNodeIndex = (messageNodes: ChatMessageNode[]) => {
-  const index = new Map<string, ChatMessageNode>()
-  const childrenIndex = new Map<string, string[]>()
-
-  for (const messageNode of messageNodes) {
-    if (messageNode.parentId) {
-      const existing = childrenIndex.get(messageNode.parentId) || []
-      existing.push(messageNode.id)
-      childrenIndex.set(messageNode.parentId, existing)
-    }
-    index.set(messageNode.id, messageNode)
+export type ChatOptions = {
+  visibility: 'private' | 'team'
+  explorerNode?: {
+    folderId?: string | null
   }
-
-  return { index, childrenIndex }
 }
 
-// Optimized nodes building with memoization
-const buildMessageNodes = (
-  targetNodeId: string | undefined,
-  loadingMessage: ChatLoadingMessage | false,
-  messageNodeIndex: Map<string, ChatMessageNode>,
+export type ChatMessageNode = MessageNode & {
+  temporaryId?: string
+  isPersisted?: boolean
+}
+
+type LoadingMessage = { id: string; role: Message['role'] }
+
+const messagesAdapter = createEntityAdapter<ChatMessageNode>()
+
+const buildChildrenIndex = (
+  messagesState: ReturnType<typeof messagesAdapter.getInitialState>,
+) => {
+  const index = new Map<string, string[]>()
+
+  for (const message of Object.values(messagesState.entities)) {
+    if (!message?.parentId) {
+      continue
+    }
+
+    const children = index.get(message.parentId) ?? []
+    children.push(message.id)
+    index.set(message.parentId, children)
+  }
+
+  return index
+}
+
+const buildMessageChain = (
+  targetMessageId: string | undefined,
+  loadingMessage: LoadingMessage | false,
+  entities: Record<string, ChatMessageNode | undefined>,
   childrenIndex: Map<string, string[]>,
 ) => {
-  if (!targetNodeId) {
+  if (!targetMessageId) {
     return []
   }
 
-  const targetNode = messageNodeIndex.get(targetNodeId)
-  if (!targetNode) {
+  const targetMessage = entities[targetMessageId]
+  if (!targetMessage) {
     return []
   }
 
-  // Handle loading state
   if (loadingMessage) {
-    const loadingMessageNode = messageNodeIndex.get(loadingMessage.id)
+    const loadingMessageNode = entities[loadingMessage.id]
     if (loadingMessageNode) {
-      const ancestorNodes = buildAncestorNodes(
-        loadingMessageNode,
-        messageNodeIndex,
-      )
-
-      return [...ancestorNodes, targetNode]
+      const ancestors = buildAncestors(loadingMessageNode, entities)
+      return [...ancestors, targetMessage]
     }
   }
 
-  const ancestorNodes = buildAncestorNodes(targetNode, messageNodeIndex)
-  const descendantNodes = buildDescendantNodes(
-    targetNode,
-    messageNodeIndex,
-    childrenIndex,
-  )
+  const ancestors = buildAncestors(targetMessage, entities)
+  const descendants = buildDescendants(targetMessage, entities, childrenIndex)
 
-  return [...ancestorNodes, targetNode, ...descendantNodes]
+  return [...ancestors, targetMessage, ...descendants]
 }
 
-// Build ancestor nodes chain efficiently
-const buildAncestorNodes = (
-  messageNode: ChatMessageNode,
-  messageNodeIndex: Map<string, ChatMessageNode>,
+const buildAncestors = (
+  message: ChatMessageNode,
+  entities: Record<string, ChatMessageNode | undefined>,
 ) => {
-  const ancestorNodes: ChatMessageNode[] = []
-  let currentNode = messageNode
+  const ancestors: ChatMessageNode[] = []
+  let current = message
 
-  while (currentNode.parentId) {
-    const parentNode = messageNodeIndex.get(currentNode.parentId)
-    if (!parentNode) {
+  while (current.parentId) {
+    const parent = entities[current.parentId]
+    if (!parent) {
       break
     }
 
-    ancestorNodes.unshift(parentNode)
-    currentNode = parentNode
+    ancestors.unshift(parent)
+    current = parent
   }
 
-  return ancestorNodes
+  return ancestors
 }
 
-// Build descendant nodes chain efficiently
-const buildDescendantNodes = (
-  messageNode: ChatMessageNode,
-  messageNodeIndex: Map<string, ChatMessageNode>,
+const buildDescendants = (
+  message: ChatMessageNode,
+  entities: Record<string, ChatMessageNode | undefined>,
   childrenIndex: Map<string, string[]>,
 ) => {
-  const descendantNodes: ChatMessageNode[] = []
-  let currentNode = messageNode
+  const descendants: ChatMessageNode[] = []
+  let current = message
 
   while (true) {
-    const [firstChildId] = childrenIndex.get(currentNode.id) || []
+    const [firstChildId] = childrenIndex.get(current.id) ?? []
     if (!firstChildId) {
       break
     }
 
-    const firstChildNode = messageNodeIndex.get(firstChildId)
-    if (!firstChildNode) {
+    const firstChild = entities[firstChildId]
+    if (!firstChild) {
       break
     }
 
-    descendantNodes.push(firstChildNode)
-    currentNode = firstChildNode
+    descendants.push(firstChild)
+    current = firstChild
   }
 
-  return descendantNodes
+  return descendants
 }
 
-// Memoized branch change handler
 const createBranchChangeHandler = (
   params: Params,
-  loadedMessageNodes: ChatMessageNode[],
-  upsertLoadedMessageNodes: (messageNodes: ChatMessageNode[]) => void,
-  setTargetNodeId: (targetNodeId: string | undefined) => void,
-  setLoadingMessage: (loadingMessage: ChatLoadingMessage | false) => void,
+  getMessage: (id: string | null | undefined) => ChatMessageNode | undefined,
+  upsertMessages: (messages: ChatMessageNode[]) => void,
+  setTargetMessageId: (id: string | undefined) => void,
+  setLoadingMessage: (loading: LoadingMessage | false) => void,
 ) => {
   return React.useCallback(
     async ({
@@ -148,12 +149,10 @@ const createBranchChangeHandler = (
       targetNodeId: string
       role: Message['role']
     }) => {
-      // Check if message node is already loaded using the index
-      const messageNodeIndex = createMessageNodeIndex(loadedMessageNodes)
-      const targetNode = messageNodeIndex.index.get(targetNodeId)
+      const targetMessage = getMessage(targetNodeId)
 
-      if (targetNode?.children) {
-        setTargetNodeId(targetNodeId)
+      if (targetMessage?.children) {
+        setTargetMessageId(targetNodeId)
         return
       }
 
@@ -169,24 +168,16 @@ const createBranchChangeHandler = (
           },
         })
 
-        const messageNodes = (data?.messages || []) as ChatMessageNode[]
-
-        upsertLoadedMessageNodes(messageNodes)
-
-        setTargetNodeId(targetNodeId)
-      } catch (error) {
-        console.error(error)
+        const messages = (data?.messages ?? []) as ChatMessageNode[]
+        upsertMessages(messages)
+        setTargetMessageId(targetNodeId)
+      } catch {
+        // Silently fail
       } finally {
         setLoadingMessage(false)
       }
     },
-    [
-      params,
-      loadedMessageNodes,
-      upsertLoadedMessageNodes,
-      setTargetNodeId,
-      setLoadingMessage,
-    ],
+    [params, getMessage, upsertMessages, setTargetMessageId, setLoadingMessage],
   )
 }
 
@@ -211,56 +202,177 @@ type UseChatParams = {
   params: Params
   chat?: Chat | null
   initialMessages?: MessageNode[]
-  // selectedExplorerNode?: {
-  //   visibility: 'private' | 'team'
-  //   folderId?: string | null
-  // }
+  options?: ChatOptions
 }
+
+const isProcessing = (status: PromptInputStatus) =>
+  status === 'submitted' || status === 'streaming'
 
 export function useChat({
   params,
   chat,
   initialMessages,
-  // selectedExplorerNode,
+  options,
 }: UseChatParams) {
   const router = useRouter()
+  const scrollRef = React.useRef<ConversationScrollToBottom>(null)
 
-  const conversationScrollRef = React.useRef<ConversationScrollToBottom>(null)
+  const [messagesState, setMessagesState] = React.useState(() => {
+    const state = messagesAdapter.getInitialState()
+    return initialMessages?.length
+      ? messagesAdapter.setAll(state, initialMessages)
+      : state
+  })
 
-  const [loadedMessageNodes, setLoadedMessageNodes] = React.useState<
-    ChatMessageNode[]
-  >(initialMessages || [])
-  const [targetNodeId, setTargetNodeId] = React.useState<string | undefined>(
-    initialMessages?.at(-1)?.id,
-  )
+  const [targetMessageId, setTargetMessageId] = React.useState<
+    string | undefined
+  >(initialMessages?.at(-1)?.id)
 
   const [loadingMessage, setLoadingMessage] = React.useState<
-    ChatLoadingMessage | false
+    LoadingMessage | false
   >(false)
 
-  const upsertLoadedMessageNodes = (messageNodes: ChatMessageNode[]) => {
-    setLoadedMessageNodes((prevMessageNodes) => {
-      const updatedMessageNodes = [...prevMessageNodes]
-      const indexById = new Map(updatedMessageNodes.map((mn, i) => [mn.id, i]))
-      let changed = false
+  const [inputStatus, setInputStatus] =
+    React.useState<PromptInputStatus>('ready')
 
-      for (const messageNode of messageNodes) {
-        const idx = indexById.get(messageNode.id)
-        if (idx !== undefined) {
-          if (updatedMessageNodes[idx] !== messageNode) {
-            updatedMessageNodes[idx] = messageNode
-            changed = true
-          }
-        } else {
-          indexById.set(messageNode.id, updatedMessageNodes.length)
-          updatedMessageNodes.push(messageNode)
-          changed = true
-        }
+  const [streamingMessageId, setStreamingMessageId] = React.useState<
+    string | null
+  >(null)
+
+  const upsertMessages = React.useCallback((messages: ChatMessageNode[]) => {
+    if (!messages.length) {
+      return
+    }
+
+    setMessagesState((prev) => {
+      const messagesToUpsert = messages.filter(({ temporaryId }) => {
+        return !temporaryId || !prev.entities[temporaryId]
+      })
+
+      if (!messagesToUpsert.length) {
+        return prev
       }
 
-      return changed ? updatedMessageNodes : prevMessageNodes
+      let state = messagesAdapter.upsertMany(prev, messagesToUpsert)
+
+      const updates: { id: string; changes: Partial<ChatMessageNode> }[] = []
+
+      for (const message of messagesToUpsert) {
+        const parentId = message.parentId
+        if (!parentId) {
+          continue
+        }
+
+        const parent = state.entities[parentId]
+        if (!parent) {
+          continue
+        }
+
+        const currentChildren = new Set(parent.children)
+
+        if (currentChildren.has(message.id)) {
+          continue
+        }
+
+        currentChildren.add(message.id)
+
+        const updatedChildren = Array.from(currentChildren)
+
+        // state = messagesAdapter.updateOne(state, {
+        //   id: parentId,
+        //   changes: {
+        //     children: updatedChildren,
+        //   },
+        // })
+
+        updates.push({
+          id: parentId,
+          changes: {
+            children: updatedChildren,
+          },
+        })
+      }
+
+      if (updates.length) {
+        state = messagesAdapter.updateMany(state, updates)
+      }
+
+      return state
     })
-  }
+  }, [])
+
+  // const upsertMessages = React.useCallback((messages: ChatMessageNode[]) => {
+  //   if (!messages.length) {
+  //     return
+  //   }
+
+  //   setMessagesState((prev) => {
+  //     const messagesToUpsert = messages.filter(({ temporaryId }) => {
+  //       return !temporaryId || !prev.entities[temporaryId]
+  //     })
+
+  //     if (!messagesToUpsert.length) {
+  //       return prev
+  //     }
+
+  //     let state = messagesAdapter.upsertMany(prev, messagesToUpsert)
+
+  //     const childrenByParent = new Map<string, Set<string>>()
+
+  //     for (const message of messagesToUpsert) {
+  //       if (message.children?.length) {
+  //         const set = childrenByParent.get(message.id) || new Set<string>()
+  //         for (const childId of message.children) {
+  //           set.add(childId)
+  //         }
+  //         childrenByParent.set(message.id, set)
+  //       }
+
+  //       if (message.parentId && state.entities[message.parentId]) {
+  //         const set =
+  //           childrenByParent.get(message.parentId) || new Set<string>()
+  //         set.add(message.id)
+  //         childrenByParent.set(message.parentId, set)
+  //       }
+  //     }
+
+  //     if (!childrenByParent.size) {
+  //       return state
+  //     }
+
+  //     const updates: { id: string; changes: Partial<ChatMessageNode> }[] = []
+
+  //     for (const [parentId, newChildren] of childrenByParent) {
+  //       const parent = state.entities[parentId]
+  //       if (!parent) {
+  //         continue
+  //       }
+
+  //       const currentChildren = new Set(parent.children)
+
+  //       let hasChanges = false
+  //       for (const childId of newChildren) {
+  //         if (!currentChildren.has(childId)) {
+  //           currentChildren.add(childId)
+  //           hasChanges = true
+  //         }
+  //       }
+
+  //       if (hasChanges) {
+  //         updates.push({
+  //           id: parentId,
+  //           changes: { children: Array.from(currentChildren) },
+  //         })
+  //       }
+  //     }
+
+  //     if (updates.length) {
+  //       state = messagesAdapter.updateMany(state, updates)
+  //     }
+
+  //     return state
+  //   })
+  // }, [])
 
   const { messages: messagesRealtime, error: errorRealtime } = useChatRealtime({
     params,
@@ -275,256 +387,271 @@ export function useChat({
 
   React.useEffect(() => {
     if (messagesRealtime.length) {
-      upsertLoadedMessageNodes(messagesRealtime)
+      upsertMessages(messagesRealtime)
     }
-  }, [messagesRealtime])
+  }, [messagesRealtime, upsertMessages])
 
-  // Memoized message node index
-  const messageNodeIndex = React.useMemo(
-    () => createMessageNodeIndex(loadedMessageNodes),
-    [loadedMessageNodes],
+  const allMessages = React.useMemo(
+    () => messagesAdapter.getSelectors().selectAll(messagesState),
+    [messagesState],
   )
 
-  // Memoized message node lookup function
-  const getMessageNodeById = React.useCallback(
+  const rootMessageIds = React.useMemo(
+    () => allMessages.filter((m) => !m.parentId).map((m) => m.id),
+    [allMessages],
+  )
+
+  const childrenIndex = React.useMemo(
+    () => buildChildrenIndex(messagesState),
+    [messagesState],
+  )
+
+  const getMessageById = React.useCallback(
     (id: string | null | undefined) => {
       if (!id) {
         return undefined
       }
 
-      return messageNodeIndex.index.get(id)
+      return messagesState.entities[id]
     },
-    [messageNodeIndex.index],
+    [messagesState],
   )
 
-  const updateMessageNodeById = (
-    messageNodeId: string,
-    messageNode: Partial<Omit<ChatMessageNode, 'id'>>,
-  ) => {
-    setLoadedMessageNodes((prevMessageNodes) => {
-      return prevMessageNodes.map((prevMessageNode) =>
-        prevMessageNode.id === messageNodeId
-          ? { ...prevMessageNode, ...messageNode }
-          : prevMessageNode,
+  const updateMessage = React.useCallback(
+    (messageId: string, changes: Partial<Omit<ChatMessageNode, 'id'>>) => {
+      setMessagesState((prev) =>
+        messagesAdapter.updateOne(prev, { id: messageId, changes }),
       )
-    })
-  }
-
-  // Memoized root message IDs for O(1) sibling lookup
-  const rootMessageIds = React.useMemo(
-    () => loadedMessageNodes.filter((m) => !m.parentId).map((m) => m.id),
-    [loadedMessageNodes],
+    },
+    [],
   )
 
-  const getMessageNodeChildIdsById = React.useCallback(
+  const getMessageChildren = React.useCallback(
     (messageId: string | null | undefined): string[] => {
       if (messageId) {
-        const messageNode = getMessageNodeById(messageId)
-
-        return messageNode?.children || []
+        return getMessageById(messageId)?.children ?? []
       }
 
       return rootMessageIds
     },
-    [messageNodeIndex.childrenIndex, rootMessageIds],
+    [getMessageById, rootMessageIds],
   )
 
-  const getPersistentParentNode = React.useCallback(
-    (parentNodeId: string | undefined): ChatMessageNode | undefined => {
-      if (!parentNodeId) {
+  const getPersistentParent = React.useCallback(
+    (messageId: string | undefined): ChatMessageNode | undefined => {
+      if (!messageId) {
         return undefined
       }
 
-      let currentNode = messageNodeIndex.index.get(parentNodeId)
+      let current = messagesState.entities[messageId]
 
-      while (currentNode) {
-        if (currentNode.isPersisted !== false) {
-          return currentNode
+      while (current) {
+        if (current.isPersisted !== false) {
+          return current
         }
 
-        if (!currentNode.parentId) {
+        if (!current.parentId) {
           break
         }
 
-        currentNode = messageNodeIndex.index.get(currentNode.parentId)
+        current = messagesState.entities[current.parentId]
       }
 
       return undefined
     },
-    [messageNodeIndex.index],
+    [messagesState],
   )
 
-  // Memoized branch change handler
+  const getPersistentLastSibling = React.useCallback(
+    (messageId: string | undefined): ChatMessageNode | undefined => {
+      if (!messageId) {
+        return undefined
+      }
+
+      const persistentParent = getPersistentParent(messageId)
+
+      const lastChildId = persistentParent?.children
+        ?.filter((id) => messagesState.entities[id]?.isPersisted !== false)
+        ?.at(-1)
+
+      return lastChildId ? messagesState.entities[lastChildId] : undefined
+    },
+    [messagesState],
+  )
+
   const handleBranchChange = createBranchChangeHandler(
     params,
-    loadedMessageNodes,
-    upsertLoadedMessageNodes,
-    setTargetNodeId,
+    getMessageById,
+    upsertMessages,
+    setTargetMessageId,
     setLoadingMessage,
   )
 
-  // Memoized message node chain filtered by targetNodeId
-  const messageNodeChain = React.useMemo<ChatMessageNode[]>(() => {
-    return buildMessageNodes(
-      targetNodeId,
+  const messageChain = React.useMemo<ChatMessageNode[]>(() => {
+    return buildMessageChain(
+      targetMessageId,
       loadingMessage,
-      messageNodeIndex.index,
-      messageNodeIndex.childrenIndex,
+      messagesState.entities,
+      childrenIndex,
     )
-  }, [targetNodeId, loadingMessage, messageNodeIndex])
+  }, [targetMessageId, loadingMessage, messagesState, childrenIndex])
 
-  const [promptInputStatus, setPromptInputStatus] =
-    React.useState<PromptInputStatus>('ready')
+  const generateTemporaryId = () => Math.random().toString(36).substring(2, 15)
 
-  const generateFakeNodeId = () => {
-    return Math.random().toString(36).substring(2, 15)
-  }
-
-  const addFakeNode = ({
-    type,
-    parentNodeId,
-    fakeNodeId,
-    parts,
-  }:
-    | {
-        type: 'user'
-        parentNodeId: string | null | undefined
-        fakeNodeId: string
-        parts: PromptMessagePart[]
-      }
-    | {
-        type: 'assistant'
-        parentNodeId: string
-        fakeNodeId: string
-        parts?: never
-      }) => {
-    setLoadedMessageNodes((prevMessageNodes) => {
-      const updatedMessageNodes = prevMessageNodes.map((messageNode) => {
-        if (messageNode.id === parentNodeId) {
-          return {
-            ...messageNode,
-            children: [...(messageNode.children || []), fakeNodeId],
-          }
+  const addTemporaryMessage = React.useCallback(
+    ({
+      type,
+      parentId,
+      temporaryId,
+      parts,
+    }:
+      | {
+          type: 'user'
+          parentId: string | null | undefined
+          temporaryId: string
+          parts: PromptMessagePart[]
         }
+      | {
+          type: 'assistant'
+          parentId: string
+          temporaryId: string
+          parts?: never
+        }) => {
+      setMessagesState((prev) => {
+        let state = prev
 
-        return messageNode
-      })
+        if (parentId && prev.entities[parentId]) {
+          const parent = prev.entities[parentId]
 
-      updatedMessageNodes.push({
-        id: fakeNodeId,
-        status: 'queued',
-        role: type,
-        parts: type === 'user' ? parts : [],
-        parentId: parentNodeId,
-        isPersisted: false,
-      })
+          const currentChildren = new Set(parent.children)
+          currentChildren.add(temporaryId)
 
-      return updatedMessageNodes
-    })
-  }
-
-  const replaceFakeNode = ({
-    type,
-    parentNodeId,
-    fakeNodeId,
-    userMessageNode,
-    assistantMessageNode,
-  }:
-    | {
-        type: 'user'
-        parentNodeId: string | null | undefined
-        fakeNodeId: string
-        userMessageNode: ChatMessageNode
-        assistantMessageNode: ChatMessageNode
-      }
-    | {
-        type: 'assistant'
-        parentNodeId: string
-        fakeNodeId: string
-        userMessageNode?: never
-        assistantMessageNode: ChatMessageNode
-      }) => {
-    setLoadedMessageNodes((prevMessageNodes) => {
-      const updatedMessageNodes = prevMessageNodes.map((messageNode) => {
-        if (messageNode.id === parentNodeId) {
-          return {
-            ...messageNode,
-            children: messageNode.children?.map((id) =>
-              id === fakeNodeId
-                ? type === 'user'
-                  ? userMessageNode.id
-                  : assistantMessageNode.id
-                : id,
-            ),
-          }
-        }
-
-        if (messageNode.id === fakeNodeId) {
-          return {
-            ...(type === 'user' ? userMessageNode : assistantMessageNode),
-            parentId: messageNode.parentId, // Non-persistent parent node, kept to remain visually hierarchical
-          }
-        }
-
-        return messageNode
-      })
-
-      if (type === 'user') {
-        updatedMessageNodes.push(assistantMessageNode)
-      }
-
-      return updatedMessageNodes
-    })
-  }
-
-  const setErrorFakeNode = ({
-    type,
-    fakeNodeId,
-  }: {
-    type: 'user' | 'assistant'
-    fakeNodeId: string
-  }) => {
-    setLoadedMessageNodes((prevMessageNodes) => {
-      const updatedMessageNodes = prevMessageNodes.map((messageNode) => {
-        if (messageNode.id === fakeNodeId) {
-          return {
-            ...messageNode,
-            status: 'failed',
-            metadata: {
-              error:
-                type === 'user'
-                  ? 'Failed to send message'
-                  : 'Failed to generate assistant',
+          state = messagesAdapter.updateOne(state, {
+            id: parentId,
+            changes: {
+              children: Array.from(currentChildren),
             },
-          } as ChatMessageNode
+          })
         }
 
-        return messageNode
-      })
+        const temporaryMessage: ChatMessageNode = {
+          id: temporaryId,
+          status: 'queued',
+          role: type,
+          parts: type === 'user' ? parts : [],
+          parentId: parentId || null,
+          isPersisted: false,
+        }
 
-      return updatedMessageNodes
-    })
-  }
+        state = messagesAdapter.addOne(state, temporaryMessage)
+
+        return state
+      })
+    },
+    [],
+  )
+
+  const replaceTemporaryMessage = React.useCallback(
+    ({
+      type,
+      parentId,
+      temporaryId,
+      userMessage,
+      assistantMessage,
+    }:
+      | {
+          type: 'user'
+          parentId: string | null | undefined
+          temporaryId: string
+          userMessage: ChatMessageNode
+          assistantMessage: ChatMessageNode
+        }
+      | {
+          type: 'assistant'
+          parentId: string
+          temporaryId: string
+          userMessage?: never
+          assistantMessage: ChatMessageNode
+        }) => {
+      setMessagesState((prev) => {
+        const temporary = prev.entities[temporaryId]
+        let state = messagesAdapter.removeOne(prev, temporaryId)
+
+        if (parentId && prev.entities[parentId]) {
+          const parent = prev.entities[parentId]!
+          const replacementId =
+            type === 'user' ? userMessage.id : assistantMessage.id
+
+          const updatedChildren = new Set<string>(
+            parent.children?.map((id) =>
+              id === temporaryId ? replacementId : id,
+            ),
+          )
+
+          state = messagesAdapter.updateOne(state, {
+            id: parentId,
+            changes: {
+              children: Array.from(updatedChildren),
+            },
+          })
+        }
+
+        if (type === 'user') {
+          state = messagesAdapter.addOne(state, {
+            ...userMessage,
+            parentId: temporary?.parentId,
+          })
+          state = messagesAdapter.addOne(state, assistantMessage)
+        } else {
+          state = messagesAdapter.addOne(state, {
+            ...assistantMessage,
+            parentId: temporary?.parentId,
+          })
+        }
+
+        return state
+      })
+    },
+    [],
+  )
+
+  const setTemporaryMessageError = React.useCallback(
+    ({
+      type,
+      temporaryId,
+    }: {
+      type: 'user' | 'assistant'
+      temporaryId: string
+    }) => {
+      updateMessage(temporaryId, {
+        status: 'failed',
+        metadata: {
+          error:
+            type === 'user'
+              ? 'Failed to send message'
+              : 'Failed to generate assistant',
+        },
+      })
+    },
+    [updateMessage],
+  )
 
   const sendMessage = async ({ parts }: SendMessageParams) => {
-    if (
-      promptInputStatus === 'submitted' ||
-      promptInputStatus === 'streaming'
-    ) {
+    if (isProcessing(inputStatus)) {
       return
     }
 
-    setPromptInputStatus('submitted')
+    setInputStatus('submitted')
 
-    const parentNodeId = messageNodeChain.at(-1)?.id
-    const fakeNodeId = generateFakeNodeId()
+    const parentId = messageChain.at(-1)?.id
+    const temporaryId = generateTemporaryId()
 
-    addFakeNode({ type: 'user', parentNodeId, fakeNodeId, parts })
-
-    conversationScrollRef.current?.scrollToBottom()
+    addTemporaryMessage({ type: 'user', parentId, temporaryId, parts })
+    setTargetMessageId(temporaryId)
+    scrollRef.current?.scrollToBottom()
 
     try {
-      const persistentParentNodeId = getPersistentParentNode(parentNodeId)?.id
+      const persistentParentId = getPersistentParent(parentId)?.id
 
       const { data, error } = await sdk.sendMessage({
         conversationId: params.chatId,
@@ -532,16 +659,15 @@ export function useChat({
           organizationSlug: params.organizationSlug,
           teamId: params.teamId,
           agentId: params.agentId,
-          parentMessageId: persistentParentNodeId,
+          parentMessageId: persistentParentId,
           message: { parts },
-          // ...(params.chatId === 'new'
-          //   ? {
-          //       visibility: selectedExplorerNode.visibility,
-          //       explorerNode: {
-          //         folderId: selectedExplorerNode.folderId,
-          //       },
-          //     }
-          //   : {}),
+          ...(params.chatId === 'new'
+            ? {
+                visibility: options?.visibility,
+                explorerNode: options?.explorerNode,
+              }
+            : {}),
+          temporaryMessageId: temporaryId,
         },
       })
 
@@ -551,47 +677,46 @@ export function useChat({
 
       if (params.chatId === 'new') {
         await updateTag('create-chat')
-
         router.push(
           `/orgs/${params.organizationSlug}/${params.teamId}/agents/${params.agentId}/chats/${data.conversationId}`,
         )
       }
 
-      replaceFakeNode({
-        type: 'user',
-        parentNodeId,
-        fakeNodeId,
-        userMessageNode: data.userMessage as ChatMessageNode,
-        assistantMessageNode: data.assistantMessage as ChatMessageNode,
-      })
-    } catch {
-      setPromptInputStatus('error')
+      const isPrivate = chat?.visibility === 'private'
 
-      setErrorFakeNode({ type: 'user', fakeNodeId })
+      if (!isPrivate) {
+        setInputStatus('ready')
+      }
+
+      replaceTemporaryMessage({
+        type: 'user',
+        parentId,
+        temporaryId,
+        userMessage: data.userMessage as ChatMessageNode,
+        assistantMessage: data.assistantMessage as ChatMessageNode,
+      })
+
+      setTargetMessageId(data.userMessage.id)
+    } catch {
+      setInputStatus('error')
+      setTemporaryMessageError({ type: 'user', temporaryId })
     }
   }
 
   const resendMessage = async ({ messageId, parts }: ResendMessageParams) => {
-    if (
-      promptInputStatus === 'submitted' ||
-      promptInputStatus === 'streaming'
-    ) {
+    if (isProcessing(inputStatus)) {
       return
     }
 
-    setPromptInputStatus('submitted')
+    setInputStatus('submitted')
 
-    const messageNode = getMessageNodeById(messageId)
+    const message = getMessageById(messageId)
+    const parentId = message?.parentId
+    const temporaryId = generateTemporaryId()
 
-    const parentNodeId = messageNode?.parentId
-
-    const fakeNodeId = generateFakeNodeId()
-
-    addFakeNode({ type: 'user', parentNodeId, fakeNodeId, parts })
-
-    setTargetNodeId(fakeNodeId)
-
-    conversationScrollRef.current?.scrollToBottom()
+    addTemporaryMessage({ type: 'user', parentId, temporaryId, parts })
+    setTargetMessageId(temporaryId)
+    scrollRef.current?.scrollToBottom()
 
     try {
       const { data, error } = await sdk.resendMessage({
@@ -601,7 +726,7 @@ export function useChat({
           organizationSlug: params.organizationSlug,
           agentId: params.agentId,
           message: { parts },
-          // referenceMessageId: message.isPersisted === false ? undefined : message.id,
+          temporaryMessageId: temporaryId,
         },
       })
 
@@ -609,55 +734,61 @@ export function useChat({
         throw new Error(error.message)
       }
 
-      replaceFakeNode({
+      const isPrivate = chat?.visibility === 'private'
+
+      if (!isPrivate) {
+        setInputStatus('ready')
+      }
+
+      replaceTemporaryMessage({
         type: 'user',
-        parentNodeId,
-        fakeNodeId,
-        userMessageNode: data.userMessage as ChatMessageNode,
-        assistantMessageNode: data.assistantMessage as ChatMessageNode,
+        parentId,
+        temporaryId,
+        userMessage: data.userMessage as ChatMessageNode,
+        assistantMessage: data.assistantMessage as ChatMessageNode,
       })
 
-      setTargetNodeId(data.userMessage.id)
+      setTargetMessageId(data.userMessage.id)
     } catch {
-      setPromptInputStatus('error')
-
-      setErrorFakeNode({ type: 'user', fakeNodeId })
+      setInputStatus('error')
+      setTemporaryMessageError({ type: 'user', temporaryId })
     }
   }
 
   const regenerateMessage = async ({ messageId }: RegenerateMessageParams) => {
-    if (
-      promptInputStatus === 'submitted' ||
-      promptInputStatus === 'streaming'
-    ) {
+    if (isProcessing(inputStatus)) {
       return
     }
 
-    setPromptInputStatus('submitted')
+    setInputStatus('submitted')
 
-    const messageNode = getMessageNodeById(messageId)
+    const message = getMessageById(messageId)
+    const parentId = message?.parentId
 
-    const parentNodeId = messageNode?.parentId
-
-    if (!parentNodeId) {
+    if (!parentId) {
       return
     }
 
-    const fakeNodeId = generateFakeNodeId()
+    const temporaryId = generateTemporaryId()
 
-    addFakeNode({ type: 'assistant', parentNodeId, fakeNodeId })
-
-    setTargetNodeId(fakeNodeId)
-
-    conversationScrollRef.current?.scrollToBottom()
+    addTemporaryMessage({ type: 'assistant', parentId, temporaryId })
+    setTargetMessageId(temporaryId)
+    scrollRef.current?.scrollToBottom()
 
     try {
+      const persistentLastSiblingId = getPersistentLastSibling(parentId)?.id
+
+      if (!persistentLastSiblingId) {
+        return
+      }
+
       const { data, error } = await sdk.regenerateMessage({
         conversationId: params.chatId,
-        messageId,
+        messageId: persistentLastSiblingId,
         data: {
           organizationSlug: params.organizationSlug,
           agentId: params.agentId,
+          temporaryMessageId: temporaryId,
         },
       })
 
@@ -665,32 +796,37 @@ export function useChat({
         throw new Error(error.message)
       }
 
-      replaceFakeNode({
+      const isPrivate = chat?.visibility === 'private'
+
+      if (!isPrivate) {
+        setInputStatus('ready')
+      }
+
+      replaceTemporaryMessage({
         type: 'assistant',
-        parentNodeId,
-        fakeNodeId,
-        assistantMessageNode: data.assistantMessage as ChatMessageNode,
+        parentId,
+        temporaryId,
+        assistantMessage: data.assistantMessage as ChatMessageNode,
       })
 
-      setTargetNodeId(data.assistantMessage.id)
+      setTargetMessageId(data.assistantMessage.id)
     } catch {
-      setPromptInputStatus('error')
-
-      setErrorFakeNode({ type: 'assistant', fakeNodeId })
+      setInputStatus('error')
+      setTemporaryMessageError({ type: 'assistant', temporaryId })
     }
   }
 
   const stopMessage = async ({ messageId }: StopMessageParams = {}) => {
-    const msgId = messageId || streamingMessageId
+    const id = messageId || streamingMessageId
 
-    if (!msgId) {
+    if (!id) {
       return
     }
 
     try {
       const { error } = await sdk.stopMessage({
         conversationId: params.chatId,
-        messageId: msgId,
+        messageId: id,
         data: {
           organizationSlug: params.organizationSlug,
           agentId: params.agentId,
@@ -700,10 +836,12 @@ export function useChat({
       if (error) {
         throw new Error(error.message)
       }
-    } catch {}
+    } catch {
+      // Silently fail
+    }
   }
 
-  const { uploading, uploadFile: uploadFileHook } = useUploadFiles({
+  const { uploading, uploadFile: uploadFileFn } = useUploadFiles({
     bucket: 'default',
     scope: 'conversations',
     params: {
@@ -715,7 +853,7 @@ export function useChat({
 
   const uploadFile = async ({ id, file }: { id: string; file: File }) => {
     try {
-      const { data, error } = await uploadFileHook({ file })
+      const { data, error } = await uploadFileFn({ file })
 
       if (error) {
         return { id, error: error.message }
@@ -736,31 +874,28 @@ export function useChat({
         }
       }
 
-      throw new Error()
+      throw new Error('Invalid response')
     } catch {
       return { id, error: 'Failed to upload file' }
     }
   }
 
-  const [streamingMessageId, setStreamingMessageId] = React.useState<
-    string | null
-  >(null)
-
   return {
     chat,
-    messages: messageNodeChain,
+    messagesState,
+    messages: messageChain,
     loadingMessage,
-    getMessageNodeById,
-    updateMessageNodeById,
-    getMessageNodeChildIdsById,
+    getMessageNodeById: getMessageById,
+    updateMessageNodeById: updateMessage,
+    getMessageNodeChildIdsById: getMessageChildren,
     handleBranchChange,
     sendMessage,
     resendMessage,
     regenerateMessage,
     stopMessage,
-    promptInputStatus,
-    setPromptInputStatus,
-    conversationScrollRef,
+    promptInputStatus: inputStatus,
+    setPromptInputStatus: setInputStatus,
+    conversationScrollRef: scrollRef,
     uploading,
     uploadFile,
     streamingMessageId,

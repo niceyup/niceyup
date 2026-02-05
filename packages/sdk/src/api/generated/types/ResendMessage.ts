@@ -1299,6 +1299,10 @@ export type ResendMessage200 = {
      * @type array | undefined
      */
     children?: string[]
+    /**
+     * @type string | undefined
+     */
+    temporaryId?: string
   }
   /**
    * @type object
@@ -2047,6 +2051,10 @@ export type ResendMessage200 = {
      * @type array | undefined
      */
     children?: string[]
+    /**
+     * @type string | undefined
+     */
+    temporaryId?: string
   }
 }
 
@@ -2207,6 +2215,11 @@ export type ResendMessageMutationRequest = {
     )[]
     metadata?: any
   }
+  /**
+   * @description Client-side temporary message identifier (not persisted)
+   * @type string | undefined
+   */
+  temporaryMessageId?: string
 }
 
 export type ResendMessageMutationResponse = ResendMessage200

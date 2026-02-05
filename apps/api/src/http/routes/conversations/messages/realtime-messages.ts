@@ -9,7 +9,7 @@ import { z } from 'zod'
 
 export async function realtimeMessages(app: FastifyTypedInstance) {
   app.register(authenticate).get(
-    '/conversations/:conversationId/messages/realtime',
+    '/ws/conversations/:conversationId/messages',
     {
       websocket: true,
       schema: {

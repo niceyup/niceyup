@@ -301,6 +301,7 @@ export const resendMessage200Schema = z
       authorId: z.string().nullable().nullish(),
       parentId: z.string().nullable().nullish(),
       children: z.array(z.string()).optional(),
+      temporaryId: z.string().optional(),
     }),
     assistantMessage: z.object({
       id: z.string(),
@@ -573,6 +574,7 @@ export const resendMessage200Schema = z
       authorId: z.string().nullable().nullish(),
       parentId: z.string().nullable().nullish(),
       children: z.array(z.string()).optional(),
+      temporaryId: z.string().optional(),
     }),
   })
   .describe('Success') as unknown as ToZod<ResendMessage200>
@@ -695,6 +697,10 @@ export const resendMessageMutationRequestSchema = z.object({
       .min(1),
     metadata: z.any().nullish(),
   }),
+  temporaryMessageId: z
+    .string()
+    .describe('Client-side temporary message identifier (not persisted)')
+    .optional(),
 }) as unknown as ToZod<ResendMessageMutationRequest>
 
 export type ResendMessageMutationRequestSchema = ResendMessageMutationRequest

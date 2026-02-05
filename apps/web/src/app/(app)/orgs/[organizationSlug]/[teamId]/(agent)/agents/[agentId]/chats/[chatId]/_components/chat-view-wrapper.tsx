@@ -50,6 +50,7 @@ export async function ChatViewWrapper({
     <ChatView
       params={params}
       authorId={userId}
+      chat={chat}
       initialMessages={
         [...siblingRootMessages, ...data.messages] as MessageNode[]
       }

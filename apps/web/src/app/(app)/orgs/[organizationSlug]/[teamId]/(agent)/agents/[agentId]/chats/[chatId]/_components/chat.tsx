@@ -3,6 +3,7 @@
 import { streamMessage } from '@/actions/messages'
 import type {
   AgentParams,
+  Chat,
   ChatParams,
   MessageNode,
   Message as MessageType,
@@ -42,6 +43,7 @@ import {
   PromptInputAttachment,
   PromptInputAttachments,
   PromptInputBody,
+  PromptInputButton,
   PromptInputFooter,
   type PromptInputMessage,
   PromptInputSpeechButton,
@@ -50,6 +52,8 @@ import {
   PromptInputTools,
 } from '@workspace/ui/components/ai-elements/prompt-input'
 import { Shimmer } from '@workspace/ui/components/ai-elements/shimmer'
+import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
+import { Button } from '@workspace/ui/components/button'
 import {
   InputGroupAddon,
   InputGroupButton,
@@ -58,18 +62,26 @@ import {
 import { InputGroup } from '@workspace/ui/components/input-group'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Spinner } from '@workspace/ui/components/spinner'
+import { useResizeObserver } from '@workspace/ui/hooks/use-resize-observer'
+import { cn } from '@workspace/ui/lib/utils'
 import {
   AlertCircleIcon,
   CopyIcon,
   MessageSquare,
   PencilIcon,
   RefreshCcwIcon,
+  UsersIcon,
   XCircleIcon,
 } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
 import { useStickToBottomContext } from 'use-stick-to-bottom'
-import { type ChatMessageNode, useChat } from '../_hooks/use-chat'
+import { useChatOptions } from '../../_store/use-chat-options'
+import {
+  type ChatMessageNode,
+  type ChatOptions,
+  useChat,
+} from '../_hooks/use-chat'
 
 // ============================================================================
 // Provider Context & Types
@@ -157,21 +169,23 @@ export function useChatContext(): ChatContextType {
 export function ChatProvider({
   params,
   authorId,
+  chat,
   initialMessages,
+  options,
   children,
 }: {
   params: Params
   authorId?: string
+  chat?: Chat | null
   initialMessages?: MessageNode[]
+  options?: ChatOptions
   children: React.ReactNode
 }) {
   const chatHook = useChat({
     params,
+    chat,
     initialMessages,
-    // selectedExplorerNode: {
-    //   visibility: 'private',
-    //   folderId: null,
-    // },
+    options,
   })
 
   const contextValue: ChatContextType = { params, authorId, ...chatHook }
@@ -244,11 +258,15 @@ export function ChatMessageProvider({
 
 export function ChatPromptInput({
   suggestion,
+  newChat,
 }: {
   suggestion?: string
+  newChat?: boolean
 }) {
   const { sendMessage, stopMessage, promptInputStatus, uploading, uploadFile } =
     useChatContext()
+
+  const { visibility, setVisibility } = useChatOptions()
 
   const [text, setText] = React.useState<string>(suggestion || '')
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
@@ -333,10 +351,25 @@ export function ChatPromptInput({
           <PromptInputSpeechButton textareaRef={textareaRef} />
         </PromptInputTools>
 
-        <PromptInputSubmit
-          status={promptInputStatus}
-          disabled={uploading || promptInputStatus === 'submitted'}
-        />
+        <PromptInputTools>
+          {newChat && (
+            <PromptInputButton
+              variant={visibility === 'team' ? 'secondary' : 'ghost'}
+              onClick={() =>
+                visibility === 'private'
+                  ? setVisibility('team')
+                  : setVisibility('private')
+              }
+            >
+              <UsersIcon />
+              Team
+            </PromptInputButton>
+          )}
+          <PromptInputSubmit
+            status={promptInputStatus}
+            disabled={uploading || promptInputStatus === 'submitted'}
+          />
+        </PromptInputTools>
       </PromptInputFooter>
     </PromptInput>
   )
@@ -444,10 +477,10 @@ function ChatMessageBranch({
             return <ChatMessage key={id} message={message} branch />
           }
 
-          // Message node is already loaded
-          const branchMessageNode = getMessageNodeById(id)
-          if (branchMessageNode) {
-            return <ChatMessage key={id} message={branchMessageNode} branch />
+          // Sibling message node is already loaded
+          const siblingMessageNode = getMessageNodeById(id)
+          if (siblingMessageNode) {
+            return <ChatMessage key={id} message={siblingMessageNode} branch />
           }
 
           return (
@@ -457,7 +490,7 @@ function ChatMessageBranch({
               </MessageContent>
 
               <MessageToolbar>
-                <MessageBranchSelector from={message.role}>
+                <MessageBranchSelector className="opacity-25 transition-opacity group-hover:opacity-100 group-[.is-assistant]:order-1">
                   <MessageBranchPrevious />
                   <MessageBranchPage />
                   <MessageBranchNext />
@@ -478,22 +511,30 @@ function ChatMessage({
   message: ChatMessageNode
   branch?: boolean
 }) {
+  const { authorId } = useChatContext()
+
   if (message.role !== 'assistant' && message.role !== 'user') {
     return null
   }
 
+  const isOtherUser =
+    authorId && message.authorId && authorId !== message.authorId
+
   return (
     <ChatMessageProvider message={message}>
-      <Message from={message.role}>
+      <Message
+        from={message.role}
+        className={cn(isOtherUser && 'is-other-user ml-0 justify-start')}
+      >
         {message.role === 'assistant' ? (
           <ChatAssistantMessage />
         ) : (
           <ChatUserMessage />
         )}
 
-        <MessageToolbar>
+        <MessageToolbar className="group-[.is-other-user]:justify-start!">
           {branch && (
-            <MessageBranchSelector from={message.role}>
+            <MessageBranchSelector className="opacity-25 transition-opacity group-hover:opacity-100 group-[.is-assistant]:order-1 group-[.is-other-user]:order-1">
               <MessageBranchPrevious />
               <MessageBranchPage />
               <MessageBranchNext />
@@ -507,138 +548,71 @@ function ChatMessage({
   )
 }
 
-function ChatAssistantMessage() {
-  return (
-    <ChatAssistantMessageStreaming>
-      <ChatAssistantMessageBody />
-    </ChatAssistantMessageStreaming>
-  )
-}
-
-function ChatAssistantMessageStreaming({
-  children,
-}: { children: React.ReactNode }) {
-  const {
-    params,
-    authorId,
-    updateMessageNodeById,
-    setPromptInputStatus,
-    setStreamingMessageId,
-  } = useChatContext()
-  const { message, updateMessage, streaming } = useChatMessageContext()
-  const { scrollToBottom } = useStickToBottomContext()
-
-  const onChunk = (chunk: AIMessage) => {
-    if (chunk.status === 'processing') {
-      setStreamingMessageId(chunk.id)
-    } else {
-      if (
-        chunk.status === 'cancelled' ||
-        chunk.status === 'completed' ||
-        chunk.status === 'failed'
-      ) {
-        updateMessageNodeById(chunk.id, chunk)
-      }
-
-      setStreamingMessageId(null)
-    }
-
-    updateMessage(chunk)
-    scrollToBottom({ preserveScrollPosition: true })
-
-    if (
-      // visibility === 'private' &&
-      authorId &&
-      authorId === chunk.metadata?.authorId
-    ) {
-      setPromptInputStatus(messageStatusToPromptInputStatus[chunk.status])
-    }
-  }
-
-  const { message: messageStream, error } = useChatMessageRealtime({
-    params,
-    messageId: message.id,
-    streamMessageAction: streamMessage,
-    onMessageChunk: onChunk,
-    disable: !streaming,
-  })
-
-  if (error) {
-    return (
-      <MessageContent>
-        <ChatMessageFailed />
-
-        {messageStream && <ChatMessageResponseError error={error} />}
-      </MessageContent>
-    )
-  }
-
-  if (message.status === 'queued') {
-    return (
-      <MessageContent>
-        <Shimmer>Sending message...</Shimmer>
-      </MessageContent>
-    )
-  }
-
-  return children
-}
+// ============================================================================
+// User Message
+// ============================================================================
 
 function ChatUserMessage() {
-  return <ChatUserMessageBody />
-}
+  const { chat } = useChatContext()
 
-function ChatAssistantMessageBody() {
-  const { parts } = useChatMessageContext()
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const contentSize = useResizeObserver({ ref: contentRef })
+  const [isContentTooTall, setIsContentTooTall] = React.useState(false)
 
-  return (
-    <>
-      <ChatAssistantMessageContent />
+  const [showMore, setShowMore] = React.useState(false)
 
-      {!!parts.toolImageGenerationParts.length &&
-        parts.toolImageGenerationParts.map((part) => (
-          <ChatAssistantMessageImageGeneration
-            key={part.toolCallId}
-            part={part}
-          />
-        ))}
-    </>
-  )
-}
+  React.useEffect(() => {
+    // h-55 = 55 * 4 = 220px (Tailwind spacing scale)
+    const maxHeight = 220
 
-function ChatAssistantMessageImageGeneration({
-  part,
-}: { part: ToolImageGenerationPart }) {
-  const { toolCallId, state, output } = part
-
-  const isError = state === 'output-error'
-  const isGenerating = state !== 'output-available'
-  const base64 = output?.result
-
-  if (isError) {
-    return (
-      <div
-        key={toolCallId}
-        className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border p-4"
-      >
-        <AlertCircleIcon className="size-4 shrink-0 text-destructive" />
-      </div>
+    setIsContentTooTall(
+      Boolean(contentSize.height && contentSize.height > maxHeight),
     )
-  }
+  }, [contentSize.height])
 
-  if (isGenerating || !base64) {
-    return <Skeleton key={toolCallId} className="h-[200px] w-[200px]" />
-  }
+  const isPrivate = chat?.visibility === 'private'
 
   return (
-    <Image
-      key={toolCallId}
-      base64={base64}
-      uint8Array={new Uint8Array()}
-      mediaType="image/jpeg"
-      alt="Generated image"
-      className="max-h-[calc(100vh-300px)] min-h-[200px] min-w-[200px] max-w-fit rounded-lg border object-contain"
-    />
+    <div
+      className={cn(
+        'ml-auto flex flex-row items-start justify-end gap-2',
+        'group-[.is-other-user]:ml-0 group-[.is-other-user]:justify-start',
+      )}
+    >
+      <Avatar className="hidden size-8 group-[.is-other-user]:block">
+        {/* {user.image && <AvatarImage src={user.image} />} */}
+        <AvatarFallback className="text-xs">
+          {/* {getInitials(user.name)} */}
+        </AvatarFallback>
+      </Avatar>
+
+      <div
+        ref={contentRef}
+        data-enable-show-more={!isPrivate && isContentTooTall}
+        data-show-more={showMore}
+        className={cn(
+          'ml-auto flex flex-col justify-end gap-2',
+          'group-[.is-other-user]:ml-0 group-[.is-other-user]:justify-start',
+          '[&[data-show-more=false]]:[&[data-enable-show-more=true]]:relative [&[data-show-more=false]]:[&[data-enable-show-more=true]]:max-h-55.5',
+        )}
+      >
+        <ChatUserMessageBody />
+
+        <div
+          data-enable-show-more={!isPrivate && isContentTooTall}
+          data-show-more={showMore}
+          className="ml-auto flex items-end justify-end [&[data-enable-show-more=false]]:hidden [&[data-show-more=false]]:absolute [&[data-show-more=false]]:inset-0 [&[data-show-more=false]]:bg-gradient-to-t [&[data-show-more=false]]:from-10% [&[data-show-more=false]]:from-background"
+        >
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowMore((prev) => !prev)}
+          >
+            {showMore ? 'Show less' : 'Show more'}
+          </Button>
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -742,6 +716,189 @@ function ChatUserMessageBodyEditing() {
   )
 }
 
+function ChatUserMessageContent() {
+  const { parts } = useChatMessageContext()
+
+  return <MessageContent>{parts.text || <ChatEmptyMessage />}</MessageContent>
+}
+
+// ============================================================================
+// Assistant Message
+// ============================================================================
+
+function ChatAssistantMessage() {
+  const { chat } = useChatContext()
+
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const contentSize = useResizeObserver({ ref: contentRef })
+  const [isContentTooTall, setIsContentTooTall] = React.useState(false)
+
+  const [showMore, setShowMore] = React.useState(false)
+
+  React.useEffect(() => {
+    // h-55 = 55 * 4 = 220px (Tailwind spacing scale)
+    const maxHeight = 220
+
+    setIsContentTooTall(
+      Boolean(contentSize.height && contentSize.height > maxHeight),
+    )
+  }, [contentSize.height])
+
+  const isPrivate = chat?.visibility === 'private'
+
+  return (
+    <div
+      ref={contentRef}
+      data-enable-show-more={!isPrivate && isContentTooTall}
+      data-show-more={showMore}
+      className={cn(
+        'flex flex-col gap-2',
+        '[&[data-show-more=false]]:[&[data-enable-show-more=true]]:relative [&[data-show-more=false]]:[&[data-enable-show-more=true]]:max-h-55.5',
+      )}
+    >
+      <ChatAssistantMessageStreaming>
+        <ChatAssistantMessageBody />
+      </ChatAssistantMessageStreaming>
+
+      <div
+        data-enable-show-more={!isPrivate && isContentTooTall}
+        data-show-more={showMore}
+        className="flex items-end justify-start [&[data-enable-show-more=false]]:hidden [&[data-show-more=false]]:absolute [&[data-show-more=false]]:inset-0 [&[data-show-more=false]]:bg-gradient-to-t [&[data-show-more=false]]:from-10% [&[data-show-more=false]]:from-background"
+      >
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowMore((prev) => !prev)}
+        >
+          {showMore ? 'Show less' : 'Show more'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function ChatAssistantMessageStreaming({
+  children,
+}: { children: React.ReactNode }) {
+  const {
+    params,
+    authorId,
+    chat,
+    updateMessageNodeById,
+    setPromptInputStatus,
+    setStreamingMessageId,
+  } = useChatContext()
+  const { message, updateMessage, streaming } = useChatMessageContext()
+  const { scrollToBottom } = useStickToBottomContext()
+
+  const onChunk = (chunk: AIMessage) => {
+    if (chunk.status === 'processing') {
+      setStreamingMessageId(chunk.id)
+    } else {
+      if (
+        chunk.status === 'cancelled' ||
+        chunk.status === 'completed' ||
+        chunk.status === 'failed'
+      ) {
+        updateMessageNodeById(chunk.id, chunk)
+      }
+
+      setStreamingMessageId(null)
+    }
+
+    updateMessage(chunk)
+    scrollToBottom({ preserveScrollPosition: true })
+
+    const isPrivate = chat?.visibility === 'private'
+
+    if (isPrivate && authorId && authorId === chunk.metadata?.authorId) {
+      setPromptInputStatus(messageStatusToPromptInputStatus[chunk.status])
+    }
+  }
+
+  const { message: messageStream, error } = useChatMessageRealtime({
+    params,
+    messageId: message.id,
+    streamMessageAction: streamMessage,
+    onMessageChunk: onChunk,
+    disable: !streaming,
+  })
+
+  if (error) {
+    return (
+      <MessageContent>
+        <ChatMessageFailed />
+
+        {messageStream && <ChatMessageResponseError error={error} />}
+      </MessageContent>
+    )
+  }
+
+  if (message.status === 'queued') {
+    return (
+      <MessageContent>
+        <Shimmer>Sending message...</Shimmer>
+      </MessageContent>
+    )
+  }
+
+  return children
+}
+
+function ChatAssistantMessageBody() {
+  const { parts } = useChatMessageContext()
+
+  return (
+    <>
+      <ChatAssistantMessageContent />
+
+      {!!parts.toolImageGenerationParts.length &&
+        parts.toolImageGenerationParts.map((part) => (
+          <ChatAssistantMessageImageGeneration
+            key={part.toolCallId}
+            part={part}
+          />
+        ))}
+    </>
+  )
+}
+
+function ChatAssistantMessageImageGeneration({
+  part,
+}: { part: ToolImageGenerationPart }) {
+  const { toolCallId, state, output } = part
+
+  const isError = state === 'output-error'
+  const isGenerating = state !== 'output-available'
+  const base64 = output?.result
+
+  if (isError) {
+    return (
+      <div
+        key={toolCallId}
+        className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border p-4"
+      >
+        <AlertCircleIcon className="size-4 shrink-0 text-destructive" />
+      </div>
+    )
+  }
+
+  if (isGenerating || !base64) {
+    return <Skeleton key={toolCallId} className="h-[200px] w-[200px]" />
+  }
+
+  return (
+    <Image
+      key={toolCallId}
+      base64={base64}
+      uint8Array={new Uint8Array()}
+      mediaType="image/jpeg"
+      alt="Generated image"
+      className="max-h-[calc(100vh-300px)] min-h-[200px] min-w-[200px] max-w-fit rounded-lg border object-contain"
+    />
+  )
+}
+
 function ChatAssistantMessageContent() {
   const { message, parts, streaming } = useChatMessageContext()
 
@@ -764,11 +921,9 @@ function ChatAssistantMessageContent() {
   )
 }
 
-function ChatUserMessageContent() {
-  const { parts } = useChatMessageContext()
-
-  return <MessageContent>{parts.text || <ChatEmptyMessage />}</MessageContent>
-}
+// ============================================================================
+// Common Components
+// ============================================================================
 
 function ChatEmptyMessage() {
   const { message } = useChatMessageContext()
@@ -814,7 +969,7 @@ function ChatMessageActions() {
   }
 
   return (
-    <MessageActions>
+    <MessageActions className="group-[.is-other-user]:justify-start">
       <MessageAction
         label="Copy"
         onClick={handleCopy}

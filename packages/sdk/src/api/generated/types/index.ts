@@ -260,6 +260,22 @@ export type {
   GetConversationQuery,
 } from './GetConversation'
 export type {
+  GetConversationConfigurationPathParams,
+  GetConversationConfigurationQueryParams,
+  LanguageModelSettingsProviderEnum3,
+  LanguageModelSettingsTypeEnum2,
+  PromptMessagesRoleEnum3,
+  GetConversationConfiguration200,
+  GetConversationConfiguration400,
+  GetConversationConfiguration401,
+  GetConversationConfiguration403,
+  GetConversationConfiguration404,
+  GetConversationConfiguration429,
+  GetConversationConfiguration500,
+  GetConversationConfigurationQueryResponse,
+  GetConversationConfigurationQuery,
+} from './GetConversationConfiguration'
+export type {
   GetDatabaseSchemaPathParams,
   GetDatabaseSchemaQueryParams,
   GetDatabaseSchema200,
@@ -394,7 +410,6 @@ export type {
 export type {
   ListMessagesPathParams,
   ListMessagesQueryParams,
-  PromptMessagesRoleEnum3,
   MessagesStatusEnum,
   MessagesRoleEnum,
   PartsTypeEnum,
@@ -815,6 +830,22 @@ export type {
   UpdateConversationMutation,
 } from './UpdateConversation'
 export type {
+  UpdateConversationConfigurationPathParams,
+  UpdateConversationConfiguration204Enum,
+  UpdateConversationConfiguration204,
+  UpdateConversationConfiguration400,
+  UpdateConversationConfiguration401,
+  UpdateConversationConfiguration403,
+  UpdateConversationConfiguration404,
+  UpdateConversationConfiguration429,
+  UpdateConversationConfiguration500,
+  LanguageModelSettingsProviderEnum4,
+  PromptMessagesRoleEnum4,
+  UpdateConversationConfigurationMutationRequest,
+  UpdateConversationConfigurationMutationResponse,
+  UpdateConversationConfigurationMutation,
+} from './UpdateConversationConfiguration'
+export type {
   UpdateSourcePathParams,
   UpdateSource204Enum,
   UpdateSource204,
@@ -927,6 +958,11 @@ export {
 } from './GetAgentConfiguration'
 export { connectionAppEnum } from './GetConnection'
 export { conversationVisibilityEnum } from './GetConversation'
+export {
+  languageModelSettingsProviderEnum3,
+  languageModelSettingsTypeEnum2,
+  promptMessagesRoleEnum3,
+} from './GetConversationConfiguration'
 export { fileBucketEnum, fileScopeEnum } from './GetFile'
 export { providerProviderEnum } from './GetProvider'
 export { sourceTypeEnum, sourceStatusEnum } from './GetSource'
@@ -939,7 +975,6 @@ export {
   conversationsVisibilityEnum,
 } from './ListConversations'
 export {
-  promptMessagesRoleEnum3,
   messagesStatusEnum,
   messagesRoleEnum,
   partsTypeEnum,
@@ -1194,6 +1229,11 @@ export {
 } from './UpdateAgentConfiguration'
 export { updateConnection204Enum } from './UpdateConnection'
 export { updateConversation204Enum } from './UpdateConversation'
+export {
+  updateConversationConfiguration204Enum,
+  languageModelSettingsProviderEnum4,
+  promptMessagesRoleEnum4,
+} from './UpdateConversationConfiguration'
 export { updateSource204Enum } from './UpdateSource'
 export { updateSourceFolder204Enum } from './UpdateSourceFolder'
 export { updateSourceIndexes204Enum } from './UpdateSourceIndexes'

@@ -43,6 +43,22 @@ export function OrganizationSwitcher({
   const pathname = usePathname()
   const router = useRouter()
 
+  const handleClick = async ({
+    organizationId,
+    organizationSlug,
+  }: {
+    organizationId: string
+    organizationSlug: string
+  }) => {
+    await setActiveOrganizationTeam({ organizationId })
+
+    const extractedPath = pathname.match(/^\/orgs\/[^/]+\/[^/]+(\/.*)?$/)
+
+    router.push(
+      `/orgs/${organizationSlug}/~${extractedPath?.[1] || '/overview'}`,
+    )
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -83,13 +99,12 @@ export function OrganizationSwitcher({
               return (
                 <DropdownMenuItem
                   key={organization.id}
-                  onClick={async () => {
-                    await setActiveOrganizationTeam({
+                  onClick={() =>
+                    handleClick({
                       organizationId: organization.id,
+                      organizationSlug: organization.slug,
                     })
-
-                    router.push(`/orgs/${organization.slug}/~/overview`)
-                  }}
+                  }
                   disabled={!organization.slug}
                 >
                   <Avatar className="size-4 rounded-sm">

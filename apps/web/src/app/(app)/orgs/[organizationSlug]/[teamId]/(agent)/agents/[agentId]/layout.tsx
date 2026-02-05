@@ -55,7 +55,7 @@ export default async function Layout({
     },
     {
       label: 'Chats',
-      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/chats/new`,
+      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/chats`,
       deep: true,
     },
   ]

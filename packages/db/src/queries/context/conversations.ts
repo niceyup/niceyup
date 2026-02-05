@@ -50,6 +50,7 @@ export async function listConversations(
         and(
           eq(conversations.createdByUserId, context.userId),
           eq(conversations.agentId, params.agentId),
+          isNull(conversations.teamId),
           isNull(conversations.deletedAt),
         ),
       )

@@ -17,6 +17,7 @@
     "@headless-tree/core": "1.5.1",
     "@headless-tree/react": "1.5.1",
     "@hookform/resolvers": "5.2.2",
+    "@reduxjs/toolkit": "^2.11.2",
     "@tanstack/react-query": "5.90.5",
     "@workspace/ai": "workspace:*",
     "@workspace/auth": "workspace:*",

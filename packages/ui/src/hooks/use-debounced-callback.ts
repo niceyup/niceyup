@@ -1,7 +1,7 @@
 import { useCallbackRef } from '@workspace/ui/hooks/use-callback-ref'
 import * as React from 'react'
 
-export function useDebouncedCallback<T extends (...args: never[]) => unknown>(
+export function useDebouncedCallback<T extends (...args: never[]) => any>(
   callback: T,
   delay: number,
 ) {

@@ -30,6 +30,16 @@ export function AgentSwitcher({
   const pathname = usePathname()
   const router = useRouter()
 
+  const handleClick = ({ agentId }: { agentId: string }) => {
+    const extractedPath = pathname.match(
+      /^\/orgs\/[^/]+\/[^/]+\/agents\/[^/]+(\/.*)?$/,
+    )
+
+    router.push(
+      `/orgs/${organizationSlug}/${teamId}/agents/${agentId}${extractedPath?.[1] || '/chats/new'}`,
+    )
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -55,11 +65,7 @@ export function AgentSwitcher({
             return (
               <DropdownMenuItem
                 key={agent.id}
-                onClick={async () => {
-                  router.push(
-                    `/orgs/${organizationSlug}/${teamId}/agents/${agent.id}/chats/new`,
-                  )
-                }}
+                onClick={() => handleClick({ agentId: agent.id })}
               >
                 <Avatar className="size-4">
                   {agent.logo && <AvatarImage src={agent.logo} />}

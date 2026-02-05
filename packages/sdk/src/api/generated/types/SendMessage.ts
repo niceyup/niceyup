@@ -1299,6 +1299,10 @@ export type SendMessage200 = {
      * @type array | undefined
      */
     children?: string[]
+    /**
+     * @type string | undefined
+     */
+    temporaryId?: string
   }
   /**
    * @type object
@@ -2047,6 +2051,10 @@ export type SendMessage200 = {
      * @type array | undefined
      */
     children?: string[]
+    /**
+     * @type string | undefined
+     */
+    temporaryId?: string
   }
   /**
    * @description Return only when the conversation is created
@@ -2249,6 +2257,11 @@ export type SendMessageMutationRequest = {
      */
     folderId?: string | null
   }
+  /**
+   * @description Client-side temporary message identifier (not persisted)
+   * @type string | undefined
+   */
+  temporaryMessageId?: string
 }
 
 export type SendMessageMutationResponse = SendMessage200

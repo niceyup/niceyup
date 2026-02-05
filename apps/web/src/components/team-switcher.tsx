@@ -30,6 +30,22 @@ export function TeamSwitcher({
   const pathname = usePathname()
   const router = useRouter()
 
+  const handleClick = async ({
+    organizationId,
+    teamId,
+  }: {
+    organizationId: string
+    teamId: string
+  }) => {
+    await setActiveOrganizationTeam({ organizationId, teamId })
+
+    const extractedPath = pathname.match(/^\/orgs\/[^/]+\/[^/]+(\/.*)?$/)
+
+    router.push(
+      `/orgs/${organizationSlug}/${teamId}${extractedPath?.[1] || '/overview'}`,
+    )
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -52,14 +68,12 @@ export function TeamSwitcher({
             return (
               <DropdownMenuItem
                 key={team.id}
-                onClick={async () => {
-                  await setActiveOrganizationTeam({
+                onClick={() =>
+                  handleClick({
                     organizationId: team.organizationId,
                     teamId: team.id,
                   })
-
-                  router.push(`/orgs/${organizationSlug}/${team.id}/overview`)
-                }}
+                }
               >
                 <CircleDashedIcon />
                 <span className="line-clamp-1">{team.name}</span>

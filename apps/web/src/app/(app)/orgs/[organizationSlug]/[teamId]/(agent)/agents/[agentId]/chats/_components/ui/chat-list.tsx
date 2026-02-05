@@ -7,6 +7,7 @@ import type {
   ConversationVisibility,
   OrganizationTeamParams,
 } from '@/lib/types'
+import { createEntityAdapter } from '@reduxjs/toolkit'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -35,19 +36,24 @@ type Item = {
   loading?: boolean
 }
 
-function sortItems(items: Item[]) {
-  return items.sort(
-    (a, b) =>
-      new Date(b.updatedAt || '').getTime() -
-      new Date(a.updatedAt || '').getTime(),
-  )
-}
+type UpsertItem = Pick<Item, 'id'> & Partial<Omit<Item, 'id'>>
+
+// Create entity adapter with sorting by updatedAt (newest first)
+const itemsAdapter = createEntityAdapter<Item>({
+  sortComparer: (a, b) => {
+    const dateA = (a.updatedAt ? new Date(a.updatedAt) : new Date()).getTime()
+    const dateB = (b.updatedAt ? new Date(b.updatedAt) : new Date()).getTime()
+    return dateB - dateA // Descending order (newest first)
+  },
+})
 
 type ChatListContextType = {
   params: Params
   visibility: ConversationVisibility
   items: Item[]
-  setItems: React.Dispatch<React.SetStateAction<Item[]>>
+  updateItem: (id: string, updater: (prev: Item) => Item) => void
+  upsertItems: (payload: UpsertItem | UpsertItem[] | undefined) => void
+  deleteItem: (itemId: string) => void
   onRenameItem?: (item: { id: string }, value: string) => Promise<void> | void
   onDeleteItem?: (item: { id: string }) => Promise<void> | void
 }
@@ -81,23 +87,53 @@ export function ChatListProvider({
   onDeleteItem?: (item: { id: string }) => Promise<void> | void
   children: React.ReactNode
 }) {
-  const [items, setItems] = React.useState<Item[]>([])
+  const [itemsState, setItemsState] = React.useState(() =>
+    itemsAdapter.getInitialState(),
+  )
+
+  function updateItem(id: string, updater: (prev: Item) => Item) {
+    setItemsState((prev) => {
+      const item = prev.entities[id]
+
+      if (!item) {
+        return prev
+      }
+
+      return itemsAdapter.upsertOne(prev, updater(item))
+    })
+  }
+
+  function upsertItems(payload: UpsertItem | UpsertItem[] | undefined) {
+    if (!payload) {
+      return
+    }
+
+    const items = Array.isArray(payload) ? payload : [payload]
+
+    setItemsState((prev) => itemsAdapter.upsertMany(prev, items as Item[]))
+  }
+
+  function deleteItem(id: string) {
+    setItemsState((prev) => itemsAdapter.removeOne(prev, id))
+  }
+
+  const items = React.useMemo(() => {
+    return itemsAdapter.getSelectors().selectAll(itemsState)
+  }, [itemsState])
 
   React.useEffect(() => {
-    setItems((prev) => {
-      const newItems =
-        initialItems?.filter((item) => !prev.some((i) => i.id === item.id)) ||
-        []
-
-      return sortItems([...newItems, ...prev])
-    })
+    if (initialItems?.length) {
+      upsertItems(initialItems)
+    }
   }, [initialItems])
 
   const contextValue: ChatListContextType = {
     params,
     visibility,
     items,
-    setItems,
+    updateItem,
+    upsertItems,
+    deleteItem,
     onRenameItem,
     onDeleteItem,
   }
@@ -112,7 +148,6 @@ export function ChatListProvider({
 type ChatListItemContextType = {
   chatId: string
   item: Item
-  setItem: React.Dispatch<React.SetStateAction<Item>>
   selected: boolean
   setSelected: React.Dispatch<React.SetStateAction<boolean>>
   renaming: boolean
@@ -136,22 +171,16 @@ export function useChatListItemContext(): ChatListItemContextType {
 }
 
 export function ChatListItemProvider({
-  item: initialItem,
+  item,
   children,
 }: {
   item: Item
   children: React.ReactNode
 }) {
   const params = useParams<ChatParams>()
-  const { setItems } = useChatListContext()
 
-  const [item, setItem] = React.useState(initialItem)
   const [selected, setSelected] = React.useState(item.id === params.chatId)
   const [renaming, setRenaming] = React.useState(false)
-
-  React.useEffect(() => {
-    setItems((prev) => prev.map((i) => (i.id === item.id ? item : i)))
-  }, [item])
 
   React.useEffect(() => {
     setSelected(item.id === params.chatId)
@@ -160,7 +189,6 @@ export function ChatListItemProvider({
   const contextValue: ChatListItemContextType = {
     chatId: params.chatId,
     item,
-    setItem,
     selected,
     setSelected,
     renaming,
@@ -193,12 +221,11 @@ export function ChatList() {
 }
 
 function ChatListItem() {
-  const { params, onRenameItem } = useChatListContext()
-  const { item, setItem, selected, renaming, setRenaming } =
-    useChatListItemContext()
+  const { params, updateItem, onRenameItem } = useChatListContext()
+  const { item, selected, renaming, setRenaming } = useChatListItemContext()
 
   const onRename = async (value: string) => {
-    setItem((prev) => ({ ...prev, title: value, loading: true }))
+    updateItem(item.id, (prev) => ({ ...prev, title: value, loading: true }))
 
     await sdk.updateConversation({
       conversationId: item.id,
@@ -210,7 +237,7 @@ function ChatListItem() {
     })
     await onRenameItem?.({ id: item.id }, value)
 
-    setItem((prev) => ({
+    updateItem(item.id, (prev) => ({
       ...prev,
       updatedAt: new Date().toISOString(),
       loading: false,
@@ -342,13 +369,13 @@ function ChatListItemActionRename({ label = 'Rename' }: { label?: string }) {
 }
 
 function ChatListItemActionDelete({ label = 'Delete' }: { label?: string }) {
-  const { params, setItems, onDeleteItem } = useChatListContext()
-  const { chatId, item, setItem } = useChatListItemContext()
+  const { params, updateItem, deleteItem, onDeleteItem } = useChatListContext()
+  const { chatId, item } = useChatListItemContext()
 
   const router = useRouter()
 
   const onDelete = async () => {
-    setItem((prev) => ({ ...prev, loading: true }))
+    updateItem(item.id, (prev) => ({ ...prev, loading: true }))
 
     if (chatId === item.id) {
       router.push(
@@ -365,7 +392,7 @@ function ChatListItemActionDelete({ label = 'Delete' }: { label?: string }) {
     })
     await onDeleteItem?.({ id: item.id })
 
-    setItems((prev) => prev.filter((i) => i.id !== item.id))
+    deleteItem(item.id)
   }
 
   return (

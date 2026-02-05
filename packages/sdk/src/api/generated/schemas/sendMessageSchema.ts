@@ -301,6 +301,7 @@ export const sendMessage200Schema = z
       authorId: z.string().nullable().nullish(),
       parentId: z.string().nullable().nullish(),
       children: z.array(z.string()).optional(),
+      temporaryId: z.string().optional(),
     }),
     assistantMessage: z.object({
       id: z.string(),
@@ -573,6 +574,7 @@ export const sendMessage200Schema = z
       authorId: z.string().nullable().nullish(),
       parentId: z.string().nullable().nullish(),
       children: z.array(z.string()).optional(),
+      temporaryId: z.string().optional(),
     }),
     explorerNode: z
       .object({
@@ -712,6 +714,10 @@ export const sendMessageMutationRequestSchema = z.object({
       folderId: z.string().nullable().nullish(),
     })
     .describe('Used only when conversation is created')
+    .optional(),
+  temporaryMessageId: z
+    .string()
+    .describe('Client-side temporary message identifier (not persisted)')
     .optional(),
 }) as unknown as ToZod<SendMessageMutationRequest>
 

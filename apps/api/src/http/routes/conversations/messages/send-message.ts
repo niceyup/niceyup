@@ -46,6 +46,7 @@ const messageSchema = z.object({
   authorId: z.string().nullish(),
   parentId: z.string().nullish(),
   children: z.array(z.string()).optional(),
+  temporaryId: z.string().optional(),
 })
 
 export async function sendMessage(app: FastifyTypedInstance) {
@@ -79,6 +80,12 @@ export async function sendMessage(app: FastifyTypedInstance) {
             })
             .optional()
             .describe('Used only when conversation is created'),
+          temporaryMessageId: z
+            .string()
+            .optional()
+            .describe(
+              'Client-side temporary message identifier (not persisted)',
+            ),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -113,6 +120,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
         message,
         visibility,
         explorerNode,
+        temporaryMessageId,
       } = request.body
 
       const { context } = await resolveMembershipContext({
@@ -321,14 +329,19 @@ export async function sendMessage(app: FastifyTypedInstance) {
         assistantMessage,
       })
 
+      const userMessageWithTemporaryId = {
+        ...userMessage,
+        temporaryId: temporaryMessageId,
+      }
+
       conversationPubSub.publish({
         channel: `conversations:${_conversationId}:updated`,
-        messages: [userMessage, assistantMessage],
+        messages: [userMessageWithTemporaryId, assistantMessage],
       })
 
       return {
         conversationId: _conversationId,
-        userMessage,
+        userMessage: userMessageWithTemporaryId,
         assistantMessage,
         ...(itemExplorerNode && {
           explorerNode: { itemId: itemExplorerNode.id },

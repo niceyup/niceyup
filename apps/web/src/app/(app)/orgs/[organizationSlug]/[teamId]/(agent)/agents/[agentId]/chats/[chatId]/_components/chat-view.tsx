@@ -2,6 +2,7 @@
 
 import type {
   AgentParams,
+  Chat,
   ChatParams,
   MessageNode,
   OrganizationTeamParams,
@@ -14,16 +15,19 @@ type Params = OrganizationTeamParams & AgentParams & ChatParams
 export function ChatView({
   params,
   authorId,
+  chat,
   initialMessages,
 }: {
   params: Params
   authorId: string
+  chat: Chat
   initialMessages: MessageNode[]
 }) {
   return (
     <ChatProvider
       params={params}
       authorId={authorId}
+      chat={chat}
       initialMessages={initialMessages}
     >
       <ChatConversation />

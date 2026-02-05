@@ -20,6 +20,8 @@ export type { GetAgentSuspenseQueryKey } from './useGetAgentSuspense'
 export type { GetConnectionQueryKey } from './useGetConnection'
 export type { GetConnectionSuspenseQueryKey } from './useGetConnectionSuspense'
 export type { GetConversationQueryKey } from './useGetConversation'
+export type { GetConversationConfigurationQueryKey } from './useGetConversationConfiguration'
+export type { GetConversationConfigurationSuspenseQueryKey } from './useGetConversationConfigurationSuspense'
 export type { GetConversationSuspenseQueryKey } from './useGetConversationSuspense'
 export type { GetDatabaseSchemaQueryKey } from './useGetDatabaseSchema'
 export type { GetDatabaseSchemaSuspenseQueryKey } from './useGetDatabaseSchemaSuspense'
@@ -60,6 +62,7 @@ export type { UpdateAgentMutationKey } from './useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './useUpdateAgentConfiguration'
 export type { UpdateConnectionMutationKey } from './useUpdateConnection'
 export type { UpdateConversationMutationKey } from './useUpdateConversation'
+export type { UpdateConversationConfigurationMutationKey } from './useUpdateConversationConfiguration'
 export type { UpdateSourceMutationKey } from './useUpdateSource'
 export type { UpdateSourceFolderMutationKey } from './useUpdateSourceFolder'
 export type { UpdateSourceIndexesMutationKey } from './useUpdateSourceIndexes'
@@ -149,6 +152,16 @@ export {
   getConversationQueryOptions,
   useGetConversation,
 } from './useGetConversation'
+export {
+  getConversationConfigurationQueryKey,
+  getConversationConfigurationQueryOptions,
+  useGetConversationConfiguration,
+} from './useGetConversationConfiguration'
+export {
+  getConversationConfigurationSuspenseQueryKey,
+  getConversationConfigurationSuspenseQueryOptions,
+  useGetConversationConfigurationSuspense,
+} from './useGetConversationConfigurationSuspense'
 export {
   getConversationSuspenseQueryKey,
   getConversationSuspenseQueryOptions,
@@ -320,6 +333,10 @@ export {
   updateConversationMutationKey,
   useUpdateConversation,
 } from './useUpdateConversation'
+export {
+  updateConversationConfigurationMutationKey,
+  useUpdateConversationConfiguration,
+} from './useUpdateConversationConfiguration'
 export { updateSourceMutationKey, useUpdateSource } from './useUpdateSource'
 export {
   updateSourceFolderMutationKey,

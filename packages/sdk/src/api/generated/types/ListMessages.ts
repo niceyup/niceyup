@@ -33,14 +33,6 @@ export type ListMessagesQueryParams = {
   parents?: boolean
 }
 
-export const promptMessagesRoleEnum3 = {
-  user: 'user',
-  assistant: 'assistant',
-} as const
-
-export type PromptMessagesRoleEnum3 =
-  (typeof promptMessagesRoleEnum3)[keyof typeof promptMessagesRoleEnum3]
-
 export const messagesStatusEnum = {
   queued: 'queued',
   processing: 'processing',
@@ -311,23 +303,6 @@ export type ApprovalApprovedEnum6 =
  * @description Success
  */
 export type ListMessages200 = {
-  /**
-   * @type string
-   */
-  systemMessage: string
-  /**
-   * @type array
-   */
-  promptMessages: {
-    /**
-     * @type string
-     */
-    role: PromptMessagesRoleEnum3
-    /**
-     * @type string
-     */
-    content: string
-  }[]
   /**
    * @type array
    */

@@ -20,6 +20,8 @@ export type { GetAgentSuspenseQueryKey } from './react-query/hooks/useGetAgentSu
 export type { GetConnectionQueryKey } from './react-query/hooks/useGetConnection'
 export type { GetConnectionSuspenseQueryKey } from './react-query/hooks/useGetConnectionSuspense'
 export type { GetConversationQueryKey } from './react-query/hooks/useGetConversation'
+export type { GetConversationConfigurationQueryKey } from './react-query/hooks/useGetConversationConfiguration'
+export type { GetConversationConfigurationSuspenseQueryKey } from './react-query/hooks/useGetConversationConfigurationSuspense'
 export type { GetConversationSuspenseQueryKey } from './react-query/hooks/useGetConversationSuspense'
 export type { GetDatabaseSchemaQueryKey } from './react-query/hooks/useGetDatabaseSchema'
 export type { GetDatabaseSchemaSuspenseQueryKey } from './react-query/hooks/useGetDatabaseSchemaSuspense'
@@ -60,6 +62,7 @@ export type { UpdateAgentMutationKey } from './react-query/hooks/useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './react-query/hooks/useUpdateAgentConfiguration'
 export type { UpdateConnectionMutationKey } from './react-query/hooks/useUpdateConnection'
 export type { UpdateConversationMutationKey } from './react-query/hooks/useUpdateConversation'
+export type { UpdateConversationConfigurationMutationKey } from './react-query/hooks/useUpdateConversationConfiguration'
 export type { UpdateSourceMutationKey } from './react-query/hooks/useUpdateSource'
 export type { UpdateSourceFolderMutationKey } from './react-query/hooks/useUpdateSourceFolder'
 export type { UpdateSourceIndexesMutationKey } from './react-query/hooks/useUpdateSourceIndexes'
@@ -274,6 +277,18 @@ export type {
   GetConnection500Schema,
   GetConnectionQueryResponseSchema,
 } from './schemas/getConnectionSchema'
+export type {
+  GetConversationConfigurationPathParamsSchema,
+  GetConversationConfigurationQueryParamsSchema,
+  GetConversationConfiguration200Schema,
+  GetConversationConfiguration400Schema,
+  GetConversationConfiguration401Schema,
+  GetConversationConfiguration403Schema,
+  GetConversationConfiguration404Schema,
+  GetConversationConfiguration429Schema,
+  GetConversationConfiguration500Schema,
+  GetConversationConfigurationQueryResponseSchema,
+} from './schemas/getConversationConfigurationSchema'
 export type {
   GetConversationPathParamsSchema,
   GetConversationQueryParamsSchema,
@@ -553,6 +568,18 @@ export type {
   UpdateConnectionMutationRequestSchema,
   UpdateConnectionMutationResponseSchema,
 } from './schemas/updateConnectionSchema'
+export type {
+  UpdateConversationConfigurationPathParamsSchema,
+  UpdateConversationConfiguration204Schema,
+  UpdateConversationConfiguration400Schema,
+  UpdateConversationConfiguration401Schema,
+  UpdateConversationConfiguration403Schema,
+  UpdateConversationConfiguration404Schema,
+  UpdateConversationConfiguration429Schema,
+  UpdateConversationConfiguration500Schema,
+  UpdateConversationConfigurationMutationRequestSchema,
+  UpdateConversationConfigurationMutationResponseSchema,
+} from './schemas/updateConversationConfigurationSchema'
 export type {
   UpdateConversationPathParamsSchema,
   UpdateConversation204Schema,
@@ -899,6 +926,22 @@ export type {
   GetConversationQuery,
 } from './types/GetConversation'
 export type {
+  GetConversationConfigurationPathParams,
+  GetConversationConfigurationQueryParams,
+  LanguageModelSettingsProviderEnum3,
+  LanguageModelSettingsTypeEnum2,
+  PromptMessagesRoleEnum3,
+  GetConversationConfiguration200,
+  GetConversationConfiguration400,
+  GetConversationConfiguration401,
+  GetConversationConfiguration403,
+  GetConversationConfiguration404,
+  GetConversationConfiguration429,
+  GetConversationConfiguration500,
+  GetConversationConfigurationQueryResponse,
+  GetConversationConfigurationQuery,
+} from './types/GetConversationConfiguration'
+export type {
   GetDatabaseSchemaPathParams,
   GetDatabaseSchemaQueryParams,
   GetDatabaseSchema200,
@@ -1033,7 +1076,6 @@ export type {
 export type {
   ListMessagesPathParams,
   ListMessagesQueryParams,
-  PromptMessagesRoleEnum3,
   MessagesStatusEnum,
   MessagesRoleEnum,
   PartsTypeEnum,
@@ -1454,6 +1496,22 @@ export type {
   UpdateConversationMutation,
 } from './types/UpdateConversation'
 export type {
+  UpdateConversationConfigurationPathParams,
+  UpdateConversationConfiguration204Enum,
+  UpdateConversationConfiguration204,
+  UpdateConversationConfiguration400,
+  UpdateConversationConfiguration401,
+  UpdateConversationConfiguration403,
+  UpdateConversationConfiguration404,
+  UpdateConversationConfiguration429,
+  UpdateConversationConfiguration500,
+  LanguageModelSettingsProviderEnum4,
+  PromptMessagesRoleEnum4,
+  UpdateConversationConfigurationMutationRequest,
+  UpdateConversationConfigurationMutationResponse,
+  UpdateConversationConfigurationMutation,
+} from './types/UpdateConversationConfiguration'
+export type {
   UpdateSourcePathParams,
   UpdateSource204Enum,
   UpdateSource204,
@@ -1559,6 +1617,7 @@ export { getAgent } from './operations/getAgent'
 export { getAgentConfiguration } from './operations/getAgentConfiguration'
 export { getConnection } from './operations/getConnection'
 export { getConversation } from './operations/getConversation'
+export { getConversationConfiguration } from './operations/getConversationConfiguration'
 export { getDatabaseSchema } from './operations/getDatabaseSchema'
 export { getFile } from './operations/getFile'
 export { getProfile } from './operations/getProfile'
@@ -1583,6 +1642,7 @@ export { updateAgent } from './operations/updateAgent'
 export { updateAgentConfiguration } from './operations/updateAgentConfiguration'
 export { updateConnection } from './operations/updateConnection'
 export { updateConversation } from './operations/updateConversation'
+export { updateConversationConfiguration } from './operations/updateConversationConfiguration'
 export { updateSource } from './operations/updateSource'
 export { updateSourceFolder } from './operations/updateSourceFolder'
 export { updateSourceIndexes } from './operations/updateSourceIndexes'
@@ -1684,6 +1744,16 @@ export {
   getConversationQueryOptions,
   useGetConversation,
 } from './react-query/hooks/useGetConversation'
+export {
+  getConversationConfigurationQueryKey,
+  getConversationConfigurationQueryOptions,
+  useGetConversationConfiguration,
+} from './react-query/hooks/useGetConversationConfiguration'
+export {
+  getConversationConfigurationSuspenseQueryKey,
+  getConversationConfigurationSuspenseQueryOptions,
+  useGetConversationConfigurationSuspense,
+} from './react-query/hooks/useGetConversationConfigurationSuspense'
 export {
   getConversationSuspenseQueryKey,
   getConversationSuspenseQueryOptions,
@@ -1875,6 +1945,10 @@ export {
   updateConversationMutationKey,
   useUpdateConversation,
 } from './react-query/hooks/useUpdateConversation'
+export {
+  updateConversationConfigurationMutationKey,
+  useUpdateConversationConfiguration,
+} from './react-query/hooks/useUpdateConversationConfiguration'
 export {
   updateSourceMutationKey,
   useUpdateSource,
@@ -2107,6 +2181,18 @@ export {
   getConnection500Schema,
   getConnectionQueryResponseSchema,
 } from './schemas/getConnectionSchema'
+export {
+  getConversationConfigurationPathParamsSchema,
+  getConversationConfigurationQueryParamsSchema,
+  getConversationConfiguration200Schema,
+  getConversationConfiguration400Schema,
+  getConversationConfiguration401Schema,
+  getConversationConfiguration403Schema,
+  getConversationConfiguration404Schema,
+  getConversationConfiguration429Schema,
+  getConversationConfiguration500Schema,
+  getConversationConfigurationQueryResponseSchema,
+} from './schemas/getConversationConfigurationSchema'
 export {
   getConversationPathParamsSchema,
   getConversationQueryParamsSchema,
@@ -2387,6 +2473,18 @@ export {
   updateConnectionMutationResponseSchema,
 } from './schemas/updateConnectionSchema'
 export {
+  updateConversationConfigurationPathParamsSchema,
+  updateConversationConfiguration204Schema,
+  updateConversationConfiguration400Schema,
+  updateConversationConfiguration401Schema,
+  updateConversationConfiguration403Schema,
+  updateConversationConfiguration404Schema,
+  updateConversationConfiguration429Schema,
+  updateConversationConfiguration500Schema,
+  updateConversationConfigurationMutationRequestSchema,
+  updateConversationConfigurationMutationResponseSchema,
+} from './schemas/updateConversationConfigurationSchema'
+export {
   updateConversationPathParamsSchema,
   updateConversation204Schema,
   updateConversation400Schema,
@@ -2496,6 +2594,11 @@ export {
 } from './types/GetAgentConfiguration'
 export { connectionAppEnum } from './types/GetConnection'
 export { conversationVisibilityEnum } from './types/GetConversation'
+export {
+  languageModelSettingsProviderEnum3,
+  languageModelSettingsTypeEnum2,
+  promptMessagesRoleEnum3,
+} from './types/GetConversationConfiguration'
 export { fileBucketEnum, fileScopeEnum } from './types/GetFile'
 export { providerProviderEnum } from './types/GetProvider'
 export { sourceTypeEnum, sourceStatusEnum } from './types/GetSource'
@@ -2508,7 +2611,6 @@ export {
   conversationsVisibilityEnum,
 } from './types/ListConversations'
 export {
-  promptMessagesRoleEnum3,
   messagesStatusEnum,
   messagesRoleEnum,
   partsTypeEnum,
@@ -2763,6 +2865,11 @@ export {
 } from './types/UpdateAgentConfiguration'
 export { updateConnection204Enum } from './types/UpdateConnection'
 export { updateConversation204Enum } from './types/UpdateConversation'
+export {
+  updateConversationConfiguration204Enum,
+  languageModelSettingsProviderEnum4,
+  promptMessagesRoleEnum4,
+} from './types/UpdateConversationConfiguration'
 export { updateSource204Enum } from './types/UpdateSource'
 export { updateSourceFolder204Enum } from './types/UpdateSourceFolder'
 export { updateSourceIndexes204Enum } from './types/UpdateSourceIndexes'

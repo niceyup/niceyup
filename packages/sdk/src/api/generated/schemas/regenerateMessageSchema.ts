@@ -301,6 +301,7 @@ export const regenerateMessage200Schema = z
       authorId: z.string().nullable().nullish(),
       parentId: z.string().nullable().nullish(),
       children: z.array(z.string()).optional(),
+      temporaryId: z.string().optional(),
     }),
   })
   .describe('Success') as unknown as ToZod<RegenerateMessage200>
@@ -404,6 +405,7 @@ export const regenerateMessageMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
   agentId: z.string(),
+  temporaryMessageId: z.string().optional(),
 }) as unknown as ToZod<RegenerateMessageMutationRequest>
 
 export type RegenerateMessageMutationRequestSchema =

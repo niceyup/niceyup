@@ -41,6 +41,7 @@ const messageSchema = z.object({
   authorId: z.string().nullish(),
   parentId: z.string().nullish(),
   children: z.array(z.string()).optional(),
+  temporaryId: z.string().optional(),
 })
 
 export async function resendMessage(app: FastifyTypedInstance) {
@@ -63,6 +64,12 @@ export async function resendMessage(app: FastifyTypedInstance) {
             parts: z.array(promptMessagePartSchema).nonempty(),
             metadata: aiMessageMetadataSchema.nullish(),
           }),
+          temporaryMessageId: z
+            .string()
+            .optional()
+            .describe(
+              'Client-side temporary message identifier (not persisted)',
+            ),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -86,6 +93,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
         organizationSlug,
         agentId,
         message: newMessage,
+        temporaryMessageId,
       } = request.body
 
       const { context } = await resolveMembershipContext({
@@ -203,12 +211,20 @@ export async function resendMessage(app: FastifyTypedInstance) {
         assistantMessage,
       })
 
+      const userMessageWithTemporaryId = {
+        ...userMessage,
+        temporaryId: temporaryMessageId,
+      }
+
       conversationPubSub.publish({
         channel: `conversations:${conversationId}:updated`,
-        messages: [userMessage, assistantMessage],
+        messages: [userMessageWithTemporaryId, assistantMessage],
       })
 
-      return { userMessage, assistantMessage }
+      return {
+        userMessage: userMessageWithTemporaryId,
+        assistantMessage,
+      }
     },
   )
 }

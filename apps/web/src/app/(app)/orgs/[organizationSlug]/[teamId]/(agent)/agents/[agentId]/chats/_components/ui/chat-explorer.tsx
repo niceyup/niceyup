@@ -51,7 +51,7 @@ import {
   getItemInConversationExplorerNode,
   updateNameOfItemInConversationExplorerNode,
   updateParentIdOfItemsInConversationExplorerNode,
-} from '../_actions/conversation-explorer-nodes'
+} from '../../_actions/conversation-explorer-nodes'
 
 // ============================================================================
 // Provider Context & Types

@@ -207,6 +207,18 @@ export type {
   GetConnectionQueryResponseSchema,
 } from './getConnectionSchema'
 export type {
+  GetConversationConfigurationPathParamsSchema,
+  GetConversationConfigurationQueryParamsSchema,
+  GetConversationConfiguration200Schema,
+  GetConversationConfiguration400Schema,
+  GetConversationConfiguration401Schema,
+  GetConversationConfiguration403Schema,
+  GetConversationConfiguration404Schema,
+  GetConversationConfiguration429Schema,
+  GetConversationConfiguration500Schema,
+  GetConversationConfigurationQueryResponseSchema,
+} from './getConversationConfigurationSchema'
+export type {
   GetConversationPathParamsSchema,
   GetConversationQueryParamsSchema,
   GetConversation200Schema,
@@ -485,6 +497,18 @@ export type {
   UpdateConnectionMutationRequestSchema,
   UpdateConnectionMutationResponseSchema,
 } from './updateConnectionSchema'
+export type {
+  UpdateConversationConfigurationPathParamsSchema,
+  UpdateConversationConfiguration204Schema,
+  UpdateConversationConfiguration400Schema,
+  UpdateConversationConfiguration401Schema,
+  UpdateConversationConfiguration403Schema,
+  UpdateConversationConfiguration404Schema,
+  UpdateConversationConfiguration429Schema,
+  UpdateConversationConfiguration500Schema,
+  UpdateConversationConfigurationMutationRequestSchema,
+  UpdateConversationConfigurationMutationResponseSchema,
+} from './updateConversationConfigurationSchema'
 export type {
   UpdateConversationPathParamsSchema,
   UpdateConversation204Schema,
@@ -778,6 +802,18 @@ export {
   getConnectionQueryResponseSchema,
 } from './getConnectionSchema'
 export {
+  getConversationConfigurationPathParamsSchema,
+  getConversationConfigurationQueryParamsSchema,
+  getConversationConfiguration200Schema,
+  getConversationConfiguration400Schema,
+  getConversationConfiguration401Schema,
+  getConversationConfiguration403Schema,
+  getConversationConfiguration404Schema,
+  getConversationConfiguration429Schema,
+  getConversationConfiguration500Schema,
+  getConversationConfigurationQueryResponseSchema,
+} from './getConversationConfigurationSchema'
+export {
   getConversationPathParamsSchema,
   getConversationQueryParamsSchema,
   getConversation200Schema,
@@ -1056,6 +1092,18 @@ export {
   updateConnectionMutationRequestSchema,
   updateConnectionMutationResponseSchema,
 } from './updateConnectionSchema'
+export {
+  updateConversationConfigurationPathParamsSchema,
+  updateConversationConfiguration204Schema,
+  updateConversationConfiguration400Schema,
+  updateConversationConfiguration401Schema,
+  updateConversationConfiguration403Schema,
+  updateConversationConfiguration404Schema,
+  updateConversationConfiguration429Schema,
+  updateConversationConfiguration500Schema,
+  updateConversationConfigurationMutationRequestSchema,
+  updateConversationConfigurationMutationResponseSchema,
+} from './updateConversationConfigurationSchema'
 export {
   updateConversationPathParamsSchema,
   updateConversation204Schema,

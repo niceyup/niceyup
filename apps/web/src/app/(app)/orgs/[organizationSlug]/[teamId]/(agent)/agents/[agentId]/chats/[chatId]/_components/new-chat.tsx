@@ -10,6 +10,7 @@ import {
   Suggestions,
 } from '@workspace/ui/components/ai-elements/suggestion'
 import * as React from 'react'
+import { useChatOptions } from '../../_store/use-chat-options'
 import { ChatPromptInput, ChatProvider } from './chat'
 
 type Params = OrganizationTeamParams & AgentParams & ChatParams
@@ -21,6 +22,8 @@ export function NewChat({
   params: Params
   suggestions?: string[] | null
 }) {
+  const { visibility, explorerNode } = useChatOptions()
+
   const [suggestion, setSuggestion] = React.useState<string>('')
 
   const handleSuggestionClick = (suggestion: string) => {
@@ -40,8 +43,8 @@ export function NewChat({
           ))}
         </Suggestions>
 
-        <ChatProvider params={params}>
-          <ChatPromptInput suggestion={suggestion} />
+        <ChatProvider params={params} options={{ visibility, explorerNode }}>
+          <ChatPromptInput suggestion={suggestion} newChat />
         </ChatProvider>
       </div>
     </div>

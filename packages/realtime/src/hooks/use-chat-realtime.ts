@@ -2,6 +2,7 @@
 
 import type { ConversationVisibility } from '@workspace/core/conversations'
 import * as React from 'react'
+import { env } from '../lib/env'
 import type { AIMessageNode } from '../lib/types'
 
 type ContextParams = {
@@ -36,10 +37,11 @@ export function useChatRealtime({ params, visibility }: UseChatRealtimeParams) {
     try {
       const searchParams = new URLSearchParams({
         organizationSlug: params.organizationSlug,
+        agentId: params.agentId,
       })
 
       const url = new URL(
-        `/api/ws/conversations/${params.chatId}/messages/realtime?${searchParams}`,
+        `${env.NEXT_PUBLIC_WEBSOCKET_URL}/api/ws/conversations/${params.chatId}/messages?${searchParams}`,
       )
 
       websocket = new WebSocket(url)
