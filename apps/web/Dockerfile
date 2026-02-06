@@ -35,14 +35,14 @@ COPY --from=builder /app/out/full/ .
 # Environment variables
 COPY --from=builder /app/.env .env
 
-ENV NEXT_CONFIG_OUTPUT standalone
+ENV NEXT_CONFIG_OUTPUT=standalone
 
 # Uncomment and use build args to enable remote caching
 # ARG TURBO_TEAM
-# ENV TURBO_TEAM $TURBO_TEAM
+# ENV TURBO_TEAM=$TURBO_TEAM
 
 # ARG TURBO_TOKEN
-# ENV TURBO_TOKEN $TURBO_TOKEN
+# ENV TURBO_TOKEN=$TURBO_TOKEN
 
 RUN pnpm turbo run build
 
@@ -64,8 +64,9 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD HOSTNAME="0.0.0.0" node apps/web/server.js
+CMD ["node", "apps/web/server.js"]

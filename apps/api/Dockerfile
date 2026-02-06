@@ -37,10 +37,10 @@ COPY --from=builder /app/.env .env
 
 # Uncomment and use build args to enable remote caching
 # ARG TURBO_TEAM
-# ENV TURBO_TEAM $TURBO_TEAM
+# ENV TURBO_TEAM=$TURBO_TEAM
 
 # ARG TURBO_TOKEN
-# ENV TURBO_TOKEN $TURBO_TOKEN
+# ENV TURBO_TOKEN=$TURBO_TOKEN
 
 RUN pnpm turbo run build
 
@@ -61,6 +61,6 @@ USER fastify
 
 EXPOSE 3333
 
-ENV PORT 3333
+ENV PORT=3333
 
-CMD node apps/api/dist/http/server.js
+CMD ["node", "apps/api/dist/http/server.js"]

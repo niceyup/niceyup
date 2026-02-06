@@ -2,8 +2,8 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: ['src/**/*.ts'],
-  splitting: false,
-  sourcemap: true,
+  splitting: true, // split the code into smaller chunks
+  sourcemap: false, // disable sourcemaps (temporary)
   clean: true,
   noExternal: [
     '@workspace/ai',

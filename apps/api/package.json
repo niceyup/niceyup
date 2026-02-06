@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm with-env tsx watch src/http/server.ts",
-    "build": "NODE_OPTIONS='--max-old-space-size=4096' pnpm with-env tsup",
+    "build": "pnpm with-env tsup",
     "start": "pnpm with-env node dist/http/server.js",
     "clean": "rm -rf dist .turbo node_modules",
     "lint": "biome check .",
