@@ -7,7 +7,7 @@ import type { MultipartFile } from '@fastify/multipart'
 import { queries } from '@workspace/db/queries'
 import type { FileMetadata } from '@workspace/db/types'
 import { storage } from '@workspace/storage'
-import { sign, verify } from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 export type FileBucket = 'default' | 'engine'
 
@@ -47,7 +47,7 @@ type GenerateSignatureForUploadParams<T> = {
 export function generateSignatureForUpload<T>(
   params: GenerateSignatureForUploadParams<T>,
 ) {
-  const signature = sign(
+  const signature = jwt.sign(
     params.payload,
     `${params.key ? `${params.key}:` : ''}${env.UPLOAD_SECRET}`,
     {
@@ -67,7 +67,7 @@ export function verifySignatureForUpload<T>(
   params: VerifySignatureForUploadParams,
 ) {
   try {
-    const payload = verify(
+    const payload = jwt.verify(
       params.signature,
       `${params.key ? `${params.key}:` : ''}${env.UPLOAD_SECRET}`,
     ) as FileUploadPayload<T>
