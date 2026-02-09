@@ -31,12 +31,12 @@ export function EditSystemMessageForm({
   systemMessage,
 }: {
   params: Params
-  systemMessage: string | null
+  systemMessage: string
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      systemMessage: systemMessage || '',
+      systemMessage,
     },
   })
 

@@ -627,12 +627,7 @@ function ChatUserMessage() {
         'group-[.is-other-user]:ml-0 group-[.is-other-user]:justify-start',
       )}
     >
-      <Avatar className="hidden size-8 group-[.is-other-user]:block">
-        {/* {user.image && <AvatarImage src={user.image} />} */}
-        <AvatarFallback className="text-xs">
-          {/* {getInitials(user.name)} */}
-        </AvatarFallback>
-      </Avatar>
+      <ChatUserMessageAvatar />
 
       <div
         ref={contentRef}
@@ -665,6 +660,24 @@ function ChatUserMessage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function ChatUserMessageAvatar() {
+  return null
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Avatar className="hidden size-8 group-[.is-other-user]:block">
+          {/* {user.image && <AvatarImage src={user.image} />} */}
+          <AvatarFallback className="text-xs">
+            {/* {getInitials(user.name)} */}
+          </AvatarFallback>
+        </Avatar>
+      </TooltipTrigger>
+      <TooltipContent>{/* {user.name} */}</TooltipContent>
+    </Tooltip>
   )
 }
 

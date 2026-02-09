@@ -130,26 +130,24 @@ export type GetAgentConfiguration200 = {
     /**
      * @type string
      */
-    systemMessage: string | null
+    systemMessage: string
     /**
      * @type array
      */
-    promptMessages:
-      | {
-          /**
-           * @type string
-           */
-          role: PromptMessagesRoleEnum
-          /**
-           * @type string
-           */
-          content: string
-        }[]
-      | null
+    promptMessages: {
+      /**
+       * @type string
+       */
+      role: PromptMessagesRoleEnum
+      /**
+       * @type string
+       */
+      content: string
+    }[]
     /**
      * @type array
      */
-    suggestions: string[] | null
+    suggestions: string[]
     /**
      * @type boolean
      */

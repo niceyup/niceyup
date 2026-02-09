@@ -50,12 +50,12 @@ export function EditPromptMessageForm({
   promptMessages,
 }: {
   params: Params
-  promptMessages: PromptMessage[] | null
+  promptMessages: PromptMessage[]
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      promptMessages: promptMessages || [],
+      promptMessages,
     },
   })
 

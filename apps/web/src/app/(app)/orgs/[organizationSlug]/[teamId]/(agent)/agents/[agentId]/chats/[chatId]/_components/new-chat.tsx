@@ -20,7 +20,7 @@ export function NewChat({
   suggestions,
 }: {
   params: Params
-  suggestions?: string[] | null
+  suggestions?: string[]
 }) {
   const { visibility, explorerNode } = useChatOptions()
 

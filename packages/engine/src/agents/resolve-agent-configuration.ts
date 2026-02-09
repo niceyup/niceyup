@@ -44,7 +44,8 @@ export async function resolveAgentConfiguration(params: {
 
   const suggestions = agentConfiguration.suggestions || []
 
-  const enableSourceRetrievalTool = agentConfiguration.enableSourceRetrievalTool
+  const enableSourceRetrievalTool =
+    agentConfiguration.enableSourceRetrievalTool || false
 
   // TODO: make this dynamic based on the agent's configuration
   const topK = 20

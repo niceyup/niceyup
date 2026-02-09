@@ -60,16 +60,14 @@ export const getAgentConfiguration200Schema = z
           options: z.object({}).catchall(z.any()).nullable().nullish(),
         })
         .nullable(),
-      systemMessage: z.string().nullable(),
-      promptMessages: z
-        .array(
-          z.object({
-            role: z.enum(['user', 'assistant']),
-            content: z.string(),
-          }),
-        )
-        .nullable(),
-      suggestions: z.array(z.string()).nullable(),
+      systemMessage: z.string(),
+      promptMessages: z.array(
+        z.object({
+          role: z.enum(['user', 'assistant']),
+          content: z.string(),
+        }),
+      ),
+      suggestions: z.array(z.string()),
       enableSourceRetrievalTool: z.boolean(),
     }),
   })

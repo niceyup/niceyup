@@ -139,9 +139,9 @@ export const agents = pgTable('agents', {
   promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
   suggestions: jsonb('suggestions').$type<string[]>(),
 
-  enableSourceRetrievalTool: boolean('enable_source_retrieval_tool') // temporary flag to enable or disable the source retrieval tool
-    .notNull()
-    .default(false),
+  enableSourceRetrievalTool: boolean('enable_source_retrieval_tool').default(
+    false,
+  ), // temporary flag to enable or disable the source retrieval tool
 
   organizationId: text('organization_id').references(() => organizations.id, {
     onDelete: 'cascade',

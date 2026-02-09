@@ -41,12 +41,12 @@ export function EditSuggestionsForm({
   suggestions,
 }: {
   params: Params
-  suggestions: string[] | null
+  suggestions: string[]
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      suggestions: (suggestions || []).map((s) => ({ value: s })),
+      suggestions: suggestions.map((s) => ({ value: s })),
     },
   })
 

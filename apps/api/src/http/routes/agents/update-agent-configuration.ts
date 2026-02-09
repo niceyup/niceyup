@@ -202,10 +202,7 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
               systemMessage,
               promptMessages,
               suggestions,
-              enableSourceRetrievalTool:
-                enableSourceRetrievalTool !== undefined
-                  ? (enableSourceRetrievalTool ?? false)
-                  : undefined,
+              enableSourceRetrievalTool,
             })
             .where(eq(agents.id, agentId))
         }

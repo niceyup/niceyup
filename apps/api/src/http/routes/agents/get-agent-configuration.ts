@@ -39,16 +39,14 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
                 id: z.string(),
                 languageModelSettings: modelSettingsSchema.nullable(),
                 embeddingModelSettings: modelSettingsSchema.nullable(),
-                systemMessage: z.string().nullable(),
-                promptMessages: z
-                  .array(
-                    z.object({
-                      role: z.enum(['user', 'assistant']),
-                      content: z.string(),
-                    }),
-                  )
-                  .nullable(),
-                suggestions: z.array(z.string()).nullable(),
+                systemMessage: z.string(),
+                promptMessages: z.array(
+                  z.object({
+                    role: z.enum(['user', 'assistant']),
+                    content: z.string(),
+                  }),
+                ),
+                suggestions: z.array(z.string()),
                 enableSourceRetrievalTool: z.boolean(),
               }),
             })
