@@ -139,6 +139,10 @@ export const agents = pgTable('agents', {
   promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
   suggestions: jsonb('suggestions').$type<string[]>(),
 
+  enableSourceRetrievalTool: boolean('enable_source_retrieval_tool') // temporary flag to enable or disable the source retrieval tool
+    .notNull()
+    .default(false),
+
   organizationId: text('organization_id').references(() => organizations.id, {
     onDelete: 'cascade',
   }),
@@ -281,7 +285,7 @@ export const participantsRelations = relations(participants, ({ one }) => ({
 
 export const providers = pgTable('providers', {
   ...id,
-  provider: text('provider').notNull().unique().$type<Provider>(),
+  provider: text('provider').notNull().$type<Provider>(),
   credentials: encryptedJson('credentials').$type<ProviderCredentials>(),
 
   organizationId: text('organization_id').references(() => organizations.id, {

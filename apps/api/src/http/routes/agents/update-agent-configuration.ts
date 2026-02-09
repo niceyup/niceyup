@@ -40,6 +40,7 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
           systemMessage: z.string().nullish(),
           promptMessages: z.array(promptMessageSchema).nullish(),
           suggestions: z.array(z.string()).nullish(),
+          enableSourceRetrievalTool: z.boolean().nullish(),
         }),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),
@@ -61,6 +62,7 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
         systemMessage,
         promptMessages,
         suggestions,
+        enableSourceRetrievalTool,
       } = request.body
 
       const { context } = await resolveMembershipContext({
@@ -191,7 +193,8 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
         if (
           systemMessage !== undefined ||
           promptMessages !== undefined ||
-          suggestions !== undefined
+          suggestions !== undefined ||
+          enableSourceRetrievalTool !== undefined
         ) {
           await tx
             .update(agents)
@@ -199,6 +202,10 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
               systemMessage,
               promptMessages,
               suggestions,
+              enableSourceRetrievalTool:
+                enableSourceRetrievalTool !== undefined
+                  ? (enableSourceRetrievalTool ?? false)
+                  : undefined,
             })
             .where(eq(agents.id, agentId))
         }

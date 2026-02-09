@@ -10,7 +10,7 @@ type ContextParams = {
   chatId: 'new' | '$id'
 }
 
-type StreamMessageActionParams = (
+type ServerActionParams = (
   context: ContextParams,
   params: { conversationId: string; messageId: string },
 ) => Promise<
@@ -21,45 +21,28 @@ type StreamMessageActionParams = (
 type UseChatMessageRealtimeParams = {
   params: ContextParams
   messageId: string
-  streamMessageAction: StreamMessageActionParams
-  onMessageChunk?: (message: AIMessage) => void
+  serverAction: ServerActionParams
+  onChunk?: (message: AIMessage) => void
   disable?: boolean
 }
 
 export function useChatMessageRealtime({
   params,
   messageId,
-  streamMessageAction,
-  onMessageChunk,
+  serverAction,
+  onChunk,
   disable,
 }: UseChatMessageRealtimeParams) {
+  const [isStreaming, startStreaming] = React.useTransition()
+
   const [error, setError] = React.useState<string>()
-  const [message, setMessage] = React.useState<AIMessage>()
+  const [data, setData] = React.useState<AIMessage>()
 
-  async function startStreaming() {
-    try {
-      const { data, error } = await streamMessageAction(params, {
-        conversationId: params.chatId,
-        messageId,
-      })
+  const serverActionRef = React.useRef(serverAction)
+  const onChunkRef = React.useRef(onChunk)
 
-      if (error) {
-        throw new Error(error.message)
-      }
-
-      for await (const message of readStreamableValue<AIMessage>(data)) {
-        if (message) {
-          onMessageChunk?.(message)
-          setMessage(message)
-        }
-      }
-    } catch (error) {
-      setError(
-        (error as any)?.message ||
-          'An error occurred while connecting to the server',
-      )
-    }
-  }
+  serverActionRef.current = serverAction
+  onChunkRef.current = onChunk
 
   React.useEffect(() => {
     if (
@@ -73,7 +56,30 @@ export function useChatMessageRealtime({
       return
     }
 
-    startStreaming()
+    startStreaming(async () => {
+      try {
+        const { data, error } = await serverActionRef.current(params, {
+          conversationId: params.chatId,
+          messageId,
+        })
+
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        for await (const message of readStreamableValue<AIMessage>(data)) {
+          if (message) {
+            onChunkRef.current?.(message)
+            setData(message)
+          }
+        }
+      } catch (error) {
+        setError(
+          (error as any)?.message ||
+            'An error occurred while connecting to the server',
+        )
+      }
+    })
   }, [
     params.organizationSlug,
     params.agentId,
@@ -82,5 +88,5 @@ export function useChatMessageRealtime({
     disable,
   ])
 
-  return { message, error }
+  return { isStreaming, data, error }
 }

@@ -17,6 +17,7 @@ import {
   selectionFeature,
 } from '@headless-tree/core'
 import { AssistiveTreeDescription, useTree } from '@headless-tree/react'
+import { useChatsRealtime } from '@workspace/realtime/hooks'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -313,6 +314,26 @@ export function ChatExplorerProvider({
       onSelectedFolderPath(parentItems.reverse())
     }
   }, [selectedItems])
+
+  useChatsRealtime({
+    params,
+    visibility,
+    view: 'explorer',
+    onData: async ({ data }) => {
+      const itemInstance = tree.getItemInstance(data.item.id)
+
+      console.log('data', data)
+      console.log('itemInstance', itemInstance)
+
+      // const parentItemInstance = itemInstance.getParent()
+
+      // if (parentItemInstance?.isFolder()) {
+      //   await parentItemInstance.invalidateChildrenIds(true)
+      // } else {
+      //   await itemInstance.invalidateItemData(true)
+      // }
+    },
+  })
 
   const contextValue: ChatExplorerContextType = {
     params,

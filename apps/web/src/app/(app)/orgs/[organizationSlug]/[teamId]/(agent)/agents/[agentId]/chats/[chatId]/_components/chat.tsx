@@ -62,11 +62,17 @@ import {
 import { InputGroup } from '@workspace/ui/components/input-group'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Spinner } from '@workspace/ui/components/spinner'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@workspace/ui/components/tooltip'
 import { useResizeObserver } from '@workspace/ui/hooks/use-resize-observer'
 import { cn } from '@workspace/ui/lib/utils'
 import {
   AlertCircleIcon,
   CopyIcon,
+  LockIcon,
   MessageSquare,
   PencilIcon,
   RefreshCcwIcon,
@@ -200,6 +206,7 @@ type ChatMessageContextType = {
   parts: MessageParts
   updateMessage: (updatedMessage: Omit<Partial<MessageType>, 'id'>) => void
   streaming: boolean
+  processing: boolean
   editing: boolean
   setEditing: (editing: boolean) => void
 }
@@ -233,14 +240,15 @@ export function ChatMessageProvider({
 
   const mergedMessage = { ...message, ...updatedMessage }
 
+  const processing =
+    mergedMessage.status === 'queued' || mergedMessage.status === 'processing'
+
   const contextValue: ChatMessageContextType = {
     message: mergedMessage,
     parts: extractMessageParts(mergedMessage),
     updateMessage: setUpdatedMessage,
-    streaming:
-      mergedMessage.role === 'assistant' &&
-      (mergedMessage.status === 'queued' ||
-        mergedMessage.status === 'processing'),
+    streaming: mergedMessage.role === 'assistant' && processing,
+    processing,
     editing,
     setEditing,
   }
@@ -263,8 +271,14 @@ export function ChatPromptInput({
   suggestion?: string
   newChat?: boolean
 }) {
-  const { sendMessage, stopMessage, promptInputStatus, uploading, uploadFile } =
-    useChatContext()
+  const {
+    params,
+    sendMessage,
+    stopMessage,
+    promptInputStatus,
+    uploading,
+    uploadFile,
+  } = useChatContext()
 
   const { visibility, setVisibility } = useChatOptions()
 
@@ -307,6 +321,20 @@ export function ChatPromptInput({
     }))
 
     await sendMessage({ parts: [textPart, ...fileParts] })
+  }
+
+  React.useEffect(() => {
+    if (params.teamId === '~') {
+      setVisibility('private')
+    }
+  }, [params.teamId])
+
+  const handleVisibilitySwitch = () => {
+    if (visibility === 'team') {
+      setVisibility('private')
+    } else {
+      setVisibility('team')
+    }
   }
 
   return (
@@ -353,17 +381,27 @@ export function ChatPromptInput({
 
         <PromptInputTools>
           {newChat && (
-            <PromptInputButton
-              variant={visibility === 'team' ? 'secondary' : 'ghost'}
-              onClick={() =>
-                visibility === 'private'
-                  ? setVisibility('team')
-                  : setVisibility('private')
-              }
-            >
-              <UsersIcon />
-              Team
-            </PromptInputButton>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-block w-fit">
+                  <PromptInputButton
+                    variant="secondary"
+                    onClick={handleVisibilitySwitch}
+                    disabled={params.teamId === '~'}
+                  >
+                    {visibility === 'team' ? <UsersIcon /> : <LockIcon />}
+                    {visibility === 'team' ? 'Team' : 'Private'}
+                  </PromptInputButton>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {params.teamId === '~'
+                  ? 'Select a team first'
+                  : visibility === 'team'
+                    ? 'Switch to team'
+                    : 'Switch to private'}
+              </TooltipContent>
+            </Tooltip>
           )}
           <PromptInputSubmit
             status={promptInputStatus}
@@ -398,12 +436,12 @@ export function ChatConversation() {
 }
 
 function ChatConversationMessages() {
-  const { messages, getMessageNodeChildIdsById } = useChatContext()
+  const { messages, getMessageChildren } = useChatContext()
 
   return (
     <>
       {messages.map((message, i) => {
-        const siblings = getMessageNodeChildIdsById(message.parentId)
+        const siblings = getMessageChildren(message.parentId)
 
         if (siblings.length > 1) {
           return (
@@ -452,7 +490,7 @@ function ChatMessageBranch({
   message: ChatMessageNode
   siblings: string[]
 }) {
-  const { getMessageNodeById, handleBranchChange } = useChatContext()
+  const { getMessage, handleBranchChange } = useChatContext()
 
   return (
     <MessageBranch
@@ -477,10 +515,10 @@ function ChatMessageBranch({
             return <ChatMessage key={id} message={message} branch />
           }
 
-          // Sibling message node is already loaded
-          const siblingMessageNode = getMessageNodeById(id)
-          if (siblingMessageNode) {
-            return <ChatMessage key={id} message={siblingMessageNode} branch />
+          // Sibling message is already loaded
+          const siblingMessage = getMessage(id)
+          if (siblingMessage) {
+            return <ChatMessage key={id} message={siblingMessage} branch />
           }
 
           return (
@@ -490,7 +528,12 @@ function ChatMessageBranch({
               </MessageContent>
 
               <MessageToolbar>
-                <MessageBranchSelector className="opacity-25 transition-opacity group-hover:opacity-100 group-[.is-assistant]:order-1">
+                <MessageBranchSelector
+                  className={cn(
+                    'opacity-25 transition-opacity',
+                    'group-hover:opacity-100 group-[.is-assistant]:order-1',
+                  )}
+                >
                   <MessageBranchPrevious />
                   <MessageBranchPage />
                   <MessageBranchNext />
@@ -534,7 +577,12 @@ function ChatMessage({
 
         <MessageToolbar className="group-[.is-other-user]:justify-start!">
           {branch && (
-            <MessageBranchSelector className="opacity-25 transition-opacity group-hover:opacity-100 group-[.is-assistant]:order-1 group-[.is-other-user]:order-1">
+            <MessageBranchSelector
+              className={cn(
+                'opacity-25 transition-opacity',
+                'group-hover:opacity-100 group-[.is-assistant]:order-1 group-[.is-other-user]:order-1',
+              )}
+            >
               <MessageBranchPrevious />
               <MessageBranchPage />
               <MessageBranchNext />
@@ -601,7 +649,11 @@ function ChatUserMessage() {
         <div
           data-enable-show-more={!isPrivate && isContentTooTall}
           data-show-more={showMore}
-          className="ml-auto flex items-end justify-end [&[data-enable-show-more=false]]:hidden [&[data-show-more=false]]:absolute [&[data-show-more=false]]:inset-0 [&[data-show-more=false]]:bg-gradient-to-t [&[data-show-more=false]]:from-10% [&[data-show-more=false]]:from-background"
+          className={cn(
+            'ml-auto flex items-end justify-end',
+            'group-[.is-other-user]:ml-0 group-[.is-other-user]:justify-start',
+            '[&[data-enable-show-more=false]]:hidden [&[data-show-more=false]]:absolute [&[data-show-more=false]]:inset-0 [&[data-show-more=false]]:bg-gradient-to-t [&[data-show-more=false]]:from-10% [&[data-show-more=false]]:from-background',
+          )}
         >
           <Button
             variant="ghost"
@@ -719,7 +771,11 @@ function ChatUserMessageBodyEditing() {
 function ChatUserMessageContent() {
   const { parts } = useChatMessageContext()
 
-  return <MessageContent>{parts.text || <ChatEmptyMessage />}</MessageContent>
+  return (
+    <MessageContent className="group-[.is-other-user]:bg-secondary/50!">
+      {parts.text || <ChatEmptyMessage />}
+    </MessageContent>
+  )
 }
 
 // ============================================================================
@@ -763,7 +819,10 @@ function ChatAssistantMessage() {
       <div
         data-enable-show-more={!isPrivate && isContentTooTall}
         data-show-more={showMore}
-        className="flex items-end justify-start [&[data-enable-show-more=false]]:hidden [&[data-show-more=false]]:absolute [&[data-show-more=false]]:inset-0 [&[data-show-more=false]]:bg-gradient-to-t [&[data-show-more=false]]:from-10% [&[data-show-more=false]]:from-background"
+        className={cn(
+          'flex items-end justify-start',
+          '[&[data-enable-show-more=false]]:hidden [&[data-show-more=false]]:absolute [&[data-show-more=false]]:inset-0 [&[data-show-more=false]]:bg-gradient-to-t [&[data-show-more=false]]:from-10% [&[data-show-more=false]]:from-background',
+        )}
       >
         <Button
           variant="ghost"
@@ -784,9 +843,9 @@ function ChatAssistantMessageStreaming({
     params,
     authorId,
     chat,
-    updateMessageNodeById,
     setPromptInputStatus,
     setStreamingMessageId,
+    updateMessage: updateMessageNode,
   } = useChatContext()
   const { message, updateMessage, streaming } = useChatMessageContext()
   const { scrollToBottom } = useStickToBottomContext()
@@ -800,7 +859,7 @@ function ChatAssistantMessageStreaming({
         chunk.status === 'completed' ||
         chunk.status === 'failed'
       ) {
-        updateMessageNodeById(chunk.id, chunk)
+        updateMessageNode(chunk.id, chunk)
       }
 
       setStreamingMessageId(null)
@@ -816,11 +875,11 @@ function ChatAssistantMessageStreaming({
     }
   }
 
-  const { message: messageStream, error } = useChatMessageRealtime({
+  const { data, error } = useChatMessageRealtime({
     params,
     messageId: message.id,
-    streamMessageAction: streamMessage,
-    onMessageChunk: onChunk,
+    serverAction: streamMessage,
+    onChunk,
     disable: !streaming,
   })
 
@@ -829,7 +888,7 @@ function ChatAssistantMessageStreaming({
       <MessageContent>
         <ChatMessageFailed />
 
-        {messageStream && <ChatMessageResponseError error={error} />}
+        {data && <ChatMessageResponseError error={error} />}
       </MessageContent>
     )
   }
@@ -952,7 +1011,8 @@ function ChatMessageFailed() {
 
 function ChatMessageActions() {
   const { regenerateMessage } = useChatContext()
-  const { message, parts, editing, setEditing } = useChatMessageContext()
+  const { message, parts, streaming, processing, editing, setEditing } =
+    useChatMessageContext()
 
   const handleCopy = () => {
     navigator.clipboard.writeText(parts.text)
@@ -984,6 +1044,7 @@ function ChatMessageActions() {
           label="Retry"
           onClick={handleRetry}
           tooltip="Regenerate response"
+          disabled={streaming}
         >
           <RefreshCcwIcon />
         </MessageAction>
@@ -994,7 +1055,7 @@ function ChatMessageActions() {
           label="Edit"
           onClick={handleEdit}
           tooltip="Edit message"
-          disabled={editing}
+          disabled={processing || editing}
         >
           <PencilIcon fill={editing ? 'currentColor' : 'none'} />
         </MessageAction>

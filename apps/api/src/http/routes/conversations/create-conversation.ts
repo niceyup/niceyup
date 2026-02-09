@@ -10,6 +10,7 @@ import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { queries } from '@workspace/db/queries'
 import { conversations } from '@workspace/db/schema'
+import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
 
 export async function createConversation(app: FastifyTypedInstance) {
@@ -117,6 +118,8 @@ export async function createConversation(app: FastifyTypedInstance) {
             })
             .returning({
               id: conversations.id,
+              title: conversations.title,
+              updatedAt: conversations.updatedAt,
             })
 
           if (!conversation) {
@@ -148,6 +151,39 @@ export async function createConversation(app: FastifyTypedInstance) {
           return { conversation, itemExplorerNode: _itemExplorerNode }
         },
       )
+
+      // Realtime PubSub
+
+      if (visibility === 'team' && context.teamId) {
+        conversationPubSub.emitTeamConversations({
+          agentId,
+          teamId: context.teamId,
+          view: 'list',
+          data: {
+            action: 'create',
+            conversation: {
+              id: conversation.id,
+              title: conversation.title,
+              updatedAt: conversation.updatedAt.toISOString(),
+            },
+          },
+        })
+
+        if (itemExplorerNode) {
+          conversationPubSub.emitTeamConversations({
+            agentId,
+            teamId: context.teamId,
+            view: 'explorer',
+            data: {
+              action: 'create',
+              item: {
+                id: itemExplorerNode.id,
+                parentId: itemExplorerNode.parentId,
+              },
+            },
+          })
+        }
+      }
 
       return reply.status(201).send({
         conversationId: conversation.id,

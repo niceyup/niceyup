@@ -146,7 +146,8 @@ function SourceManagerContent({
             <Skeleton className="h-5 w-35 px-2" />
           ) : (
             <p className="px-2 text-muted-foreground text-xs">
-              {totalCount} of {sourceIds.length} source(s) selected.
+              {totalCount} of {sourceIds.length}{' '}
+              {sourceIds.length > 1 ? 'sources' : 'source'} selected.
             </p>
           )}
 

@@ -3,26 +3,27 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { conversationVisibilitySchema } from '@workspace/core/conversations'
 import { queries } from '@workspace/db/queries'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
 
-export async function realtimeMessages(app: FastifyTypedInstance) {
+export async function realtimeConversations(app: FastifyTypedInstance) {
   app.register(authenticate).get(
-    '/ws/conversations/:conversationId/messages',
+    '/ws/conversations',
     {
       websocket: true,
       schema: {
         tags: ['Conversations'],
-        description: 'Realtime messages',
-        operationId: 'realtimeMessages',
-        params: z.object({
-          conversationId: z.string(),
-        }),
+        description: 'Realtime conversations',
+        operationId: 'realtimeConversations',
         querystring: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
+          teamId: z.string().nullish(),
           agentId: z.string(),
+          visibility: conversationVisibilitySchema.default('private'),
+          view: z.enum(['list', 'explorer']).default('list'),
         }),
         response: withDefaultErrorResponses({
           200: z.unknown().describe('Success'),
@@ -34,32 +35,41 @@ export async function realtimeMessages(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { conversationId } = request.params
-
-      const { organizationId, organizationSlug, agentId } = request.query
+      const {
+        organizationId,
+        organizationSlug,
+        teamId,
+        agentId,
+        visibility,
+        view,
+      } = request.query
 
       const { context } = await resolveMembershipContext({
         userId,
         organizationId,
         organizationSlug,
+        teamId,
       })
 
-      const conversation = await queries.context.getConversation(context, {
+      const checkAccessToAgent = await queries.context.getAgent(context, {
         agentId,
-        conversationId,
       })
 
-      if (!conversation) {
+      if (!checkAccessToAgent) {
         throw new BadRequestError({
-          code: 'CONVERSATION_NOT_FOUND',
-          message: 'Conversation not found or you don’t have access',
+          code: 'AGENT_NOT_FOUND',
+          message: 'Agent not found or you don’t have access',
         })
       }
 
-      conversationPubSub.subscribeMessages({
-        conversationId,
-        socket,
-      })
+      if (visibility === 'team' && context.teamId) {
+        conversationPubSub.subscribeTeamConversations({
+          agentId,
+          teamId: context.teamId,
+          view,
+          socket,
+        })
+      }
     },
   )
 }

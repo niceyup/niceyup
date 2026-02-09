@@ -15,7 +15,7 @@ import type {
   PromptMessagePart,
 } from '@/lib/types'
 import { createEntityAdapter } from '@reduxjs/toolkit'
-import { useChatRealtime } from '@workspace/realtime/hooks'
+import { useChatMessagesRealtime } from '@workspace/realtime/hooks'
 import type { ConversationScrollToBottom } from '@workspace/ui/components/ai-elements/conversation'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
@@ -217,6 +217,9 @@ export function useChat({
   const router = useRouter()
   const scrollRef = React.useRef<ConversationScrollToBottom>(null)
 
+  const [inputStatus, setInputStatus] =
+    React.useState<PromptInputStatus>('ready')
+
   const [messagesState, setMessagesState] = React.useState(() => {
     const state = messagesAdapter.getInitialState()
     return initialMessages?.length
@@ -228,16 +231,24 @@ export function useChat({
     string | undefined
   >(initialMessages?.at(-1)?.id)
 
+  const [streamingMessageId, setStreamingMessageId] = React.useState<
+    string | null
+  >(null)
+
   const [loadingMessage, setLoadingMessage] = React.useState<
     LoadingMessage | false
   >(false)
 
-  const [inputStatus, setInputStatus] =
-    React.useState<PromptInputStatus>('ready')
+  const getMessage = React.useCallback(
+    (id: string | null | undefined) => {
+      if (!id) {
+        return undefined
+      }
 
-  const [streamingMessageId, setStreamingMessageId] = React.useState<
-    string | null
-  >(null)
+      return messagesState.entities[id]
+    },
+    [messagesState],
+  )
 
   const upsertMessages = React.useCallback((messages: ChatMessageNode[]) => {
     if (!messages.length) {
@@ -374,22 +385,25 @@ export function useChat({
   //   })
   // }, [])
 
-  const { messages: messagesRealtime, error: errorRealtime } = useChatRealtime({
+  const updateMessage = React.useCallback(
+    (messageId: string, changes: Partial<Omit<ChatMessageNode, 'id'>>) => {
+      setMessagesState((prev) =>
+        messagesAdapter.updateOne(prev, { id: messageId, changes }),
+      )
+    },
+    [],
+  )
+
+  useChatMessagesRealtime({
     params,
     visibility: chat?.visibility,
+    onData: ({ data }) => {
+      upsertMessages(data)
+    },
+    onError: ({ errorMessage }) => {
+      toast.error(errorMessage)
+    },
   })
-
-  React.useEffect(() => {
-    if (errorRealtime) {
-      toast.error(errorRealtime)
-    }
-  }, [errorRealtime])
-
-  React.useEffect(() => {
-    if (messagesRealtime.length) {
-      upsertMessages(messagesRealtime)
-    }
-  }, [messagesRealtime, upsertMessages])
 
   const allMessages = React.useMemo(
     () => messagesAdapter.getSelectors().selectAll(messagesState),
@@ -406,35 +420,15 @@ export function useChat({
     [messagesState],
   )
 
-  const getMessageById = React.useCallback(
-    (id: string | null | undefined) => {
-      if (!id) {
-        return undefined
-      }
-
-      return messagesState.entities[id]
-    },
-    [messagesState],
-  )
-
-  const updateMessage = React.useCallback(
-    (messageId: string, changes: Partial<Omit<ChatMessageNode, 'id'>>) => {
-      setMessagesState((prev) =>
-        messagesAdapter.updateOne(prev, { id: messageId, changes }),
-      )
-    },
-    [],
-  )
-
   const getMessageChildren = React.useCallback(
     (messageId: string | null | undefined): string[] => {
       if (messageId) {
-        return getMessageById(messageId)?.children ?? []
+        return getMessage(messageId)?.children ?? []
       }
 
       return rootMessageIds
     },
-    [getMessageById, rootMessageIds],
+    [getMessage, rootMessageIds],
   )
 
   const getPersistentParent = React.useCallback(
@@ -481,7 +475,7 @@ export function useChat({
 
   const handleBranchChange = createBranchChangeHandler(
     params,
-    getMessageById,
+    getMessage,
     upsertMessages,
     setTargetMessageId,
     setLoadingMessage,
@@ -710,7 +704,7 @@ export function useChat({
 
     setInputStatus('submitted')
 
-    const message = getMessageById(messageId)
+    const message = getMessage(messageId)
     const parentId = message?.parentId
     const temporaryId = generateTemporaryId()
 
@@ -762,7 +756,7 @@ export function useChat({
 
     setInputStatus('submitted')
 
-    const message = getMessageById(messageId)
+    const message = getMessage(messageId)
     const parentId = message?.parentId
 
     if (!parentId) {
@@ -882,12 +876,13 @@ export function useChat({
 
   return {
     chat,
-    messagesState,
     messages: messageChain,
+    streamingMessageId,
+    setStreamingMessageId,
     loadingMessage,
-    getMessageNodeById: getMessageById,
-    updateMessageNodeById: updateMessage,
-    getMessageNodeChildIdsById: getMessageChildren,
+    getMessage,
+    updateMessage,
+    getMessageChildren,
     handleBranchChange,
     sendMessage,
     resendMessage,
@@ -898,7 +893,5 @@ export function useChat({
     conversationScrollRef: scrollRef,
     uploading,
     uploadFile,
-    streamingMessageId,
-    setStreamingMessageId,
   }
 }

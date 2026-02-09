@@ -29,6 +29,7 @@ import { resendMessage } from './conversations/messages/resend-message'
 import { sendMessage } from './conversations/messages/send-message'
 import { stopMessage } from './conversations/messages/stop-message'
 import { streamMessage } from './conversations/messages/stream-message'
+import { realtimeConversations } from './conversations/realtime-conversations'
 import { updateConversation } from './conversations/update-conversation'
 import { updateConversationConfiguration } from './conversations/update-conversation-configuration'
 import { generateUploadSignature } from './files/generate-upload-signature'
@@ -77,13 +78,14 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(deleteConversation)
   app.register(getConversationConfiguration)
   app.register(updateConversationConfiguration)
+  app.register(realtimeConversations)
   app.register(listMessages)
-  app.register(realtimeMessages)
   app.register(sendMessage)
   app.register(resendMessage)
   app.register(regenerateMessage)
   app.register(streamMessage)
   app.register(stopMessage)
+  app.register(realtimeMessages)
 
   app.register(listProviders)
   app.register(getProvider)

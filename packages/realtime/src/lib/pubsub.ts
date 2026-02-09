@@ -5,7 +5,7 @@ import { handleMessageSocket, socketsByChannel } from './socket'
 let publisher: Redis
 let subscriber: Redis
 
-export function initializePubSub({ redis }: { redis: Redis }) {
+export function initializeRealtimePubSub({ redis }: { redis: Redis }) {
   if (!publisher) {
     publisher = redis
   }
@@ -16,32 +16,38 @@ export function initializePubSub({ redis }: { redis: Redis }) {
   }
 }
 
-export class PubSub<Channel extends string> {
-  subscribeToChannel({
+export class RealtimePubSub<Channel extends string> {
+  async subscribe({
     channel,
     socket,
-  }: { channel: Channel; socket: WebSocket }) {
+  }: {
+    channel: Channel
+    socket: WebSocket
+  }) {
     if (!socketsByChannel.has(channel)) {
       socketsByChannel.set(channel, new Set())
-      subscriber.subscribe(channel)
+      await subscriber.subscribe(channel)
     }
 
     const sockets = socketsByChannel.get(channel)!
     sockets.add(socket)
 
-    socket.on('close', () => {
+    socket.on('close', async () => {
       sockets.delete(socket)
       if (!sockets.size) {
         socketsByChannel.delete(channel)
-        subscriber.unsubscribe(channel)
+        await subscriber.unsubscribe(channel)
       }
     })
   }
 
-  publishToChannel({
+  async emit<T = unknown>({
     channel,
-    message,
-  }: { channel: Channel; message: string }) {
-    publisher.publish(channel, message)
+    data,
+  }: {
+    channel: Channel
+    data: T
+  }) {
+    await publisher.publish(channel, JSON.stringify({ channel, data }))
   }
 }

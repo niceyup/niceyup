@@ -207,6 +207,10 @@ export type UpdateAgentConfigurationMutationRequest = {
    * @type array
    */
   suggestions?: string[] | null
+  /**
+   * @type boolean
+   */
+  enableSourceRetrievalTool?: boolean | null
 }
 
 export type UpdateAgentConfigurationMutationResponse =

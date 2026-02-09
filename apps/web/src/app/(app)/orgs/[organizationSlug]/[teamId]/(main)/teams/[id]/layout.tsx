@@ -27,7 +27,7 @@ export default async function Layout({
       href: `/orgs/${organizationSlug}/~/teams/${teamId}/general`,
     },
     {
-      label: 'Members',
+      label: 'Team Members',
       href: `/orgs/${organizationSlug}/~/teams/${teamId}/members`,
     },
     {

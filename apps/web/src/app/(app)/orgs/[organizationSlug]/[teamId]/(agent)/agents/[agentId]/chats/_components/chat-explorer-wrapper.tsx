@@ -28,10 +28,10 @@ export async function ChatExplorerWrapper({ params }: { params: Params }) {
             </div>
           </AccordionTrigger>
 
-          <AccordionContent className="px-2 pt-1 pb-1">
+          <AccordionContent className="pt-1 pb-1">
             {params.teamId === '~' && (
-              <p className="py-6 text-center text-muted-foreground text-xs">
-                Select a team to view its chats
+              <p className="mx-auto max-w-[8rem] py-6 text-center text-muted-foreground text-xs">
+                Select a team to view team chats
               </p>
             )}
 
@@ -55,7 +55,7 @@ export async function ChatExplorerWrapper({ params }: { params: Params }) {
             </div>
           </AccordionTrigger>
 
-          <AccordionContent className="px-2 pt-1 pb-1">
+          <AccordionContent className="pt-1 pb-1">
             <p className="py-6 text-center text-muted-foreground text-xs">
               Coming soon
             </p>
@@ -74,7 +74,7 @@ export async function ChatExplorerWrapper({ params }: { params: Params }) {
             </div>
           </AccordionTrigger>
 
-          <AccordionContent className="px-2 pt-1 pb-1">
+          <AccordionContent className="pt-1 pb-1">
             <p className="py-6 text-center text-muted-foreground text-xs">
               Coming soon
             </p>

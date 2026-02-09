@@ -182,143 +182,150 @@ export async function sendMessage(app: FastifyTypedInstance) {
 
       let _conversationId = conversationId
 
-      const { userMessage, assistantMessage, itemExplorerNode } =
-        await db.transaction(async (tx) => {
-          let _itemExplorerNode = null
+      const {
+        newConversation,
+        userMessage,
+        assistantMessage,
+        itemExplorerNode,
+      } = await db.transaction(async (tx) => {
+        let _newConversation = null
+        let _itemExplorerNode = null
 
-          if (conversationId === 'new') {
-            const title = message.parts.find(
-              (part) => part.type === 'text',
-            )?.text
+        if (conversationId === 'new') {
+          const title = message.parts.find((part) => part.type === 'text')?.text
 
-            const generatedTitle = await generateConversationTitle({
-              userMessage: title,
+          const generatedTitle = await generateConversationTitle({
+            userMessage: title,
+          })
+
+          const [newConversation] = await tx
+            .insert(conversations)
+            .values({
+              title: generatedTitle || 'New conversation',
+              agentId,
+              teamId: visibility === 'team' ? context.teamId : null,
+              createdByUserId: context.userId,
+            })
+            .returning({
+              id: conversations.id,
+              title: conversations.title,
+              updatedAt: conversations.updatedAt,
             })
 
-            const [conversation] = await tx
-              .insert(conversations)
-              .values({
-                title: generatedTitle || 'New conversation',
+          if (!newConversation) {
+            throw new BadRequestError({
+              code: 'CONVERSATION_NOT_CREATED',
+              message: 'Conversation not created',
+            })
+          }
+
+          _conversationId = newConversation.id
+          _newConversation = newConversation
+
+          // Create a new conversation in the explorerNode
+          if (explorerNode) {
+            const itemExplorerNode = await createConversationExplorerNodeItem(
+              {
                 agentId,
-                teamId: visibility === 'team' ? context.teamId : null,
-                createdByUserId: context.userId,
-              })
-              .returning({
-                id: conversations.id,
-              })
-
-            if (!conversation) {
-              throw new BadRequestError({
-                code: 'CONVERSATION_NOT_CREATED',
-                message: 'Conversation not created',
-              })
-            }
-
-            _conversationId = conversation.id
-
-            // Create a new conversation in the explorerNode
-            if (explorerNode) {
-              const itemExplorerNode = await createConversationExplorerNodeItem(
-                {
-                  agentId,
-                  visibility,
-                  parentId: explorerNode.folderId,
-                  conversationId: conversation.id,
-                  ownerUserId: context.userId,
-                  ownerTeamId: context.teamId,
-                },
-                tx,
-              )
-
-              _itemExplorerNode = itemExplorerNode
-            }
-          }
-
-          const [parentMessage] = await tx
-            .select({
-              id: messages.id,
-            })
-            .from(messages)
-            .where(
-              and(
-                eq(messages.conversationId, _conversationId),
-                parentMessageId ? eq(messages.id, parentMessageId) : undefined,
-                isNull(messages.deletedAt),
-              ),
-            )
-            .orderBy(desc(messages.createdAt))
-            .limit(1)
-
-          if (parentMessageId && !parentMessage) {
-            throw new BadRequestError({
-              code: 'PARENT_MESSAGE_NOT_FOUND',
-              message: 'Parent message not found',
-            })
-          }
-
-          const [userMessage] = await tx
-            .insert(messages)
-            .values({
-              conversationId: _conversationId,
-              status: 'completed',
-              role: 'user',
-              parts: message.parts,
-              metadata: message.metadata as AIMessageMetadata,
-              authorId: userId,
-              parentId: parentMessageId,
-            })
-            .returning({
-              id: messages.id,
-              status: messages.status,
-              role: messages.role,
-              parts: messages.parts,
-              metadata: messages.metadata,
-              authorId: messages.authorId,
-              parentId: messages.parentId,
-            })
-
-          if (!userMessage) {
-            throw new BadRequestError({
-              code: 'USER_MESSAGE_NOT_CREATED',
-              message: 'User message not created',
-            })
-          }
-
-          const [assistantMessage] = await tx
-            .insert(messages)
-            .values({
-              conversationId: _conversationId,
-              status: 'queued',
-              role: 'assistant',
-              parts: [],
-              metadata: {
-                authorId: userId,
+                visibility,
+                parentId: explorerNode.folderId,
+                conversationId: newConversation.id,
+                ownerUserId: context.userId,
+                ownerTeamId: context.teamId,
               },
-              parentId: userMessage.id,
-            })
-            .returning({
-              id: messages.id,
-              status: messages.status,
-              role: messages.role,
-              parts: messages.parts,
-              metadata: messages.metadata,
-              authorId: messages.authorId,
-              parentId: messages.parentId,
-            })
+              tx,
+            )
 
-          if (!assistantMessage) {
-            throw new BadRequestError({
-              code: 'ASSISTANT_MESSAGE_NOT_CREATED',
-              message: 'Assistant message not created',
-            })
+            _itemExplorerNode = itemExplorerNode
           }
+        }
 
-          return {
-            userMessage: { ...userMessage, children: [assistantMessage.id] },
-            assistantMessage: { ...assistantMessage, children: [] },
-            itemExplorerNode: _itemExplorerNode,
-          }
-        })
+        const [parentMessage] = await tx
+          .select({
+            id: messages.id,
+          })
+          .from(messages)
+          .where(
+            and(
+              eq(messages.conversationId, _conversationId),
+              parentMessageId ? eq(messages.id, parentMessageId) : undefined,
+              isNull(messages.deletedAt),
+            ),
+          )
+          .orderBy(desc(messages.createdAt))
+          .limit(1)
+
+        if (parentMessageId && !parentMessage) {
+          throw new BadRequestError({
+            code: 'PARENT_MESSAGE_NOT_FOUND',
+            message: 'Parent message not found',
+          })
+        }
+
+        const [userMessage] = await tx
+          .insert(messages)
+          .values({
+            conversationId: _conversationId,
+            status: 'completed',
+            role: 'user',
+            parts: message.parts,
+            metadata: message.metadata as AIMessageMetadata,
+            authorId: userId,
+            parentId: parentMessageId,
+          })
+          .returning({
+            id: messages.id,
+            status: messages.status,
+            role: messages.role,
+            parts: messages.parts,
+            metadata: messages.metadata,
+            authorId: messages.authorId,
+            parentId: messages.parentId,
+          })
+
+        if (!userMessage) {
+          throw new BadRequestError({
+            code: 'USER_MESSAGE_NOT_CREATED',
+            message: 'User message not created',
+          })
+        }
+
+        const [assistantMessage] = await tx
+          .insert(messages)
+          .values({
+            conversationId: _conversationId,
+            status: 'queued',
+            role: 'assistant',
+            parts: [],
+            metadata: {
+              authorId: userId,
+            },
+            parentId: userMessage.id,
+          })
+          .returning({
+            id: messages.id,
+            status: messages.status,
+            role: messages.role,
+            parts: messages.parts,
+            metadata: messages.metadata,
+            authorId: messages.authorId,
+            parentId: messages.parentId,
+          })
+
+        if (!assistantMessage) {
+          throw new BadRequestError({
+            code: 'ASSISTANT_MESSAGE_NOT_CREATED',
+            message: 'Assistant message not created',
+          })
+        }
+
+        return {
+          newConversation: _newConversation,
+          userMessage: { ...userMessage, children: [assistantMessage.id] },
+          assistantMessage: { ...assistantMessage, children: [] },
+          itemExplorerNode: _itemExplorerNode,
+        }
+      })
 
       await streamAgentResponse({
         conversationId: _conversationId,
@@ -334,9 +341,42 @@ export async function sendMessage(app: FastifyTypedInstance) {
         temporaryId: temporaryMessageId,
       }
 
-      conversationPubSub.publish({
-        channel: `conversations:${_conversationId}:updated`,
-        messages: [userMessageWithTemporaryId, assistantMessage],
+      // Realtime PubSub
+
+      if (newConversation && visibility === 'team' && context.teamId) {
+        conversationPubSub.emitTeamConversations({
+          agentId,
+          teamId: context.teamId,
+          view: 'list',
+          data: {
+            action: 'create',
+            conversation: {
+              id: newConversation.id,
+              title: newConversation.title,
+              updatedAt: newConversation.updatedAt.toISOString(),
+            },
+          },
+        })
+
+        if (itemExplorerNode) {
+          conversationPubSub.emitTeamConversations({
+            agentId,
+            teamId: context.teamId,
+            view: 'explorer',
+            data: {
+              action: 'create',
+              item: {
+                id: itemExplorerNode.id,
+                parentId: itemExplorerNode.parentId,
+              },
+            },
+          })
+        }
+      }
+
+      conversationPubSub.emitMessages({
+        conversationId: _conversationId,
+        data: [userMessageWithTemporaryId, assistantMessage],
       })
 
       return {

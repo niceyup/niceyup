@@ -76,7 +76,9 @@ function SourceIndexAlertIdle({
   return (
     <Alert className="mb-4">
       <InfoIcon />
-      <AlertTitle>{idleCount} source(s) not indexed</AlertTitle>
+      <AlertTitle>
+        {idleCount} {idleCount > 1 ? 'sources' : 'source'} not indexed
+      </AlertTitle>
       <AlertDescription>
         These sources are not indexed yet and are ready to be indexed.
       </AlertDescription>
@@ -132,7 +134,9 @@ function SourceIndexAlertFailed({
   return (
     <Alert variant="destructive" className="mb-4">
       <AlertCircleIcon />
-      <AlertTitle>{failedCount} source(s) failed to index</AlertTitle>
+      <AlertTitle>
+        {failedCount} {failedCount > 1 ? 'sources' : 'source'} failed to index
+      </AlertTitle>
       <AlertDescription>
         Indexing failed for these sources. Reindex to try again.
       </AlertDescription>

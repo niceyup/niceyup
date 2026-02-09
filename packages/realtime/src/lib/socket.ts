@@ -8,9 +8,16 @@ export function handleMessageSocket(channel: string, message: string) {
     return
   }
 
-  for (const socket of sockets) {
-    if (socket.readyState === WebSocket.OPEN) {
+  for (const socket of [...sockets]) {
+    if (socket.readyState !== WebSocket.OPEN) {
+      sockets.delete(socket)
+      continue
+    }
+
+    try {
       socket.send(message)
+    } catch {
+      sockets.delete(socket)
     }
   }
 }

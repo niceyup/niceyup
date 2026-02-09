@@ -22,6 +22,7 @@ export async function resolveAgentConfiguration(params: {
       systemMessage: agents.systemMessage,
       promptMessages: agents.promptMessages,
       suggestions: agents.suggestions,
+      enableSourceRetrievalTool: agents.enableSourceRetrievalTool,
     })
     .from(agents)
     .where(eq(agents.id, params.agentId))
@@ -42,6 +43,8 @@ export async function resolveAgentConfiguration(params: {
   const promptMessages = agentConfiguration.promptMessages || []
 
   const suggestions = agentConfiguration.suggestions || []
+
+  const enableSourceRetrievalTool = agentConfiguration.enableSourceRetrievalTool
 
   // TODO: make this dynamic based on the agent's configuration
   const topK = 20
@@ -86,7 +89,13 @@ export async function resolveAgentConfiguration(params: {
   }
 
   const activeTools = async () => {
-    return ['image_generation', 'web_search', 'retrieve_sources']
+    const activeTools = ['image_generation', 'web_search']
+
+    if (enableSourceRetrievalTool) {
+      activeTools.push('retrieve_sources')
+    }
+
+    return activeTools
   }
 
   const tools = async (): Promise<ToolSet | undefined> => {
@@ -130,6 +139,7 @@ export async function resolveAgentConfiguration(params: {
     systemMessage,
     promptMessages,
     suggestions,
+    enableSourceRetrievalTool,
     prompts,
     languageModelSettings,
     embeddingModelSettings,

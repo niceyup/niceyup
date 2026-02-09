@@ -182,9 +182,11 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         temporaryId: temporaryMessageId,
       }
 
-      conversationPubSub.publish({
-        channel: `conversations:${conversationId}:updated`,
-        messages: [assistantMessageWithTemporaryId],
+      // Realtime PubSub
+
+      conversationPubSub.emitMessages({
+        conversationId,
+        data: [assistantMessageWithTemporaryId],
       })
 
       return { assistantMessage: assistantMessageWithTemporaryId }

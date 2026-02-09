@@ -30,6 +30,7 @@ export async function getConversationExplorerNodeFolder(
   const [folderExplorerNode] = await db
     .select({
       id: conversationExplorerNodes.id,
+      parentId: conversationExplorerNodes.parentId,
     })
     .from(conversationExplorerNodes)
     .where(
@@ -112,6 +113,7 @@ export async function createConversationExplorerNodeItem(
     })
     .returning({
       id: conversationExplorerNodes.id,
+      parentId: conversationExplorerNodes.parentId,
     })
 
   return explorerNode || null

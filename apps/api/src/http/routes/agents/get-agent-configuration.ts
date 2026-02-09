@@ -49,6 +49,7 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
                   )
                   .nullable(),
                 suggestions: z.array(z.string()).nullable(),
+                enableSourceRetrievalTool: z.boolean(),
               }),
             })
             .describe('Success'),
@@ -107,6 +108,8 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
           systemMessage: agentConfiguration.systemMessage,
           promptMessages: agentConfiguration.promptMessages,
           suggestions: agentConfiguration.suggestions,
+          enableSourceRetrievalTool:
+            agentConfiguration.enableSourceRetrievalTool,
         },
       }
     },

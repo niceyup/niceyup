@@ -45,7 +45,7 @@ export function PrivateChatList({
           </ChatListProvider>
         ) : (
           <p className="py-6 text-center text-muted-foreground text-xs">
-            Empty
+            No private chats yet
           </p>
         )}
       </AccordionContent>

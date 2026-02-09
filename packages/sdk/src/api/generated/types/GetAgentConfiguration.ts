@@ -150,6 +150,10 @@ export type GetAgentConfiguration200 = {
      * @type array
      */
     suggestions: string[] | null
+    /**
+     * @type boolean
+     */
+    enableSourceRetrievalTool: boolean
   }
 }
 

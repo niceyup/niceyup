@@ -8,6 +8,7 @@ import type {
   OrganizationTeamParams,
 } from '@/lib/types'
 import { createEntityAdapter } from '@reduxjs/toolkit'
+import { useChatsRealtime } from '@workspace/realtime/hooks'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -126,6 +127,24 @@ export function ChatListProvider({
       upsertItems(initialItems)
     }
   }, [initialItems])
+
+  useChatsRealtime({
+    params,
+    visibility,
+    view: 'list',
+    onData: ({ data }) => {
+      if (data.action === 'delete') {
+        deleteItem(data.conversation.id)
+      } else if (data.action === 'update') {
+        updateItem(data.conversation.id, (prev) => ({
+          ...prev,
+          ...data.conversation,
+        }))
+      } else {
+        upsertItems(data.conversation)
+      }
+    },
+  })
 
   const contextValue: ChatListContextType = {
     params,

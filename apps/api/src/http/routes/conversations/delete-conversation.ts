@@ -11,6 +11,7 @@ import {
   conversations,
   participants,
 } from '@workspace/db/schema'
+import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
 
 export async function deleteConversation(app: FastifyTypedInstance) {
@@ -63,9 +64,11 @@ export async function deleteConversation(app: FastifyTypedInstance) {
         })
       }
 
-      await db.transaction(async (tx) => {
+      const { itemExplorerNode } = await db.transaction(async (tx) => {
+        let _itemExplorerNode = null
+
         if (conversation.visibility === 'shared') {
-          await tx
+          const [itemExplorerNode] = await tx
             .delete(conversationExplorerNodes)
             .where(
               and(
@@ -73,6 +76,12 @@ export async function deleteConversation(app: FastifyTypedInstance) {
                 eq(conversationExplorerNodes.ownerUserId, userId),
               ),
             )
+            .returning({
+              id: conversationExplorerNodes.id,
+              parentId: conversationExplorerNodes.parentId,
+            })
+
+          _itemExplorerNode = itemExplorerNode
 
           await tx
             .delete(participants)
@@ -92,7 +101,7 @@ export async function deleteConversation(app: FastifyTypedInstance) {
             : eq(conversations.createdByUserId, userId)
 
           if (destroy) {
-            await tx
+            const [itemExplorerNode] = await tx
               .delete(conversationExplorerNodes)
               .where(
                 and(
@@ -100,6 +109,12 @@ export async function deleteConversation(app: FastifyTypedInstance) {
                   explorerOwnerTypeCondition,
                 ),
               )
+              .returning({
+                id: conversationExplorerNodes.id,
+                parentId: conversationExplorerNodes.parentId,
+              })
+
+            _itemExplorerNode = itemExplorerNode
 
             await tx
               .delete(conversations)
@@ -107,7 +122,7 @@ export async function deleteConversation(app: FastifyTypedInstance) {
                 and(eq(conversations.id, conversationId), ownerTypeCondition),
               )
           } else {
-            await tx
+            const [itemExplorerNode] = await tx
               .update(conversationExplorerNodes)
               .set({ deletedAt: new Date() })
               .where(
@@ -116,6 +131,12 @@ export async function deleteConversation(app: FastifyTypedInstance) {
                   explorerOwnerTypeCondition,
                 ),
               )
+              .returning({
+                id: conversationExplorerNodes.id,
+                parentId: conversationExplorerNodes.parentId,
+              })
+
+            _itemExplorerNode = itemExplorerNode
 
             await tx
               .update(conversations)
@@ -125,7 +146,38 @@ export async function deleteConversation(app: FastifyTypedInstance) {
               )
           }
         }
+
+        return { itemExplorerNode: _itemExplorerNode }
       })
+
+      // Realtime PubSub
+
+      if (conversation.visibility === 'team' && conversation.teamId) {
+        conversationPubSub.emitTeamConversations({
+          agentId,
+          teamId: conversation.teamId,
+          view: 'list',
+          data: {
+            action: 'delete',
+            conversation: { id: conversationId },
+          },
+        })
+
+        if (itemExplorerNode) {
+          conversationPubSub.emitTeamConversations({
+            agentId,
+            teamId: conversation.teamId,
+            view: 'explorer',
+            data: {
+              action: 'delete',
+              item: {
+                id: itemExplorerNode.id,
+                parentId: itemExplorerNode.parentId,
+              },
+            },
+          })
+        }
+      }
 
       return reply.status(204).send()
     },

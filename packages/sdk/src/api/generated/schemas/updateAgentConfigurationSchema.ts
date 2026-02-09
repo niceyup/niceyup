@@ -158,6 +158,7 @@ export const updateAgentConfigurationMutationRequestSchema = z.object({
     .nullable()
     .nullish(),
   suggestions: z.array(z.string()).nullable().nullish(),
+  enableSourceRetrievalTool: z.boolean().nullable().nullish(),
 }) as unknown as ToZod<UpdateAgentConfigurationMutationRequest>
 
 export type UpdateAgentConfigurationMutationRequestSchema =

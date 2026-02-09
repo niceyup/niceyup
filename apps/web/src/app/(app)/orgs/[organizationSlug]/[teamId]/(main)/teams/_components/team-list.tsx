@@ -91,7 +91,8 @@ export function TeamList({
               <span className="font-medium text-sm">{team.name}</span>
 
               <Badge variant="outline" className="text-xs">
-                {team.memberCount} {team.memberCount > 1 ? 'Members' : 'Member'}
+                {team.memberCount}{' '}
+                {team.memberCount > 1 ? 'Team Members' : 'Team Member'}
               </Badge>
 
               <div className="ml-auto flex items-center">

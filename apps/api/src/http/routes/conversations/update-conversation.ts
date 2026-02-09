@@ -6,7 +6,8 @@ import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
-import { conversations } from '@workspace/db/schema'
+import { conversationExplorerNodes, conversations } from '@workspace/db/schema'
+import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
 
 export async function updateConversation(app: FastifyTypedInstance) {
@@ -58,12 +59,63 @@ export async function updateConversation(app: FastifyTypedInstance) {
         })
       }
 
-      await db
+      const [updatedConversation] = await db
         .update(conversations)
         .set({
           title,
         })
         .where(eq(conversations.id, conversationId))
+        .returning({
+          id: conversations.id,
+          title: conversations.title,
+          updatedAt: conversations.updatedAt,
+        })
+
+      // Realtime PubSub
+
+      if (
+        updatedConversation &&
+        conversation.visibility === 'team' &&
+        conversation.teamId
+      ) {
+        conversationPubSub.emitTeamConversations({
+          agentId,
+          teamId: conversation.teamId,
+          view: 'list',
+          data: {
+            action: 'update',
+            conversation: {
+              id: updatedConversation.id,
+              title: updatedConversation.title,
+              updatedAt: updatedConversation.updatedAt.toISOString(),
+            },
+          },
+        })
+
+        const [itemExplorerNode] = await db
+          .select({
+            id: conversationExplorerNodes.id,
+            parentId: conversationExplorerNodes.parentId,
+          })
+          .from(conversationExplorerNodes)
+          .where(eq(conversationExplorerNodes.conversationId, conversationId))
+          .limit(1)
+
+        if (itemExplorerNode) {
+          conversationPubSub.emitTeamConversations({
+            agentId,
+            teamId: conversation.teamId,
+            view: 'explorer',
+            data: {
+              action: 'update',
+              item: {
+                id: itemExplorerNode.id,
+                parentId: itemExplorerNode.parentId,
+              },
+            },
+          })
+        }
+      }
 
       return reply.status(204).send()
     },

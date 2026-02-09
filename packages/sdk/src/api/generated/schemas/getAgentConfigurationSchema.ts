@@ -70,6 +70,7 @@ export const getAgentConfiguration200Schema = z
         )
         .nullable(),
       suggestions: z.array(z.string()).nullable(),
+      enableSourceRetrievalTool: z.boolean(),
     }),
   })
   .describe('Success') as unknown as ToZod<GetAgentConfiguration200>

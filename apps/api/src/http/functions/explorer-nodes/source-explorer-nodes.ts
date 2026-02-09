@@ -19,6 +19,7 @@ export async function getSourceExplorerNodeFolder(
   const [explorerNode] = await db
     .select({
       id: sourceExplorerNodes.id,
+      parentId: sourceExplorerNodes.parentId,
     })
     .from(sourceExplorerNodes)
     .where(
@@ -81,6 +82,7 @@ export async function createSourceExplorerNodeItem(
     })
     .returning({
       id: sourceExplorerNodes.id,
+      parentId: sourceExplorerNodes.parentId,
     })
 
   return explorerNode || null
@@ -133,6 +135,7 @@ export async function createSourceExplorerNodeFolder(
     })
     .returning({
       id: sourceExplorerNodes.id,
+      parentId: sourceExplorerNodes.parentId,
     })
 
   return explorerNode || null

@@ -2,6 +2,7 @@ import { sdk } from '@/lib/sdk'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { cacheTag } from 'next/cache'
 import { EditEmbeddingModelSettingsForm } from './_components/edit-embedding-model-settings'
+import { EditEnableSourceRetrievalToolForm } from './_components/edit-enable-source-retrieval-tool'
 import { EditLanguageModelSettingsForm } from './_components/edit-language-model-settings'
 import { EditPromptMessageForm } from './_components/edit-prompt-message'
 import { EditSuggestionsForm } from './_components/edit-suggestion'
@@ -45,6 +46,11 @@ export default async function Page({
       <EditLanguageModelSettingsForm
         params={{ organizationSlug, agentId }}
         languageModelSettings={agentConfiguration.languageModelSettings}
+      />
+
+      <EditEnableSourceRetrievalToolForm
+        params={{ organizationSlug, agentId }}
+        enableSourceRetrievalTool={agentConfiguration.enableSourceRetrievalTool}
       />
 
       <EditEmbeddingModelSettingsForm
