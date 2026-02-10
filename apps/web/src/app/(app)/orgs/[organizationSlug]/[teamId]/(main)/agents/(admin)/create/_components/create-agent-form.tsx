@@ -103,7 +103,7 @@ export function CreateAgentForm({
               <FormItem>
                 <FormLabel>Agent Name</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Personal Assistant" />
+                  <Input {...field} placeholder="Copilot" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -117,7 +117,7 @@ export function CreateAgentForm({
               <FormItem>
                 <FormLabel>Agent Slug</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="agent-personal-assistant" />
+                  <Input {...field} placeholder="copilot" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -133,7 +133,7 @@ export function CreateAgentForm({
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder="Your AI-Powered Personal Assistant"
+                    placeholder="AI assistant for tasks, answers, and productivity"
                   />
                 </FormControl>
                 <FormMessage />

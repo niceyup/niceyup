@@ -125,7 +125,7 @@ export const createAgentMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
   name: z.string(),
-  slug: z.string(),
+  slug: z.string().min(3),
   logo: z.string().optional(),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),

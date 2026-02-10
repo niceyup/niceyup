@@ -46,7 +46,7 @@ export function PrimarySidebar({ params }: { params: Params }) {
           <Dialog>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Search</DialogTitle>
+                <DialogTitle>Search chats</DialogTitle>
               </DialogHeader>
 
               <div>
@@ -64,7 +64,7 @@ export function PrimarySidebar({ params }: { params: Params }) {
                   </Button>
                 </DialogTrigger>
               </TooltipTrigger>
-              <TooltipContent>Search</TooltipContent>
+              <TooltipContent>Search chats</TooltipContent>
             </Tooltip>
           </Dialog>
         </div>

@@ -56,9 +56,13 @@ const config = {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day
   },
-  trustedOrigins: [env.WEB_URL],
+  trustedOrigins: [env.WEB_URL, env.API_URL],
   advanced: {
     cookiePrefix: COOKIE_PREFIX,
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: new URL(env.WEB_URL).hostname,
+    },
     database: { generateId },
   },
   secondaryStorage: {

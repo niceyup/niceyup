@@ -1,7 +1,7 @@
 'use server'
 
 import { auth } from '@workspace/auth'
-import { addDays } from 'date-fns'
+import { addDays, subDays } from 'date-fns'
 import { headers } from 'next/headers'
 
 export async function getBillingCustomerState() {
@@ -20,8 +20,8 @@ export async function getActiveSubscription() {
   // const [activeSubscription] = customerState.activeSubscriptions
 
   const activeSubscription = {
-    currentPeriodStart: new Date(),
-    currentPeriodEnd: addDays(new Date(), 30),
+    currentPeriodStart: subDays(new Date(), 15),
+    currentPeriodEnd: addDays(new Date(), 15),
   }
 
   return activeSubscription || null

@@ -398,8 +398,8 @@ export function ChatPromptInput({
                 {params.teamId === '~'
                   ? 'Select a team first'
                   : visibility === 'team'
-                    ? 'Switch to team'
-                    : 'Switch to private'}
+                    ? 'Switch to private'
+                    : 'Switch to team'}
               </TooltipContent>
             </Tooltip>
           )}
@@ -479,7 +479,10 @@ function ChatConversationScroll() {
   const { conversationScrollRef } = useChatContext()
 
   return (
-    <ConversationScrollButton conversationScrollRef={conversationScrollRef} />
+    <ConversationScrollButton
+      conversationScrollRef={conversationScrollRef}
+      className="backdrop-blur-xs"
+    />
   )
 }
 

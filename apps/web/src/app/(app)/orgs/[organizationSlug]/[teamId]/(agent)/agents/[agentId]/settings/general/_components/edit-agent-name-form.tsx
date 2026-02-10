@@ -82,7 +82,7 @@ export function EditAgentNameForm({
                     <Input
                       {...field}
                       className="w-full max-w-md"
-                      placeholder="Personal Assistant"
+                      placeholder="Copilot"
                       readOnly={!isAdmin}
                     />
                   </FormControl>

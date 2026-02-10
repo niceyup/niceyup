@@ -118,6 +118,7 @@ export type CreateAgentMutationRequest = {
    */
   name: string
   /**
+   * @minLength 3
    * @type string
    */
   slug: string

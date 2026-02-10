@@ -91,7 +91,7 @@ export function EditAgentSlugForm({
                     <Input
                       {...field}
                       className="w-full max-w-md"
-                      placeholder="agent-personal-assistant"
+                      placeholder="copilot"
                       readOnly={!isAdmin}
                     />
                   </FormControl>

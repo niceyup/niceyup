@@ -80,7 +80,7 @@ export function EditAgentDescriptionForm({
                     <Input
                       {...field}
                       className="w-full max-w-md"
-                      placeholder="Your AI-Powered Personal Assistant"
+                      placeholder="AI assistant for tasks, answers, and productivity"
                       readOnly={!isAdmin}
                     />
                   </FormControl>

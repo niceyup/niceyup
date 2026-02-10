@@ -109,46 +109,50 @@ export const modelSettingsRelations = relations(modelSettings, ({ many }) => ({
   }),
 }))
 
-export const agents = pgTable('agents', {
-  ...id,
-  name: text('name').notNull().default('Unnamed'),
-  slug: text('slug').notNull().unique(),
-  logo: text('logo'),
-  description: text('description'),
-  tags: text('tags').array(),
-  published: boolean('published').notNull().default(false),
+export const agents = pgTable(
+  'agents',
+  {
+    ...id,
+    name: text('name').notNull().default('Unnamed'),
+    slug: text('slug').notNull(),
+    logo: text('logo'),
+    description: text('description'),
+    tags: text('tags').array(),
+    published: boolean('published').notNull().default(false),
 
-  // agent configuration
-  languageModelSettingsId: text('language_model_settings_id').references(
-    () => modelSettings.id,
-    {
-      onDelete: 'set null',
-    },
-  ),
-  embeddingModelSettingsId: text('embedding_model_settings_id').references(
-    () => modelSettings.id,
-    {
-      onDelete: 'set null',
-    },
-  ),
-  // vectorStoreId: text('vector_store_id').references(() => vectorStores.id, {
-  //   onDelete: 'set null',
-  // }),
+    // agent configuration
+    languageModelSettingsId: text('language_model_settings_id').references(
+      () => modelSettings.id,
+      {
+        onDelete: 'set null',
+      },
+    ),
+    embeddingModelSettingsId: text('embedding_model_settings_id').references(
+      () => modelSettings.id,
+      {
+        onDelete: 'set null',
+      },
+    ),
+    // vectorStoreId: text('vector_store_id').references(() => vectorStores.id, {
+    //   onDelete: 'set null',
+    // }),
 
-  systemMessage: text('system_message'),
-  promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
-  suggestions: jsonb('suggestions').$type<string[]>(),
+    systemMessage: text('system_message'),
+    promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
+    suggestions: jsonb('suggestions').$type<string[]>(),
 
-  enableSourceRetrievalTool: boolean('enable_source_retrieval_tool').default(
-    false,
-  ), // temporary flag to enable or disable the source retrieval tool
+    enableSourceRetrievalTool: boolean('enable_source_retrieval_tool').default(
+      false,
+    ), // temporary flag to enable or disable the source retrieval tool
 
-  organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
-  }),
+    organizationId: text('organization_id').references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
 
-  ...timestamps,
-})
+    ...timestamps,
+  },
+  (table) => [unique().on(table.organizationId, table.slug)],
+)
 
 export const agentsRelations = relations(agents, ({ one, many }) => ({
   languageModelSettings: one(modelSettings, {

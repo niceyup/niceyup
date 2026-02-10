@@ -344,6 +344,13 @@
       "when": 1770659386480,
       "tag": "0048_aromatic_susan_delgado",
       "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1770669618522,
+      "tag": "0049_left_sabretooth",
+      "breakpoints": true
     }
   ]
 }

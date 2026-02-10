@@ -131,7 +131,7 @@ export const updateAgentMutationRequestSchema = z.object({
   organizationId: z.string().optional(),
   organizationSlug: z.string().optional(),
   name: z.string().optional(),
-  slug: z.string().optional(),
+  slug: z.string().min(3).optional(),
   logo: z.string().nullable().nullish(),
   description: z.string().nullable().nullish(),
   tags: z.array(z.string()).nullable().nullish(),

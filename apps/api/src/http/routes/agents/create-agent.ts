@@ -4,7 +4,9 @@ import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
+import { and, eq } from '@workspace/db/orm'
 import { agents } from '@workspace/db/schema'
+import { stripSpecialCharacters } from '@workspace/utils'
 import { z } from 'zod'
 
 export async function createAgent(app: FastifyTypedInstance) {
@@ -19,7 +21,7 @@ export async function createAgent(app: FastifyTypedInstance) {
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           name: z.string(),
-          slug: z.string(),
+          slug: z.string().min(3),
           logo: z.string().optional(),
           description: z.string().optional(),
           tags: z.array(z.string()).optional(),
@@ -53,12 +55,33 @@ export async function createAgent(app: FastifyTypedInstance) {
         organizationId,
         organizationSlug,
       })
+      const agentSlug = stripSpecialCharacters(slug)
+
+      const [agentBySlug] = await db
+        .select({
+          id: agents.id,
+        })
+        .from(agents)
+        .where(
+          and(
+            eq(agents.organizationId, context.organizationId),
+            eq(agents.slug, agentSlug),
+          ),
+        )
+        .limit(1)
+
+      if (agentBySlug) {
+        throw new BadRequestError({
+          code: 'AGENT_SLUG_ALREADY_EXISTS',
+          message: 'Agent with this slug already exists',
+        })
+      }
 
       const [agent] = await db
         .insert(agents)
         .values({
           name,
-          slug,
+          slug: agentSlug,
           logo,
           description,
           tags,

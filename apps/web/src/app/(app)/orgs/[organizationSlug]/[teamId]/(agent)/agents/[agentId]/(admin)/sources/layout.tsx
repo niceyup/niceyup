@@ -1,7 +1,17 @@
+import { enableSourceRetrievalTool } from '@/actions/agents'
 import { Sidebar, type SidebarItem } from '@/components/sidebar'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
+import { Button } from '@workspace/ui/components/button'
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from '@workspace/ui/components/empty'
 import { cn } from '@workspace/ui/lib/utils'
-import { SquareArrowOutUpRightIcon } from 'lucide-react'
+import { SquareArrowOutUpRightIcon, UnplugIcon } from 'lucide-react'
+import Link from 'next/link'
 
 export default async function Layout({
   params,
@@ -11,6 +21,10 @@ export default async function Layout({
   children: React.ReactNode
 }>) {
   const { organizationSlug, teamId, agentId } = await params
+
+  const isEnabled = await enableSourceRetrievalTool({
+    agentId,
+  })
 
   const items: SidebarItem[] = [
     {
@@ -35,6 +49,7 @@ export default async function Layout({
         <div
           className={cn(
             'mx-auto flex max-w-5xl flex-col items-start gap-4',
+            { 'max-w-4xl': !isEnabled },
             'justify-between md:flex-row md:items-center',
           )}
         >
@@ -51,25 +66,52 @@ export default async function Layout({
       </div>
 
       <div className="flex flex-1 flex-col items-center gap-4 p-4">
-        <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 lg:flex-row">
-          <div
-            className={cn(
-              'flex w-full flex-col gap-1 lg:w-55',
-              'lg:sticky lg:top-[58px] lg:self-start',
-            )}
-          >
-            <Sidebar items={items} />
-          </div>
+        {!isEnabled && (
+          <div className="w-full max-w-4xl rounded-lg border bg-background p-4">
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>Sources Not Enabled</EmptyTitle>
+                <EmptyDescription>
+                  Enable source retrieval in Tools to let this AI agent use
+                  external knowledge to learn and respond.
+                </EmptyDescription>
+              </EmptyHeader>
 
-          <div
-            className={cn(
-              'flex w-full flex-1 flex-col gap-4',
-              'lg:sticky lg:top-[58px] lg:self-start',
-            )}
-          >
-            {children}
+              <EmptyContent>
+                <Button asChild>
+                  <Link
+                    href={`/orgs/${organizationSlug}/${teamId}/agents/${agentId}/settings/advanced`}
+                  >
+                    <UnplugIcon />
+                    Enable
+                  </Link>
+                </Button>
+              </EmptyContent>
+            </Empty>
           </div>
-        </div>
+        )}
+
+        {isEnabled && (
+          <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 lg:flex-row">
+            <div
+              className={cn(
+                'flex w-full flex-col gap-1 lg:w-55',
+                'lg:sticky lg:top-[58px] lg:self-start',
+              )}
+            >
+              <Sidebar items={items} />
+            </div>
+
+            <div
+              className={cn(
+                'flex w-full flex-1 flex-col gap-4',
+                'lg:sticky lg:top-[58px] lg:self-start',
+              )}
+            >
+              {children}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

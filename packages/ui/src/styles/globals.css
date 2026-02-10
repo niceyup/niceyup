@@ -1,10 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* @import "katex/dist/katex.min.css"; */
+
 @source "../../../apps/**/*.{ts,tsx}";
 @source "../../../components/**/*.{ts,tsx}";
 @source "../**/*.{ts,tsx}";
-@source "../../node_modules/streamdown/dist/index.js";
+
+@source "../../node_modules/streamdown/dist/*.js";
 
 @custom-variant dark (&:is(.dark *));
 

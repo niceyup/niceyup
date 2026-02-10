@@ -125,6 +125,7 @@ export type UpdateAgentMutationRequest = {
    */
   name?: string
   /**
+   * @minLength 3
    * @type string | undefined
    */
   slug?: string
