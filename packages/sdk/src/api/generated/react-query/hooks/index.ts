@@ -53,6 +53,7 @@ export type { ListSourcesQueryKey } from './useListSources'
 export type { ListSourcesSuspenseQueryKey } from './useListSourcesSuspense'
 export type { RegenerateMessageMutationKey } from './useRegenerateMessage'
 export type { ResendMessageMutationKey } from './useResendMessage'
+export type { RespondToToolApprovalMutationKey } from './useRespondToToolApproval'
 export type { SendMessageMutationKey } from './useSendMessage'
 export type { StopMessageMutationKey } from './useStopMessage'
 export type { StreamMessageQueryKey } from './useStreamMessage'
@@ -304,6 +305,10 @@ export {
   useRegenerateMessage,
 } from './useRegenerateMessage'
 export { resendMessageMutationKey, useResendMessage } from './useResendMessage'
+export {
+  respondToToolApprovalMutationKey,
+  useRespondToToolApproval,
+} from './useRespondToToolApproval'
 export { sendMessageMutationKey, useSendMessage } from './useSendMessage'
 export { stopMessageMutationKey, useStopMessage } from './useStopMessage'
 export {

@@ -11,7 +11,7 @@ import {
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
 import type { AIMessageMetadata } from '@workspace/ai/types'
-import { db } from '@workspace/db'
+import { db, generateId } from '@workspace/db'
 import { and, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { messages } from '@workspace/db/schema'
@@ -102,6 +102,8 @@ export async function resendMessage(app: FastifyTypedInstance) {
         organizationSlug,
       })
 
+      const streamId = generateId()
+
       const conversation = await queries.context.getConversation(context, {
         agentId,
         conversationId,
@@ -174,6 +176,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
               role: 'assistant',
               parts: [],
               metadata: {
+                streamId,
                 authorId: userId,
               },
               parentId: userMessage.id,
@@ -203,6 +206,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
       )
 
       await streamAgentResponse({
+        streamId,
         conversationId,
         userMessage: {
           id: userMessage.id,

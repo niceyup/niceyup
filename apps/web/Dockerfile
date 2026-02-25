@@ -32,9 +32,6 @@ RUN pnpm install --frozen-lockfile
 # Build the project
 COPY --from=builder /app/out/full/ .
 
-# Environment variables
-COPY --from=builder /app/.env .env
-
 ENV NEXT_CONFIG_OUTPUT=standalone
 
 # Uncomment and use build args to enable remote caching

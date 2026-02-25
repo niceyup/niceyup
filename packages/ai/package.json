@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "3.0.1",
+    "@ai-sdk/devtools": "^0.0.15",
     "@ai-sdk/gateway": "3.0.2",
     "@ai-sdk/google": "3.0.1",
     "@ai-sdk/openai": "3.0.1",
@@ -30,6 +31,7 @@
     "./providers": "./src/providers.ts",
     "./schemas": "./src/lib/schemas.ts",
     "./types": "./src/lib/types.ts",
-    "./env": "./src/lib/env.ts"
+    "./env": "./src/lib/env.ts",
+    "./devtools": "./src/devtools.ts"
   }
 }

@@ -62,7 +62,7 @@ export async function streamMessage(app: FastifyTypedInstance) {
         })
       }
 
-      if (message.role !== 'assistant') {
+      if (message.role !== 'assistant' || !message.metadata?.streamId) {
         throw new BadRequestError({
           code: 'MESSAGE_NOT_STREAMABLE',
           message: 'Message is not streamable',
@@ -76,8 +76,9 @@ export async function streamMessage(app: FastifyTypedInstance) {
         })
       }
 
-      const stream =
-        await resumableStreamContext.resumeExistingStream(messageId)
+      const stream = await resumableStreamContext.resumeExistingStream(
+        message.metadata.streamId,
+      )
 
       if (!stream) {
         throw new BadRequestError({

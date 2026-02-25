@@ -1,6 +1,7 @@
 import type { UIDataTypes, UIMessage, UIMessagePart, UITools } from 'ai'
 
 export type AIMessageMetadata = {
+  streamId?: string
   authorId?: string
   error?: any
 }

@@ -1,4 +1,3 @@
-import type { EmbeddingModel, LanguageModel } from '@workspace/ai'
 import type {
   EmbeddingModelSettings,
   LanguageModelSettings,
@@ -43,7 +42,7 @@ export async function resolveLanguageModelSettings(params: {
     provider: providerSettings.provider,
     model: provider.languageModel(
       `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
-    ) as LanguageModel,
+    ),
     options: modelSettings.options as LanguageModelSettings['options'] | null,
   }
 }
@@ -84,7 +83,7 @@ export async function resolveEmbeddingModelSettings(params: {
     provider: providerSettings.provider,
     model: provider.embeddingModel(
       `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
-    ) as EmbeddingModel,
+    ),
     options: modelSettings.options as EmbeddingModelSettings['options'] | null,
   }
 }

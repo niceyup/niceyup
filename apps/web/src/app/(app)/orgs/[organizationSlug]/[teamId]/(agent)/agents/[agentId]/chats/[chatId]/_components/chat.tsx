@@ -6,11 +6,31 @@ import type {
   Chat,
   ChatParams,
   MessageNode,
-  Message as MessageType,
   OrganizationTeamParams,
 } from '@/lib/types'
+import { getInitials } from '@/lib/utils'
+import {
+  type DynamicToolUIPart,
+  type FileUIPart,
+  type ReasoningUIPart,
+  type TextUIPart,
+  type ToolUIPart,
+  isFileUIPart,
+  isReasoningUIPart,
+  isTextUIPart,
+  isToolUIPart,
+} from '@workspace/ai'
 import type { AIMessage } from '@workspace/ai/types'
 import { useChatMessageRealtime } from '@workspace/realtime/hooks'
+import {
+  Confirmation,
+  ConfirmationAccepted,
+  ConfirmationAction,
+  ConfirmationActions,
+  ConfirmationRejected,
+  ConfirmationRequest,
+  ConfirmationTitle,
+} from '@workspace/ui/components/ai-elements/confirmation'
 import {
   Conversation,
   ConversationContent,
@@ -51,8 +71,24 @@ import {
   PromptInputTextarea,
   PromptInputTools,
 } from '@workspace/ui/components/ai-elements/prompt-input'
+import {
+  Reasoning,
+  ReasoningContent,
+  ReasoningTrigger,
+} from '@workspace/ui/components/ai-elements/reasoning'
 import { Shimmer } from '@workspace/ui/components/ai-elements/shimmer'
-import { Avatar, AvatarFallback } from '@workspace/ui/components/avatar'
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+  ToolOutput,
+} from '@workspace/ui/components/ai-elements/tool'
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from '@workspace/ui/components/avatar'
 import { Button } from '@workspace/ui/components/button'
 import {
   InputGroupAddon,
@@ -71,6 +107,8 @@ import { useResizeObserver } from '@workspace/ui/hooks/use-resize-observer'
 import { cn } from '@workspace/ui/lib/utils'
 import {
   AlertCircleIcon,
+  BrainIcon,
+  CheckIcon,
   CopyIcon,
   LockIcon,
   MessageSquare,
@@ -78,6 +116,7 @@ import {
   RefreshCcwIcon,
   UsersIcon,
   XCircleIcon,
+  XIcon,
 } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
@@ -95,51 +134,56 @@ import {
 
 type Params = OrganizationTeamParams & AgentParams & ChatParams
 
-type FilePart = {
-  type: 'file'
-  mediaType: string
-  filename?: string
-  url: string
-}
-
-type ToolState =
-  | 'input-streaming'
-  | 'input-available'
-  | 'approval-requested'
-  | 'approval-responded'
-  | 'output-available'
-  | 'output-error'
-  | 'output-denied'
-
-type ToolImageGenerationPart = {
-  type: 'tool-image_generation'
-  toolCallId: string
-  state: ToolState
-  output?: { result: string }
-}
+type ToolImageGenerationPart = ToolUIPart<{
+  image_generation: {
+    input: unknown
+    output: { result: string }
+  }
+}>
 
 type MessageParts = {
+  reasoningText: string
   text: string
-  files: FilePart[]
-  toolImageGenerationParts: ToolImageGenerationPart[]
+  reasoning: ReasoningUIPart[]
+  texts: TextUIPart[]
+  files: FileUIPart[]
+  tools: (ToolUIPart | DynamicToolUIPart)[]
+  toolImageGenerations: ToolImageGenerationPart[]
 }
 
-function extractMessageParts(message: MessageNode): MessageParts {
-  const text = message.parts
-    ?.filter((part) => part.type === 'text')
-    .map((part) => part.text)
-    .join('\n')
+function extractMessageParts({
+  message,
+}: { message: MessageNode }): MessageParts {
+  const reasoningParts: ReasoningUIPart[] = []
+  const textParts: TextUIPart[] = []
+  const fileParts: FileUIPart[] = []
+  const toolParts: (ToolUIPart | DynamicToolUIPart)[] = []
+  const toolImageGenerationParts: ToolImageGenerationPart[] = []
 
-  const filesPart = message.parts?.filter((part) => part.type === 'file')
-
-  const toolImageGenerationParts = message.parts?.filter(
-    (part) => part.type === 'tool-image_generation',
-  ) as unknown as MessageParts['toolImageGenerationParts']
+  for (const part of message.parts || []) {
+    if (isReasoningUIPart(part)) {
+      reasoningParts.push(part)
+    } else if (isTextUIPart(part)) {
+      textParts.push(part)
+    } else if (isFileUIPart(part)) {
+      fileParts.push(part)
+    } else if (isToolUIPart(part)) {
+      if (part.type === 'tool-image_generation') {
+        toolImageGenerationParts.push(part as ToolImageGenerationPart)
+      } else {
+        toolParts.push(part)
+      }
+    }
+  }
 
   return {
-    text: text || '',
-    files: filesPart || [],
-    toolImageGenerationParts: toolImageGenerationParts || [],
+    reasoningText: reasoningParts.map((part) => part.text).join('\n'),
+    text: textParts.map((part) => part.text).join('\n'),
+    reasoning: reasoningParts,
+    texts: textParts,
+    files: fileParts,
+    tools: toolParts,
+    toolImageGenerations: toolImageGenerationParts,
   }
 }
 
@@ -204,7 +248,6 @@ export function ChatProvider({
 type ChatMessageContextType = {
   message: ChatMessageNode
   parts: MessageParts
-  updateMessage: (updatedMessage: Omit<Partial<MessageType>, 'id'>) => void
   streaming: boolean
   processing: boolean
   editing: boolean
@@ -234,20 +277,15 @@ export function ChatMessageProvider({
   message: ChatMessageNode
   children: React.ReactNode
 }) {
-  const [updatedMessage, setUpdatedMessage] =
-    React.useState<Omit<Partial<MessageType>, 'id'>>()
   const [editing, setEditing] = React.useState(false)
 
-  const mergedMessage = { ...message, ...updatedMessage }
-
   const processing =
-    mergedMessage.status === 'queued' || mergedMessage.status === 'processing'
+    message.status === 'queued' || message.status === 'processing'
 
   const contextValue: ChatMessageContextType = {
-    message: mergedMessage,
-    parts: extractMessageParts(mergedMessage),
-    updateMessage: setUpdatedMessage,
-    streaming: mergedMessage.role === 'assistant' && processing,
+    message,
+    parts: extractMessageParts({ message }),
+    streaming: message.role === 'assistant' && processing,
     processing,
     editing,
     setEditing,
@@ -276,6 +314,7 @@ export function ChatPromptInput({
     sendMessage,
     stopMessage,
     promptInputStatus,
+    promptInputProcessing,
     uploading,
     uploadFile,
   } = useChatContext()
@@ -297,12 +336,7 @@ export function ChatPromptInput({
     const hasText = Boolean(message.text.trim())
     const hasAttachments = Boolean(message.files.length)
 
-    if (
-      !(hasText || hasAttachments) ||
-      uploading ||
-      promptInputStatus === 'submitted' ||
-      promptInputStatus === 'streaming'
-    ) {
+    if (!(hasText || hasAttachments) || uploading || promptInputProcessing) {
       throw new Error('Invalid message')
     }
 
@@ -486,7 +520,7 @@ function ChatConversationScroll() {
   )
 }
 
-function ChatMessageBranch({
+const ChatMessageBranch = React.memo(function ChatMessageBranch({
   message,
   siblings,
 }: {
@@ -530,11 +564,18 @@ function ChatMessageBranch({
                 <Shimmer>Loading...</Shimmer>
               </MessageContent>
 
-              <MessageToolbar>
+              <MessageToolbar
+                className={cn(
+                  'mt-0',
+                  'group-[.is-user]:justify-end',
+                  'group-[.is-assistant]:justify-start',
+                )}
+              >
                 <MessageBranchSelector
                   className={cn(
                     'opacity-25 transition-opacity',
-                    'group-hover:opacity-100 group-[.is-assistant]:order-1',
+                    'group-hover:opacity-100',
+                    'group-[.is-assistant]:order-1',
                   )}
                 >
                   <MessageBranchPrevious />
@@ -548,9 +589,9 @@ function ChatMessageBranch({
       </MessageBranchContent>
     </MessageBranch>
   )
-}
+})
 
-function ChatMessage({
+const ChatMessage = React.memo(function ChatMessage({
   message,
   branch,
 }: {
@@ -578,12 +619,21 @@ function ChatMessage({
           <ChatUserMessage />
         )}
 
-        <MessageToolbar className="group-[.is-other-user]:justify-start!">
+        <MessageToolbar
+          className={cn(
+            'mt-0',
+            'group-[.is-user]:justify-end',
+            'group-[.is-assistant]:justify-start',
+            'group-[.is-other-user]:justify-start!',
+          )}
+        >
           {branch && (
             <MessageBranchSelector
               className={cn(
                 'opacity-25 transition-opacity',
-                'group-hover:opacity-100 group-[.is-assistant]:order-1 group-[.is-other-user]:order-1',
+                'group-hover:opacity-100',
+                'group-[.is-assistant]:order-1',
+                'group-[.is-other-user]:order-1',
               )}
             >
               <MessageBranchPrevious />
@@ -597,28 +647,35 @@ function ChatMessage({
       </Message>
     </ChatMessageProvider>
   )
-}
+})
 
 // ============================================================================
 // User Message
 // ============================================================================
 
 function ChatUserMessage() {
-  const { chat } = useChatContext()
+  return (
+    <ChatUserMessageCollapsible>
+      <ChatUserMessageParts />
+    </ChatUserMessageCollapsible>
+  )
+}
 
-  const contentRef = React.useRef<HTMLDivElement>(null)
-  const contentSize = useResizeObserver({ ref: contentRef })
-  const [isContentTooTall, setIsContentTooTall] = React.useState(false)
+function ChatUserMessageCollapsible({
+  children,
+}: { children: React.ReactNode }) {
+  const { chat } = useChatContext()
 
   const [showMore, setShowMore] = React.useState(false)
 
-  React.useEffect(() => {
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const contentSize = useResizeObserver({ ref: contentRef })
+
+  const isContentTooTall = React.useMemo(() => {
     // h-55 = 55 * 4 = 220px (Tailwind spacing scale)
     const maxHeight = 220
 
-    setIsContentTooTall(
-      Boolean(contentSize.height && contentSize.height > maxHeight),
-    )
+    return Boolean(contentSize.height && contentSize.height > maxHeight)
   }, [contentSize.height])
 
   const isPrivate = chat?.visibility === 'private'
@@ -626,8 +683,8 @@ function ChatUserMessage() {
   return (
     <div
       className={cn(
-        'ml-auto flex flex-row items-start justify-end gap-2',
-        'group-[.is-other-user]:ml-0 group-[.is-other-user]:justify-start',
+        'flex flex-row items-start justify-end gap-2',
+        'group-[.is-other-user]:justify-start',
       )}
     >
       <ChatUserMessageAvatar />
@@ -637,12 +694,12 @@ function ChatUserMessage() {
         data-enable-show-more={!isPrivate && isContentTooTall}
         data-show-more={showMore}
         className={cn(
-          'ml-auto flex flex-col justify-end gap-2',
-          'group-[.is-other-user]:ml-0 group-[.is-other-user]:justify-start',
+          'flex w-full flex-col justify-end gap-2 overflow-hidden',
+          'group-[.is-other-user]:justify-start',
           '[&[data-show-more=false]]:[&[data-enable-show-more=true]]:relative [&[data-show-more=false]]:[&[data-enable-show-more=true]]:max-h-55.5',
         )}
       >
-        <ChatUserMessageBody />
+        {children}
 
         <div
           data-enable-show-more={!isPrivate && isContentTooTall}
@@ -667,28 +724,34 @@ function ChatUserMessage() {
 }
 
 function ChatUserMessageAvatar() {
-  return null
+  const { message } = useChatMessageContext()
+
+  const user = {
+    id: message.authorId,
+    name: 'Guest',
+    image: `https://avatar.vercel.sh/${message.authorId}`,
+  }
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Avatar className="hidden size-8 group-[.is-other-user]:block">
-          {/* {user.image && <AvatarImage src={user.image} />} */}
+        <Avatar className={cn('hidden size-8 group-[.is-other-user]:block')}>
+          {user.image && <AvatarImage src={user.image} />}
           <AvatarFallback className="text-xs">
-            {/* {getInitials(user.name)} */}
+            {getInitials(user.name)}
           </AvatarFallback>
         </Avatar>
       </TooltipTrigger>
-      <TooltipContent>{/* {user.name} */}</TooltipContent>
+      <TooltipContent>{user.name}</TooltipContent>
     </Tooltip>
   )
 }
 
-function ChatUserMessageBody() {
+function ChatUserMessageParts() {
   const { parts, editing } = useChatMessageContext()
 
   if (editing) {
-    return <ChatUserMessageBodyEditing />
+    return <ChatUserMessageEditing />
   }
 
   return (
@@ -706,8 +769,8 @@ function ChatUserMessageBody() {
   )
 }
 
-function ChatUserMessageBodyEditing() {
-  const { resendMessage, promptInputStatus } = useChatContext()
+function ChatUserMessageEditing() {
+  const { resendMessage, promptInputProcessing } = useChatContext()
   const { message, parts, setEditing } = useChatMessageContext()
 
   const [newText, setNewText] = React.useState(parts.text)
@@ -716,11 +779,7 @@ function ChatUserMessageBodyEditing() {
   const handleSave = async () => {
     const hasText = Boolean(newText.trim())
 
-    if (
-      !hasText ||
-      promptInputStatus === 'submitted' ||
-      promptInputStatus === 'streaming'
-    ) {
+    if (!hasText || promptInputProcessing) {
       return
     }
 
@@ -770,11 +829,7 @@ function ChatUserMessageBodyEditing() {
           <InputGroupButton onClick={handleCancel}>Cancel</InputGroupButton>
           <InputGroupButton
             onClick={handleSave}
-            disabled={
-              !newText.trim() ||
-              promptInputStatus === 'submitted' ||
-              promptInputStatus === 'streaming'
-            }
+            disabled={!newText.trim() || promptInputProcessing}
           >
             Save
           </InputGroupButton>
@@ -788,8 +843,14 @@ function ChatUserMessageContent() {
   const { parts } = useChatMessageContext()
 
   return (
-    <MessageContent className="group-[.is-other-user]:bg-secondary/50!">
-      {parts.text || <ChatEmptyMessage />}
+    <MessageContent className={cn('group-[.is-other-user]:bg-secondary/50!')}>
+      {parts.text ? (
+        <pre className="whitespace-pre-wrap break-words font-sans">
+          {parts.text}
+        </pre>
+      ) : (
+        <ChatEmptyMessage />
+      )}
     </MessageContent>
   )
 }
@@ -799,21 +860,30 @@ function ChatUserMessageContent() {
 // ============================================================================
 
 function ChatAssistantMessage() {
-  const { chat } = useChatContext()
+  return (
+    <ChatAssistantMessageCollapsible>
+      <ChatAssistantMessageStreaming>
+        <ChatAssistantMessageParts />
+      </ChatAssistantMessageStreaming>
+    </ChatAssistantMessageCollapsible>
+  )
+}
 
-  const contentRef = React.useRef<HTMLDivElement>(null)
-  const contentSize = useResizeObserver({ ref: contentRef })
-  const [isContentTooTall, setIsContentTooTall] = React.useState(false)
+function ChatAssistantMessageCollapsible({
+  children,
+}: { children: React.ReactNode }) {
+  const { chat } = useChatContext()
 
   const [showMore, setShowMore] = React.useState(false)
 
-  React.useEffect(() => {
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const contentSize = useResizeObserver({ ref: contentRef })
+
+  const isContentTooTall = React.useMemo(() => {
     // h-55 = 55 * 4 = 220px (Tailwind spacing scale)
     const maxHeight = 220
 
-    setIsContentTooTall(
-      Boolean(contentSize.height && contentSize.height > maxHeight),
-    )
+    return Boolean(contentSize.height && contentSize.height > maxHeight)
   }, [contentSize.height])
 
   const isPrivate = chat?.visibility === 'private'
@@ -824,13 +894,11 @@ function ChatAssistantMessage() {
       data-enable-show-more={!isPrivate && isContentTooTall}
       data-show-more={showMore}
       className={cn(
-        'flex flex-col gap-2',
+        'flex w-full flex-col gap-2 overflow-hidden',
         '[&[data-show-more=false]]:[&[data-enable-show-more=true]]:relative [&[data-show-more=false]]:[&[data-enable-show-more=true]]:max-h-55.5',
       )}
     >
-      <ChatAssistantMessageStreaming>
-        <ChatAssistantMessageBody />
-      </ChatAssistantMessageStreaming>
+      {children}
 
       <div
         data-enable-show-more={!isPrivate && isContentTooTall}
@@ -861,30 +929,25 @@ function ChatAssistantMessageStreaming({
     chat,
     setPromptInputStatus,
     setStreamingMessageId,
-    updateMessage: updateMessageNode,
+    updateMessage,
   } = useChatContext()
-  const { message, updateMessage, streaming } = useChatMessageContext()
+  const { message, streaming } = useChatMessageContext()
   const { scrollToBottom } = useStickToBottomContext()
 
   const onChunk = (chunk: AIMessage) => {
     if (chunk.status === 'processing') {
       setStreamingMessageId(chunk.id)
     } else {
-      if (
-        chunk.status === 'cancelled' ||
-        chunk.status === 'completed' ||
-        chunk.status === 'failed'
-      ) {
-        updateMessageNode(chunk.id, chunk)
-      }
-
       setStreamingMessageId(null)
     }
 
-    updateMessage(chunk)
-    scrollToBottom({ preserveScrollPosition: true })
+    updateMessage(chunk.id, chunk)
 
     const isPrivate = chat?.visibility === 'private'
+
+    if (isPrivate) {
+      scrollToBottom({ preserveScrollPosition: true })
+    }
 
     if (isPrivate && authorId && authorId === chunk.metadata?.authorId) {
       setPromptInputStatus(messageStatusToPromptInputStatus[chunk.status])
@@ -909,10 +972,17 @@ function ChatAssistantMessageStreaming({
     )
   }
 
-  if (message.status === 'queued') {
+  if (message.status === 'queued' && !message.parts?.length) {
     return (
       <MessageContent>
-        <Shimmer>Sending message...</Shimmer>
+        {message.isPersisted === false ? (
+          <Shimmer>Sending...</Shimmer>
+        ) : (
+          <div className="flex w-full items-center gap-2 text-muted-foreground">
+            <BrainIcon className="size-4" />
+            <Shimmer>Thinking...</Shimmer>
+          </div>
+        )}
       </MessageContent>
     )
   }
@@ -920,67 +990,141 @@ function ChatAssistantMessageStreaming({
   return children
 }
 
-function ChatAssistantMessageBody() {
+function ChatAssistantMessageParts() {
   const { parts } = useChatMessageContext()
 
   return (
     <>
+      <ChatAssistantMessageReasoning />
+
+      {parts.tools.map((tool) => (
+        <ChatAssistantMessageTool key={tool.toolCallId} tool={tool} />
+      ))}
+
       <ChatAssistantMessageContent />
 
-      {!!parts.toolImageGenerationParts.length &&
-        parts.toolImageGenerationParts.map((part) => (
-          <ChatAssistantMessageImageGeneration
-            key={part.toolCallId}
-            part={part}
-          />
-        ))}
+      {parts.toolImageGenerations.map((part) => (
+        <ChatAssistantMessageToolImageGeneration
+          key={part.toolCallId}
+          part={part}
+        />
+      ))}
     </>
   )
 }
 
-function ChatAssistantMessageImageGeneration({
-  part,
-}: { part: ToolImageGenerationPart }) {
-  const { toolCallId, state, output } = part
+function ChatAssistantMessageReasoning() {
+  const { parts } = useChatMessageContext()
 
-  const isError = state === 'output-error'
-  const isGenerating = state !== 'output-available'
-  const base64 = output?.result
+  const isStreaming = React.useMemo(() => {
+    return parts.reasoning.some((part) => part.state === 'streaming')
+  }, [parts.reasoning])
 
-  if (isError) {
-    return (
-      <div
-        key={toolCallId}
-        className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border p-4"
-      >
-        <AlertCircleIcon className="size-4 shrink-0 text-destructive" />
-      </div>
-    )
-  }
-
-  if (isGenerating || !base64) {
-    return <Skeleton key={toolCallId} className="h-[200px] w-[200px]" />
+  if (!parts.reasoningText && !isStreaming) {
+    return null
   }
 
   return (
-    <Image
-      key={toolCallId}
-      base64={base64}
-      uint8Array={new Uint8Array()}
-      mediaType="image/jpeg"
-      alt="Generated image"
-      className="max-h-[calc(100vh-300px)] min-h-[200px] min-w-[200px] max-w-fit rounded-lg border object-contain"
-    />
+    <Reasoning className="mb-0" isStreaming={isStreaming}>
+      <ReasoningTrigger />
+      <ReasoningContent>{parts.reasoningText}</ReasoningContent>
+    </Reasoning>
   )
 }
 
+const ChatAssistantMessageTool = React.memo(function ChatAssistantMessageTool({
+  tool,
+}: { tool: ToolUIPart | DynamicToolUIPart }) {
+  const { respondToToolApproval, promptInputProcessing } = useChatContext()
+  const { message } = useChatMessageContext()
+
+  const handleReject = async () => {
+    if (tool.approval) {
+      await respondToToolApproval({
+        messageId: message.id,
+        toolCallId: tool.toolCallId,
+        approvalId: tool.approval.id,
+        approved: false,
+      })
+    }
+  }
+
+  const handleAccept = async () => {
+    if (tool.approval) {
+      await respondToToolApproval({
+        messageId: message.id,
+        toolCallId: tool.toolCallId,
+        approvalId: tool.approval.id,
+        approved: true,
+      })
+    }
+  }
+
+  return (
+    <Tool className="mb-0">
+      <ToolHeader type={tool.type as ToolUIPart['type']} state={tool.state} />
+      <ToolContent>
+        <ToolInput input={tool.input} />
+
+        <Confirmation approval={tool.approval} state={tool.state}>
+          <ConfirmationTitle>
+            <ConfirmationRequest>
+              This tool requires your approval before execution.
+            </ConfirmationRequest>
+            <ConfirmationAccepted>
+              <CheckIcon className="size-4 text-green-600 dark:text-green-400" />
+              <span>Accepted</span>
+            </ConfirmationAccepted>
+            <ConfirmationRejected>
+              <XIcon className="size-4 text-destructive" />
+              <span>Rejected</span>
+            </ConfirmationRejected>
+          </ConfirmationTitle>
+          <ConfirmationActions>
+            <ConfirmationAction
+              onClick={handleReject}
+              variant="outline"
+              disabled={promptInputProcessing}
+            >
+              Reject
+            </ConfirmationAction>
+            <ConfirmationAction
+              onClick={handleAccept}
+              variant="default"
+              disabled={promptInputProcessing}
+            >
+              Accept
+            </ConfirmationAction>
+          </ConfirmationActions>
+        </Confirmation>
+
+        {(tool.state === 'output-available' ||
+          tool.state === 'output-error') && (
+          <ToolOutput
+            output={
+              <MessageResponse>
+                {typeof tool.output === 'string'
+                  ? tool.output
+                  : JSON.stringify(tool.output, null, 2)}
+              </MessageResponse>
+            }
+            errorText={tool.errorText}
+          />
+        )}
+      </ToolContent>
+    </Tool>
+  )
+})
+
 function ChatAssistantMessageContent() {
-  const { message, parts, streaming } = useChatMessageContext()
+  const { parts, streaming } = useChatMessageContext()
 
   return (
     <MessageContent>
       {parts.text ? (
-        <MessageResponse>{parts.text}</MessageResponse>
+        <MessageResponse className="whitespace-pre-wrap break-words">
+          {parts.text}
+        </MessageResponse>
       ) : streaming ? (
         <Shimmer>Generating response...</Shimmer>
       ) : (
@@ -988,45 +1132,54 @@ function ChatAssistantMessageContent() {
       )}
 
       <ChatMessageFailed />
-
-      {message.metadata?.error && (
-        <ChatMessageResponseError error={message.metadata?.error} />
-      )}
     </MessageContent>
   )
 }
+
+const ChatAssistantMessageToolImageGeneration = React.memo(
+  function ChatAssistantMessageToolImageGeneration({
+    part,
+  }: { part: ToolImageGenerationPart }) {
+    const { toolCallId, state, output } = part
+
+    const isError = state === 'output-error'
+    const isGenerating = state !== 'output-available'
+    const base64 = output?.result
+
+    if (isError) {
+      return (
+        <div
+          key={toolCallId}
+          className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border p-4"
+        >
+          <AlertCircleIcon className="size-4 shrink-0 text-destructive" />
+        </div>
+      )
+    }
+
+    if (isGenerating || !base64) {
+      return <Skeleton key={toolCallId} className="h-[200px] w-[200px]" />
+    }
+
+    return (
+      <Image
+        key={toolCallId}
+        base64={base64}
+        uint8Array={new Uint8Array()}
+        mediaType="image/jpeg"
+        alt="Generated image"
+        className="max-h-[calc(100vh-300px)] min-h-[200px] min-w-[200px] max-w-fit rounded-lg border object-contain"
+      />
+    )
+  },
+)
 
 // ============================================================================
 // Common Components
 // ============================================================================
 
-function ChatEmptyMessage() {
-  const { message } = useChatMessageContext()
-
-  if (message.status === 'failed') {
-    return null
-  }
-
-  return <p className="italic">No message content</p>
-}
-
-function ChatMessageFailed() {
-  const { message } = useChatMessageContext()
-
-  if (message.status !== 'failed') {
-    return null
-  }
-
-  return (
-    <div className="flex flex-row items-center gap-2">
-      <XCircleIcon className="size-4 shrink-0 text-destructive" />
-      An unexpected error occurred
-    </div>
-  )
-}
-
 function ChatMessageActions() {
-  const { regenerateMessage } = useChatContext()
+  const { regenerateMessage, promptInputProcessing } = useChatContext()
   const { message, parts, streaming, processing, editing, setEditing } =
     useChatMessageContext()
 
@@ -1045,12 +1198,12 @@ function ChatMessageActions() {
   }
 
   return (
-    <MessageActions className="group-[.is-other-user]:justify-start">
+    <MessageActions>
       <MessageAction
         label="Copy"
         onClick={handleCopy}
         tooltip="Copy to clipboard"
-        disabled={!parts.text.trim()}
+        disabled={!parts.text.trim() || streaming}
       >
         <CopyIcon />
       </MessageAction>
@@ -1060,7 +1213,7 @@ function ChatMessageActions() {
           label="Retry"
           onClick={handleRetry}
           tooltip="Regenerate response"
-          disabled={streaming}
+          disabled={streaming || promptInputProcessing}
         >
           <RefreshCcwIcon />
         </MessageAction>
@@ -1077,6 +1230,35 @@ function ChatMessageActions() {
         </MessageAction>
       )}
     </MessageActions>
+  )
+}
+
+function ChatEmptyMessage() {
+  const { message } = useChatMessageContext()
+
+  if (message.status === 'failed') {
+    return null
+  }
+
+  return <p className="italic">No message content</p>
+}
+
+function ChatMessageFailed() {
+  const { message } = useChatMessageContext()
+
+  return (
+    <>
+      {message.status === 'failed' && (
+        <div className="flex flex-row items-center gap-2">
+          <XCircleIcon className="size-4 shrink-0 text-destructive" />
+          An unexpected error occurred
+        </div>
+      )}
+
+      {message.metadata?.error && (
+        <ChatMessageResponseError error={message.metadata?.error} />
+      )}
+    </>
   )
 }
 

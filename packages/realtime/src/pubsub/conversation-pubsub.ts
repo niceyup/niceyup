@@ -7,11 +7,39 @@ import type {
   ConversationsView,
 } from '../lib/types'
 
-type ConversationChannel = `conversations-${string}:messages`
+type ConversationChannel =
+  | `conversations-${string}`
+  | `conversations-${string}:messages`
 
 export class ConversationPubSub extends RealtimePubSub<
   ConversationChannel | string
 > {
+  async subscribeConversation({
+    conversationId,
+    socket,
+  }: {
+    conversationId: string
+    socket: WebSocket
+  }) {
+    return this.subscribe({
+      channel: `conversations-${conversationId}`,
+      socket,
+    })
+  }
+
+  async emitConversation({
+    conversationId,
+    data,
+  }: {
+    conversationId: string
+    data: ConversationEvent
+  }) {
+    return this.emit({
+      channel: `conversations-${conversationId}`,
+      data,
+    })
+  }
+
   async subscribeMessages({
     conversationId,
     socket,

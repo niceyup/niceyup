@@ -53,6 +53,7 @@ export type { ListSourcesQueryKey } from './react-query/hooks/useListSources'
 export type { ListSourcesSuspenseQueryKey } from './react-query/hooks/useListSourcesSuspense'
 export type { RegenerateMessageMutationKey } from './react-query/hooks/useRegenerateMessage'
 export type { ResendMessageMutationKey } from './react-query/hooks/useResendMessage'
+export type { RespondToToolApprovalMutationKey } from './react-query/hooks/useRespondToToolApproval'
 export type { SendMessageMutationKey } from './react-query/hooks/useSendMessage'
 export type { StopMessageMutationKey } from './react-query/hooks/useStopMessage'
 export type { StreamMessageQueryKey } from './react-query/hooks/useStreamMessage'
@@ -484,6 +485,18 @@ export type {
   ResendMessageMutationRequestSchema,
   ResendMessageMutationResponseSchema,
 } from './schemas/resendMessageSchema'
+export type {
+  RespondToToolApprovalPathParamsSchema,
+  RespondToToolApproval200Schema,
+  RespondToToolApproval400Schema,
+  RespondToToolApproval401Schema,
+  RespondToToolApproval403Schema,
+  RespondToToolApproval404Schema,
+  RespondToToolApproval429Schema,
+  RespondToToolApproval500Schema,
+  RespondToToolApprovalMutationRequestSchema,
+  RespondToToolApprovalMutationResponseSchema,
+} from './schemas/respondToToolApprovalSchema'
 export type {
   SendMessagePathParamsSchema,
   SendMessage200Schema,
@@ -1305,6 +1318,56 @@ export type {
   ResendMessageMutation,
 } from './types/ResendMessage'
 export type {
+  RespondToToolApprovalPathParams,
+  AssistantMessageStatusEnum4,
+  AssistantMessageRoleEnum4,
+  PartsTypeEnum83,
+  PartsStateEnum97,
+  PartsTypeEnum84,
+  PartsStateEnum98,
+  PartsTypeEnum85,
+  PartsTypeEnum86,
+  PartsTypeEnum87,
+  PartsTypeEnum88,
+  PartsTypeEnum89,
+  PartsStateEnum99,
+  PartsTypeEnum90,
+  PartsStateEnum100,
+  PartsTypeEnum91,
+  PartsStateEnum101,
+  PartsTypeEnum92,
+  PartsStateEnum102,
+  PartsTypeEnum93,
+  PartsStateEnum103,
+  ApprovalApprovedEnum37,
+  PartsTypeEnum94,
+  PartsStateEnum104,
+  ApprovalApprovedEnum38,
+  PartsTypeEnum95,
+  PartsStateEnum105,
+  ApprovalApprovedEnum39,
+  PartsStateEnum106,
+  PartsStateEnum107,
+  PartsStateEnum108,
+  PartsStateEnum109,
+  PartsStateEnum110,
+  ApprovalApprovedEnum40,
+  PartsStateEnum111,
+  ApprovalApprovedEnum41,
+  PartsStateEnum112,
+  ApprovalApprovedEnum42,
+  RespondToToolApproval200,
+  RespondToToolApproval400,
+  RespondToToolApproval401,
+  RespondToToolApproval403,
+  RespondToToolApproval404,
+  RespondToToolApproval429,
+  RespondToToolApproval500,
+  RespondToToolApprovalMutationRequest,
+  RespondToToolApprovalMutationResponse,
+  RespondToToolApprovalMutation,
+} from './types/RespondToToolApproval'
+export type {
   SendMessagePathParams,
   UserMessageStatusEnum,
   UserMessageRoleEnum,
@@ -1634,6 +1697,7 @@ export { listSourceIndexes } from './operations/listSourceIndexes'
 export { listSources } from './operations/listSources'
 export { regenerateMessage } from './operations/regenerateMessage'
 export { resendMessage } from './operations/resendMessage'
+export { respondToToolApproval } from './operations/respondToToolApproval'
 export { sendMessage } from './operations/sendMessage'
 export { stopMessage } from './operations/stopMessage'
 export { streamMessage } from './operations/streamMessage'
@@ -1907,6 +1971,10 @@ export {
   resendMessageMutationKey,
   useResendMessage,
 } from './react-query/hooks/useResendMessage'
+export {
+  respondToToolApprovalMutationKey,
+  useRespondToToolApproval,
+} from './react-query/hooks/useRespondToToolApproval'
 export {
   sendMessageMutationKey,
   useSendMessage,
@@ -2389,6 +2457,18 @@ export {
   resendMessageMutationResponseSchema,
 } from './schemas/resendMessageSchema'
 export {
+  respondToToolApprovalPathParamsSchema,
+  respondToToolApproval200Schema,
+  respondToToolApproval400Schema,
+  respondToToolApproval401Schema,
+  respondToToolApproval403Schema,
+  respondToToolApproval404Schema,
+  respondToToolApproval429Schema,
+  respondToToolApproval500Schema,
+  respondToToolApprovalMutationRequestSchema,
+  respondToToolApprovalMutationResponseSchema,
+} from './schemas/respondToToolApprovalSchema'
+export {
   sendMessagePathParamsSchema,
   sendMessage200Schema,
   sendMessage400Schema,
@@ -2772,6 +2852,45 @@ export {
   partsTypeEnum68,
   partsTypeEnum69,
 } from './types/ResendMessage'
+export {
+  assistantMessageStatusEnum4,
+  assistantMessageRoleEnum4,
+  partsTypeEnum83,
+  partsStateEnum97,
+  partsTypeEnum84,
+  partsStateEnum98,
+  partsTypeEnum85,
+  partsTypeEnum86,
+  partsTypeEnum87,
+  partsTypeEnum88,
+  partsTypeEnum89,
+  partsStateEnum99,
+  partsTypeEnum90,
+  partsStateEnum100,
+  partsTypeEnum91,
+  partsStateEnum101,
+  partsTypeEnum92,
+  partsStateEnum102,
+  partsTypeEnum93,
+  partsStateEnum103,
+  approvalApprovedEnum37,
+  partsTypeEnum94,
+  partsStateEnum104,
+  approvalApprovedEnum38,
+  partsTypeEnum95,
+  partsStateEnum105,
+  approvalApprovedEnum39,
+  partsStateEnum106,
+  partsStateEnum107,
+  partsStateEnum108,
+  partsStateEnum109,
+  partsStateEnum110,
+  approvalApprovedEnum40,
+  partsStateEnum111,
+  approvalApprovedEnum41,
+  partsStateEnum112,
+  approvalApprovedEnum42,
+} from './types/RespondToToolApproval'
 export {
   userMessageStatusEnum,
   userMessageRoleEnum,

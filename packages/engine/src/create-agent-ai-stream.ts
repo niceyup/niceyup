@@ -6,7 +6,11 @@ import {
   streamText,
 } from '@workspace/ai'
 import type { Output } from '@workspace/ai'
-import type { AIMessage, AIMessageMetadata } from '@workspace/ai/types'
+import type {
+  AIMessage,
+  AIMessageMetadata,
+  AIMessagePart,
+} from '@workspace/ai/types'
 
 type StreamTextParams<
   TOOLS extends ToolSet,
@@ -42,6 +46,7 @@ export async function createAgentAIStream<
   messages: ModelMessage[]
   originalMessage?: {
     id?: string
+    parts?: AIMessagePart[] | null
     metadata?: AIMessageMetadata | null
   }
   onStart?: (event: { message: AIMessage }) => Promise<void>
@@ -56,7 +61,7 @@ export async function createAgentAIStream<
       metadata: originalMessage?.metadata || {},
       status: 'processing',
       role: 'assistant',
-      parts: [],
+      parts: originalMessage?.parts || [],
     } as AIMessage
 
     await onStart?.({ message })

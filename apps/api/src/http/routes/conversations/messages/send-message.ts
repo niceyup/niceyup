@@ -16,7 +16,7 @@ import {
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
 import type { AIMessageMetadata } from '@workspace/ai/types'
-import { db } from '@workspace/db'
+import { db, generateId } from '@workspace/db'
 import { and, desc, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { conversations, messages } from '@workspace/db/schema'
@@ -129,6 +129,8 @@ export async function sendMessage(app: FastifyTypedInstance) {
         organizationSlug,
         teamId,
       })
+
+      const streamId = generateId()
 
       if (visibility === 'team' && !context.teamId) {
         throw new BadRequestError({
@@ -298,6 +300,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
             role: 'assistant',
             parts: [],
             metadata: {
+              streamId,
               authorId: userId,
             },
             parentId: userMessage.id,
@@ -328,6 +331,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
       })
 
       await streamAgentResponse({
+        streamId,
         conversationId: _conversationId,
         userMessage: {
           id: userMessage.id,

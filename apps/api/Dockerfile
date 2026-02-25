@@ -1,4 +1,4 @@
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 
 # Install pnpm
 ENV PNPM_HOME="/pnpm"
@@ -6,8 +6,6 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
 FROM base AS builder
-RUN apk update
-RUN apk add --no-cache libc6-compat
 # Set working directory
 WORKDIR /app
 # Install turbo globally
@@ -20,8 +18,6 @@ RUN turbo prune api --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
-RUN apk update
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # First install the dependencies (as they change less often)
@@ -31,9 +27,6 @@ RUN pnpm install --frozen-lockfile
 
 # Build the project
 COPY --from=builder /app/out/full/ .
-
-# Environment variables
-COPY --from=builder /app/.env .env
 
 # Uncomment and use build args to enable remote caching
 # ARG TURBO_TEAM

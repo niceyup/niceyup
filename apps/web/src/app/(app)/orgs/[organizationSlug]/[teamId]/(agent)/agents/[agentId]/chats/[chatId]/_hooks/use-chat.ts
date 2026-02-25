@@ -76,7 +76,7 @@ const buildMessageChain = (
     const loadingMessageNode = entities[loadingMessage.id]
     if (loadingMessageNode) {
       const ancestors = buildAncestors(loadingMessageNode, entities)
-      return [...ancestors, targetMessage]
+      return [...ancestors, loadingMessageNode]
     }
   }
 
@@ -153,13 +153,14 @@ const createBranchChangeHandler = (
 
       if (targetMessage?.children) {
         setTargetMessageId(targetNodeId)
+        setLoadingMessage(false)
         return
       }
 
       try {
         setLoadingMessage({ id: previousNodeId, role })
 
-        const { data } = await sdk.listMessages({
+        const { data, error } = await sdk.listMessages({
           conversationId: params.chatId,
           params: {
             organizationSlug: params.organizationSlug,
@@ -168,13 +169,16 @@ const createBranchChangeHandler = (
           },
         })
 
-        const messages = (data?.messages ?? []) as ChatMessageNode[]
-        upsertMessages(messages)
+        if (error) {
+          throw new Error(error.message)
+        }
+
+        upsertMessages(data.messages as ChatMessageNode[])
+
         setTargetMessageId(targetNodeId)
+        setLoadingMessage(false)
       } catch {
         // Silently fail
-      } finally {
-        setLoadingMessage(false)
       }
     },
     [params, getMessage, upsertMessages, setTargetMessageId, setLoadingMessage],
@@ -198,15 +202,19 @@ type StopMessageParams = {
   messageId?: string
 }
 
+type RespondToToolApprovalParams = {
+  messageId: string
+  toolCallId: string
+  approvalId: string
+  approved: boolean
+}
+
 type UseChatParams = {
   params: Params
   chat?: Chat | null
   initialMessages?: MessageNode[]
   options?: ChatOptions
 }
-
-const isProcessing = (status: PromptInputStatus) =>
-  status === 'submitted' || status === 'streaming'
 
 export function useChat({
   params,
@@ -462,16 +470,30 @@ export function useChat({
         return undefined
       }
 
-      const persistentParent = getPersistentParent(messageId)
+      const message = messagesState.entities[messageId]
 
-      const lastChildId = persistentParent?.children
-        ?.filter((id) => messagesState.entities[id]?.isPersisted !== false)
-        ?.at(-1)
+      if (!message?.parentId) {
+        return undefined
+      }
+
+      const persistentParent = getPersistentParent(message.parentId)
+
+      const persistentChildren = persistentParent?.children?.filter(
+        (id) =>
+          messagesState.entities[id] &&
+          messagesState.entities[id].isPersisted !== false,
+      )
+
+      const lastChildId = persistentChildren?.at(-1)
 
       return lastChildId ? messagesState.entities[lastChildId] : undefined
     },
     [messagesState],
   )
+
+  const inputProcessing = React.useMemo(() => {
+    return inputStatus === 'submitted' || inputStatus === 'streaming'
+  }, [inputStatus])
 
   const handleBranchChange = createBranchChangeHandler(
     params,
@@ -631,7 +653,7 @@ export function useChat({
   )
 
   const sendMessage = async ({ parts }: SendMessageParams) => {
-    if (isProcessing(inputStatus)) {
+    if (inputProcessing) {
       return
     }
 
@@ -698,7 +720,7 @@ export function useChat({
   }
 
   const resendMessage = async ({ messageId, parts }: ResendMessageParams) => {
-    if (isProcessing(inputStatus)) {
+    if (inputProcessing) {
       return
     }
 
@@ -750,7 +772,7 @@ export function useChat({
   }
 
   const regenerateMessage = async ({ messageId }: RegenerateMessageParams) => {
-    if (isProcessing(inputStatus)) {
+    if (inputProcessing) {
       return
     }
 
@@ -770,7 +792,7 @@ export function useChat({
     scrollRef.current?.scrollToBottom()
 
     try {
-      const persistentLastSiblingId = getPersistentLastSibling(parentId)?.id
+      const persistentLastSiblingId = getPersistentLastSibling(messageId)?.id
 
       if (!persistentLastSiblingId) {
         return
@@ -845,6 +867,51 @@ export function useChat({
     conversationId: params.chatId !== 'new' ? params.chatId : null,
   })
 
+  const respondToToolApproval = async ({
+    messageId,
+    // toolCallId,
+    approvalId,
+    approved,
+  }: RespondToToolApprovalParams) => {
+    if (inputProcessing) {
+      return
+    }
+
+    setInputStatus('submitted')
+
+    try {
+      const { data, error } = await sdk.respondToToolApproval({
+        conversationId: params.chatId,
+        messageId,
+        data: {
+          organizationSlug: params.organizationSlug,
+          agentId: params.agentId,
+          // toolCallId,
+          approvalId,
+          approved,
+        },
+      })
+
+      if (error) {
+        throw new Error(error.message)
+      }
+
+      const isPrivate = chat?.visibility === 'private'
+
+      if (!isPrivate || data.assistantMessage.status === 'completed') {
+        setInputStatus('ready')
+      }
+
+      if (isPrivate) {
+        updateMessage(messageId, data.assistantMessage as ChatMessageNode)
+      }
+
+      setTargetMessageId(data.assistantMessage.id)
+    } catch {
+      setInputStatus('error')
+    }
+  }
+
   const uploadFile = async ({ id, file }: { id: string; file: File }) => {
     try {
       const { data, error } = await uploadFileFn({ file })
@@ -888,7 +955,9 @@ export function useChat({
     resendMessage,
     regenerateMessage,
     stopMessage,
+    respondToToolApproval,
     promptInputStatus: inputStatus,
+    promptInputProcessing: inputProcessing,
     setPromptInputStatus: setInputStatus,
     conversationScrollRef: scrollRef,
     uploading,

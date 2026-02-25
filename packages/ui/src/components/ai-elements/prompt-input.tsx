@@ -1,5 +1,6 @@
 'use client'
 
+import type { FileUIPart } from '@workspace/ai'
 import { Button } from '@workspace/ui/components/button'
 import {
   Command,
@@ -77,13 +78,6 @@ import {
 
 type ChatStatus = 'error' | 'submitted' | 'streaming' | 'ready'
 
-type FileAIPart = {
-  type: 'file'
-  mediaType: string
-  filename?: string
-  url: string
-}
-
 type FileMetadata = {
   id: string
   uploaded?: boolean
@@ -91,7 +85,7 @@ type FileMetadata = {
 }
 
 export type AttachmentsContext = {
-  files: (FileAIPart & FileMetadata)[]
+  files: (FileUIPart & FileMetadata)[]
   add: (files: File[] | FileList) => void
   remove: (id: string) => void
   clear: () => void
@@ -166,7 +160,7 @@ export function PromptInputProvider({
 
   // ----- attachments state (global when wrapped)
   const [attachements, setAttachements] = useState<
-    (FileAIPart & FileMetadata)[]
+    (FileUIPart & FileMetadata)[]
   >([])
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const openRef = useRef<() => void>(() => {})
@@ -277,7 +271,7 @@ export const usePromptInputAttachments = () => {
 }
 
 export type PromptInputAttachmentProps = HTMLAttributes<HTMLDivElement> & {
-  data: FileAIPart & FileMetadata & { uploading?: boolean }
+  data: FileUIPart & FileMetadata & { uploading?: boolean }
   className?: string
 }
 
@@ -389,7 +383,7 @@ export type PromptInputAttachmentsProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   'children'
 > & {
-  children: (attachment: FileAIPart & FileMetadata) => ReactNode
+  children: (attachment: FileUIPart & FileMetadata) => ReactNode
 }
 
 export function PromptInputAttachments({
@@ -445,7 +439,7 @@ export const PromptInputActionAddAttachments = ({
 
 export type PromptInputMessage = {
   text: string
-  files: (FileAIPart & FileMetadata)[]
+  files: (FileUIPart & FileMetadata)[]
 }
 
 export type PromptInputProps = Omit<
@@ -507,7 +501,7 @@ export const PromptInput = ({
   }, [])
 
   // ----- Local attachments (only used when no provider)
-  const [items, setItems] = useState<(FileAIPart & FileMetadata)[]>([])
+  const [items, setItems] = useState<(FileUIPart & FileMetadata)[]>([])
   const files = usingProvider ? controller.attachments.files : items
 
   const openFileDialogLocal = useCallback(() => {
@@ -566,7 +560,7 @@ export const PromptInput = ({
             message: 'Too many files. Some were not added.',
           })
         }
-        const next: (FileAIPart & FileMetadata)[] = []
+        const next: (FileUIPart & FileMetadata)[] = []
         for (const file of capped) {
           const id = nanoid()
 

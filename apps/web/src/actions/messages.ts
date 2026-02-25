@@ -62,7 +62,7 @@ export async function streamMessage(
     }
   }
 
-  if (message.role !== 'assistant') {
+  if (message.role !== 'assistant' || !message.metadata?.streamId) {
     return {
       error: {
         code: 'MESSAGE_NOT_STREAMABLE',
@@ -71,7 +71,9 @@ export async function streamMessage(
     }
   }
 
-  const stream = await resumableStreamContext.resumeExistingStream(messageId)
+  const stream = await resumableStreamContext.resumeExistingStream(
+    message.metadata?.streamId,
+  )
 
   const streamable = createStreamableValue<AIMessage, unknown>({
     id: message.id,

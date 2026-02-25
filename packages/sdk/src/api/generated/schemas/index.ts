@@ -414,6 +414,18 @@ export type {
   ResendMessageMutationResponseSchema,
 } from './resendMessageSchema'
 export type {
+  RespondToToolApprovalPathParamsSchema,
+  RespondToToolApproval200Schema,
+  RespondToToolApproval400Schema,
+  RespondToToolApproval401Schema,
+  RespondToToolApproval403Schema,
+  RespondToToolApproval404Schema,
+  RespondToToolApproval429Schema,
+  RespondToToolApproval500Schema,
+  RespondToToolApprovalMutationRequestSchema,
+  RespondToToolApprovalMutationResponseSchema,
+} from './respondToToolApprovalSchema'
+export type {
   SendMessagePathParamsSchema,
   SendMessage200Schema,
   SendMessage400Schema,
@@ -1008,6 +1020,18 @@ export {
   resendMessageMutationRequestSchema,
   resendMessageMutationResponseSchema,
 } from './resendMessageSchema'
+export {
+  respondToToolApprovalPathParamsSchema,
+  respondToToolApproval200Schema,
+  respondToToolApproval400Schema,
+  respondToToolApproval401Schema,
+  respondToToolApproval403Schema,
+  respondToToolApproval404Schema,
+  respondToToolApproval429Schema,
+  respondToToolApproval500Schema,
+  respondToToolApprovalMutationRequestSchema,
+  respondToToolApprovalMutationResponseSchema,
+} from './respondToToolApprovalSchema'
 export {
   sendMessagePathParamsSchema,
   sendMessage200Schema,

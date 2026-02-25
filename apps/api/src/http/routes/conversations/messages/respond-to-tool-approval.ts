@@ -5,13 +5,18 @@ import { streamAgentResponse } from '@/http/functions/stream-agent-response'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import {
+  isToolUIPart,
+  lastAssistantMessageIsCompleteWithApprovalResponses,
+} from '@workspace/ai'
+import {
   aiMessageMetadataSchema,
   aiMessagePartSchema,
   aiMessageRoleSchema,
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
+import type { AIMessagePart } from '@workspace/ai/types'
 import { db, generateId } from '@workspace/db'
-import { and, eq, isNull } from '@workspace/db/orm'
+import { and, eq, isNull, sql } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { messages } from '@workspace/db/schema'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
@@ -25,18 +30,16 @@ const messageSchema = z.object({
   metadata: aiMessageMetadataSchema.nullable(),
   authorId: z.string().nullish(),
   parentId: z.string().nullish(),
-  children: z.array(z.string()).optional(),
-  temporaryId: z.string().optional(),
 })
 
-export async function regenerateMessage(app: FastifyTypedInstance) {
+export async function respondToToolApproval(app: FastifyTypedInstance) {
   app.register(authenticate).post(
-    '/conversations/:conversationId/messages/:messageId/regenerate',
+    '/conversations/:conversationId/messages/:messageId/tool-approval',
     {
       schema: {
         tags: ['Conversations'],
-        description: 'Regenerate assistant message',
-        operationId: 'regenerateMessage',
+        description: 'Respond to a tool approval request',
+        operationId: 'respondToToolApproval',
         params: z.object({
           conversationId: z.string(),
           messageId: z.string(),
@@ -45,7 +48,9 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           agentId: z.string(),
-          temporaryMessageId: z.string().optional(),
+          // toolCallId: z.string(),
+          approvalId: z.string(),
+          approved: z.boolean(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -63,8 +68,14 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
 
       const { conversationId, messageId } = request.params
 
-      const { organizationId, organizationSlug, agentId, temporaryMessageId } =
-        request.body
+      const {
+        organizationId,
+        organizationSlug,
+        agentId,
+        // toolCallId,
+        approvalId,
+        approved,
+      } = request.body
 
       const { context } = await resolveMembershipContext({
         userId,
@@ -89,8 +100,9 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
       const [message] = await db
         .select({
           id: messages.id,
+          role: messages.role,
           parts: messages.parts,
-          parentId: messages.parentId,
+          metadata: messages.metadata,
         })
         .from(messages)
         .where(
@@ -109,48 +121,57 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
         })
       }
 
-      let _parentMessage = null
+      const toolCallPart = message.parts?.find(
+        (part) =>
+          isToolUIPart(part) &&
+          // part.toolCallId === toolCallId &&
+          part.state === 'approval-requested' &&
+          part.approval.id === approvalId,
+      )
 
-      if (message.parentId) {
-        const [parentMessage] = await db
-          .select({
-            id: messages.id,
-            parts: messages.parts,
-          })
-          .from(messages)
-          .where(
-            and(
-              eq(messages.conversationId, conversationId),
-              eq(messages.id, message.parentId),
-              isNull(messages.deletedAt),
-            ),
-          )
-          .limit(1)
-
-        _parentMessage = parentMessage
-      }
-
-      if (!_parentMessage) {
+      if (!toolCallPart) {
         throw new BadRequestError({
-          code: 'PARENT_MESSAGE_NOT_FOUND',
-          message: 'Parent message not found',
+          code: 'TOOL_CALL_PART_APPROVAL_REQUESTED_NOT_FOUND',
+          message: 'Tool call part approval requested not found',
         })
       }
 
+      const updatedParts: AIMessagePart[] = (message.parts || []).map((part) =>
+        isToolUIPart(part) &&
+        // part.toolCallId === toolCallId &&
+        part.state === 'approval-requested' &&
+        part.approval.id === approvalId
+          ? {
+              ...part,
+              state: 'approval-responded',
+              approval: {
+                id: approvalId,
+                approved,
+                // reason: approved ? 'User confirmed the command' : 'User denied the command',
+              },
+            }
+          : part,
+      )
+
+      const isCompleteWithApprovalResponses =
+        lastAssistantMessageIsCompleteWithApprovalResponses({
+          messages: [{ ...message, parts: updatedParts }],
+        })
+
       const { assistantMessage } = await db.transaction(async (tx) => {
         const [assistantMessage] = await tx
-          .insert(messages)
-          .values({
-            conversationId,
-            status: 'queued',
-            role: 'assistant',
-            parts: [],
-            metadata: {
-              streamId,
-              authorId: userId,
-            },
-            parentId: _parentMessage.id,
+          .update(messages)
+          .set({
+            parts: updatedParts,
+
+            ...(isCompleteWithApprovalResponses
+              ? {
+                  status: 'queued',
+                  metadata: sql`COALESCE(${messages.metadata}, '{}'::jsonb) || ${JSON.stringify({ streamId })}::jsonb`,
+                }
+              : {}),
           })
+          .where(eq(messages.id, message.id))
           .returning({
             id: messages.id,
             status: messages.status,
@@ -163,37 +184,34 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
 
         if (!assistantMessage) {
           throw new BadRequestError({
-            code: 'ASSISTANT_MESSAGE_NOT_CREATED',
-            message: 'Assistant message not created',
+            code: 'ASSISTANT_MESSAGE_NOT_UPDATED',
+            message: 'Assistant message not updated',
           })
         }
 
-        return { assistantMessage: { ...assistantMessage, children: [] } }
+        return { assistantMessage }
       })
 
-      await streamAgentResponse({
-        streamId,
-        conversationId,
-        userMessage: {
-          id: _parentMessage.id,
-          parts: _parentMessage.parts || [],
-        },
-        assistantMessage,
-      })
-
-      const assistantMessageWithTemporaryId = {
-        ...assistantMessage,
-        temporaryId: temporaryMessageId,
+      if (isCompleteWithApprovalResponses) {
+        await streamAgentResponse({
+          streamId,
+          conversationId,
+          assistantMessage: {
+            id: assistantMessage.id,
+            parts: assistantMessage.parts || [],
+            metadata: assistantMessage.metadata,
+          },
+        })
       }
 
       // Realtime PubSub
 
       conversationPubSub.emitMessages({
         conversationId,
-        data: [assistantMessageWithTemporaryId],
+        data: [assistantMessage],
       })
 
-      return { assistantMessage: assistantMessageWithTemporaryId }
+      return { assistantMessage }
     },
   )
 }

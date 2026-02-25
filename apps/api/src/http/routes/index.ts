@@ -26,6 +26,7 @@ import { listMessages } from './conversations/messages/list-messages'
 import { realtimeMessages } from './conversations/messages/realtime-messages'
 import { regenerateMessage } from './conversations/messages/regenerate-message'
 import { resendMessage } from './conversations/messages/resend-message'
+import { respondToToolApproval } from './conversations/messages/respond-to-tool-approval'
 import { sendMessage } from './conversations/messages/send-message'
 import { stopMessage } from './conversations/messages/stop-message'
 import { streamMessage } from './conversations/messages/stream-message'
@@ -83,6 +84,7 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(sendMessage)
   app.register(resendMessage)
   app.register(regenerateMessage)
+  app.register(respondToToolApproval)
   app.register(streamMessage)
   app.register(stopMessage)
   app.register(realtimeMessages)

@@ -1,12 +1,7 @@
+import type { Experimental_GeneratedImage } from '@workspace/ai'
 import { cn } from '@workspace/ui/lib/utils'
 
-type GeneratedImage = {
-  base64: string
-  uint8Array: Uint8Array
-  mediaType: string
-}
-
-export type ImageProps = GeneratedImage & {
+export type ImageProps = Experimental_GeneratedImage & {
   className?: string
   alt?: string
 }
