@@ -34,7 +34,7 @@ export const getSourceIndexingStatusSuspenseQueryKey = (
 ) =>
   [
     {
-      url: '/agents/:agentId/source-indexes/status',
+      url: '/agents/:agentId/knowledge-base/indexed-sources/status',
       params: { agentId: agentId },
     },
     ...(params ? [params] : []),
@@ -78,8 +78,8 @@ export function getSourceIndexingStatusSuspenseQueryOptions(
 }
 
 /**
- * @description Get source indexing status of an agent
- * {@link /agents/:agentId/source-indexes/status}
+ * @description Get indexed sources status
+ * {@link /agents/:agentId/knowledge-base/indexed-sources/status}
  */
 export function useGetSourceIndexingStatusSuspense<
   TData = GetSourceIndexingStatusQueryResponse,

@@ -1,16 +1,13 @@
-import { type EmbeddingModel, tool } from '@workspace/ai'
+import { tool } from '@workspace/ai'
+import type { VectorStore } from '@workspace/vector-store'
 import { z } from 'zod'
 import { retrieveSources } from './retrievers'
 
-export function retrieveSourcesTool({
-  embeddingModel,
-  agentId,
-  organizationId,
+export function agentKnowledgeBaseTool({
+  vectorStore,
   topK,
 }: {
-  embeddingModel: EmbeddingModel
-  agentId: string
-  organizationId: string
+  vectorStore: VectorStore
   topK?: number
 }) {
   return tool({
@@ -20,13 +17,7 @@ export function retrieveSourcesTool({
       question: z.string().describe('The user’s question.'),
     }),
     execute: async ({ question }) => {
-      return retrieveSources({
-        embeddingModel,
-        agentId,
-        organizationId,
-        question,
-        topK,
-      })
+      return retrieveSources({ vectorStore, topK, question })
     },
   })
 }

@@ -16,6 +16,7 @@
     "@workspace/core": "workspace:*",
     "@workspace/encryption": "workspace:*",
     "@workspace/env": "workspace:*",
+    "@workspace/utils": "workspace:*",
     "drizzle-orm": "0.44.7",
     "pg": "8.16.3"
   },

@@ -19,6 +19,7 @@ export type {
   CreateConnection429,
   CreateConnection500,
   CreateConnectionMutationRequestAppEnum,
+  CreateConnectionMutationRequestAuthenticationEnum,
   CreateConnectionMutationRequest,
   CreateConnectionMutationResponse,
   CreateConnectionMutation,
@@ -37,18 +38,31 @@ export type {
   CreateConversationMutation,
 } from './CreateConversation'
 export type {
-  CreateProvider201,
-  CreateProvider400,
-  CreateProvider401,
-  CreateProvider403,
-  CreateProvider404,
-  CreateProvider429,
-  CreateProvider500,
-  CreateProviderMutationRequestProviderEnum,
-  CreateProviderMutationRequest,
-  CreateProviderMutationResponse,
-  CreateProviderMutation,
-} from './CreateProvider'
+  CreateMcpServer201,
+  CreateMcpServer400,
+  CreateMcpServer401,
+  CreateMcpServer403,
+  CreateMcpServer404,
+  CreateMcpServer429,
+  CreateMcpServer500,
+  CreateMcpServerMutationRequestTypeEnum,
+  CreateMcpServerMutationRequest,
+  CreateMcpServerMutationResponse,
+  CreateMcpServerMutation,
+} from './CreateMcpServer'
+export type {
+  CreateModelProvider201,
+  CreateModelProvider400,
+  CreateModelProvider401,
+  CreateModelProvider403,
+  CreateModelProvider404,
+  CreateModelProvider429,
+  CreateModelProvider500,
+  CreateModelProviderMutationRequestProviderEnum,
+  CreateModelProviderMutationRequest,
+  CreateModelProviderMutationResponse,
+  CreateModelProviderMutation,
+} from './CreateModelProvider'
 export type {
   CreateSource201,
   CreateSource400,
@@ -78,6 +92,19 @@ export type {
   CreateSourceFolderMutationResponse,
   CreateSourceFolderMutation,
 } from './CreateSourceFolder'
+export type {
+  CreateVectorStore201,
+  CreateVectorStore400,
+  CreateVectorStore401,
+  CreateVectorStore403,
+  CreateVectorStore404,
+  CreateVectorStore429,
+  CreateVectorStore500,
+  CreateVectorStoreMutationRequestProviderEnum,
+  CreateVectorStoreMutationRequest,
+  CreateVectorStoreMutationResponse,
+  CreateVectorStoreMutation,
+} from './CreateVectorStore'
 export type {
   DeleteAgentPathParams,
   DeleteAgent204Enum,
@@ -121,19 +148,33 @@ export type {
   DeleteConversationMutation,
 } from './DeleteConversation'
 export type {
-  DeleteProviderPathParams,
-  DeleteProvider204Enum,
-  DeleteProvider204,
-  DeleteProvider400,
-  DeleteProvider401,
-  DeleteProvider403,
-  DeleteProvider404,
-  DeleteProvider429,
-  DeleteProvider500,
-  DeleteProviderMutationRequest,
-  DeleteProviderMutationResponse,
-  DeleteProviderMutation,
-} from './DeleteProvider'
+  DeleteMcpServerPathParams,
+  DeleteMcpServer204Enum,
+  DeleteMcpServer204,
+  DeleteMcpServer400,
+  DeleteMcpServer401,
+  DeleteMcpServer403,
+  DeleteMcpServer404,
+  DeleteMcpServer429,
+  DeleteMcpServer500,
+  DeleteMcpServerMutationRequest,
+  DeleteMcpServerMutationResponse,
+  DeleteMcpServerMutation,
+} from './DeleteMcpServer'
+export type {
+  DeleteModelProviderPathParams,
+  DeleteModelProvider204Enum,
+  DeleteModelProvider204,
+  DeleteModelProvider400,
+  DeleteModelProvider401,
+  DeleteModelProvider403,
+  DeleteModelProvider404,
+  DeleteModelProvider429,
+  DeleteModelProvider500,
+  DeleteModelProviderMutationRequest,
+  DeleteModelProviderMutationResponse,
+  DeleteModelProviderMutation,
+} from './DeleteModelProvider'
 export type {
   DeleteSourcePathParams,
   DeleteSource204Enum,
@@ -162,6 +203,20 @@ export type {
   DeleteSourceFolderMutationResponse,
   DeleteSourceFolderMutation,
 } from './DeleteSourceFolder'
+export type {
+  DeleteVectorStorePathParams,
+  DeleteVectorStore204Enum,
+  DeleteVectorStore204,
+  DeleteVectorStore400,
+  DeleteVectorStore401,
+  DeleteVectorStore403,
+  DeleteVectorStore404,
+  DeleteVectorStore429,
+  DeleteVectorStore500,
+  DeleteVectorStoreMutationRequest,
+  DeleteVectorStoreMutationResponse,
+  DeleteVectorStoreMutation,
+} from './DeleteVectorStore'
 export type {
   GenerateUploadSignatureHeaderParams,
   GenerateUploadSignature200,
@@ -216,10 +271,8 @@ export type {
 export type {
   GetAgentConfigurationPathParams,
   GetAgentConfigurationQueryParams,
-  LanguageModelSettingsProviderEnum,
   LanguageModelSettingsTypeEnum,
-  EmbeddingModelSettingsProviderEnum,
-  EmbeddingModelSettingsTypeEnum,
+  ProviderProviderEnum2,
   PromptMessagesRoleEnum,
   GetAgentConfiguration200,
   GetAgentConfiguration400,
@@ -232,9 +285,42 @@ export type {
   GetAgentConfigurationQuery,
 } from './GetAgentConfiguration'
 export type {
+  GetAgentKnowledgeBasePathParams,
+  GetAgentKnowledgeBaseQueryParams,
+  KnowledgeBaseStatusEnum,
+  VectorStoreProviderEnum2,
+  EmbeddingModelSettingsTypeEnum,
+  ProviderProviderEnum4,
+  GetAgentKnowledgeBase200,
+  GetAgentKnowledgeBase400,
+  GetAgentKnowledgeBase401,
+  GetAgentKnowledgeBase403,
+  GetAgentKnowledgeBase404,
+  GetAgentKnowledgeBase429,
+  GetAgentKnowledgeBase500,
+  GetAgentKnowledgeBaseQueryResponse,
+  GetAgentKnowledgeBaseQuery,
+} from './GetAgentKnowledgeBase'
+export type {
+  GetAgentSystemConfigurationPathParams,
+  GetAgentSystemConfigurationQueryParams,
+  AuxiliaryLanguageModelSettingsTypeEnum,
+  ProviderProviderEnum,
+  GetAgentSystemConfiguration200,
+  GetAgentSystemConfiguration400,
+  GetAgentSystemConfiguration401,
+  GetAgentSystemConfiguration403,
+  GetAgentSystemConfiguration404,
+  GetAgentSystemConfiguration429,
+  GetAgentSystemConfiguration500,
+  GetAgentSystemConfigurationQueryResponse,
+  GetAgentSystemConfigurationQuery,
+} from './GetAgentSystemConfiguration'
+export type {
   GetConnectionPathParams,
   GetConnectionQueryParams,
   ConnectionAppEnum,
+  ConnectionAuthenticationEnum,
   GetConnection200,
   GetConnection400,
   GetConnection401,
@@ -262,8 +348,8 @@ export type {
 export type {
   GetConversationConfigurationPathParams,
   GetConversationConfigurationQueryParams,
-  LanguageModelSettingsProviderEnum3,
   LanguageModelSettingsTypeEnum2,
+  ProviderProviderEnum3,
   PromptMessagesRoleEnum3,
   GetConversationConfiguration200,
   GetConversationConfiguration400,
@@ -304,6 +390,35 @@ export type {
   GetFileQuery,
 } from './GetFile'
 export type {
+  GetMcpServerPathParams,
+  GetMcpServerQueryParams,
+  McpServerTypeEnum,
+  ConnectionAppEnum2,
+  GetMcpServer200,
+  GetMcpServer400,
+  GetMcpServer401,
+  GetMcpServer403,
+  GetMcpServer404,
+  GetMcpServer429,
+  GetMcpServer500,
+  GetMcpServerQueryResponse,
+  GetMcpServerQuery,
+} from './GetMcpServer'
+export type {
+  GetModelProviderPathParams,
+  GetModelProviderQueryParams,
+  ModelProviderProviderEnum,
+  GetModelProvider200,
+  GetModelProvider400,
+  GetModelProvider401,
+  GetModelProvider403,
+  GetModelProvider404,
+  GetModelProvider429,
+  GetModelProvider500,
+  GetModelProviderQueryResponse,
+  GetModelProviderQuery,
+} from './GetModelProvider'
+export type {
   GetProfile200,
   GetProfile400,
   GetProfile401,
@@ -314,20 +429,6 @@ export type {
   GetProfileQueryResponse,
   GetProfileQuery,
 } from './GetProfile'
-export type {
-  GetProviderPathParams,
-  GetProviderQueryParams,
-  ProviderProviderEnum,
-  GetProvider200,
-  GetProvider400,
-  GetProvider401,
-  GetProvider403,
-  GetProvider404,
-  GetProvider429,
-  GetProvider500,
-  GetProviderQueryResponse,
-  GetProviderQuery,
-} from './GetProvider'
 export type {
   GetSourcePathParams,
   GetSourceQueryParams,
@@ -357,6 +458,20 @@ export type {
   GetSourceIndexingStatusQuery,
 } from './GetSourceIndexingStatus'
 export type {
+  GetVectorStorePathParams,
+  GetVectorStoreQueryParams,
+  VectorStoreProviderEnum,
+  GetVectorStore200,
+  GetVectorStore400,
+  GetVectorStore401,
+  GetVectorStore403,
+  GetVectorStore404,
+  GetVectorStore429,
+  GetVectorStore500,
+  GetVectorStoreQueryResponse,
+  GetVectorStoreQuery,
+} from './GetVectorStore'
+export type {
   Health200,
   Health400,
   Health401,
@@ -383,6 +498,7 @@ export type {
   ListConnectionsQueryParamsAppEnum,
   ListConnectionsQueryParams,
   ConnectionsAppEnum,
+  ConnectionsAuthenticationEnum,
   ListConnections200,
   ListConnections400,
   ListConnections401,
@@ -407,6 +523,34 @@ export type {
   ListConversationsQueryResponse,
   ListConversationsQuery,
 } from './ListConversations'
+export type {
+  ListIndexedSourcesPathParams,
+  ListIndexedSourcesQueryParams,
+  IndexedSourcesStatusEnum,
+  ListIndexedSources200,
+  ListIndexedSources400,
+  ListIndexedSources401,
+  ListIndexedSources403,
+  ListIndexedSources404,
+  ListIndexedSources429,
+  ListIndexedSources500,
+  ListIndexedSourcesQueryResponse,
+  ListIndexedSourcesQuery,
+} from './ListIndexedSources'
+export type {
+  ListMcpServersQueryParamsTypeEnum,
+  ListMcpServersQueryParams,
+  McpServersTypeEnum,
+  ListMcpServers200,
+  ListMcpServers400,
+  ListMcpServers401,
+  ListMcpServers403,
+  ListMcpServers404,
+  ListMcpServers429,
+  ListMcpServers500,
+  ListMcpServersQueryResponse,
+  ListMcpServersQuery,
+} from './ListMcpServers'
 export type {
   ListMessagesPathParams,
   ListMessagesQueryParams,
@@ -458,33 +602,33 @@ export type {
   ListMessagesQuery,
 } from './ListMessages'
 export type {
-  ListProvidersQueryParamsProviderEnum,
-  ListProvidersQueryParams,
-  ProvidersProviderEnum,
-  ListProviders200,
-  ListProviders400,
-  ListProviders401,
-  ListProviders403,
-  ListProviders404,
-  ListProviders429,
-  ListProviders500,
-  ListProvidersQueryResponse,
-  ListProvidersQuery,
-} from './ListProviders'
+  ListModelProvidersQueryParamsProviderEnum,
+  ListModelProvidersQueryParams,
+  ModelProvidersProviderEnum,
+  ListModelProviders200,
+  ListModelProviders400,
+  ListModelProviders401,
+  ListModelProviders403,
+  ListModelProviders404,
+  ListModelProviders429,
+  ListModelProviders500,
+  ListModelProvidersQueryResponse,
+  ListModelProvidersQuery,
+} from './ListModelProviders'
 export type {
-  ListSourceIndexesPathParams,
-  ListSourceIndexesQueryParams,
-  SourceIndexesStatusEnum,
-  ListSourceIndexes200,
-  ListSourceIndexes400,
-  ListSourceIndexes401,
-  ListSourceIndexes403,
-  ListSourceIndexes404,
-  ListSourceIndexes429,
-  ListSourceIndexes500,
-  ListSourceIndexesQueryResponse,
-  ListSourceIndexesQuery,
-} from './ListSourceIndexes'
+  ListModelProviderSelectOptionsQueryParamsProvidersEnum,
+  ListModelProviderSelectOptionsQueryParams,
+  ModelProvidersProviderEnum2,
+  ListModelProviderSelectOptions200,
+  ListModelProviderSelectOptions400,
+  ListModelProviderSelectOptions401,
+  ListModelProviderSelectOptions403,
+  ListModelProviderSelectOptions404,
+  ListModelProviderSelectOptions429,
+  ListModelProviderSelectOptions500,
+  ListModelProviderSelectOptionsQueryResponse,
+  ListModelProviderSelectOptionsQuery,
+} from './ListModelProviderSelectOptions'
 export type {
   ListSourcesQueryParams,
   SourcesTypeEnum,
@@ -499,6 +643,34 @@ export type {
   ListSourcesQueryResponse,
   ListSourcesQuery,
 } from './ListSources'
+export type {
+  ListVectorStoresQueryParamsProviderEnum,
+  ListVectorStoresQueryParams,
+  VectorStoresProviderEnum,
+  ListVectorStores200,
+  ListVectorStores400,
+  ListVectorStores401,
+  ListVectorStores403,
+  ListVectorStores404,
+  ListVectorStores429,
+  ListVectorStores500,
+  ListVectorStoresQueryResponse,
+  ListVectorStoresQuery,
+} from './ListVectorStores'
+export type {
+  ListVectorStoreSelectOptionsQueryParamsProvidersEnum,
+  ListVectorStoreSelectOptionsQueryParams,
+  VectorStoresProviderEnum2,
+  ListVectorStoreSelectOptions200,
+  ListVectorStoreSelectOptions400,
+  ListVectorStoreSelectOptions401,
+  ListVectorStoreSelectOptions403,
+  ListVectorStoreSelectOptions404,
+  ListVectorStoreSelectOptions429,
+  ListVectorStoreSelectOptions500,
+  ListVectorStoreSelectOptionsQueryResponse,
+  ListVectorStoreSelectOptionsQuery,
+} from './ListVectorStoreSelectOptions'
 export type {
   RegenerateMessagePathParams,
   AssistantMessageStatusEnum3,
@@ -549,6 +721,20 @@ export type {
   RegenerateMessageMutationResponse,
   RegenerateMessageMutation,
 } from './RegenerateMessage'
+export type {
+  ReindexKnowledgeBasePathParams,
+  ReindexKnowledgeBase204Enum,
+  ReindexKnowledgeBase204,
+  ReindexKnowledgeBase400,
+  ReindexKnowledgeBase401,
+  ReindexKnowledgeBase403,
+  ReindexKnowledgeBase404,
+  ReindexKnowledgeBase429,
+  ReindexKnowledgeBase500,
+  ReindexKnowledgeBaseMutationRequest,
+  ReindexKnowledgeBaseMutationResponse,
+  ReindexKnowledgeBaseMutation,
+} from './ReindexKnowledgeBase'
 export type {
   ResendMessagePathParams,
   UserMessageStatusEnum2,
@@ -844,13 +1030,39 @@ export type {
   UpdateAgentConfiguration404,
   UpdateAgentConfiguration429,
   UpdateAgentConfiguration500,
-  LanguageModelSettingsProviderEnum2,
-  EmbeddingModelSettingsProviderEnum2,
   PromptMessagesRoleEnum2,
   UpdateAgentConfigurationMutationRequest,
   UpdateAgentConfigurationMutationResponse,
   UpdateAgentConfigurationMutation,
 } from './UpdateAgentConfiguration'
+export type {
+  UpdateAgentKnowledgeBasePathParams,
+  UpdateAgentKnowledgeBase204Enum,
+  UpdateAgentKnowledgeBase204,
+  UpdateAgentKnowledgeBase400,
+  UpdateAgentKnowledgeBase401,
+  UpdateAgentKnowledgeBase403,
+  UpdateAgentKnowledgeBase404,
+  UpdateAgentKnowledgeBase429,
+  UpdateAgentKnowledgeBase500,
+  UpdateAgentKnowledgeBaseMutationRequest,
+  UpdateAgentKnowledgeBaseMutationResponse,
+  UpdateAgentKnowledgeBaseMutation,
+} from './UpdateAgentKnowledgeBase'
+export type {
+  UpdateAgentSystemConfigurationPathParams,
+  UpdateAgentSystemConfiguration204Enum,
+  UpdateAgentSystemConfiguration204,
+  UpdateAgentSystemConfiguration400,
+  UpdateAgentSystemConfiguration401,
+  UpdateAgentSystemConfiguration403,
+  UpdateAgentSystemConfiguration404,
+  UpdateAgentSystemConfiguration429,
+  UpdateAgentSystemConfiguration500,
+  UpdateAgentSystemConfigurationMutationRequest,
+  UpdateAgentSystemConfigurationMutationResponse,
+  UpdateAgentSystemConfigurationMutation,
+} from './UpdateAgentSystemConfiguration'
 export type {
   UpdateConnectionPathParams,
   UpdateConnection204Enum,
@@ -889,12 +1101,54 @@ export type {
   UpdateConversationConfiguration404,
   UpdateConversationConfiguration429,
   UpdateConversationConfiguration500,
-  LanguageModelSettingsProviderEnum4,
   PromptMessagesRoleEnum4,
   UpdateConversationConfigurationMutationRequest,
   UpdateConversationConfigurationMutationResponse,
   UpdateConversationConfigurationMutation,
 } from './UpdateConversationConfiguration'
+export type {
+  UpdateIndexedSourcesPathParams,
+  UpdateIndexedSources204Enum,
+  UpdateIndexedSources204,
+  UpdateIndexedSources400,
+  UpdateIndexedSources401,
+  UpdateIndexedSources403,
+  UpdateIndexedSources404,
+  UpdateIndexedSources429,
+  UpdateIndexedSources500,
+  UpdateIndexedSourcesMutationRequest,
+  UpdateIndexedSourcesMutationResponse,
+  UpdateIndexedSourcesMutation,
+} from './UpdateIndexedSources'
+export type {
+  UpdateMcpServerPathParams,
+  UpdateMcpServer204Enum,
+  UpdateMcpServer204,
+  UpdateMcpServer400,
+  UpdateMcpServer401,
+  UpdateMcpServer403,
+  UpdateMcpServer404,
+  UpdateMcpServer429,
+  UpdateMcpServer500,
+  UpdateMcpServerMutationRequestTypeEnum,
+  UpdateMcpServerMutationRequest,
+  UpdateMcpServerMutationResponse,
+  UpdateMcpServerMutation,
+} from './UpdateMcpServer'
+export type {
+  UpdateModelProviderPathParams,
+  UpdateModelProvider204Enum,
+  UpdateModelProvider204,
+  UpdateModelProvider400,
+  UpdateModelProvider401,
+  UpdateModelProvider403,
+  UpdateModelProvider404,
+  UpdateModelProvider429,
+  UpdateModelProvider500,
+  UpdateModelProviderMutationRequest,
+  UpdateModelProviderMutationResponse,
+  UpdateModelProviderMutation,
+} from './UpdateModelProvider'
 export type {
   UpdateSourcePathParams,
   UpdateSource204Enum,
@@ -924,19 +1178,19 @@ export type {
   UpdateSourceFolderMutation,
 } from './UpdateSourceFolder'
 export type {
-  UpdateSourceIndexesPathParams,
-  UpdateSourceIndexes204Enum,
-  UpdateSourceIndexes204,
-  UpdateSourceIndexes400,
-  UpdateSourceIndexes401,
-  UpdateSourceIndexes403,
-  UpdateSourceIndexes404,
-  UpdateSourceIndexes429,
-  UpdateSourceIndexes500,
-  UpdateSourceIndexesMutationRequest,
-  UpdateSourceIndexesMutationResponse,
-  UpdateSourceIndexesMutation,
-} from './UpdateSourceIndexes'
+  UpdateVectorStorePathParams,
+  UpdateVectorStore204Enum,
+  UpdateVectorStore204,
+  UpdateVectorStore400,
+  UpdateVectorStore401,
+  UpdateVectorStore403,
+  UpdateVectorStore404,
+  UpdateVectorStore429,
+  UpdateVectorStore500,
+  UpdateVectorStoreMutationRequest,
+  UpdateVectorStoreMutationResponse,
+  UpdateVectorStoreMutation,
+} from './UpdateVectorStore'
 export type {
   UploadFilesHeaderParams,
   FilesStatusEnum,
@@ -954,8 +1208,8 @@ export type {
 } from './UploadFiles'
 export type {
   UploadFilesConversationHeaderParams,
-  FilesStatusEnum5,
-  FilesStatusEnum6,
+  FilesStatusEnum3,
+  FilesStatusEnum4,
   UploadFilesConversation200,
   UploadFilesConversation400,
   UploadFilesConversation401,
@@ -969,8 +1223,8 @@ export type {
 } from './UploadFilesConversation'
 export type {
   UploadFilesSourceHeaderParams,
-  FilesStatusEnum3,
-  FilesStatusEnum4,
+  FilesStatusEnum5,
+  FilesStatusEnum6,
   UploadFilesSource200,
   UploadFilesSource400,
   UploadFilesSource401,
@@ -982,9 +1236,13 @@ export type {
   UploadFilesSourceMutationResponse,
   UploadFilesSourceMutation,
 } from './UploadFilesSource'
-export { createConnectionMutationRequestAppEnum } from './CreateConnection'
+export {
+  createConnectionMutationRequestAppEnum,
+  createConnectionMutationRequestAuthenticationEnum,
+} from './CreateConnection'
 export { createConversationMutationRequestVisibilityEnum } from './CreateConversation'
-export { createProviderMutationRequestProviderEnum } from './CreateProvider'
+export { createMcpServerMutationRequestTypeEnum } from './CreateMcpServer'
+export { createModelProviderMutationRequestProviderEnum } from './CreateModelProvider'
 export {
   createSourceMutationRequestTypeEnum2,
   createSourceMutationRequestTypeEnum3,
@@ -992,38 +1250,60 @@ export {
   createSourceMutationRequestDialectEnum,
   createSourceMutationRequestTypeEnum,
 } from './CreateSource'
+export { createVectorStoreMutationRequestProviderEnum } from './CreateVectorStore'
 export { deleteAgent204Enum } from './DeleteAgent'
 export { deleteConnection204Enum } from './DeleteConnection'
 export { deleteConversation204Enum } from './DeleteConversation'
-export { deleteProvider204Enum } from './DeleteProvider'
+export { deleteMcpServer204Enum } from './DeleteMcpServer'
+export { deleteModelProvider204Enum } from './DeleteModelProvider'
 export { deleteSource204Enum } from './DeleteSource'
 export { deleteSourceFolder204Enum } from './DeleteSourceFolder'
+export { deleteVectorStore204Enum } from './DeleteVectorStore'
 export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './GenerateUploadSignatureSource'
 export {
-  languageModelSettingsProviderEnum,
   languageModelSettingsTypeEnum,
-  embeddingModelSettingsProviderEnum,
-  embeddingModelSettingsTypeEnum,
+  providerProviderEnum2,
   promptMessagesRoleEnum,
 } from './GetAgentConfiguration'
-export { connectionAppEnum } from './GetConnection'
+export {
+  knowledgeBaseStatusEnum,
+  vectorStoreProviderEnum2,
+  embeddingModelSettingsTypeEnum,
+  providerProviderEnum4,
+} from './GetAgentKnowledgeBase'
+export {
+  auxiliaryLanguageModelSettingsTypeEnum,
+  providerProviderEnum,
+} from './GetAgentSystemConfiguration'
+export {
+  connectionAppEnum,
+  connectionAuthenticationEnum,
+} from './GetConnection'
 export { conversationVisibilityEnum } from './GetConversation'
 export {
-  languageModelSettingsProviderEnum3,
   languageModelSettingsTypeEnum2,
+  providerProviderEnum3,
   promptMessagesRoleEnum3,
 } from './GetConversationConfiguration'
 export { fileBucketEnum, fileScopeEnum } from './GetFile'
-export { providerProviderEnum } from './GetProvider'
+export { mcpServerTypeEnum, connectionAppEnum2 } from './GetMcpServer'
+export { modelProviderProviderEnum } from './GetModelProvider'
 export { sourceTypeEnum, sourceStatusEnum } from './GetSource'
+export { vectorStoreProviderEnum } from './GetVectorStore'
 export {
   listConnectionsQueryParamsAppEnum,
   connectionsAppEnum,
+  connectionsAuthenticationEnum,
 } from './ListConnections'
 export {
   listConversationsQueryParamsVisibilityEnum,
   conversationsVisibilityEnum,
 } from './ListConversations'
+export { indexedSourcesStatusEnum } from './ListIndexedSources'
+export {
+  listMcpServersQueryParamsTypeEnum,
+  mcpServersTypeEnum,
+} from './ListMcpServers'
 export {
   messagesStatusEnum,
   messagesRoleEnum,
@@ -1064,11 +1344,22 @@ export {
   approvalApprovedEnum6,
 } from './ListMessages'
 export {
-  listProvidersQueryParamsProviderEnum,
-  providersProviderEnum,
-} from './ListProviders'
-export { sourceIndexesStatusEnum } from './ListSourceIndexes'
+  listModelProvidersQueryParamsProviderEnum,
+  modelProvidersProviderEnum,
+} from './ListModelProviders'
+export {
+  listModelProviderSelectOptionsQueryParamsProvidersEnum,
+  modelProvidersProviderEnum2,
+} from './ListModelProviderSelectOptions'
 export { sourcesTypeEnum, sourcesStatusEnum } from './ListSources'
+export {
+  listVectorStoresQueryParamsProviderEnum,
+  vectorStoresProviderEnum,
+} from './ListVectorStores'
+export {
+  listVectorStoreSelectOptionsQueryParamsProvidersEnum,
+  vectorStoresProviderEnum2,
+} from './ListVectorStoreSelectOptions'
 export {
   assistantMessageStatusEnum3,
   assistantMessageRoleEnum3,
@@ -1108,6 +1399,7 @@ export {
   partsStateEnum96,
   approvalApprovedEnum36,
 } from './RegenerateMessage'
+export { reindexKnowledgeBase204Enum } from './ReindexKnowledgeBase'
 export {
   userMessageStatusEnum2,
   userMessageRoleEnum2,
@@ -1312,20 +1604,25 @@ export {
 export { updateAgent204Enum } from './UpdateAgent'
 export {
   updateAgentConfiguration204Enum,
-  languageModelSettingsProviderEnum2,
-  embeddingModelSettingsProviderEnum2,
   promptMessagesRoleEnum2,
 } from './UpdateAgentConfiguration'
+export { updateAgentKnowledgeBase204Enum } from './UpdateAgentKnowledgeBase'
+export { updateAgentSystemConfiguration204Enum } from './UpdateAgentSystemConfiguration'
 export { updateConnection204Enum } from './UpdateConnection'
 export { updateConversation204Enum } from './UpdateConversation'
 export {
   updateConversationConfiguration204Enum,
-  languageModelSettingsProviderEnum4,
   promptMessagesRoleEnum4,
 } from './UpdateConversationConfiguration'
+export { updateIndexedSources204Enum } from './UpdateIndexedSources'
+export {
+  updateMcpServer204Enum,
+  updateMcpServerMutationRequestTypeEnum,
+} from './UpdateMcpServer'
+export { updateModelProvider204Enum } from './UpdateModelProvider'
 export { updateSource204Enum } from './UpdateSource'
 export { updateSourceFolder204Enum } from './UpdateSourceFolder'
-export { updateSourceIndexes204Enum } from './UpdateSourceIndexes'
+export { updateVectorStore204Enum } from './UpdateVectorStore'
 export { filesStatusEnum, filesStatusEnum2 } from './UploadFiles'
-export { filesStatusEnum5, filesStatusEnum6 } from './UploadFilesConversation'
-export { filesStatusEnum3, filesStatusEnum4 } from './UploadFilesSource'
+export { filesStatusEnum3, filesStatusEnum4 } from './UploadFilesConversation'
+export { filesStatusEnum5, filesStatusEnum6 } from './UploadFilesSource'

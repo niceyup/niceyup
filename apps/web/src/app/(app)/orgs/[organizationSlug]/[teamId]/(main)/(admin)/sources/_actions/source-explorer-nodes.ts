@@ -23,12 +23,12 @@ import {
 } from '@workspace/db/schema'
 import { cacheTag } from 'next/cache'
 
-type ContextListFoldersInSourceExplorerNodeParams = {
+type ContextSourceExplorerNodeParams = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
 }
 
 async function checkAdminAccess(
-  context: { userId: string } & ContextListFoldersInSourceExplorerNodeParams,
+  context: { userId: string } & ContextSourceExplorerNodeParams,
 ) {
   const isAdmin = await isOrganizationMemberAdmin(context)
 
@@ -40,7 +40,7 @@ type GetItemInSourceExplorerNodeParams = {
 }
 
 export async function getItemInSourceExplorerNode(
-  context: ContextListFoldersInSourceExplorerNodeParams,
+  context: ContextSourceExplorerNodeParams,
   { itemId }: GetItemInSourceExplorerNodeParams,
 ) {
   const {
@@ -81,7 +81,7 @@ type ListFoldersInSourceExplorerNodeParams = {
 }
 
 export async function listFoldersInSourceExplorerNode(
-  context: ContextListFoldersInSourceExplorerNodeParams,
+  context: ContextSourceExplorerNodeParams,
   { folderId }: ListFoldersInSourceExplorerNodeParams,
 ) {
   'use cache: private'
@@ -139,7 +139,7 @@ type ListFolderItemsInSourceExplorerNodeParams = {
 }
 
 export async function listFolderItemsInSourceExplorerNode(
-  context: ContextListFoldersInSourceExplorerNodeParams,
+  context: ContextSourceExplorerNodeParams,
   { folderId }: ListFolderItemsInSourceExplorerNodeParams,
 ) {
   'use cache: private'
@@ -212,7 +212,7 @@ type ListSearchItemsInSourceExplorerNodeParams = {
 }
 
 export async function listSearchItemsInSourceExplorerNode(
-  context: ContextListFoldersInSourceExplorerNodeParams,
+  context: ContextSourceExplorerNodeParams,
   { search }: ListSearchItemsInSourceExplorerNodeParams,
 ) {
   const {
@@ -270,7 +270,7 @@ type GetParentsInSourceExplorerNodeParams =
     }
 
 export async function getParentsInSourceExplorerNode(
-  context: ContextListFoldersInSourceExplorerNodeParams,
+  context: ContextSourceExplorerNodeParams,
   { folderId, sourceId }: GetParentsInSourceExplorerNodeParams,
 ) {
   const {

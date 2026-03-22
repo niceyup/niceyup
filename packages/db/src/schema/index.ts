@@ -6,25 +6,39 @@ import type {
 } from '@workspace/ai/types'
 import type {
   ConnectionApp,
+  ConnectionAuthentication,
   ConnectionCredentials,
+  ConnectionSettings,
   ConnectionTokens,
 } from '@workspace/core/connections'
 import type { ConversationVisibility } from '@workspace/core/conversations'
+import type { KnowledgeBaseStatus } from '@workspace/core/knowledge-bases'
+import type { McpServerType } from '@workspace/core/mcp-servers'
+import type {
+  ModelProvider,
+  ModelProviderCredentials,
+  ModelProviderSettings,
+} from '@workspace/core/model-providers'
 import type { ModelSettingsOptions, ModelType } from '@workspace/core/models'
-import type { Provider, ProviderCredentials } from '@workspace/core/providers'
 import type {
   DatabaseSourceDialect,
   DatabaseSourceQueryExample,
   DatabaseSourceTableMetadata,
-  SourceIndexStatus,
+  IndexedSourceStatus,
   SourceOperationStatus,
   SourceOperationType,
   SourceStatus,
   SourceType,
 } from '@workspace/core/sources'
-import { relations } from 'drizzle-orm'
+import type {
+  VectorStoreCredentials,
+  VectorStoreProvider,
+  VectorStoreSettings,
+} from '@workspace/core/vector-stores'
+import { relations, sql } from 'drizzle-orm'
 import {
   boolean,
+  check,
   integer,
   jsonb,
   pgTable,
@@ -34,9 +48,13 @@ import {
   unique,
 } from 'drizzle-orm/pg-core'
 import type {
+  ActiveToolArguments,
+  ActiveToolType,
   FileBucket,
   FileMetadata,
   FileScope,
+  McpServerCredentials,
+  McpServerHeaders,
   OperationError,
   PromptMessage,
 } from '../lib/types'
@@ -87,27 +105,270 @@ export const flagsToOrganizationsRelations = relations(
   }),
 )
 
-export const modelSettings = pgTable('model_settings', {
+export const modelProviders = pgTable('model_providers', {
   ...id,
-  provider: text('provider').notNull().$type<Provider>(),
-  model: text('model').notNull(),
-  type: text('type').notNull().default('language-model').$type<ModelType>(),
-  options: jsonb('options').$type<ModelSettingsOptions>(),
+  name: text('name').notNull().default('Unnamed'),
+  provider: text('provider').notNull().$type<ModelProvider>(),
+  settings: jsonb('settings').$type<ModelProviderSettings>(),
+  credentials: encryptedJson('credentials').$type<ModelProviderCredentials>(),
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
 
   ...timestamps,
 })
 
-export const modelSettingsRelations = relations(modelSettings, ({ many }) => ({
-  agentLanguageModelSettings: many(agents, {
-    relationName: 'language_model_settings',
+export const modelProvidersRelations = relations(
+  modelProviders,
+  ({ many }) => ({
+    modelSettings: many(modelSettings),
   }),
-  agentEmbeddingModelSettings: many(agents, {
-    relationName: 'embedding_model_settings',
+)
+
+export const vectorStores = pgTable('vector_stores', {
+  ...id,
+  name: text('name').notNull().default('Unnamed'),
+  provider: text('provider').notNull().$type<VectorStoreProvider>(),
+  settings: jsonb('settings').$type<VectorStoreSettings>(),
+  credentials: encryptedJson('credentials').$type<VectorStoreCredentials>(),
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
+
+  ...timestamps,
+})
+
+export const vectorStoresRelations = relations(vectorStores, ({ many }) => ({
+  knowledgeBases: many(knowledgeBases),
+}))
+
+export const connections = pgTable('connections', {
+  ...id,
+  name: text('name').notNull().default('Unnamed'),
+  app: text('app').notNull().$type<ConnectionApp>(),
+  authentication: text('authentication')
+    .notNull()
+    .default('custom')
+    .$type<ConnectionAuthentication>(),
+  settings: jsonb('settings').$type<ConnectionSettings>(),
+  credentials: encryptedJson('credentials').$type<ConnectionCredentials>(),
+  tokens: encryptedJson('tokens').$type<ConnectionTokens>(),
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
+
+  ...timestamps,
+})
+
+export const connectionsRelations = relations(connections, ({ many }) => ({
+  mcpServers: many(mcpServers),
+  databaseSources: many(databaseSources),
+}))
+
+export const mcpServers = pgTable('mcp_servers', {
+  ...id,
+  name: text('name').notNull().default('Unnamed'),
+  type: text('type').notNull().$type<McpServerType>(),
+  url: text('url').notNull(),
+  headers: jsonb('headers').$type<McpServerHeaders>(),
+  credentials: encryptedJson('credentials').$type<McpServerCredentials>(),
+
+  connectionId: text('connection_id').references(() => connections.id, {
+    onDelete: 'set null',
   }),
-  conversationLanguageModelSettings: many(conversations, {
-    relationName: 'language_model_settings',
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
+
+  ...timestamps,
+})
+
+export const mcpServersRelations = relations(mcpServers, ({ one, many }) => ({
+  connection: one(connections, {
+    fields: [mcpServers.connectionId],
+    references: [connections.id],
+  }),
+  activeTools: many(activeTools),
+}))
+
+export const activeTools = pgTable('active_tools', {
+  ...id,
+  name: text('name'),
+  tool: text('tool').notNull(),
+  type: text('type').notNull().$type<ActiveToolType>(),
+  arguments: jsonb('arguments').$type<ActiveToolArguments>(),
+
+  mcpServerId: text('mcp_server_id').references(() => mcpServers.id, {
+    onDelete: 'cascade',
+  }),
+
+  agentConfigurationId: text('agent_configuration_id')
+    .notNull()
+    .references(() => agentConfigurations.id, {
+      onDelete: 'cascade',
+    }),
+
+  ...timestamps,
+})
+
+export const activeToolsRelations = relations(activeTools, ({ one }) => ({
+  mcpServer: one(mcpServers, {
+    fields: [activeTools.mcpServerId],
+    references: [mcpServers.id],
+  }),
+  agentConfiguration: one(agentConfigurations, {
+    fields: [activeTools.agentConfigurationId],
+    references: [agentConfigurations.id],
   }),
 }))
+
+export const modelSettings = pgTable('model_settings', {
+  ...id,
+  model: text('model').notNull(),
+  type: text('type').notNull().$type<ModelType>(),
+  options: jsonb('options').$type<ModelSettingsOptions>(),
+
+  providerId: text('provider_id').references(() => modelProviders.id, {
+    onDelete: 'set null',
+  }),
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
+
+  ...timestamps,
+})
+
+export const modelSettingsRelations = relations(
+  modelSettings,
+  ({ one, many }) => ({
+    provider: one(modelProviders, {
+      fields: [modelSettings.providerId],
+      references: [modelProviders.id],
+    }),
+    auxiliaryLanguageModelSettings: many(agentSystemConfigurations, {
+      relationName: 'language_model_settings',
+    }),
+    languageModelSettings: many(agentConfigurations, {
+      relationName: 'language_model_settings',
+    }),
+    embeddingModelSettings: many(knowledgeBases, {
+      relationName: 'embedding_model_settings',
+    }),
+  }),
+)
+
+export const agentSystemConfigurations = pgTable(
+  'agent_system_configurations',
+  {
+    ...id,
+
+    auxiliaryLanguageModelSettingsId: text(
+      'auxiliary_language_model_settings_id',
+    ).references(() => modelSettings.id, {
+      onDelete: 'set null',
+    }),
+    titleGenerationSystemMessage: text('title_generation_system_message'),
+    suggestions: jsonb('suggestions').$type<string[]>(),
+
+    agentId: text('agent_id')
+      .notNull()
+      .unique()
+      .references(() => agents.id, {
+        onDelete: 'cascade',
+      }),
+
+    ...timestamps,
+  },
+)
+
+export const agentSystemConfigurationsRelations = relations(
+  agentSystemConfigurations,
+  ({ one }) => ({
+    auxiliaryLanguageModelSettings: one(modelSettings, {
+      relationName: 'language_model_settings',
+      fields: [agentSystemConfigurations.auxiliaryLanguageModelSettingsId],
+      references: [modelSettings.id],
+    }),
+    agent: one(agents, {
+      fields: [agentSystemConfigurations.agentId],
+      references: [agents.id],
+    }),
+  }),
+)
+
+export const agentConfigurations = pgTable(
+  'agent_configurations',
+  {
+    ...id,
+
+    languageModelSettingsId: text('language_model_settings_id').references(
+      () => modelSettings.id,
+      {
+        onDelete: 'set null',
+      },
+    ),
+    systemMessage: text('system_message'),
+    promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
+
+    enableKnowledgeBaseTool: boolean('enable_knowledge_base_tool').default(
+      false,
+    ),
+
+    agentId: text('agent_id')
+      .unique()
+      .references(() => agents.id, {
+        onDelete: 'cascade',
+      }),
+    conversationId: text('conversation_id')
+      .unique()
+      .references(() => conversations.id, {
+        onDelete: 'cascade',
+      }),
+
+    ...timestamps,
+  },
+  (table) => [
+    check(
+      'exactly_one_owner',
+      sql`(${table.agentId} IS NOT NULL AND ${table.conversationId} IS NULL) OR (${table.agentId} IS NULL AND ${table.conversationId} IS NOT NULL)`,
+    ),
+  ],
+)
+
+export const agentConfigurationsRelations = relations(
+  agentConfigurations,
+  ({ one, many }) => ({
+    languageModelSettings: one(modelSettings, {
+      relationName: 'language_model_settings',
+      fields: [agentConfigurations.languageModelSettingsId],
+      references: [modelSettings.id],
+    }),
+    agent: one(agents, {
+      fields: [agentConfigurations.agentId],
+      references: [agents.id],
+    }),
+    conversation: one(conversations, {
+      fields: [agentConfigurations.conversationId],
+      references: [conversations.id],
+    }),
+    activeTools: many(activeTools),
+  }),
+)
 
 export const agents = pgTable(
   'agents',
@@ -120,34 +381,11 @@ export const agents = pgTable(
     tags: text('tags').array(),
     published: boolean('published').notNull().default(false),
 
-    // agent configuration
-    languageModelSettingsId: text('language_model_settings_id').references(
-      () => modelSettings.id,
-      {
-        onDelete: 'set null',
-      },
-    ),
-    embeddingModelSettingsId: text('embedding_model_settings_id').references(
-      () => modelSettings.id,
-      {
-        onDelete: 'set null',
-      },
-    ),
-    // vectorStoreId: text('vector_store_id').references(() => vectorStores.id, {
-    //   onDelete: 'set null',
-    // }),
-
-    systemMessage: text('system_message'),
-    promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
-    suggestions: jsonb('suggestions').$type<string[]>(),
-
-    enableSourceRetrievalTool: boolean('enable_source_retrieval_tool').default(
-      false,
-    ), // temporary flag to enable or disable the source retrieval tool
-
-    organizationId: text('organization_id').references(() => organizations.id, {
-      onDelete: 'cascade',
-    }),
+    organizationId: text('organization_id')
+      .notNull()
+      .references(() => organizations.id, {
+        onDelete: 'cascade',
+      }),
 
     ...timestamps,
   },
@@ -155,42 +393,21 @@ export const agents = pgTable(
 )
 
 export const agentsRelations = relations(agents, ({ one, many }) => ({
-  languageModelSettings: one(modelSettings, {
-    relationName: 'language_model_settings',
-    fields: [agents.languageModelSettingsId],
-    references: [modelSettings.id],
-  }),
-  embeddingModelSettings: one(modelSettings, {
-    relationName: 'embedding_model_settings',
-    fields: [agents.embeddingModelSettingsId],
-    references: [modelSettings.id],
-  }),
-  // vectorStore: one(vectorStores, {
-  //   fields: [agents.vectorStoreId],
-  //   references: [vectorStores.id],
-  // }),
+  agentSystemConfiguration: one(agentSystemConfigurations),
+  agentConfiguration: one(agentConfigurations),
+  knowledgeBase: one(knowledgeBases),
   conversations: many(conversations),
-  sourceIndexes: many(sourceIndexes),
 }))
 
 export const conversations = pgTable('conversations', {
   ...id,
   title: text('title').notNull().default('Untitled'),
 
-  // conversation configuration
-  languageModelSettingsId: text('language_model_settings_id').references(
-    () => modelSettings.id,
-    {
-      onDelete: 'set null',
-    },
-  ),
-
-  systemMessage: text('system_message'),
-  promptMessages: jsonb('prompt_messages').$type<PromptMessage[]>(),
-
-  agentId: text('agent_id').references(() => agents.id, {
-    onDelete: 'cascade',
-  }),
+  agentId: text('agent_id')
+    .notNull()
+    .references(() => agents.id, {
+      onDelete: 'cascade',
+    }),
   teamId: text('team_id').references(() => teams.id, {
     onDelete: 'cascade',
   }),
@@ -205,15 +422,11 @@ export const conversations = pgTable('conversations', {
 export const conversationsRelations = relations(
   conversations,
   ({ one, many }) => ({
-    languageModelSettings: one(modelSettings, {
-      relationName: 'language_model_settings',
-      fields: [conversations.languageModelSettingsId],
-      references: [modelSettings.id],
-    }),
     agent: one(agents, {
       fields: [conversations.agentId],
       references: [agents.id],
     }),
+    agentConfiguration: one(agentConfigurations),
     messages: many(messages),
     participants: many(participants),
   }),
@@ -287,17 +500,59 @@ export const participantsRelations = relations(participants, ({ one }) => ({
   }),
 }))
 
-export const providers = pgTable('providers', {
+export const knowledgeBases = pgTable('knowledge_bases', {
   ...id,
-  provider: text('provider').notNull().$type<Provider>(),
-  credentials: encryptedJson('credentials').$type<ProviderCredentials>(),
+  status: text('status')
+    .notNull()
+    .default('ready')
+    .$type<KnowledgeBaseStatus>(),
 
-  organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
+  vectorStoreId: text('vector_store_id').references(() => vectorStores.id, {
+    onDelete: 'set null',
   }),
+  embeddingModelSettingsId: text('embedding_model_settings_id').references(
+    () => modelSettings.id,
+    {
+      onDelete: 'set null',
+    },
+  ),
+  topK: integer('top_k'),
+
+  agentId: text('agent_id')
+    .notNull()
+    .unique()
+    .references(() => agents.id, {
+      onDelete: 'cascade',
+    }),
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
 
   ...timestamps,
 })
+
+export const knowledgeBasesRelations = relations(
+  knowledgeBases,
+  ({ one, many }) => ({
+    vectorStore: one(vectorStores, {
+      fields: [knowledgeBases.vectorStoreId],
+      references: [vectorStores.id],
+    }),
+    embeddingModelSettings: one(modelSettings, {
+      relationName: 'embedding_model_settings',
+      fields: [knowledgeBases.embeddingModelSettingsId],
+      references: [modelSettings.id],
+    }),
+    agent: one(agents, {
+      fields: [knowledgeBases.agentId],
+      references: [agents.id],
+    }),
+    indexedSources: many(indexedSources),
+  }),
+)
 
 export const sources = pgTable('sources', {
   ...id,
@@ -309,9 +564,15 @@ export const sources = pgTable('sources', {
   chunkSize: integer('chunk_size'),
   chunkOverlap: integer('chunk_overlap'),
 
-  organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
-  }),
+  contentUpdatedAt: timestamp('content_updated_at', { withTimezone: true })
+    .notNull()
+    .$defaultFn(() => new Date()),
+
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
 
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   ...timestamps,
@@ -323,7 +584,7 @@ export const sourcesRelations = relations(sources, ({ one, many }) => ({
   websiteSource: one(websiteSources),
   fileSource: one(fileSources),
   databaseSource: one(databaseSources),
-  sourceIndexes: many(sourceIndexes),
+  indexedSources: many(indexedSources),
   sourceOperations: many(sourceOperations),
 }))
 
@@ -463,15 +724,19 @@ export const databaseSourcesRelations = relations(
   }),
 )
 
-export const sourceIndexes = pgTable(
-  'source_indexes',
+export const indexedSources = pgTable(
+  'indexed_sources',
   {
     ...id,
-    status: text('status').notNull().default('idle').$type<SourceIndexStatus>(),
-
-    agentId: text('agent_id')
+    status: text('status')
       .notNull()
-      .references(() => agents.id, {
+      .default('idle')
+      .$type<IndexedSourceStatus>(),
+    indexedAt: timestamp('indexed_at', { withTimezone: true }),
+
+    knowledgeBaseId: text('knowledge_base_id')
+      .notNull()
+      .references(() => knowledgeBases.id, {
         onDelete: 'cascade',
       }),
     sourceId: text('source_id')
@@ -482,47 +747,56 @@ export const sourceIndexes = pgTable(
 
     ...timestamps,
   },
-  (table) => [unique().on(table.agentId, table.sourceId)],
+  (table) => [unique().on(table.knowledgeBaseId, table.sourceId)],
 )
 
-export const sourceIndexesRelations = relations(
-  sourceIndexes,
+export const indexedSourcesRelations = relations(
+  indexedSources,
   ({ one, many }) => ({
-    agent: one(agents, {
-      fields: [sourceIndexes.agentId],
-      references: [agents.id],
+    knowledgeBase: one(knowledgeBases, {
+      fields: [indexedSources.knowledgeBaseId],
+      references: [knowledgeBases.id],
     }),
     source: one(sources, {
-      fields: [sourceIndexes.sourceId],
+      fields: [indexedSources.sourceId],
       references: [sources.id],
     }),
     sourceOperations: many(sourceOperations),
   }),
 )
 
-export const sourceOperations = pgTable('source_operations', {
-  ...id,
-  type: text('type').notNull().$type<SourceOperationType>(),
-  status: text('status')
-    .notNull()
-    .default('queued')
-    .$type<SourceOperationStatus>(),
+export const sourceOperations = pgTable(
+  'source_operations',
+  {
+    ...id,
+    type: text('type').notNull().$type<SourceOperationType>(),
+    status: text('status')
+      .notNull()
+      .default('queued')
+      .$type<SourceOperationStatus>(),
 
-  sourceId: text('source_id')
-    .unique()
-    .references(() => sources.id, {
-      onDelete: 'cascade',
-    }),
-  sourceIndexId: text('source_index_id')
-    .unique()
-    .references(() => sourceIndexes.id, {
-      onDelete: 'cascade',
-    }),
+    sourceId: text('source_id')
+      .unique()
+      .references(() => sources.id, {
+        onDelete: 'cascade',
+      }),
+    indexedSourceId: text('indexed_source_id')
+      .unique()
+      .references(() => indexedSources.id, {
+        onDelete: 'cascade',
+      }),
 
-  error: jsonb('error').$type<OperationError>(),
-  attempts: integer('attempts').notNull().default(0),
-  ...timestamps,
-})
+    error: jsonb('error').$type<OperationError>(),
+    attempts: integer('attempts').notNull().default(0),
+    ...timestamps,
+  },
+  (table) => [
+    check(
+      'exactly_one_owner',
+      sql`(${table.sourceId} IS NOT NULL AND ${table.indexedSourceId} IS NULL) OR (${table.sourceId} IS NULL AND ${table.indexedSourceId} IS NOT NULL)`,
+    ),
+  ],
+)
 
 export const sourceOperationsRelations = relations(
   sourceOperations,
@@ -531,34 +805,12 @@ export const sourceOperationsRelations = relations(
       fields: [sourceOperations.sourceId],
       references: [sources.id],
     }),
-    sourceIndex: one(sourceIndexes, {
-      fields: [sourceOperations.sourceIndexId],
-      references: [sourceIndexes.id],
+    indexedSource: one(indexedSources, {
+      fields: [sourceOperations.indexedSourceId],
+      references: [indexedSources.id],
     }),
   }),
 )
-
-export const connections = pgTable('connections', {
-  ...id,
-  app: text('app').notNull().$type<ConnectionApp>(),
-  name: text('name').notNull().default('Unnamed'),
-  // authorization: text('authorization')
-  //   .notNull()
-  //   .default('custom')
-  //   .$type<ConnectionAuthorization>(),
-  credentials: encryptedJson('credentials').$type<ConnectionCredentials>(),
-  tokens: encryptedJson('tokens').$type<ConnectionTokens>(),
-
-  organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
-  }),
-
-  ...timestamps,
-})
-
-export const connectionsRelations = relations(connections, ({ many }) => ({
-  databaseSources: many(databaseSources),
-}))
 
 export const files = pgTable('files', {
   ...id,
@@ -571,7 +823,7 @@ export const files = pgTable('files', {
   metadata: jsonb('metadata').$type<FileMetadata>(),
 
   organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
+    onDelete: 'set null',
   }),
 
   ...timestamps,
@@ -593,9 +845,11 @@ export const conversationExplorerNodes = pgTable(
       .$type<ConversationVisibility>(),
     sharedByUser: boolean('shared_by_user').notNull().default(false), // True if the owner user shared the private conversation with other users
 
-    agentId: text('agent_id').references(() => agents.id, {
-      onDelete: 'cascade',
-    }),
+    agentId: text('agent_id')
+      .notNull()
+      .references(() => agents.id, {
+        onDelete: 'cascade',
+      }),
     conversationId: text('conversation_id').references(() => conversations.id, {
       onDelete: 'cascade',
     }),
@@ -612,6 +866,12 @@ export const conversationExplorerNodes = pgTable(
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
     ...timestamps,
   },
+  (table) => [
+    check(
+      'exactly_one_owner',
+      sql`(${table.ownerUserId} IS NOT NULL AND ${table.ownerTeamId} IS NULL) OR (${table.ownerUserId} IS NULL AND ${table.ownerTeamId} IS NOT NULL)`,
+    ),
+  ],
 )
 
 export const conversationExplorerNodesRelations = relations(
@@ -647,9 +907,11 @@ export const sourceExplorerNodes = pgTable('source_explorer_nodes', {
   parentId: text('parent_id'),
   fractionalIndex: text('fractional_index'),
 
-  organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'cascade',
-  }),
+  organizationId: text('organization_id')
+    .notNull()
+    .references(() => organizations.id, {
+      onDelete: 'cascade',
+    }),
 
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   ...timestamps,

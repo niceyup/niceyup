@@ -1,24 +1,4 @@
 services:
-  # api:
-  #   build:
-  #     context: .
-  #     dockerfile: apps/api/Dockerfile
-  #   ports:
-  #     - 3333:3333
-  #   env_file:
-  #     - .env
-
-  # web:
-  #   build:
-  #     context: .
-  #     dockerfile: apps/web/Dockerfile
-  #   ports:
-  #     - 3000:3000
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - api
-
   postgres:
     image: bitnami/postgresql
     ports:

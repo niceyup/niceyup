@@ -16,11 +16,12 @@ import {
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
 import type { AIMessageMetadata } from '@workspace/ai/types'
-import { db, generateId } from '@workspace/db'
+import { db } from '@workspace/db'
 import { and, desc, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { conversations, messages } from '@workspace/db/schema'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
+import { generateId } from '@workspace/utils'
 import { z } from 'zod'
 
 const textPartSchema = z.object({
@@ -54,7 +55,7 @@ export async function sendMessage(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages/send',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Send a user message to a conversation',
         operationId: 'sendMessage',
         params: z.object({
@@ -194,10 +195,13 @@ export async function sendMessage(app: FastifyTypedInstance) {
         let _itemExplorerNode = null
 
         if (conversationId === 'new') {
-          const title = message.parts.find((part) => part.type === 'text')?.text
+          const userMessage = message.parts.find(
+            (part) => part.type === 'text',
+          )?.text
 
           const generatedTitle = await generateConversationTitle({
-            userMessage: title,
+            agentId,
+            userMessage,
           })
 
           const [newConversation] = await tx

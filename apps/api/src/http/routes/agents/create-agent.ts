@@ -5,9 +5,16 @@ import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { db } from '@workspace/db'
 import { and, eq } from '@workspace/db/orm'
-import { agents } from '@workspace/db/schema'
+import { agentSystemConfigurations, agents } from '@workspace/db/schema'
 import { stripSpecialCharacters } from '@workspace/utils'
 import { z } from 'zod'
+
+const DEFAULT_TITLE_GENERATION_SYSTEM_MESSAGE = `Generate a concise, 3-5 word title summarizing the chat history.
+### Guidelines:
+- The title should clearly represent the main theme or subject of the conversation.
+- Avoid quotation marks or special formatting.
+- Write the title in the chat's primary language; default to English if multilingual.
+- Prioritize accuracy over excessive creativity; keep it clear and simple.`
 
 export async function createAgent(app: FastifyTypedInstance) {
   app.register(authenticate).post(
@@ -77,27 +84,35 @@ export async function createAgent(app: FastifyTypedInstance) {
         })
       }
 
-      const [agent] = await db
-        .insert(agents)
-        .values({
-          name,
-          slug: agentSlug,
-          logo,
-          description,
-          tags,
-          systemMessage: 'You are a helpful assistant.',
-          organizationId: context.organizationId,
-        })
-        .returning({
-          id: agents.id,
+      const agent = await db.transaction(async (tx) => {
+        const [agent] = await tx
+          .insert(agents)
+          .values({
+            name,
+            slug: agentSlug,
+            logo,
+            description,
+            tags,
+            organizationId: context.organizationId,
+          })
+          .returning({
+            id: agents.id,
+          })
+
+        if (!agent) {
+          throw new BadRequestError({
+            code: 'AGENT_NOT_CREATED',
+            message: 'Agent not created',
+          })
+        }
+
+        await tx.insert(agentSystemConfigurations).values({
+          agentId: agent.id,
+          titleGenerationSystemMessage: DEFAULT_TITLE_GENERATION_SYSTEM_MESSAGE,
         })
 
-      if (!agent) {
-        throw new BadRequestError({
-          code: 'AGENT_NOT_CREATED',
-          message: 'Agent not created',
-        })
-      }
+        return agent
+      })
 
       return reply.status(201).send({
         agentId: agent.id,

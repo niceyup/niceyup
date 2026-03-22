@@ -13,7 +13,7 @@ export async function realtimeMessages(app: FastifyTypedInstance) {
     {
       websocket: true,
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Realtime messages',
         operationId: 'realtimeMessages',
         params: z.object({

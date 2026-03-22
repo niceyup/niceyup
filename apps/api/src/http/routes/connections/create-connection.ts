@@ -5,6 +5,7 @@ import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import {
   connectionAppSchema,
+  connectionAuthenticationSchema,
   validateConnection,
 } from '@workspace/core/connections'
 import { db } from '@workspace/db'
@@ -22,8 +23,10 @@ export async function createConnection(app: FastifyTypedInstance) {
         body: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          app: connectionAppSchema,
           name: z.string(),
+          app: connectionAppSchema,
+          authentication: connectionAuthenticationSchema,
+          settings: z.record(z.string(), z.unknown()).nullish(),
           credentials: z.record(z.string(), z.unknown()).nullish(),
         }),
         response: withDefaultErrorResponses({
@@ -40,8 +43,15 @@ export async function createConnection(app: FastifyTypedInstance) {
         user: { id: userId },
       } = request.authSession
 
-      const { organizationId, organizationSlug, app, name, credentials } =
-        request.body
+      const {
+        organizationId,
+        organizationSlug,
+        name,
+        app,
+        authentication,
+        settings,
+        credentials,
+      } = request.body
 
       const { context } = await resolveMembershipContext({
         userId,
@@ -49,7 +59,12 @@ export async function createConnection(app: FastifyTypedInstance) {
         organizationSlug,
       })
 
-      const validatedData = validateConnection({ app, credentials })
+      const validatedData = validateConnection({
+        app,
+        authentication,
+        settings,
+        credentials,
+      })
 
       const [connection] = await db
         .insert(connections)

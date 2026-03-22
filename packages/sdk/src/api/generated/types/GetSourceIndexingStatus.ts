@@ -26,13 +26,30 @@ export type GetSourceIndexingStatusQueryParams = {
  */
 export type GetSourceIndexingStatus200 = {
   /**
-   * @type number
+   * @type object
    */
-  idleCount: number
-  /**
-   * @type number
-   */
-  failedCount: number
+  count: {
+    /**
+     * @type number
+     */
+    idle: number
+    /**
+     * @type number
+     */
+    processing: number
+    /**
+     * @type number
+     */
+    completed: number
+    /**
+     * @type number
+     */
+    stale: number
+    /**
+     * @type number
+     */
+    failed: number
+  }
 }
 
 /**

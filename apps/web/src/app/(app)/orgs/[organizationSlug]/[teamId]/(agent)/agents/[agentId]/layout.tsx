@@ -63,31 +63,21 @@ export default async function Layout({
   if (isAdmin) {
     tabs.push(
       ...[
-        // {
-        //   label: 'Activity',
-        //   href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/activity`,
-        // },
-        // {
-        //   label: 'Analytics',
-        //   href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/analytics`,
-        // },
         {
-          label: 'Sources',
-          href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/sources`,
+          label: 'Behavior',
+          href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/behavior`,
+          deep: true,
+        },
+        {
+          label: 'Knowledge Base',
+          href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/knowledge-base`,
           deep: true,
         },
         {
           label: 'Tools',
           href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/tools`,
+          deep: true,
         },
-        // {
-        //   label: 'Builder',
-        //   href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/builder`,
-        // },
-        // {
-        //   label: 'Deploy',
-        //   href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/deploy`,
-        // }
       ],
     )
   }

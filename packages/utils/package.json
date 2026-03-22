@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@workspace/env": "workspace:*",
+    "uuidv7": "1.1.0",
     "zod": "4.1.12"
   },
   "devDependencies": {

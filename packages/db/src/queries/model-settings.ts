@@ -1,7 +1,7 @@
 import type { ModelType } from '@workspace/core/models'
 import { db } from '@workspace/db'
 import { and, eq } from '@workspace/db/orm'
-import { modelSettings } from '@workspace/db/schema'
+import { modelProviders, modelSettings } from '@workspace/db/schema'
 
 type GetModelSettingsParams = {
   modelSettingsId: string
@@ -12,12 +12,19 @@ export async function getModelSettings(params: GetModelSettingsParams) {
   const [modelSettingsData] = await db
     .select({
       id: modelSettings.id,
-      provider: modelSettings.provider,
       model: modelSettings.model,
       type: modelSettings.type,
       options: modelSettings.options,
+      provider: {
+        id: modelProviders.id,
+        name: modelProviders.name,
+        provider: modelProviders.provider,
+        settings: modelProviders.settings,
+        credentials: modelProviders.credentials,
+      },
     })
     .from(modelSettings)
+    .leftJoin(modelProviders, eq(modelSettings.providerId, modelProviders.id))
     .where(
       and(
         eq(modelSettings.id, params.modelSettingsId),

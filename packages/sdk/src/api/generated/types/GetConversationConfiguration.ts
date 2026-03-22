@@ -25,14 +25,6 @@ export type GetConversationConfigurationQueryParams = {
   agentId: string
 }
 
-export const languageModelSettingsProviderEnum3 = {
-  openai: 'openai',
-  google: 'google',
-} as const
-
-export type LanguageModelSettingsProviderEnum3 =
-  (typeof languageModelSettingsProviderEnum3)[keyof typeof languageModelSettingsProviderEnum3]
-
 export const languageModelSettingsTypeEnum2 = {
   'language-model': 'language-model',
   'embedding-model': 'embedding-model',
@@ -40,6 +32,14 @@ export const languageModelSettingsTypeEnum2 = {
 
 export type LanguageModelSettingsTypeEnum2 =
   (typeof languageModelSettingsTypeEnum2)[keyof typeof languageModelSettingsTypeEnum2]
+
+export const providerProviderEnum3 = {
+  openai: 'openai',
+  google: 'google',
+} as const
+
+export type ProviderProviderEnum3 =
+  (typeof providerProviderEnum3)[keyof typeof providerProviderEnum3]
 
 export const promptMessagesRoleEnum3 = {
   user: 'user',
@@ -64,49 +64,87 @@ export type GetConversationConfiguration200 = {
     /**
      * @type object
      */
-    languageModelSettings: {
-      /**
-       * @type string
-       */
-      id: string
-      /**
-       * @type string
-       */
-      provider: LanguageModelSettingsProviderEnum3
-      /**
-       * @type string
-       */
-      model: string
-      /**
-       * @type string
-       */
-      type: LanguageModelSettingsTypeEnum2
+    configuration: {
       /**
        * @type object
        */
-      options?: {
-        [key: string]: any
+      languageModelSettings: {
+        /**
+         * @type string
+         */
+        id: string
+        /**
+         * @type string
+         */
+        model: string
+        /**
+         * @type string
+         */
+        type: LanguageModelSettingsTypeEnum2
+        /**
+         * @type object
+         */
+        options: {
+          [key: string]: any
+        } | null
+        /**
+         * @type object
+         */
+        provider: {
+          /**
+           * @type string
+           */
+          id: string
+          /**
+           * @type string
+           */
+          name: string
+          provider: ProviderProviderEnum3 | string
+          /**
+           * @type object
+           */
+          settings: {
+            /**
+             * @type string, uri
+             */
+            baseURL: string
+            /**
+             * @type object | undefined
+             */
+            headers?: {
+              [key: string]: string
+            }
+            /**
+             * @type object | undefined
+             */
+            queryParams?: {
+              [key: string]: string
+            }
+          } | null
+        } | null
       } | null
+      /**
+       * @type string
+       */
+      systemMessage: string
+      /**
+       * @type array
+       */
+      promptMessages: {
+        /**
+         * @type string
+         */
+        role: PromptMessagesRoleEnum3
+        /**
+         * @type string
+         */
+        content: string
+      }[]
+      /**
+       * @type boolean
+       */
+      enableKnowledgeBaseTool: boolean
     } | null
-    /**
-     * @type string
-     */
-    systemMessage: string | null
-    /**
-     * @type array
-     */
-    promptMessages:
-      | {
-          /**
-           * @type string
-           */
-          role: PromptMessagesRoleEnum3
-          /**
-           * @type string
-           */
-          content: string
-        }[]
-      | null
   }
 }
 

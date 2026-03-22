@@ -23,9 +23,10 @@ export async function listConnections(
   const listConnections = await db
     .select({
       id: connections.id,
-      app: connections.app,
       name: connections.name,
-      credentials: connections.credentials,
+      app: connections.app,
+      authentication: connections.authentication,
+      settings: connections.settings,
     })
     .from(connections)
     .where(
@@ -59,9 +60,12 @@ export async function getConnection(
   const [connection] = await db
     .select({
       id: connections.id,
-      app: connections.app,
       name: connections.name,
+      app: connections.app,
+      authentication: connections.authentication,
+      settings: connections.settings,
       credentials: connections.credentials,
+      tokens: connections.tokens,
     })
     .from(connections)
     .where(

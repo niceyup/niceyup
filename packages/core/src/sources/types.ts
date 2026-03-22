@@ -4,7 +4,7 @@ import type {
   databaseSourceDialectSchema,
   databaseSourceQueryExampleSchema,
   databaseSourceTableMetadataSchema,
-  sourceIndexStatusSchema,
+  indexedSourceStatusSchema,
   sourceOperationStatusSchema,
   sourceOperationTypeSchema,
   sourceStatusSchema,
@@ -15,7 +15,7 @@ export type SourceType = z.infer<typeof sourceTypeSchema>
 
 export type SourceStatus = z.infer<typeof sourceStatusSchema>
 
-export type SourceIndexStatus = z.infer<typeof sourceIndexStatusSchema>
+export type IndexedSourceStatus = z.infer<typeof indexedSourceStatusSchema>
 
 export type DatabaseSourceDialect = z.infer<typeof databaseSourceDialectSchema>
 

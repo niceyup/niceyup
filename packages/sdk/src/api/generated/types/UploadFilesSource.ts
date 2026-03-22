@@ -10,19 +10,19 @@ export type UploadFilesSourceHeaderParams = {
   'x-upload-signature': string
 }
 
-export const filesStatusEnum3 = {
+export const filesStatusEnum5 = {
   success: 'success',
 } as const
 
-export type FilesStatusEnum3 =
-  (typeof filesStatusEnum3)[keyof typeof filesStatusEnum3]
+export type FilesStatusEnum5 =
+  (typeof filesStatusEnum5)[keyof typeof filesStatusEnum5]
 
-export const filesStatusEnum4 = {
+export const filesStatusEnum6 = {
   error: 'error',
 } as const
 
-export type FilesStatusEnum4 =
-  (typeof filesStatusEnum4)[keyof typeof filesStatusEnum4]
+export type FilesStatusEnum6 =
+  (typeof filesStatusEnum6)[keyof typeof filesStatusEnum6]
 
 /**
  * @description Success
@@ -36,7 +36,7 @@ export type UploadFilesSource200 = {
         /**
          * @type string
          */
-        status: FilesStatusEnum3
+        status: FilesStatusEnum5
         /**
          * @type string
          */
@@ -80,7 +80,7 @@ export type UploadFilesSource200 = {
         /**
          * @type string
          */
-        status: FilesStatusEnum4
+        status: FilesStatusEnum6
         /**
          * @type object
          */

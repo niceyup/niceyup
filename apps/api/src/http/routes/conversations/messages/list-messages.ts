@@ -31,7 +31,7 @@ export async function listMessages(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Get all messages from a conversation',
         operationId: 'listMessages',
         params: z.object({

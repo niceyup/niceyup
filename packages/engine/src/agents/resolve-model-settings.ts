@@ -1,10 +1,83 @@
+import {
+  defaultEmbeddingSettingsMiddleware,
+  defaultSettingsMiddleware,
+  extractReasoningMiddleware,
+  wrapEmbeddingModel,
+  wrapLanguageModel,
+} from '@workspace/ai'
 import type {
   EmbeddingModelSettings,
   LanguageModelSettings,
 } from '@workspace/core/models'
 import { queries } from '@workspace/db/queries'
 import { InvalidArgumentError } from '../erros'
-import { providerRegistry } from '../provider-registry'
+import { resolveModelProviderRegistry } from './resolve-model-provider'
+
+async function resolveLanguageModelSettingsOptions({
+  provider,
+  options,
+}: {
+  provider: string
+  options?: LanguageModelSettings['options'] | null
+}) {
+  const isOpenAICompatible = provider.startsWith('openai-compatible/')
+
+  const providerName = isOpenAICompatible
+    ? provider.replace('openai-compatible/', '')
+    : provider
+
+  const {
+    maxOutputTokens,
+    temperature,
+    topP,
+    presencePenalty,
+    frequencyPenalty,
+
+    ...restOptions
+  } = options ?? {}
+
+  const providerOptions: Record<string, any> = {
+    [providerName]: restOptions,
+
+    ...(isOpenAICompatible ? { openaiCompatible: restOptions } : {}),
+  }
+
+  return {
+    maxOutputTokens,
+    temperature,
+    topP,
+    presencePenalty,
+    frequencyPenalty,
+
+    providerOptions,
+  }
+}
+
+async function resolveEmbeddingModelSettingsOptions({
+  provider,
+  options,
+}: {
+  provider: string
+  options?: EmbeddingModelSettings['options'] | null
+}) {
+  const isOpenAICompatible = provider.startsWith('openai-compatible/')
+
+  const providerName = isOpenAICompatible
+    ? provider.replace('openai-compatible/', '')
+    : provider
+
+  const { ...restOptions } = options ?? {}
+
+  const providerOptions: Record<string, any> = {
+    [providerName]: restOptions,
+
+    ...(isOpenAICompatible ? { openaiCompatible: restOptions } : {}),
+  }
+
+  return {
+    providerOptions,
+  }
+}
 
 export async function resolveLanguageModelSettings(params: {
   modelSettingsId: string | null | undefined
@@ -23,27 +96,35 @@ export async function resolveLanguageModelSettings(params: {
     })
   }
 
-  const providerSettings = await queries.getProviderSettings({
-    provider: modelSettings.provider,
-  })
-
-  if (!providerSettings) {
+  if (!modelSettings.provider) {
     throw new InvalidArgumentError({
-      code: 'LANGUAGE_MODEL_PROVIDER_SETTINGS_NOT_SET',
-      message: 'Provider settings are not set for this language model',
+      code: 'LANGUAGE_MODEL_SETTINGS_PROVIDER_NOT_SET',
+      message: 'Language model settings provider is not set',
     })
   }
 
-  const provider = providerRegistry({
-    [providerSettings.provider]: providerSettings.credentials,
+  const providerSettings = modelSettings.provider
+
+  const provider = resolveModelProviderRegistry({ providerSettings })
+
+  const modelSettingsOptions = await resolveLanguageModelSettingsOptions({
+    provider: providerSettings.provider,
+    options: modelSettings.options,
+  })
+
+  const enhancedLanguageModel = wrapLanguageModel({
+    model: provider.languageModel(
+      `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
+    ),
+    middleware: [
+      extractReasoningMiddleware({ tagName: 'think' }),
+      defaultSettingsMiddleware({ settings: modelSettingsOptions }),
+    ],
   })
 
   return {
     provider: providerSettings.provider,
-    model: provider.languageModel(
-      `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
-    ),
-    options: modelSettings.options as LanguageModelSettings['options'] | null,
+    model: enhancedLanguageModel,
   }
 }
 
@@ -64,26 +145,33 @@ export async function resolveEmbeddingModelSettings(params: {
     })
   }
 
-  const providerSettings = await queries.getProviderSettings({
-    provider: modelSettings.provider,
-  })
-
-  if (!providerSettings) {
+  if (!modelSettings.provider) {
     throw new InvalidArgumentError({
-      code: 'EMBEDDING_MODEL_PROVIDER_SETTINGS_NOT_SET',
-      message: 'Provider settings are not set for this embedding model',
+      code: 'EMBEDDING_MODEL_SETTINGS_PROVIDER_NOT_SET',
+      message: 'Embedding model settings provider is not set',
     })
   }
 
-  const provider = providerRegistry({
-    [providerSettings.provider]: providerSettings.credentials,
+  const providerSettings = modelSettings.provider
+
+  const provider = resolveModelProviderRegistry({ providerSettings })
+
+  const modelSettingsOptions = await resolveEmbeddingModelSettingsOptions({
+    provider: providerSettings.provider,
+    options: modelSettings.options,
+  })
+
+  const enhancedEmbeddingModel = wrapEmbeddingModel({
+    model: provider.embeddingModel(
+      `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
+    ),
+    middleware: defaultEmbeddingSettingsMiddleware({
+      settings: modelSettingsOptions,
+    }),
   })
 
   return {
     provider: providerSettings.provider,
-    model: provider.embeddingModel(
-      `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
-    ),
-    options: modelSettings.options as EmbeddingModelSettings['options'] | null,
+    model: enhancedEmbeddingModel,
   }
 }

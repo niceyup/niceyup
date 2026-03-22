@@ -1,24 +1,16 @@
-import type { EmbeddingModel } from '@workspace/ai'
-import { vectorStore } from '@workspace/vector-store'
+import type { VectorStore } from '@workspace/vector-store'
 
 export async function retrieveSources({
-  embeddingModel,
-  agentId,
-  organizationId,
-  question,
+  vectorStore,
   topK,
+  question,
 }: {
-  embeddingModel: EmbeddingModel
-  agentId: string
-  organizationId: string
-  question: string
+  vectorStore: VectorStore
   topK?: number
+  question: string
 }) {
   const documents = await vectorStore.query({
-    embeddingModel,
-    namespace: organizationId,
     collection: 'sources',
-    agentId,
     query: question,
     topK,
   })
@@ -47,7 +39,7 @@ export async function retrieveSources({
   // const databaseSourcesContent = await Promise.all(
   //   databaseSources.map(async (source) => {
   //     const structuredContent = await retrieveDatabaseSourceTablesMetadata({
-  //       organizationId,
+  //       vectorStore,
   //       question,
   //       sourceId: source.sourceId,
   //     })
@@ -67,22 +59,18 @@ export async function retrieveSources({
 }
 
 // export async function retrieveDatabaseSourceTablesMetadata({
-//   embeddingModel,
+//   vectorStore,
 //   languageModel,
-//   organizationId,
 //   question,
 //   sourceId,
 // }: {
-//   embeddingModel: EmbeddingModel
+//   vectorStore: VectorStore
 //   languageModel: LanguageModel
-//   organizationId: string
 //   question: string
 //   sourceId: string
 // }) {
 //   const [relevantTablesMetadata, relevantQueryExamples] = await Promise.all([
 //     vectorStore.query({
-//       embeddingModel,
-//       namespace: organizationId,
 //       collection: 'database-source-tables-metadata',
 //       sourceId,
 //       query: question,
@@ -90,8 +78,6 @@ export async function retrieveSources({
 //     }),
 
 //     vectorStore.query({
-//       embeddingModel,
-//       namespace: organizationId,
 //       collection: 'database-source-query-examples',
 //       sourceId,
 //       query: question,
@@ -146,15 +132,13 @@ export async function retrieveSources({
 // }
 
 // export async function retrieveDatabaseSourceProperNouns({
-//   embeddingModel,
-//   organizationId,
+//   vectorStore,
 //   sourceId,
 //   tableName,
 //   columnName,
 //   search,
 // }: {
-//   embeddingModel: EmbeddingModel
-//   organizationId: string
+//   vectorStore: VectorStore
 //   sourceId: string
 //   tableName: string
 //   columnName: string
@@ -163,8 +147,6 @@ export async function retrieveSources({
 //   const key = `"${tableName}"."${columnName}"`
 
 //   const relevantProperNouns = await vectorStore.query({
-//     embeddingModel,
-//     namespace: organizationId,
 //     collection: 'database-source-proper-nouns',
 //     sourceId,
 //     query: search,

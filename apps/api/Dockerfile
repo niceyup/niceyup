@@ -35,7 +35,7 @@ COPY --from=builder /app/out/full/ .
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
 
-RUN pnpm turbo run build
+RUN CI=true pnpm turbo run build
 
 FROM base AS runner
 WORKDIR /app

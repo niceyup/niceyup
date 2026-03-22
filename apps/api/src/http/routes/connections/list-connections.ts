@@ -2,7 +2,10 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
-import { connectionAppSchema } from '@workspace/core/connections'
+import {
+  connectionAppSchema,
+  connectionAuthenticationSchema,
+} from '@workspace/core/connections'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
 
@@ -25,8 +28,10 @@ export async function listConnections(app: FastifyTypedInstance) {
               connections: z.array(
                 z.object({
                   id: z.string(),
-                  app: connectionAppSchema,
                   name: z.string(),
+                  app: connectionAppSchema,
+                  authentication: connectionAuthenticationSchema,
+                  settings: z.record(z.string(), z.unknown()).nullable(),
                 }),
               ),
             })

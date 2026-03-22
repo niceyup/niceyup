@@ -82,10 +82,8 @@ export default async function Page({
             teams={teams}
           />
         ) : (
-          <div className="flex w-full flex-col">
-            <div className="rounded-lg border bg-background p-4 py-24">
-              <PermissionDenied />
-            </div>
+          <div className="w-full rounded-lg border bg-background p-4 py-24">
+            <PermissionDenied />
           </div>
         ))}
     </>

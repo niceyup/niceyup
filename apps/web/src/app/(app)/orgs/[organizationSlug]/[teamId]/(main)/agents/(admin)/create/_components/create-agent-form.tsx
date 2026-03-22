@@ -82,7 +82,7 @@ export function CreateAgentForm({
     setTimeout(
       () =>
         router.push(
-          `/orgs/${organizationSlug}/${teamId}/agents/${data.agentId}/settings/general`,
+          `/orgs/${organizationSlug}/${teamId}/agents/${data.agentId}/behavior`,
         ),
       300,
     )

@@ -1,7 +1,10 @@
 import { env } from '@/lib/env'
 import type { WebSocket } from '@workspace/realtime'
 import type { FastifyInstance } from 'fastify'
-import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod'
+import {
+  hasZodFastifySchemaValidationErrors,
+  isResponseSerializationError,
+} from 'fastify-type-provider-zod'
 import { ZodError } from 'zod'
 import { BadRequestError } from './bad-request-error'
 import { BaseError } from './base-error'
@@ -15,6 +18,14 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
       code: 'VALIDATION_ERROR',
       message: 'Validation error',
       errors: error.validation.map((error) => error.params.issue),
+    })
+  }
+
+  if (isResponseSerializationError(error)) {
+    reply.status(400).send({
+      code: 'VALIDATION_ERROR',
+      message: 'Validation error',
+      errors: error.cause.issues,
     })
   }
 

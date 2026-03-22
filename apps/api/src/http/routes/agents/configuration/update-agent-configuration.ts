@@ -1,0 +1,204 @@
+import { BadRequestError } from '@/http/errors/bad-request-error'
+import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
+import { resolveMembershipContext } from '@/http/functions/membership'
+import { authenticate } from '@/http/middlewares/authenticate'
+import type { FastifyTypedInstance } from '@/types/fastify'
+import { db } from '@workspace/db'
+import { eq } from '@workspace/db/orm'
+import { queries } from '@workspace/db/queries'
+import { agentConfigurations, modelSettings } from '@workspace/db/schema'
+import { resolveAgentConfiguration } from '@workspace/engine/agents'
+import { z } from 'zod'
+
+const modelSettingsSchema = z.object({
+  providerId: z.string().nullish(),
+  model: z.string().nonempty(),
+  options: z.record(z.string(), z.unknown()).nullish(),
+})
+
+const promptMessageSchema = z.object({
+  role: z.enum(['user', 'assistant']),
+  content: z.string(),
+})
+
+export async function updateAgentConfiguration(app: FastifyTypedInstance) {
+  app.register(authenticate).patch(
+    '/agents/:agentId/configuration',
+    {
+      schema: {
+        tags: ['Agents'],
+        description: 'Update an agent configuration',
+        operationId: 'updateAgentConfiguration',
+        params: z.object({
+          agentId: z.string(),
+        }),
+        body: z.object({
+          organizationId: z.string().optional(),
+          organizationSlug: z.string().optional(),
+          languageModelSettings: modelSettingsSchema.nullish(),
+          systemMessage: z.string().nullish(),
+          promptMessages: z.array(promptMessageSchema).nullish(),
+          enableKnowledgeBaseTool: z.boolean().nullish(),
+        }),
+        response: withDefaultErrorResponses({
+          204: z.null().describe('Success'),
+        }),
+      },
+    },
+    async (request, reply) => {
+      const {
+        user: { id: userId },
+      } = request.authSession
+
+      const { agentId } = request.params
+
+      const {
+        organizationId,
+        organizationSlug,
+        languageModelSettings,
+        systemMessage,
+        promptMessages,
+        enableKnowledgeBaseTool,
+      } = request.body
+
+      const { context } = await resolveMembershipContext({
+        userId,
+        organizationId,
+        organizationSlug,
+      })
+
+      const agent = await queries.context.getAgent(context, {
+        agentId,
+      })
+
+      if (!agent) {
+        throw new BadRequestError({
+          code: 'AGENT_NOT_FOUND',
+          message: 'Agent not found or you don’t have access',
+        })
+      }
+
+      const agentConfiguration = await resolveAgentConfiguration({
+        agentId,
+      })
+
+      if (languageModelSettings?.providerId) {
+        const modelProvider = await queries.context.getModelProvider(context, {
+          modelProviderId: languageModelSettings.providerId,
+        })
+
+        if (!modelProvider) {
+          throw new BadRequestError({
+            code: 'LANGUAGE_MODEL_PROVIDER_NOT_FOUND',
+            message:
+              'Language model provider not found or you don’t have access',
+          })
+        }
+      }
+
+      await db.transaction(async (tx) => {
+        let _agentConfiguration:
+          | {
+              languageModelSettingsId: string | null
+            }
+          | undefined
+
+        if (agentConfiguration) {
+          _agentConfiguration = {
+            languageModelSettingsId: agentConfiguration.languageModelSettingsId,
+          }
+        } else {
+          const [createdAgentConfiguration] = await tx
+            .insert(agentConfigurations)
+            .values({
+              agentId,
+            })
+            .returning({
+              languageModelSettingsId:
+                agentConfigurations.languageModelSettingsId,
+            })
+
+          _agentConfiguration = createdAgentConfiguration
+        }
+
+        if (!_agentConfiguration) {
+          throw new BadRequestError({
+            code: 'AGENT_CONFIGURATION_NOT_FOUND',
+            message: 'Agent configuration not found',
+          })
+        }
+
+        let _languageModelSettingsId: string | null | undefined = undefined
+
+        if (
+          // Delete language model settings
+          languageModelSettings === null &&
+          _agentConfiguration.languageModelSettingsId
+        ) {
+          await tx
+            .delete(modelSettings)
+            .where(
+              eq(modelSettings.id, _agentConfiguration.languageModelSettingsId),
+            )
+
+          _languageModelSettingsId = null
+        } else if (
+          // Update language model settings
+          languageModelSettings &&
+          _agentConfiguration.languageModelSettingsId
+        ) {
+          await tx
+            .update(modelSettings)
+            .set({
+              model: languageModelSettings.model,
+              options: languageModelSettings.options,
+              providerId: languageModelSettings.providerId,
+            })
+            .where(
+              eq(modelSettings.id, _agentConfiguration.languageModelSettingsId),
+            )
+
+          _languageModelSettingsId = _agentConfiguration.languageModelSettingsId
+        } else if (
+          // Create language model settings
+          languageModelSettings &&
+          !_agentConfiguration.languageModelSettingsId
+        ) {
+          const [createdLanguageModelSettings] = await tx
+            .insert(modelSettings)
+            .values({
+              model: languageModelSettings.model,
+              type: 'language-model',
+              options: languageModelSettings.options,
+              providerId: languageModelSettings.providerId,
+              organizationId: context.organizationId,
+            })
+            .returning({
+              id: modelSettings.id,
+            })
+
+          if (!createdLanguageModelSettings) {
+            throw new BadRequestError({
+              code: 'LANGUAGE_MODEL_SETTINGS_NOT_CREATED',
+              message: 'Language model settings not created',
+            })
+          }
+
+          _languageModelSettingsId = createdLanguageModelSettings.id
+        }
+
+        await tx
+          .update(agentConfigurations)
+          .set({
+            languageModelSettingsId: _languageModelSettingsId,
+            systemMessage,
+            promptMessages,
+            enableKnowledgeBaseTool,
+          })
+          .where(eq(agentConfigurations.agentId, agentId))
+      })
+
+      return reply.status(204).send()
+    },
+  )
+}

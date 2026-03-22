@@ -1,6 +1,6 @@
 import { polarPlugin } from '@workspace/billing/better-auth'
 import { cache } from '@workspace/cache'
-import { db, generateId } from '@workspace/db'
+import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { users } from '@workspace/db/schema'
 import {
@@ -8,7 +8,7 @@ import {
   sendPasswordResetEmail,
   sendVerificationEmail,
 } from '@workspace/email'
-import { stripSpecialCharacters } from '@workspace/utils'
+import { generateId, stripSpecialCharacters } from '@workspace/utils'
 import { type BetterAuthOptions, betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { openAPI, organization } from 'better-auth/plugins'
@@ -17,7 +17,7 @@ import { COOKIE_PREFIX } from './lib/constants'
 import { env } from './lib/env'
 import {
   setupDefaultIndividualOrganization,
-  setupDefaultTeamAndAgent,
+  setupDefaultTeam,
 } from './lib/setup'
 
 const config = {
@@ -87,7 +87,7 @@ const config = {
           const organization = await setupDefaultIndividualOrganization(user)
 
           if (organization) {
-            await setupDefaultTeamAndAgent({
+            await setupDefaultTeam({
               organizationId: organization.id,
               userId: user.id,
             })
@@ -148,7 +148,7 @@ const config = {
           }
         },
         afterCreateOrganization: async ({ member }) => {
-          await setupDefaultTeamAndAgent(member)
+          await setupDefaultTeam(member)
         },
       },
     }),

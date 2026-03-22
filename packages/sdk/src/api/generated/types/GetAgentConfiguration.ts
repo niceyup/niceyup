@@ -21,14 +21,6 @@ export type GetAgentConfigurationQueryParams = {
   organizationSlug?: string
 }
 
-export const languageModelSettingsProviderEnum = {
-  openai: 'openai',
-  google: 'google',
-} as const
-
-export type LanguageModelSettingsProviderEnum =
-  (typeof languageModelSettingsProviderEnum)[keyof typeof languageModelSettingsProviderEnum]
-
 export const languageModelSettingsTypeEnum = {
   'language-model': 'language-model',
   'embedding-model': 'embedding-model',
@@ -37,21 +29,13 @@ export const languageModelSettingsTypeEnum = {
 export type LanguageModelSettingsTypeEnum =
   (typeof languageModelSettingsTypeEnum)[keyof typeof languageModelSettingsTypeEnum]
 
-export const embeddingModelSettingsProviderEnum = {
+export const providerProviderEnum2 = {
   openai: 'openai',
   google: 'google',
 } as const
 
-export type EmbeddingModelSettingsProviderEnum =
-  (typeof embeddingModelSettingsProviderEnum)[keyof typeof embeddingModelSettingsProviderEnum]
-
-export const embeddingModelSettingsTypeEnum = {
-  'language-model': 'language-model',
-  'embedding-model': 'embedding-model',
-} as const
-
-export type EmbeddingModelSettingsTypeEnum =
-  (typeof embeddingModelSettingsTypeEnum)[keyof typeof embeddingModelSettingsTypeEnum]
+export type ProviderProviderEnum2 =
+  (typeof providerProviderEnum2)[keyof typeof providerProviderEnum2]
 
 export const promptMessagesRoleEnum = {
   user: 'user',
@@ -76,82 +60,87 @@ export type GetAgentConfiguration200 = {
     /**
      * @type object
      */
-    languageModelSettings: {
-      /**
-       * @type string
-       */
-      id: string
-      /**
-       * @type string
-       */
-      provider: LanguageModelSettingsProviderEnum
-      /**
-       * @type string
-       */
-      model: string
-      /**
-       * @type string
-       */
-      type: LanguageModelSettingsTypeEnum
+    configuration: {
       /**
        * @type object
        */
-      options?: {
-        [key: string]: any
+      languageModelSettings: {
+        /**
+         * @type string
+         */
+        id: string
+        /**
+         * @type string
+         */
+        model: string
+        /**
+         * @type string
+         */
+        type: LanguageModelSettingsTypeEnum
+        /**
+         * @type object
+         */
+        options: {
+          [key: string]: any
+        } | null
+        /**
+         * @type object
+         */
+        provider: {
+          /**
+           * @type string
+           */
+          id: string
+          /**
+           * @type string
+           */
+          name: string
+          provider: ProviderProviderEnum2 | string
+          /**
+           * @type object
+           */
+          settings: {
+            /**
+             * @type string, uri
+             */
+            baseURL: string
+            /**
+             * @type object | undefined
+             */
+            headers?: {
+              [key: string]: string
+            }
+            /**
+             * @type object | undefined
+             */
+            queryParams?: {
+              [key: string]: string
+            }
+          } | null
+        } | null
       } | null
+      /**
+       * @type string
+       */
+      systemMessage: string
+      /**
+       * @type array
+       */
+      promptMessages: {
+        /**
+         * @type string
+         */
+        role: PromptMessagesRoleEnum
+        /**
+         * @type string
+         */
+        content: string
+      }[]
+      /**
+       * @type boolean
+       */
+      enableKnowledgeBaseTool: boolean
     } | null
-    /**
-     * @type object
-     */
-    embeddingModelSettings: {
-      /**
-       * @type string
-       */
-      id: string
-      /**
-       * @type string
-       */
-      provider: EmbeddingModelSettingsProviderEnum
-      /**
-       * @type string
-       */
-      model: string
-      /**
-       * @type string
-       */
-      type: EmbeddingModelSettingsTypeEnum
-      /**
-       * @type object
-       */
-      options?: {
-        [key: string]: any
-      } | null
-    } | null
-    /**
-     * @type string
-     */
-    systemMessage: string
-    /**
-     * @type array
-     */
-    promptMessages: {
-      /**
-       * @type string
-       */
-      role: PromptMessagesRoleEnum
-      /**
-       * @type string
-       */
-      content: string
-    }[]
-    /**
-     * @type array
-     */
-    suggestions: string[]
-    /**
-     * @type boolean
-     */
-    enableSourceRetrievalTool: boolean
   }
 }
 

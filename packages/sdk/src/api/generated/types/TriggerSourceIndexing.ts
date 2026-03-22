@@ -114,6 +114,7 @@ export type TriggerSourceIndexing500 = {
 export const triggerSourceIndexingMutationRequestStatusEnum = {
   all: 'all',
   idle: 'idle',
+  stale: 'stale',
   failed: 'failed',
 } as const
 
@@ -135,6 +136,7 @@ export type TriggerSourceIndexingMutationRequest = {
    */
   status?: TriggerSourceIndexingMutationRequestStatusEnum
   /**
+   * @description Source IDs to trigger indexing. If none are provided or the array is empty, all sources will be triggered
    * @type array | undefined
    */
   sources?: string[]

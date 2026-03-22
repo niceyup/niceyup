@@ -17,7 +17,7 @@ import {
   sources,
   textSources,
 } from '@workspace/db/schema'
-import type { CreateSourceIngestionTask } from '@workspace/engine/tasks/create-source-ingestion'
+import type { IngestSourceTask } from '@workspace/engine/tasks/ingest-source'
 import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
@@ -243,9 +243,10 @@ export async function createSource(app: FastifyTypedInstance) {
         return { source, itemExplorerNode }
       })
 
-      await tasks.trigger<CreateSourceIngestionTask>(
-        'create-source-ingestion',
+      await tasks.trigger<IngestSourceTask>(
+        'ingest-source',
         { sourceId: source.id },
+        { concurrencyKey: context.organizationId },
       )
 
       return reply.status(201).send({

@@ -24,15 +24,15 @@ import { triggerSourceIndexing } from '../operations/triggerSourceIndexing'
 import { useMutation } from '@tanstack/react-query'
 
 export const triggerSourceIndexingMutationKey = () =>
-  [{ url: '/agents/{agentId}/source-indexes/trigger' }] as const
+  [{ url: '/agents/{agentId}/knowledge-base/indexed-sources/trigger' }] as const
 
 export type TriggerSourceIndexingMutationKey = ReturnType<
   typeof triggerSourceIndexingMutationKey
 >
 
 /**
- * @description Trigger source indexing of an agent
- * {@link /agents/:agentId/source-indexes/trigger}
+ * @description Trigger source indexing
+ * {@link /agents/:agentId/knowledge-base/indexed-sources/trigger}
  */
 export function useTriggerSourceIndexing<TContext>(
   options: {

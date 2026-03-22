@@ -11,7 +11,7 @@ export async function stopMessage(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages/:messageId/stop',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Stop message processing',
         operationId: 'stopMessage',
         params: z.object({

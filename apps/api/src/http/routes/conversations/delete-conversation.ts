@@ -124,7 +124,9 @@ export async function deleteConversation(app: FastifyTypedInstance) {
           } else {
             const [itemExplorerNode] = await tx
               .update(conversationExplorerNodes)
-              .set({ deletedAt: new Date() })
+              .set({
+                deletedAt: new Date(),
+              })
               .where(
                 and(
                   eq(conversationExplorerNodes.conversationId, conversationId),
@@ -140,7 +142,9 @@ export async function deleteConversation(app: FastifyTypedInstance) {
 
             await tx
               .update(conversations)
-              .set({ deletedAt: new Date() })
+              .set({
+                deletedAt: new Date(),
+              })
               .where(
                 and(eq(conversations.id, conversationId), ownerTypeCondition),
               )

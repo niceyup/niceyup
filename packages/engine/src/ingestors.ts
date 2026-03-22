@@ -1,18 +1,13 @@
-import type { EmbeddingModel } from '@workspace/ai'
 import type { DatabaseSourceTableMetadata } from '@workspace/core/sources'
-import { vectorStore } from '@workspace/vector-store'
+import type { VectorStore } from '@workspace/vector-store'
 import { filesLoader } from './loaders'
 import { documentSplitter } from './splitters'
 
 export async function ingestTextSource({
-  embeddingModel,
-  organizationId,
-  agentId,
+  vectorStore,
   sourceId,
 }: {
-  embeddingModel: EmbeddingModel
-  organizationId: string
-  agentId: string
+  vectorStore: VectorStore
   sourceId: string
 }) {
   const documents = [{ content: 'Empty' }]
@@ -20,10 +15,7 @@ export async function ingestTextSource({
   // TODO: implement logic to ingest text source
 
   await vectorStore.upsert({
-    embeddingModel,
-    namespace: organizationId,
     collection: 'sources',
-    agentId,
     sourceId,
     sourceType: 'text',
     data: documents,
@@ -31,14 +23,10 @@ export async function ingestTextSource({
 }
 
 export async function ingestQuestionAnswerSource({
-  embeddingModel,
-  organizationId,
-  agentId,
+  vectorStore,
   sourceId,
 }: {
-  embeddingModel: EmbeddingModel
-  organizationId: string
-  agentId: string
+  vectorStore: VectorStore
   sourceId: string
 }) {
   const documents = [{ content: 'Empty' }]
@@ -46,10 +34,7 @@ export async function ingestQuestionAnswerSource({
   // TODO: implement logic to ingest question answer source
 
   await vectorStore.upsert({
-    embeddingModel,
-    namespace: organizationId,
     collection: 'sources',
-    agentId,
     sourceId,
     sourceType: 'question-answer',
     data: documents,
@@ -57,14 +42,10 @@ export async function ingestQuestionAnswerSource({
 }
 
 export async function ingestWebsiteSource({
-  embeddingModel,
-  organizationId,
-  agentId,
+  vectorStore,
   sourceId,
 }: {
-  embeddingModel: EmbeddingModel
-  organizationId: string
-  agentId: string
+  vectorStore: VectorStore
   sourceId: string
 }) {
   const documents = [{ content: 'Empty' }]
@@ -72,10 +53,7 @@ export async function ingestWebsiteSource({
   // TODO: implement logic to ingest website source
 
   await vectorStore.upsert({
-    embeddingModel,
-    namespace: organizationId,
     collection: 'sources',
-    agentId,
     sourceId,
     sourceType: 'website',
     data: documents,
@@ -83,17 +61,13 @@ export async function ingestWebsiteSource({
 }
 
 export async function ingestFileSource({
-  embeddingModel,
-  organizationId,
-  agentId,
+  vectorStore,
   sourceId,
   filePath,
   chunkSize,
   chunkOverlap,
 }: {
-  embeddingModel: EmbeddingModel
-  organizationId: string
-  agentId: string
+  vectorStore: VectorStore
   sourceId: string
   filePath: string
   chunkSize: number | null
@@ -115,10 +89,7 @@ export async function ingestFileSource({
   }))
 
   await vectorStore.upsert({
-    embeddingModel,
-    namespace: organizationId,
     collection: 'sources',
-    agentId,
     sourceId,
     sourceType: 'file',
     data: documents,
@@ -126,15 +97,11 @@ export async function ingestFileSource({
 }
 
 export async function ingestDatabaseSource({
-  embeddingModel,
-  organizationId,
-  agentId,
+  vectorStore,
   sourceId,
   tablesMetadata,
 }: {
-  embeddingModel: EmbeddingModel
-  organizationId: string
-  agentId: string
+  vectorStore: VectorStore
   sourceId: string
   tablesMetadata: DatabaseSourceTableMetadata[]
 }) {
@@ -163,10 +130,7 @@ export async function ingestDatabaseSource({
   }
 
   await vectorStore.upsert({
-    embeddingModel,
-    namespace: organizationId,
     collection: 'sources',
-    agentId,
     sourceId,
     sourceType: 'database',
     data: documents,
@@ -174,13 +138,11 @@ export async function ingestDatabaseSource({
 }
 
 // export async function ingestDatabaseSourceTablesMetadata({
-//   embeddingModel,
-//   organizationId,
+//   vectorStore,
 //   sourceId,
 //   tablesMetadata,
 // }: {
-//   embeddingModel: EmbeddingModel
-//   organizationId: string
+//   vectorStore: VectorStore
 //   sourceId: string
 //   tablesMetadata: DatabaseSourceTableMetadata[]
 // }) {
@@ -216,8 +178,6 @@ export async function ingestDatabaseSource({
 //   }
 
 //   await vectorStore.upsert({
-//     embeddingModel,
-//     namespace: organizationId,
 //     collection: 'database-source-tables-metadata',
 //     sourceId,
 //     sourceType: 'database',
@@ -226,12 +186,10 @@ export async function ingestDatabaseSource({
 // }
 
 // export async function ingestDatabaseSourceProperNouns({
-//   embeddingModel,
-//   organizationId,
+//   vectorStore,
 //   sourceId,
 // }: {
-//   embeddingModel: EmbeddingModel
-//   organizationId: string
+//   vectorStore: VectorStore
 //   sourceId: string
 // }) {
 //   const properNouns = await getDbProperNounsTask
@@ -252,8 +210,6 @@ export async function ingestDatabaseSource({
 //   }
 
 //   await vectorStore.upsert({
-//     embeddingModel,
-//     namespace: organizationId,
 //     collection: 'database-source-proper-nouns',
 //     sourceId,
 //     sourceType: 'database',
@@ -262,13 +218,11 @@ export async function ingestDatabaseSource({
 // }
 
 // export async function ingestDatabaseSourceQueryExamples({
-//   embeddingModel,
-//   organizationId,
+//   vectorStore,
 //   sourceId,
 //   queryExamples,
 // }: {
-//   embeddingModel: EmbeddingModel
-//   organizationId: string
+//   vectorStore: VectorStore
 //   sourceId: string
 //   queryExamples: DatabaseSourceQueryExample[]
 // }) {
@@ -283,8 +237,6 @@ export async function ingestDatabaseSource({
 //   }
 
 //   await vectorStore.upsert({
-//     embeddingModel,
-//     namespace: organizationId,
 //     collection: 'database-source-query-examples',
 //     sourceId,
 //     sourceType: 'database',
@@ -296,15 +248,13 @@ export async function ingestDatabaseSource({
 //  * Experimental. Do not use this function in production. Use {@link ingestDatabaseSource} instead.
 //  */
 // export async function experimental_ingestDatabaseSource({
-//   embeddingModel,
+//   vectorStore,
 //   languageModel,
-//   organizationId,
 //   sourceId,
 //   tablesMetadata,
 // }: {
-//   embeddingModel: EmbeddingModel
+//   vectorStore: VectorStore
 //   languageModel: LanguageModel
-//   organizationId: string
 //   sourceId: string
 //   tablesMetadata: DatabaseSourceTableMetadata[]
 // }) {
@@ -342,8 +292,6 @@ export async function ingestDatabaseSource({
 //   const document = { content: generatedContent.text }
 
 //   await vectorStore.upsert({
-//     embeddingModel,
-//     namespace: organizationId,
 //     collection: 'sources',
 //     sourceId,
 //     sourceType: 'database',

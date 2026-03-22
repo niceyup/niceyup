@@ -10,7 +10,7 @@ export const sourceTypeSchema = z.enum([
 
 export const sourceStatusSchema = z.enum(['draft', 'ready', 'completed'])
 
-export const sourceIndexStatusSchema = z.enum(['idle', 'completed'])
+export const indexedSourceStatusSchema = z.enum(['idle', 'completed'])
 
 export const databaseSourceDialectSchema = z.enum([
   'postgresql',

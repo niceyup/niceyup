@@ -1,3 +1,4 @@
+// import { isOrganizationMemberAdmin } from '@/actions/membership'
 import { isOrganizationMemberAdmin } from '@/actions/membership'
 import { Sidebar, type SidebarItem } from '@/components/sidebar'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
@@ -49,7 +50,7 @@ export default async function Layout({
             <div className="flex flex-col">
               <h2 className="font-semibold text-sm">Settings</h2>
               <p className="mt-1 text-muted-foreground text-sm">
-                Configure and fine-tune your AI agent settings.
+                Manage this AI agent’s basic information and identity.
               </p>
             </div>
           </div>

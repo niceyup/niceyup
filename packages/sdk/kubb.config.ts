@@ -3,7 +3,7 @@ import { pluginClient } from '@kubb/plugin-client'
 import { pluginOas } from '@kubb/plugin-oas'
 import { pluginReactQuery } from '@kubb/plugin-react-query'
 import { pluginTs } from '@kubb/plugin-ts'
-import { pluginZod } from '@kubb/plugin-zod'
+// import { pluginZod } from '@kubb/plugin-zod'
 import { env } from './src/lib/env'
 
 export const config: UserConfig = {
@@ -32,13 +32,13 @@ export const config: UserConfig = {
         path: './types',
       },
     }),
-    pluginZod({
-      output: {
-        path: './schemas',
-      },
-      typed: true,
-      inferred: true,
-    }),
+    // pluginZod({
+    //   output: {
+    //     path: './schemas',
+    //   },
+    //   typed: true,
+    //   inferred: true,
+    // }),
     pluginClient({
       importPath: '../../../../client/fetch-react-query',
       dataReturnType: 'data',

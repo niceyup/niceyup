@@ -29,7 +29,7 @@ export class RealtimePubSub<Channel extends string> {
       await subscriber.subscribe(channel)
     }
 
-    const sockets = socketsByChannel.get(channel)!
+    const sockets = socketsByChannel.get(channel) as Set<WebSocket>
     sockets.add(socket)
 
     socket.on('close', async () => {

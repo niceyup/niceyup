@@ -10,11 +10,14 @@ export {
   embedMany,
   tool,
   wrapLanguageModel,
+  wrapEmbeddingModel,
   defaultSettingsMiddleware,
   defaultEmbeddingSettingsMiddleware,
   extractReasoningMiddleware,
   type LanguageModel,
   type EmbeddingModel,
+  type Embedding,
+  type Tool,
   type ToolSet,
   type ModelMessage,
   type ReasoningUIPart,
@@ -39,3 +42,4 @@ export {
   UI_MESSAGE_STREAM_HEADERS,
   type Experimental_GeneratedImage,
 } from 'ai'
+export { createMCPClient, type MCPClient } from '@ai-sdk/mcp'

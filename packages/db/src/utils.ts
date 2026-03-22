@@ -1,8 +1,6 @@
-import { randomUUID } from 'node:crypto'
 import { decrypt, encrypt } from '@workspace/encryption'
+import { generateId } from '@workspace/utils'
 import { customType, text, timestamp } from 'drizzle-orm/pg-core'
-
-export const generateId = (): string => randomUUID()
 
 export const id = {
   id: text('id').primaryKey().$defaultFn(generateId),
@@ -26,7 +24,7 @@ export function encryptedJson<TData>(name: string) {
       return encrypt(JSON.stringify(value))
     },
     fromDriver(driverData: string): TData {
-      return JSON.parse(decrypt(driverData)!)
+      return JSON.parse(decrypt(driverData))
     },
   })(name)
 }

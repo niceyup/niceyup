@@ -30,6 +30,17 @@ export const connectionAppEnum = {
 export type ConnectionAppEnum =
   (typeof connectionAppEnum)[keyof typeof connectionAppEnum]
 
+export const connectionAuthenticationEnum = {
+  'api-key': 'api-key',
+  'bearer-token': 'bearer-token',
+  'basic-auth': 'basic-auth',
+  oauth2: 'oauth2',
+  custom: 'custom',
+} as const
+
+export type ConnectionAuthenticationEnum =
+  (typeof connectionAuthenticationEnum)[keyof typeof connectionAuthenticationEnum]
+
 /**
  * @description Success
  */
@@ -45,11 +56,27 @@ export type GetConnection200 = {
     /**
      * @type string
      */
+    name: string
+    /**
+     * @type string
+     */
     app: ConnectionAppEnum
     /**
      * @type string
      */
-    name: string
+    authentication: ConnectionAuthenticationEnum
+    /**
+     * @type object
+     */
+    settings: {
+      [key: string]: any
+    } | null
+    /**
+     * @type object
+     */
+    credentials: {
+      [key: string]: any
+    } | null
   }
 }
 

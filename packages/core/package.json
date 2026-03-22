@@ -20,10 +20,13 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./conversations": "./src/conversations/index.ts",
-    "./models": "./src/models/index.ts",
+    "./model-providers": "./src/model-providers/index.ts",
+    "./vector-stores": "./src/vector-stores/index.ts",
     "./connections": "./src/connections/index.ts",
-    "./providers": "./src/providers/index.ts",
+    "./mcp-servers": "./src/mcp-servers/index.ts",
+    "./models": "./src/models/index.ts",
+    "./conversations": "./src/conversations/index.ts",
+    "./knowledge-bases": "./src/knowledge-bases/index.ts",
     "./sources": "./src/sources/index.ts"
   }
 }

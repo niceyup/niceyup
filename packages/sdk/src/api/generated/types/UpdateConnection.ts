@@ -121,9 +121,9 @@ export type UpdateConnectionMutationRequest = {
    */
   organizationSlug?: string
   /**
-   * @type string
+   * @type string | undefined
    */
-  name: string
+  name?: string
 }
 
 export type UpdateConnectionMutationResponse = UpdateConnection204

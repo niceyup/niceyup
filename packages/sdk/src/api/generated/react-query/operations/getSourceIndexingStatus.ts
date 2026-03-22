@@ -23,12 +23,12 @@ import type {
 function getGetSourceIndexingStatusUrl({
   agentId,
 }: { agentId: GetSourceIndexingStatusPathParams['agentId'] }) {
-  return `/agents/${agentId}/source-indexes/status` as const
+  return `/agents/${agentId}/knowledge-base/indexed-sources/status` as const
 }
 
 /**
- * @description Get source indexing status of an agent
- * {@link /agents/:agentId/source-indexes/status}
+ * @description Get indexed sources status
+ * {@link /agents/:agentId/knowledge-base/indexed-sources/status}
  */
 export async function getSourceIndexingStatus(
   {

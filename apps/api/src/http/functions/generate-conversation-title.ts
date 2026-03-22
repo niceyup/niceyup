@@ -1,9 +1,14 @@
 import { generateText } from '@workspace/ai'
-import { gateway } from '@workspace/ai/providers'
+import { resolveAgentSystemConfiguration } from '@workspace/engine/agents'
+
+const MAX_CONVERSATION_TITLE_LENGTH = 100
+const CONVERSATION_TITLE_ELLIPSIS = '...'
 
 export async function generateConversationTitle({
+  agentId,
   userMessage,
 }: {
+  agentId: string
   userMessage: string | undefined
 }) {
   try {
@@ -11,26 +16,34 @@ export async function generateConversationTitle({
       return null
     }
 
-    const generatedTitle = await generateText({
-      model: gateway.languageModel('openai/gpt-4.1'),
-      messages: [
-        {
-          role: 'system',
-          content: `Generate a concise, 3-5 word title summarizing the chat history.
-### Guidelines:
-- The title should clearly represent the main theme or subject of the conversation.
-- Avoid quotation marks or special formatting.
-- Write the title in the chat's primary language; default to English if multilingual.
-- Prioritize accuracy over excessive creativity; keep it clear and simple.`,
-        },
-        {
-          role: 'user',
-          content: userMessage,
-        },
-      ],
+    const agentSystemConfiguration = await resolveAgentSystemConfiguration({
+      agentId,
     })
 
-    return generatedTitle.text
+    if (!agentSystemConfiguration) {
+      return null
+    }
+
+    const auxiliaryLanguageModel =
+      await agentSystemConfiguration.auxiliaryLanguageModel()
+
+    if (!auxiliaryLanguageModel) {
+      return null
+    }
+
+    const generatedTitle = await generateText({
+      model: auxiliaryLanguageModel.model,
+      system: agentSystemConfiguration.titleGenerationSystemMessage,
+      prompt: userMessage,
+    })
+
+    const title = generatedTitle.text
+
+    if (title.length <= MAX_CONVERSATION_TITLE_LENGTH) {
+      return title
+    }
+
+    return `${title.slice(0, MAX_CONVERSATION_TITLE_LENGTH - CONVERSATION_TITLE_ELLIPSIS.length)}${CONVERSATION_TITLE_ELLIPSIS}`
   } catch {
     return null
   }

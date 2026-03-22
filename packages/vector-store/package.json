@@ -8,12 +8,14 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@langchain/community": "1.0.0",
+    "@langchain/core": "1.0.1",
+    "@langchain/qdrant": "1.0.1",
     "@upstash/vector": "1.2.2",
     "@workspace/ai": "workspace:*",
     "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",
-    "@workspace/env": "workspace:*",
-    "uuid": "^13.0.0"
+    "uuid": "13.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -22,7 +24,6 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./embeddings": "./src/lib/embeddings.ts",
-    "./env": "./src/lib/env.ts"
+    "./embeddings": "./src/lib/embeddings.ts"
   }
 }

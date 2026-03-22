@@ -1,65 +1,18 @@
 import { resumableStreamContext } from '@/lib/resumable-stream'
-import {
-  type ModelMessage,
-  convertToModelMessages,
-  pruneMessages,
-  stepCountIs,
-  validateUIMessages,
-  wrapLanguageModel,
-} from '@workspace/ai'
+import { stepCountIs } from '@workspace/ai'
 import type {
   AIMessage,
   AIMessageMetadata,
   AIMessagePart,
-  AIMessageRole,
 } from '@workspace/ai/types'
 import { queries } from '@workspace/db/queries'
 import { createAgentAIStream } from '@workspace/engine'
 import { InvalidArgumentError } from '@workspace/engine'
-import { resolveConversationConfiguration } from '@workspace/engine/agents'
+import {
+  type ConversationConfiguration,
+  resolveConversationConfiguration,
+} from '@workspace/engine/agents'
 import throttle from 'throttleit'
-
-async function validateAndConvertToModelMessages(messages: unknown) {
-  const validatedMessages = await validateUIMessages({ messages })
-
-  const modelMessages = await convertToModelMessages(validatedMessages)
-
-  return modelMessages
-}
-
-async function processMessages({
-  messages,
-  lastMessage,
-}: {
-  messages: AIMessage[]
-  lastMessage: {
-    id: string
-    role: AIMessageRole
-    parts: AIMessagePart[]
-    metadata?: AIMessageMetadata | null
-  }
-}): Promise<ModelMessage[]> {
-  try {
-    const [modelMessages, lastModelMessages] = await Promise.all([
-      validateAndConvertToModelMessages(messages),
-      validateAndConvertToModelMessages([lastMessage]),
-    ])
-
-    const prunedMessages = pruneMessages({
-      messages: modelMessages,
-      // reasoning: 'all',
-      toolCalls: 'all',
-      emptyMessages: 'remove',
-    })
-
-    return [...prunedMessages, ...lastModelMessages]
-  } catch {
-    throw new InvalidArgumentError({
-      code: 'INVALID_MESSAGES',
-      message: 'Invalid messages',
-    })
-  }
-}
 
 export async function streamAgentResponse({
   streamId,
@@ -91,6 +44,9 @@ export async function streamAgentResponse({
 )) {
   const stream = new ReadableStream({
     async start(controller) {
+      // If user message is not provided, we are updating the assistant message
+      const isUpdating = !userMessage
+
       const enqueue = (chunk: AIMessage) =>
         controller.enqueue(`${JSON.stringify(chunk)}\n\n`)
 
@@ -99,12 +55,15 @@ export async function streamAgentResponse({
         metadata: assistantMessage.metadata ?? undefined,
         status: 'queued',
         role: 'assistant',
-        parts: userMessage ? [] : assistantMessage.parts,
+        parts: isUpdating ? assistantMessage.parts : [],
       })
 
+      let conversationConfiguration: ConversationConfiguration | undefined
+
       try {
-        const conversationConfiguration =
-          await resolveConversationConfiguration({ conversationId })
+        conversationConfiguration = await resolveConversationConfiguration({
+          conversationId,
+        })
 
         if (!conversationConfiguration) {
           throw new InvalidArgumentError({
@@ -113,25 +72,20 @@ export async function streamAgentResponse({
           })
         }
 
-        const [languageModel, activeTools, tools, prompts, messageHistory] =
+        const [languageModel, activeTools, tools, mcpTools, processedMessages] =
           await Promise.all([
             conversationConfiguration.languageModel(),
             conversationConfiguration.activeTools(),
             conversationConfiguration.tools(),
-            conversationConfiguration.prompts(),
-            conversationConfiguration.messages({
-              targetMessageId: userMessage
-                ? userMessage.id
-                : assistantMessage.id,
+            conversationConfiguration
+              .createMcpClients()
+              .then(conversationConfiguration.mcpTools),
+            conversationConfiguration.processedMessages({
+              message: isUpdating
+                ? { ...assistantMessage, role: 'assistant' }
+                : { ...userMessage, role: 'user' },
             }),
           ])
-
-        const processedMessages = await processMessages({
-          messages: [...prompts, ...messageHistory],
-          lastMessage: userMessage
-            ? { ...userMessage, role: 'user' }
-            : { ...assistantMessage, role: 'assistant' },
-        })
 
         const stopSignal = new AbortController()
 
@@ -146,32 +100,9 @@ export async function streamAgentResponse({
           }
         }, 1000)
 
-        const enhancedModel = wrapLanguageModel({
-          model: languageModel.model,
-          middleware: [
-            // extractReasoningMiddleware({ tagName: 'thinking' }),
-            // defaultSettingsMiddleware({
-            //   settings: {
-            //     providerOptions: {
-            //       openai: {
-            //         reasoningEffort: 'high',
-            //         reasoningSummary: 'detailed',
-            //       } satisfies OpenAIResponsesProviderOptions,
-            //       google: {
-            //         thinkingConfig: {
-            //           thinkingLevel: 'high',
-            //           includeThoughts: true,
-            //         },
-            //       } satisfies GoogleGenerativeAIProviderOptions,
-            //     },
-            //   },
-            // }),
-          ],
-        })
-
         await createAgentAIStream({
-          model: enhancedModel,
-          tools,
+          model: languageModel.model,
+          tools: { ...tools, ...mcpTools },
           activeTools,
           stopWhen: stepCountIs(5),
           abortSignal: stopSignal.signal,
@@ -195,22 +126,28 @@ export async function streamAgentResponse({
           onFinish: async ({ message }) => {
             enqueue(message)
 
-            await queries.updateMessage({
-              messageId: message.id,
-              metadata: message.metadata,
-              status: message.status,
-              parts: message.parts,
-            })
+            await Promise.all([
+              conversationConfiguration?.closeMcpClients(),
+              queries.updateMessage({
+                messageId: message.id,
+                metadata: message.metadata,
+                status: message.status,
+                parts: message.parts,
+              }),
+            ])
           },
           onFailed: async ({ message }) => {
             enqueue(message)
 
-            await queries.updateMessage({
-              messageId: message.id,
-              metadata: message.metadata,
-              status: message.status,
-              parts: message.parts,
-            })
+            await Promise.all([
+              conversationConfiguration?.closeMcpClients(),
+              queries.updateMessage({
+                messageId: message.id,
+                metadata: message.metadata,
+                status: message.status,
+                parts: message.parts,
+              }),
+            ])
           },
         })
       } catch (error) {
@@ -221,7 +158,7 @@ export async function streamAgentResponse({
           },
           status: 'failed' as const,
           role: 'assistant' as const,
-          parts: userMessage ? [] : assistantMessage.parts,
+          parts: isUpdating ? assistantMessage.parts : [],
         }
 
         enqueue({
@@ -229,10 +166,13 @@ export async function streamAgentResponse({
           ...failedAssistantMessage,
         })
 
-        await queries.updateMessage({
-          messageId: assistantMessage.id,
-          ...failedAssistantMessage,
-        })
+        await Promise.all([
+          conversationConfiguration?.closeMcpClients(),
+          queries.updateMessage({
+            messageId: assistantMessage.id,
+            ...failedAssistantMessage,
+          }),
+        ])
       } finally {
         controller.close()
       }

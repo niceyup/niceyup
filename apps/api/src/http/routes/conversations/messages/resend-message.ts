@@ -11,11 +11,12 @@ import {
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
 import type { AIMessageMetadata } from '@workspace/ai/types'
-import { db, generateId } from '@workspace/db'
+import { db } from '@workspace/db'
 import { and, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { messages } from '@workspace/db/schema'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
+import { generateId } from '@workspace/utils'
 import { z } from 'zod'
 
 const textPartSchema = z.object({
@@ -49,7 +50,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages/:messageId/resend',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Resend user message',
         operationId: 'resendMessage',
         params: z.object({

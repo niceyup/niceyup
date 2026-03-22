@@ -1,31 +1,20 @@
-import { randomUUID } from 'node:crypto'
 import {
   type ModelMessage,
-  type ToolSet,
   readUIMessageStream,
   streamText,
 } from '@workspace/ai'
-import type { Output } from '@workspace/ai'
 import type {
   AIMessage,
   AIMessageMetadata,
   AIMessagePart,
 } from '@workspace/ai/types'
+import { generateId } from '@workspace/utils'
 
-type StreamTextParams<
-  TOOLS extends ToolSet,
-  OUTPUT extends Output.Output,
-> = Parameters<typeof streamText<TOOLS, OUTPUT>>[0]
+type StreamTextParams = Parameters<typeof streamText>[0]
 
-type StreamTextResult<
-  TOOLS extends ToolSet,
-  OUTPUT extends Output.Output,
-> = ReturnType<typeof streamText<TOOLS, OUTPUT>>
+type StreamTextResult = ReturnType<typeof streamText>
 
-export async function createAgentAIStream<
-  TOOLS extends ToolSet,
-  OUTPUT extends Output.Output,
->({
+export async function createAgentAIStream({
   model,
   tools,
   activeTools,
@@ -40,7 +29,7 @@ export async function createAgentAIStream<
   onFailed,
   onError,
 }: Pick<
-  StreamTextParams<TOOLS, OUTPUT>,
+  StreamTextParams,
   'model' | 'tools' | 'activeTools' | 'toolChoice' | 'stopWhen' | 'abortSignal'
 > & {
   messages: ModelMessage[]
@@ -54,10 +43,10 @@ export async function createAgentAIStream<
   onFinish?: (event: { message: AIMessage }) => Promise<void>
   onFailed?: (event: { message: AIMessage; error: unknown }) => Promise<void>
   onError?: (event: { error: unknown }) => void
-}): Promise<StreamTextResult<TOOLS, OUTPUT> | undefined> {
+}): Promise<StreamTextResult | undefined> {
   try {
     let message = {
-      id: originalMessage?.id || randomUUID(),
+      id: originalMessage?.id || generateId(),
       metadata: originalMessage?.metadata || {},
       status: 'processing',
       role: 'assistant',

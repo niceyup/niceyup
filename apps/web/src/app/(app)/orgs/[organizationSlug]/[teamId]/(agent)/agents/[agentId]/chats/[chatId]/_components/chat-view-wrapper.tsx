@@ -39,6 +39,7 @@ export async function ChatViewWrapper({
       </div>
     )
   }
+
   const [firstMessage] = data.messages
 
   const siblingRootMessages = await queries.listRootMessages({

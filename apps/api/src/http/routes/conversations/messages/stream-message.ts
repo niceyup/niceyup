@@ -17,7 +17,7 @@ export async function streamMessage(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages/:messageId/stream',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Stream message',
         operationId: 'streamMessage',
         params: z.object({

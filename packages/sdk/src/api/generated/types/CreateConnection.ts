@@ -113,6 +113,17 @@ export const createConnectionMutationRequestAppEnum = {
 export type CreateConnectionMutationRequestAppEnum =
   (typeof createConnectionMutationRequestAppEnum)[keyof typeof createConnectionMutationRequestAppEnum]
 
+export const createConnectionMutationRequestAuthenticationEnum = {
+  'api-key': 'api-key',
+  'bearer-token': 'bearer-token',
+  'basic-auth': 'basic-auth',
+  oauth2: 'oauth2',
+  custom: 'custom',
+} as const
+
+export type CreateConnectionMutationRequestAuthenticationEnum =
+  (typeof createConnectionMutationRequestAuthenticationEnum)[keyof typeof createConnectionMutationRequestAuthenticationEnum]
+
 export type CreateConnectionMutationRequest = {
   /**
    * @type string | undefined
@@ -125,11 +136,21 @@ export type CreateConnectionMutationRequest = {
   /**
    * @type string
    */
+  name: string
+  /**
+   * @type string
+   */
   app: CreateConnectionMutationRequestAppEnum
   /**
    * @type string
    */
-  name: string
+  authentication: CreateConnectionMutationRequestAuthenticationEnum
+  /**
+   * @type object
+   */
+  settings?: {
+    [key: string]: any
+  } | null
   /**
    * @type object
    */

@@ -7,7 +7,7 @@ import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { sourceOperations } from '@workspace/db/schema'
-import type { DeleteSourceIngestionTask } from '@workspace/engine/tasks/delete-source-ingestion'
+import type { DeleteSourceTask } from '@workspace/engine/tasks/delete-source'
 import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
@@ -66,9 +66,10 @@ export async function deleteSource(app: FastifyTypedInstance) {
         })
         .where(eq(sourceOperations.sourceId, sourceId))
 
-      await tasks.trigger<DeleteSourceIngestionTask>(
-        'delete-source-ingestion',
+      await tasks.trigger<DeleteSourceTask>(
+        'delete-source',
         { sourceId, destroy },
+        { concurrencyKey: context.organizationId },
       )
 
       return reply.status(204).send()

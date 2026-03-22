@@ -10,11 +10,12 @@ import {
   aiMessageRoleSchema,
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
-import { db, generateId } from '@workspace/db'
+import { db } from '@workspace/db'
 import { and, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { messages } from '@workspace/db/schema'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
+import { generateId } from '@workspace/utils'
 import { z } from 'zod'
 
 const messageSchema = z.object({
@@ -34,7 +35,7 @@ export async function regenerateMessage(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages/:messageId/regenerate',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Regenerate assistant message',
         operationId: 'regenerateMessage',
         params: z.object({

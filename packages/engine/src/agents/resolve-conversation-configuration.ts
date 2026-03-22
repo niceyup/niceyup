@@ -1,29 +1,41 @@
 import type { ToolSet } from '@workspace/ai'
 import type { AIMessage } from '@workspace/ai/types'
 import { db } from '@workspace/db'
-import { eq } from '@workspace/db/orm'
+import { aliasedTable, eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
-import { agents, conversations } from '@workspace/db/schema'
+import { agentConfigurations, conversations } from '@workspace/db/schema'
+import { type PartialMessage, processMessages } from './process-messages'
 import { resolveAgentConfiguration } from './resolve-agent-configuration'
 import { resolveLanguageModelSettings } from './resolve-model-settings'
+
+export type ConversationConfiguration = Awaited<
+  ReturnType<typeof resolveConversationConfiguration>
+>
 
 export async function resolveConversationConfiguration(params: {
   conversationId: string
 }) {
+  const conversationConfigurations = aliasedTable(
+    agentConfigurations,
+    'conversation_configurations',
+  )
+
   const [conversationConfiguration] = await db
     .select({
-      languageModelSettingsId: conversations.languageModelSettingsId,
-      systemMessage: conversations.systemMessage,
-      promptMessages: conversations.promptMessages,
-      agent: {
-        id: agents.id,
-        languageModelSettingsId: agents.languageModelSettingsId,
-        systemMessage: agents.systemMessage,
-        promptMessages: agents.promptMessages,
-      },
+      id: conversationConfigurations.id,
+      languageModelSettingsId:
+        conversationConfigurations.languageModelSettingsId,
+      systemMessage: conversationConfigurations.systemMessage,
+      promptMessages: conversationConfigurations.promptMessages,
+      enableKnowledgeBaseTool:
+        conversationConfigurations.enableKnowledgeBaseTool,
+      agentId: conversations.agentId,
     })
     .from(conversations)
-    .leftJoin(agents, eq(conversations.agentId, agents.id))
+    .leftJoin(
+      conversationConfigurations,
+      eq(conversations.id, conversationConfigurations.conversationId),
+    )
     .where(eq(conversations.id, params.conversationId))
     .limit(1)
 
@@ -31,23 +43,36 @@ export async function resolveConversationConfiguration(params: {
     return null
   }
 
+  const agentConfiguration = await resolveAgentConfiguration({
+    agentId: conversationConfiguration.agentId,
+  })
+
+  if (!agentConfiguration) {
+    return null
+  }
+
   const languageModelSettingsId =
-    conversationConfiguration.languageModelSettingsId ||
-    conversationConfiguration.agent?.languageModelSettingsId ||
+    conversationConfiguration.languageModelSettingsId ??
+    agentConfiguration.languageModelSettingsId ??
     null
 
   const systemMessage =
-    conversationConfiguration.systemMessage ||
-    conversationConfiguration.agent?.systemMessage ||
+    conversationConfiguration.systemMessage ??
+    agentConfiguration.systemMessage ??
     ''
   const promptMessages =
-    conversationConfiguration.promptMessages ||
-    conversationConfiguration.agent?.promptMessages ||
+    conversationConfiguration.promptMessages ??
+    agentConfiguration.promptMessages ??
     []
 
+  const enableKnowledgeBaseTool =
+    conversationConfiguration.enableKnowledgeBaseTool ??
+    agentConfiguration.enableKnowledgeBaseTool ??
+    false
+
   // TODO: make this dynamic based on the agent's configuration
-  const contextMessages = true
-  const maxContextMessages = 100
+  const shortTermMemory = true
+  const windowSize = 100
 
   const languageModelSettings = async () => {
     if (!languageModelSettingsId) {
@@ -95,14 +120,14 @@ export async function resolveConversationConfiguration(params: {
   }: {
     targetMessageId: string
   }): Promise<AIMessage[]> => {
-    if (!contextMessages) {
+    if (!shortTermMemory) {
       return []
     }
 
     const listMessageNodes = await queries.listMessageParentNodes({
       conversationId: params.conversationId,
       targetMessageId,
-      limit: maxContextMessages,
+      limit: windowSize,
     })
 
     return listMessageNodes.map(({ id, status, role, parts, metadata }) => ({
@@ -114,39 +139,60 @@ export async function resolveConversationConfiguration(params: {
     }))
   }
 
-  const activeTools = async () => {
-    if (!conversationConfiguration.agent?.id) {
-      return []
-    }
+  const processedMessages = async ({
+    message,
+  }: {
+    message: PartialMessage
+  }) => {
+    const [_prompts, _messages] = await Promise.all([
+      prompts(),
+      messages({ targetMessageId: message.id }),
+    ])
 
-    const agentConfiguration = await resolveAgentConfiguration({
-      agentId: conversationConfiguration.agent.id,
+    return await processMessages({
+      messages: [..._prompts, ..._messages],
+      lastMessage: message,
     })
-
-    return (await agentConfiguration?.activeTools()) || []
   }
 
-  const tools = async (): Promise<ToolSet | undefined> => {
-    if (!conversationConfiguration.agent?.id) {
-      return
-    }
+  const createMcpClients = async () => {
+    await agentConfiguration.createMcpClients()
+  }
 
-    const agentConfiguration = await resolveAgentConfiguration({
-      agentId: conversationConfiguration.agent.id,
+  const closeMcpClients = async () => {
+    await agentConfiguration.closeMcpClients()
+  }
+
+  const mcpTools = async (): Promise<ToolSet> => {
+    return await agentConfiguration.mcpTools()
+  }
+
+  const activeTools = async () => {
+    return await agentConfiguration.activeTools({
+      enableKnowledgeBaseTool,
     })
+  }
 
-    return await agentConfiguration?.tools()
+  const tools = async (): Promise<ToolSet> => {
+    return await agentConfiguration.tools({ enableKnowledgeBaseTool })
   }
 
   return {
+    agentId: conversationConfiguration.agentId,
     languageModelSettingsId,
     systemMessage,
     promptMessages,
+    enableKnowledgeBaseTool,
     languageModelSettings,
     languageModel,
     prompts,
     messages,
+    processedMessages,
+    createMcpClients,
+    closeMcpClients,
+    mcpTools,
     activeTools,
     tools,
+    agentConfiguration,
   }
 }

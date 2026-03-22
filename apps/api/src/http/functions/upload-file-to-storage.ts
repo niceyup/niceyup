@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto'
 import { extname } from 'node:path'
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { UnauthorizedError } from '@/http/errors/unauthorized-error'
@@ -7,6 +6,7 @@ import type { MultipartFile } from '@fastify/multipart'
 import { queries } from '@workspace/db/queries'
 import type { FileMetadata } from '@workspace/db/types'
 import { storage } from '@workspace/storage'
+import { generateId } from '@workspace/utils'
 import jwt from 'jsonwebtoken'
 
 export type FileBucket = 'default' | 'engine'
@@ -144,7 +144,7 @@ export async function uploadFileToStorage(params: UploadFileToStorageParams) {
       ? env.S3_ENGINE_BUCKET
       : env.S3_DEFAULT_BUCKET
 
-  const uniqueFileName = `${Date.now().toString()}-${randomUUID()}`
+  const uniqueFileName = `${Date.now().toString()}-${generateId()}`
   const fileExtension = extname(params.file.filename)
 
   const filePath = `${params.data.scope}/${uniqueFileName}${fileExtension}`

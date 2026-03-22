@@ -23,7 +23,7 @@ export async function updateConnection(app: FastifyTypedInstance) {
         body: z.object({
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
-          name: z.string(),
+          name: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),
@@ -58,7 +58,9 @@ export async function updateConnection(app: FastifyTypedInstance) {
 
       await db
         .update(connections)
-        .set({ name })
+        .set({
+          name,
+        })
         .where(eq(connections.id, connectionId))
 
       return reply.status(204).send()

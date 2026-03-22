@@ -1,16 +1,14 @@
 'use server'
 
-import { auth } from '@workspace/auth'
 import { addDays, subDays } from 'date-fns'
-import { headers } from 'next/headers'
 
-export async function getBillingCustomerState() {
-  const customerState = await auth.api.state({
-    headers: await headers(),
-  })
+// export async function getBillingCustomerState() {
+//   const customerState = await auth.api.state({
+//     headers: await headers(),
+//   })
 
-  return customerState
-}
+//   return customerState
+// }
 
 export async function getActiveSubscription() {
   'use cache: private'
@@ -28,9 +26,11 @@ export async function getActiveSubscription() {
 }
 
 export async function getBillingPortalUrl() {
-  const portal = await auth.api.portal({
-    headers: await headers(),
-  })
+  // const portal = await auth.api.portal({
+  //   headers: await headers(),
+  // })
 
-  return portal.url
+  // return portal.url
+
+  return 'https://billing.niceyup.com/portal'
 }

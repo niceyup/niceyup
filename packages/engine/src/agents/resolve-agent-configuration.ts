@@ -1,54 +1,67 @@
-import type { ModelMessage, ToolSet } from '@workspace/ai'
-import { openai } from '@workspace/ai/providers'
+import {
+  type MCPClient,
+  type ModelMessage,
+  type ToolSet,
+  createMCPClient,
+} from '@workspace/ai'
+import type { ModelProvider } from '@workspace/core/model-providers'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
-import { agents } from '@workspace/db/schema'
-import { retrieveSourcesTool } from '@workspace/engine'
+import { agentConfigurations } from '@workspace/db/schema'
+import { modelProviderTools } from '../model-provider-tools'
 import {
-  resolveEmbeddingModelSettings,
-  resolveLanguageModelSettings,
-} from './resolve-model-settings'
+  type AgentKnowledgeBase,
+  resolveAgentKnowledgeBase,
+} from './resolve-agent-knowledge-base'
+import { resolveLanguageModelSettings } from './resolve-model-settings'
+
+type ActiveTool = Awaited<ReturnType<typeof queries.listActiveTools>>[number]
+
+export type AgentConfiguration = Awaited<
+  ReturnType<typeof resolveAgentConfiguration>
+>
 
 export async function resolveAgentConfiguration(params: {
   agentId: string
 }) {
   const [agentConfiguration] = await db
     .select({
-      id: agents.id,
-      organizationId: agents.organizationId,
-      languageModelSettingsId: agents.languageModelSettingsId,
-      embeddingModelSettingsId: agents.embeddingModelSettingsId,
-      systemMessage: agents.systemMessage,
-      promptMessages: agents.promptMessages,
-      suggestions: agents.suggestions,
-      enableSourceRetrievalTool: agents.enableSourceRetrievalTool,
+      id: agentConfigurations.id,
+      languageModelSettingsId: agentConfigurations.languageModelSettingsId,
+      systemMessage: agentConfigurations.systemMessage,
+      promptMessages: agentConfigurations.promptMessages,
+      enableKnowledgeBaseTool: agentConfigurations.enableKnowledgeBaseTool,
     })
-    .from(agents)
-    .where(eq(agents.id, params.agentId))
+    .from(agentConfigurations)
+    .where(eq(agentConfigurations.agentId, params.agentId))
     .limit(1)
 
   if (!agentConfiguration) {
     return null
   }
 
+  let cachedKnowledgeBase: AgentKnowledgeBase | undefined
+
+  const knowledgeBase = async () => {
+    if (!cachedKnowledgeBase) {
+      cachedKnowledgeBase = await resolveAgentKnowledgeBase({
+        agentId: params.agentId,
+      })
+    }
+
+    return cachedKnowledgeBase
+  }
+
   const languageModelSettingsId =
-    agentConfiguration.languageModelSettingsId || null
+    agentConfiguration.languageModelSettingsId ?? null
 
-  const embeddingModelSettingsId =
-    agentConfiguration.embeddingModelSettingsId || null
+  const systemMessage = agentConfiguration.systemMessage ?? ''
 
-  const systemMessage = agentConfiguration.systemMessage || ''
+  const promptMessages = agentConfiguration.promptMessages ?? []
 
-  const promptMessages = agentConfiguration.promptMessages || []
-
-  const suggestions = agentConfiguration.suggestions || []
-
-  const enableSourceRetrievalTool =
-    agentConfiguration.enableSourceRetrievalTool || false
-
-  // TODO: make this dynamic based on the agent's configuration
-  const topK = 20
+  const enableKnowledgeBaseTool =
+    agentConfiguration.enableKnowledgeBaseTool ?? false
 
   const prompts: ModelMessage[] = [
     { role: 'system', content: systemMessage },
@@ -66,68 +79,157 @@ export async function resolveAgentConfiguration(params: {
     })
   }
 
-  const embeddingModelSettings = async () => {
-    if (!embeddingModelSettingsId) {
-      return null
-    }
-
-    return await queries.getModelSettings({
-      type: 'embedding-model',
-      modelSettingsId: embeddingModelSettingsId,
-    })
-  }
-
   const languageModel = async () => {
     return await resolveLanguageModelSettings({
       modelSettingsId: languageModelSettingsId,
     })
   }
 
-  const embeddingModel = async () => {
-    return await resolveEmbeddingModelSettings({
-      modelSettingsId: embeddingModelSettingsId,
+  const mcpClients = new Map<string, MCPClient>()
+
+  const createMcpClients = async () => {
+    const listMcpServers = await queries.listMcpServersByAgentConfigurationId({
+      agentConfigurationId: agentConfiguration.id,
     })
+
+    await Promise.all(
+      listMcpServers.map(async (mcpServer) => {
+        const mcpClient = await createMCPClient({
+          transport: {
+            type: mcpServer.type,
+            url: mcpServer.url,
+            headers: {
+              ...(mcpServer.credentials?.apiKey
+                ? { Authorization: `Bearer ${mcpServer.credentials.apiKey}` }
+                : {}),
+              ...mcpServer.headers,
+            },
+          },
+        })
+
+        mcpClients.set(mcpServer.id, mcpClient)
+      }),
+    )
   }
 
-  const activeTools = async () => {
-    const activeTools = ['image_generation', 'web_search']
+  const closeMcpClients = async () => {
+    await Promise.all(
+      Array.from(mcpClients.values()).map((mcpClient) => mcpClient.close()),
+    )
+  }
 
-    if (enableSourceRetrievalTool) {
-      activeTools.push('retrieve_sources')
+  const mcpTools = async () => {
+    const mcpTools = await Promise.all(
+      Array.from(mcpClients.values()).map((mcpClient) => mcpClient.tools()),
+    )
+
+    return mcpTools.reduce(
+      (acc, mcpTool) => Object.assign(acc, mcpTool),
+      {} as ToolSet,
+    )
+  }
+
+  let cachedListActiveTools:
+    | {
+        providerTools: ActiveTool[]
+        mcpTools: (ActiveTool & { mcpServerId: string })[]
+      }
+    | undefined
+
+  const listActiveTools = async () => {
+    if (!cachedListActiveTools) {
+      const _listActiveTools = await queries.listActiveTools({
+        agentConfigurationId: agentConfiguration.id,
+      })
+
+      const providerTools = []
+      const mcpTools = []
+
+      for (const activeTool of _listActiveTools) {
+        // Provider Tools
+        if (activeTool.type === 'provider') {
+          providerTools.push(activeTool)
+        }
+
+        // MCP Tools
+        if (activeTool.type === 'dynamic' && activeTool.mcpServerId) {
+          mcpTools.push({ ...activeTool, mcpServerId: activeTool.mcpServerId })
+        }
+      }
+
+      cachedListActiveTools = { providerTools, mcpTools }
+    }
+
+    return cachedListActiveTools
+  }
+
+  const activeTools = async (params: { enableKnowledgeBaseTool?: boolean }) => {
+    const { providerTools, mcpTools } = await listActiveTools()
+
+    const activeTools = []
+
+    // Provider Tools
+    if (providerTools.length) {
+      const _languageModelSettings = await languageModelSettings()
+      const providerSettings = _languageModelSettings?.provider
+
+      if (providerSettings) {
+        const validProviderTools = providerTools.filter((providerTool) =>
+          Boolean(
+            modelProviderTools[providerSettings.provider]?.[providerTool.tool],
+          ),
+        )
+
+        if (validProviderTools.length) {
+          activeTools.push(
+            ...validProviderTools.map((providerTool) => providerTool.tool),
+          )
+        }
+      }
+    }
+
+    // MCP Tools
+    if (mcpTools.length) {
+      activeTools.push(...mcpTools.map((mcpTool) => mcpTool.tool))
+    }
+
+    // Knowledge Base Tool
+    if (params.enableKnowledgeBaseTool ?? enableKnowledgeBaseTool) {
+      activeTools.push('knowledge_base')
     }
 
     return activeTools
   }
 
-  const tools = async (): Promise<ToolSet | undefined> => {
-    const _activeTools = await activeTools()
+  const tools = async (params: {
+    enableKnowledgeBaseTool?: boolean
+  }): Promise<ToolSet> => {
+    const { providerTools } = await listActiveTools()
 
-    let tools: ToolSet | undefined = undefined
+    const tools: ToolSet = {}
 
-    if (_activeTools.length) {
-      tools = {}
+    // Provider Tools
+    if (providerTools.length) {
+      for (const providerTool of providerTools) {
+        const [provider] = providerTool.tool.split('.')
 
-      const _languageModel = await languageModel()
+        if (provider) {
+          const toolFactory =
+            modelProviderTools[provider as ModelProvider]?.[providerTool.tool]
 
-      if (_languageModel.provider === 'openai') {
-        if (_activeTools.includes('image_generation')) {
-          tools.image_generation = openai.tools.imageGeneration()
-        }
-
-        if (_activeTools.includes('web_search')) {
-          tools.web_search = openai.tools.webSearch()
+          if (toolFactory) {
+            tools[providerTool.tool] = toolFactory(providerTool.arguments ?? {})
+          }
         }
       }
+    }
 
-      if (_activeTools.includes('retrieve_sources')) {
-        const _embeddingModel = await embeddingModel()
+    // // Knowledge Base Tool
+    if (params.enableKnowledgeBaseTool ?? enableKnowledgeBaseTool) {
+      const _knowledgeBase = await knowledgeBase()
 
-        tools.retrieve_sources = retrieveSourcesTool({
-          embeddingModel: _embeddingModel.model,
-          agentId: agentConfiguration.id,
-          organizationId: agentConfiguration.organizationId!,
-          topK,
-        })
+      if (_knowledgeBase) {
+        tools.knowledge_base = await _knowledgeBase.knowledgeBaseTool()
       }
     }
 
@@ -136,16 +238,15 @@ export async function resolveAgentConfiguration(params: {
 
   return {
     languageModelSettingsId,
-    embeddingModelSettingsId,
     systemMessage,
     promptMessages,
-    suggestions,
-    enableSourceRetrievalTool,
+    enableKnowledgeBaseTool,
     prompts,
     languageModelSettings,
-    embeddingModelSettings,
     languageModel,
-    embeddingModel,
+    createMcpClients,
+    closeMcpClients,
+    mcpTools,
     activeTools,
     tools,
   }

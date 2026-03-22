@@ -15,11 +15,12 @@ import {
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
 import type { AIMessagePart } from '@workspace/ai/types'
-import { db, generateId } from '@workspace/db'
+import { db } from '@workspace/db'
 import { and, eq, isNull, sql } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { messages } from '@workspace/db/schema'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
+import { generateId } from '@workspace/utils'
 import { z } from 'zod'
 
 const messageSchema = z.object({
@@ -37,7 +38,7 @@ export async function respondToToolApproval(app: FastifyTypedInstance) {
     '/conversations/:conversationId/messages/:messageId/tool-approval',
     {
       schema: {
-        tags: ['Conversations'],
+        tags: ['Messages'],
         description: 'Respond to a tool approval request',
         operationId: 'respondToToolApproval',
         params: z.object({

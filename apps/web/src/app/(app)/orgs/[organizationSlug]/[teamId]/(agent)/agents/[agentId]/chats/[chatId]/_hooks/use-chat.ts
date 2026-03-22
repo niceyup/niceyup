@@ -594,7 +594,7 @@ export function useChat({
         let state = messagesAdapter.removeOne(prev, temporaryId)
 
         if (parentId && prev.entities[parentId]) {
-          const parent = prev.entities[parentId]!
+          const parent = prev.entities[parentId]
           const replacementId =
             type === 'user' ? userMessage.id : assistantMessage.id
 

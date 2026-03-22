@@ -112,14 +112,6 @@ export type UpdateConversationConfiguration500 = {
   message: string
 }
 
-export const languageModelSettingsProviderEnum4 = {
-  openai: 'openai',
-  google: 'google',
-} as const
-
-export type LanguageModelSettingsProviderEnum4 =
-  (typeof languageModelSettingsProviderEnum4)[keyof typeof languageModelSettingsProviderEnum4]
-
 export const promptMessagesRoleEnum4 = {
   user: 'user',
   assistant: 'assistant',
@@ -148,7 +140,7 @@ export type UpdateConversationConfigurationMutationRequest = {
     /**
      * @type string
      */
-    provider: LanguageModelSettingsProviderEnum4
+    providerId: string
     /**
      * @minLength 1
      * @type string
@@ -180,6 +172,10 @@ export type UpdateConversationConfigurationMutationRequest = {
         content: string
       }[]
     | null
+  /**
+   * @type boolean
+   */
+  enableKnowledgeBaseTool?: boolean | null
 }
 
 export type UpdateConversationConfigurationMutationResponse =

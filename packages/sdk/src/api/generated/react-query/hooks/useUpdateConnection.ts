@@ -48,7 +48,7 @@ export function useUpdateConnection<TContext>(
       >,
       {
         connectionId: UpdateConnectionPathParams['connectionId']
-        data: UpdateConnectionMutationRequest
+        data?: UpdateConnectionMutationRequest
       },
       TContext
     > & { client?: QueryClient }
@@ -74,7 +74,7 @@ export function useUpdateConnection<TContext>(
     >,
     {
       connectionId: UpdateConnectionPathParams['connectionId']
-      data: UpdateConnectionMutationRequest
+      data?: UpdateConnectionMutationRequest
     },
     TContext
   >(

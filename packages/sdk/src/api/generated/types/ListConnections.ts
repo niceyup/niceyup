@@ -36,6 +36,17 @@ export const connectionsAppEnum = {
 export type ConnectionsAppEnum =
   (typeof connectionsAppEnum)[keyof typeof connectionsAppEnum]
 
+export const connectionsAuthenticationEnum = {
+  'api-key': 'api-key',
+  'bearer-token': 'bearer-token',
+  'basic-auth': 'basic-auth',
+  oauth2: 'oauth2',
+  custom: 'custom',
+} as const
+
+export type ConnectionsAuthenticationEnum =
+  (typeof connectionsAuthenticationEnum)[keyof typeof connectionsAuthenticationEnum]
+
 /**
  * @description Success
  */
@@ -51,11 +62,21 @@ export type ListConnections200 = {
     /**
      * @type string
      */
+    name: string
+    /**
+     * @type string
+     */
     app: ConnectionsAppEnum
     /**
      * @type string
      */
-    name: string
+    authentication: ConnectionsAuthenticationEnum
+    /**
+     * @type object
+     */
+    settings: {
+      [key: string]: any
+    } | null
   }[]
 }
 

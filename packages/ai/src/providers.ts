@@ -1,20 +1,19 @@
-export { gateway } from '@ai-sdk/gateway'
-export { openai } from '@ai-sdk/openai'
-
 export {
-  createAnthropic,
-  type AnthropicProviderOptions,
-} from '@ai-sdk/anthropic'
+  openai,
+  createOpenAI,
+  type OpenAIResponsesProviderOptions,
+} from '@ai-sdk/openai'
 export {
+  google,
   createGoogleGenerativeAI,
   type GoogleGenerativeAIProviderOptions,
 } from '@ai-sdk/google'
 export {
-  createOpenAI,
-  type OpenAIResponsesProviderOptions,
-} from '@ai-sdk/openai'
-export { createXai, type XaiProviderOptions } from '@ai-sdk/xai'
-
+  anthropic,
+  createAnthropic,
+  type AnthropicProviderOptions,
+} from '@ai-sdk/anthropic'
+export { xai, createXai, type XaiProviderOptions } from '@ai-sdk/xai'
 export {
   createOpenAICompatible,
   type OpenAICompatibleProviderOptions,

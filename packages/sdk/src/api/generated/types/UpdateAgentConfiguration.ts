@@ -111,22 +111,6 @@ export type UpdateAgentConfiguration500 = {
   message: string
 }
 
-export const languageModelSettingsProviderEnum2 = {
-  openai: 'openai',
-  google: 'google',
-} as const
-
-export type LanguageModelSettingsProviderEnum2 =
-  (typeof languageModelSettingsProviderEnum2)[keyof typeof languageModelSettingsProviderEnum2]
-
-export const embeddingModelSettingsProviderEnum2 = {
-  openai: 'openai',
-  google: 'google',
-} as const
-
-export type EmbeddingModelSettingsProviderEnum2 =
-  (typeof embeddingModelSettingsProviderEnum2)[keyof typeof embeddingModelSettingsProviderEnum2]
-
 export const promptMessagesRoleEnum2 = {
   user: 'user',
   assistant: 'assistant',
@@ -151,27 +135,7 @@ export type UpdateAgentConfigurationMutationRequest = {
     /**
      * @type string
      */
-    provider: LanguageModelSettingsProviderEnum2
-    /**
-     * @minLength 1
-     * @type string
-     */
-    model: string
-    /**
-     * @type object
-     */
-    options?: {
-      [key: string]: any
-    } | null
-  } | null
-  /**
-   * @type object
-   */
-  embeddingModelSettings?: {
-    /**
-     * @type string
-     */
-    provider: EmbeddingModelSettingsProviderEnum2
+    providerId?: string | null
     /**
      * @minLength 1
      * @type string
@@ -204,13 +168,9 @@ export type UpdateAgentConfigurationMutationRequest = {
       }[]
     | null
   /**
-   * @type array
-   */
-  suggestions?: string[] | null
-  /**
    * @type boolean
    */
-  enableSourceRetrievalTool?: boolean | null
+  enableKnowledgeBaseTool?: boolean | null
 }
 
 export type UpdateAgentConfigurationMutationResponse =

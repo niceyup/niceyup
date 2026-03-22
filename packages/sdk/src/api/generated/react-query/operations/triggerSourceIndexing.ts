@@ -23,12 +23,12 @@ import type {
 function getTriggerSourceIndexingUrl({
   agentId,
 }: { agentId: TriggerSourceIndexingPathParams['agentId'] }) {
-  return `/agents/${agentId}/source-indexes/trigger` as const
+  return `/agents/${agentId}/knowledge-base/indexed-sources/trigger` as const
 }
 
 /**
- * @description Trigger source indexing of an agent
- * {@link /agents/:agentId/source-indexes/trigger}
+ * @description Trigger source indexing
+ * {@link /agents/:agentId/knowledge-base/indexed-sources/trigger}
  */
 export async function triggerSourceIndexing(
   {

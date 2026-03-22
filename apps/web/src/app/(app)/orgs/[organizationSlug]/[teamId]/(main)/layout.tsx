@@ -67,17 +67,14 @@ export default async function Layout({
     tabs.push(
       ...[
         {
-          label: 'Providers',
-          href: `/orgs/${organizationSlug}/~/providers`,
-        },
-        {
-          label: 'Sources',
+          label: 'Data Sources',
           href: `/orgs/${organizationSlug}/~/sources`,
           deep: true,
         },
         {
-          label: 'Connections',
-          href: `/orgs/${organizationSlug}/~/connections`,
+          label: 'Integrations',
+          href: `/orgs/${organizationSlug}/~/integrations`,
+          deep: true,
         },
       ],
     )

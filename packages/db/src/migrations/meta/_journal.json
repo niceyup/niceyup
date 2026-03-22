@@ -351,6 +351,55 @@
       "when": 1770669618522,
       "tag": "0049_left_sabretooth",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1772408280507,
+      "tag": "0050_tired_lily_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 51,
+      "version": "7",
+      "when": 1772473552072,
+      "tag": "0051_handy_pestilence",
+      "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1772645812818,
+      "tag": "0052_charming_sister_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1772986556414,
+      "tag": "0053_nice_cyclops",
+      "breakpoints": true
+    },
+    {
+      "idx": 54,
+      "version": "7",
+      "when": 1773670625393,
+      "tag": "0054_unknown_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1774039534997,
+      "tag": "0055_rainy_ironclad",
+      "breakpoints": true
+    },
+    {
+      "idx": 56,
+      "version": "7",
+      "when": 1774200564696,
+      "tag": "0056_calm_karma",
+      "breakpoints": true
     }
   ]
 }

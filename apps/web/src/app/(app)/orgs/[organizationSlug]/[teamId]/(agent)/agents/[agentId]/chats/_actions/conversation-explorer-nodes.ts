@@ -357,7 +357,9 @@ export async function updateNameOfItemInConversationExplorerNode(
 
     await db
       .update(conversations)
-      .set({ title: name })
+      .set({
+        title: name,
+      })
       .where(
         and(
           eq(conversations.id, conversationId),
@@ -377,7 +379,9 @@ export async function updateNameOfItemInConversationExplorerNode(
 
   await db
     .update(conversationExplorerNodes)
-    .set({ name })
+    .set({
+      name,
+    })
     .where(
       and(
         eq(conversationExplorerNodes.visibility, visibility),
@@ -667,7 +671,9 @@ export async function deleteItemInConversationExplorerNode(
       if (deletedConversationIds.length) {
         await tx
           .update(conversations)
-          .set({ deletedAt: new Date() })
+          .set({
+            deletedAt: new Date(),
+          })
           .where(
             and(
               inArray(conversations.id, deletedConversationIds),

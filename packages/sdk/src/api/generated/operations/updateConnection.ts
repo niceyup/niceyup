@@ -33,7 +33,7 @@ export async function updateConnection(
     data,
   }: {
     connectionId: UpdateConnectionPathParams['connectionId']
-    data: UpdateConnectionMutationRequest
+    data?: UpdateConnectionMutationRequest
   },
   config: Partial<RequestConfig<UpdateConnectionMutationRequest>> & {
     client?: typeof fetch

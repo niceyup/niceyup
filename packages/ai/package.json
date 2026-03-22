@@ -8,16 +8,17 @@
     "format": "biome format --write ."
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "3.0.1",
-    "@ai-sdk/devtools": "^0.0.15",
-    "@ai-sdk/gateway": "3.0.2",
-    "@ai-sdk/google": "3.0.1",
-    "@ai-sdk/openai": "3.0.1",
-    "@ai-sdk/openai-compatible": "^2.0.1",
-    "@ai-sdk/rsc": "2.0.3",
-    "@ai-sdk/xai": "3.0.1",
-    "@workspace/env": "workspace:*",
-    "ai": "6.0.3",
+    "@ai-sdk/anthropic": "3.0.50",
+    "@ai-sdk/devtools": "0.0.15",
+    "@ai-sdk/gateway": "3.0.59",
+    "@ai-sdk/google": "3.0.34",
+    "@ai-sdk/mcp": "1.0.22",
+    "@ai-sdk/openai": "3.0.37",
+    "@ai-sdk/openai-compatible": "2.0.31",
+    "@ai-sdk/provider-utils": "4.0.16",
+    "@ai-sdk/rsc": "2.0.105",
+    "@ai-sdk/xai": "3.0.60",
+    "ai": "6.0.105",
     "zod": "4.1.12"
   },
   "devDependencies": {
@@ -31,7 +32,7 @@
     "./providers": "./src/providers.ts",
     "./schemas": "./src/lib/schemas.ts",
     "./types": "./src/lib/types.ts",
-    "./env": "./src/lib/env.ts",
+    "./mocks": "./src/lib/mocks.ts",
     "./devtools": "./src/devtools.ts"
   }
 }

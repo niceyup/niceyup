@@ -90,7 +90,9 @@ export async function deleteSourceFolder(app: FastifyTypedInstance) {
       } else {
         await db
           .update(sourceExplorerNodes)
-          .set({ deletedAt: new Date() })
+          .set({
+            deletedAt: new Date(),
+          })
           .where(eq(sourceExplorerNodes.id, folderId))
       }
 

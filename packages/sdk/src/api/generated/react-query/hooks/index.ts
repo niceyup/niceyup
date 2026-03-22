@@ -1,22 +1,30 @@
 export type { CreateAgentMutationKey } from './useCreateAgent'
 export type { CreateConnectionMutationKey } from './useCreateConnection'
 export type { CreateConversationMutationKey } from './useCreateConversation'
-export type { CreateProviderMutationKey } from './useCreateProvider'
+export type { CreateMcpServerMutationKey } from './useCreateMcpServer'
+export type { CreateModelProviderMutationKey } from './useCreateModelProvider'
 export type { CreateSourceMutationKey } from './useCreateSource'
 export type { CreateSourceFolderMutationKey } from './useCreateSourceFolder'
+export type { CreateVectorStoreMutationKey } from './useCreateVectorStore'
 export type { DeleteAgentMutationKey } from './useDeleteAgent'
 export type { DeleteConnectionMutationKey } from './useDeleteConnection'
 export type { DeleteConversationMutationKey } from './useDeleteConversation'
-export type { DeleteProviderMutationKey } from './useDeleteProvider'
+export type { DeleteMcpServerMutationKey } from './useDeleteMcpServer'
+export type { DeleteModelProviderMutationKey } from './useDeleteModelProvider'
 export type { DeleteSourceMutationKey } from './useDeleteSource'
 export type { DeleteSourceFolderMutationKey } from './useDeleteSourceFolder'
+export type { DeleteVectorStoreMutationKey } from './useDeleteVectorStore'
 export type { GenerateUploadSignatureMutationKey } from './useGenerateUploadSignature'
 export type { GenerateUploadSignatureConversationMutationKey } from './useGenerateUploadSignatureConversation'
 export type { GenerateUploadSignatureSourceMutationKey } from './useGenerateUploadSignatureSource'
 export type { GetAgentQueryKey } from './useGetAgent'
 export type { GetAgentConfigurationQueryKey } from './useGetAgentConfiguration'
 export type { GetAgentConfigurationSuspenseQueryKey } from './useGetAgentConfigurationSuspense'
+export type { GetAgentKnowledgeBaseQueryKey } from './useGetAgentKnowledgeBase'
+export type { GetAgentKnowledgeBaseSuspenseQueryKey } from './useGetAgentKnowledgeBaseSuspense'
 export type { GetAgentSuspenseQueryKey } from './useGetAgentSuspense'
+export type { GetAgentSystemConfigurationQueryKey } from './useGetAgentSystemConfiguration'
+export type { GetAgentSystemConfigurationSuspenseQueryKey } from './useGetAgentSystemConfigurationSuspense'
 export type { GetConnectionQueryKey } from './useGetConnection'
 export type { GetConnectionSuspenseQueryKey } from './useGetConnectionSuspense'
 export type { GetConversationQueryKey } from './useGetConversation'
@@ -27,14 +35,18 @@ export type { GetDatabaseSchemaQueryKey } from './useGetDatabaseSchema'
 export type { GetDatabaseSchemaSuspenseQueryKey } from './useGetDatabaseSchemaSuspense'
 export type { GetFileQueryKey } from './useGetFile'
 export type { GetFileSuspenseQueryKey } from './useGetFileSuspense'
+export type { GetMcpServerQueryKey } from './useGetMcpServer'
+export type { GetMcpServerSuspenseQueryKey } from './useGetMcpServerSuspense'
+export type { GetModelProviderQueryKey } from './useGetModelProvider'
+export type { GetModelProviderSuspenseQueryKey } from './useGetModelProviderSuspense'
 export type { GetProfileQueryKey } from './useGetProfile'
 export type { GetProfileSuspenseQueryKey } from './useGetProfileSuspense'
-export type { GetProviderQueryKey } from './useGetProvider'
-export type { GetProviderSuspenseQueryKey } from './useGetProviderSuspense'
 export type { GetSourceQueryKey } from './useGetSource'
 export type { GetSourceIndexingStatusQueryKey } from './useGetSourceIndexingStatus'
 export type { GetSourceIndexingStatusSuspenseQueryKey } from './useGetSourceIndexingStatusSuspense'
 export type { GetSourceSuspenseQueryKey } from './useGetSourceSuspense'
+export type { GetVectorStoreQueryKey } from './useGetVectorStore'
+export type { GetVectorStoreSuspenseQueryKey } from './useGetVectorStoreSuspense'
 export type { HealthQueryKey } from './useHealth'
 export type { HealthSuspenseQueryKey } from './useHealthSuspense'
 export type { ListAgentsQueryKey } from './useListAgents'
@@ -43,15 +55,24 @@ export type { ListConnectionsQueryKey } from './useListConnections'
 export type { ListConnectionsSuspenseQueryKey } from './useListConnectionsSuspense'
 export type { ListConversationsQueryKey } from './useListConversations'
 export type { ListConversationsSuspenseQueryKey } from './useListConversationsSuspense'
+export type { ListIndexedSourcesQueryKey } from './useListIndexedSources'
+export type { ListIndexedSourcesSuspenseQueryKey } from './useListIndexedSourcesSuspense'
+export type { ListMcpServersQueryKey } from './useListMcpServers'
+export type { ListMcpServersSuspenseQueryKey } from './useListMcpServersSuspense'
 export type { ListMessagesQueryKey } from './useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './useListMessagesSuspense'
-export type { ListProvidersQueryKey } from './useListProviders'
-export type { ListProvidersSuspenseQueryKey } from './useListProvidersSuspense'
-export type { ListSourceIndexesQueryKey } from './useListSourceIndexes'
-export type { ListSourceIndexesSuspenseQueryKey } from './useListSourceIndexesSuspense'
+export type { ListModelProvidersQueryKey } from './useListModelProviders'
+export type { ListModelProviderSelectOptionsQueryKey } from './useListModelProviderSelectOptions'
+export type { ListModelProviderSelectOptionsSuspenseQueryKey } from './useListModelProviderSelectOptionsSuspense'
+export type { ListModelProvidersSuspenseQueryKey } from './useListModelProvidersSuspense'
 export type { ListSourcesQueryKey } from './useListSources'
 export type { ListSourcesSuspenseQueryKey } from './useListSourcesSuspense'
+export type { ListVectorStoresQueryKey } from './useListVectorStores'
+export type { ListVectorStoreSelectOptionsQueryKey } from './useListVectorStoreSelectOptions'
+export type { ListVectorStoreSelectOptionsSuspenseQueryKey } from './useListVectorStoreSelectOptionsSuspense'
+export type { ListVectorStoresSuspenseQueryKey } from './useListVectorStoresSuspense'
 export type { RegenerateMessageMutationKey } from './useRegenerateMessage'
+export type { ReindexKnowledgeBaseMutationKey } from './useReindexKnowledgeBase'
 export type { ResendMessageMutationKey } from './useResendMessage'
 export type { RespondToToolApprovalMutationKey } from './useRespondToToolApproval'
 export type { SendMessageMutationKey } from './useSendMessage'
@@ -61,12 +82,17 @@ export type { StreamMessageSuspenseQueryKey } from './useStreamMessageSuspense'
 export type { TriggerSourceIndexingMutationKey } from './useTriggerSourceIndexing'
 export type { UpdateAgentMutationKey } from './useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './useUpdateAgentConfiguration'
+export type { UpdateAgentKnowledgeBaseMutationKey } from './useUpdateAgentKnowledgeBase'
+export type { UpdateAgentSystemConfigurationMutationKey } from './useUpdateAgentSystemConfiguration'
 export type { UpdateConnectionMutationKey } from './useUpdateConnection'
 export type { UpdateConversationMutationKey } from './useUpdateConversation'
 export type { UpdateConversationConfigurationMutationKey } from './useUpdateConversationConfiguration'
+export type { UpdateIndexedSourcesMutationKey } from './useUpdateIndexedSources'
+export type { UpdateMcpServerMutationKey } from './useUpdateMcpServer'
+export type { UpdateModelProviderMutationKey } from './useUpdateModelProvider'
 export type { UpdateSourceMutationKey } from './useUpdateSource'
 export type { UpdateSourceFolderMutationKey } from './useUpdateSourceFolder'
-export type { UpdateSourceIndexesMutationKey } from './useUpdateSourceIndexes'
+export type { UpdateVectorStoreMutationKey } from './useUpdateVectorStore'
 export type { UploadFilesMutationKey } from './useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './useUploadFilesConversation'
 export type { UploadFilesSourceMutationKey } from './useUploadFilesSource'
@@ -80,14 +106,22 @@ export {
   useCreateConversation,
 } from './useCreateConversation'
 export {
-  createProviderMutationKey,
-  useCreateProvider,
-} from './useCreateProvider'
+  createMcpServerMutationKey,
+  useCreateMcpServer,
+} from './useCreateMcpServer'
+export {
+  createModelProviderMutationKey,
+  useCreateModelProvider,
+} from './useCreateModelProvider'
 export { createSourceMutationKey, useCreateSource } from './useCreateSource'
 export {
   createSourceFolderMutationKey,
   useCreateSourceFolder,
 } from './useCreateSourceFolder'
+export {
+  createVectorStoreMutationKey,
+  useCreateVectorStore,
+} from './useCreateVectorStore'
 export { deleteAgentMutationKey, useDeleteAgent } from './useDeleteAgent'
 export {
   deleteConnectionMutationKey,
@@ -98,14 +132,22 @@ export {
   useDeleteConversation,
 } from './useDeleteConversation'
 export {
-  deleteProviderMutationKey,
-  useDeleteProvider,
-} from './useDeleteProvider'
+  deleteMcpServerMutationKey,
+  useDeleteMcpServer,
+} from './useDeleteMcpServer'
+export {
+  deleteModelProviderMutationKey,
+  useDeleteModelProvider,
+} from './useDeleteModelProvider'
 export { deleteSourceMutationKey, useDeleteSource } from './useDeleteSource'
 export {
   deleteSourceFolderMutationKey,
   useDeleteSourceFolder,
 } from './useDeleteSourceFolder'
+export {
+  deleteVectorStoreMutationKey,
+  useDeleteVectorStore,
+} from './useDeleteVectorStore'
 export {
   generateUploadSignatureMutationKey,
   useGenerateUploadSignature,
@@ -134,10 +176,30 @@ export {
   useGetAgentConfigurationSuspense,
 } from './useGetAgentConfigurationSuspense'
 export {
+  getAgentKnowledgeBaseQueryKey,
+  getAgentKnowledgeBaseQueryOptions,
+  useGetAgentKnowledgeBase,
+} from './useGetAgentKnowledgeBase'
+export {
+  getAgentKnowledgeBaseSuspenseQueryKey,
+  getAgentKnowledgeBaseSuspenseQueryOptions,
+  useGetAgentKnowledgeBaseSuspense,
+} from './useGetAgentKnowledgeBaseSuspense'
+export {
   getAgentSuspenseQueryKey,
   getAgentSuspenseQueryOptions,
   useGetAgentSuspense,
 } from './useGetAgentSuspense'
+export {
+  getAgentSystemConfigurationQueryKey,
+  getAgentSystemConfigurationQueryOptions,
+  useGetAgentSystemConfiguration,
+} from './useGetAgentSystemConfiguration'
+export {
+  getAgentSystemConfigurationSuspenseQueryKey,
+  getAgentSystemConfigurationSuspenseQueryOptions,
+  useGetAgentSystemConfigurationSuspense,
+} from './useGetAgentSystemConfigurationSuspense'
 export {
   getConnectionQueryKey,
   getConnectionQueryOptions,
@@ -185,6 +247,26 @@ export {
   useGetFileSuspense,
 } from './useGetFileSuspense'
 export {
+  getMcpServerQueryKey,
+  getMcpServerQueryOptions,
+  useGetMcpServer,
+} from './useGetMcpServer'
+export {
+  getMcpServerSuspenseQueryKey,
+  getMcpServerSuspenseQueryOptions,
+  useGetMcpServerSuspense,
+} from './useGetMcpServerSuspense'
+export {
+  getModelProviderQueryKey,
+  getModelProviderQueryOptions,
+  useGetModelProvider,
+} from './useGetModelProvider'
+export {
+  getModelProviderSuspenseQueryKey,
+  getModelProviderSuspenseQueryOptions,
+  useGetModelProviderSuspense,
+} from './useGetModelProviderSuspense'
+export {
   getProfileQueryKey,
   getProfileQueryOptions,
   useGetProfile,
@@ -194,16 +276,6 @@ export {
   getProfileSuspenseQueryOptions,
   useGetProfileSuspense,
 } from './useGetProfileSuspense'
-export {
-  getProviderQueryKey,
-  getProviderQueryOptions,
-  useGetProvider,
-} from './useGetProvider'
-export {
-  getProviderSuspenseQueryKey,
-  getProviderSuspenseQueryOptions,
-  useGetProviderSuspense,
-} from './useGetProviderSuspense'
 export {
   getSourceQueryKey,
   getSourceQueryOptions,
@@ -224,6 +296,16 @@ export {
   getSourceSuspenseQueryOptions,
   useGetSourceSuspense,
 } from './useGetSourceSuspense'
+export {
+  getVectorStoreQueryKey,
+  getVectorStoreQueryOptions,
+  useGetVectorStore,
+} from './useGetVectorStore'
+export {
+  getVectorStoreSuspenseQueryKey,
+  getVectorStoreSuspenseQueryOptions,
+  useGetVectorStoreSuspense,
+} from './useGetVectorStoreSuspense'
 export { healthQueryKey, healthQueryOptions, useHealth } from './useHealth'
 export {
   healthSuspenseQueryKey,
@@ -261,6 +343,26 @@ export {
   useListConversationsSuspense,
 } from './useListConversationsSuspense'
 export {
+  listIndexedSourcesQueryKey,
+  listIndexedSourcesQueryOptions,
+  useListIndexedSources,
+} from './useListIndexedSources'
+export {
+  listIndexedSourcesSuspenseQueryKey,
+  listIndexedSourcesSuspenseQueryOptions,
+  useListIndexedSourcesSuspense,
+} from './useListIndexedSourcesSuspense'
+export {
+  listMcpServersQueryKey,
+  listMcpServersQueryOptions,
+  useListMcpServers,
+} from './useListMcpServers'
+export {
+  listMcpServersSuspenseQueryKey,
+  listMcpServersSuspenseQueryOptions,
+  useListMcpServersSuspense,
+} from './useListMcpServersSuspense'
+export {
   listMessagesQueryKey,
   listMessagesQueryOptions,
   useListMessages,
@@ -271,25 +373,25 @@ export {
   useListMessagesSuspense,
 } from './useListMessagesSuspense'
 export {
-  listProvidersQueryKey,
-  listProvidersQueryOptions,
-  useListProviders,
-} from './useListProviders'
+  listModelProvidersQueryKey,
+  listModelProvidersQueryOptions,
+  useListModelProviders,
+} from './useListModelProviders'
 export {
-  listProvidersSuspenseQueryKey,
-  listProvidersSuspenseQueryOptions,
-  useListProvidersSuspense,
-} from './useListProvidersSuspense'
+  listModelProviderSelectOptionsQueryKey,
+  listModelProviderSelectOptionsQueryOptions,
+  useListModelProviderSelectOptions,
+} from './useListModelProviderSelectOptions'
 export {
-  listSourceIndexesQueryKey,
-  listSourceIndexesQueryOptions,
-  useListSourceIndexes,
-} from './useListSourceIndexes'
+  listModelProviderSelectOptionsSuspenseQueryKey,
+  listModelProviderSelectOptionsSuspenseQueryOptions,
+  useListModelProviderSelectOptionsSuspense,
+} from './useListModelProviderSelectOptionsSuspense'
 export {
-  listSourceIndexesSuspenseQueryKey,
-  listSourceIndexesSuspenseQueryOptions,
-  useListSourceIndexesSuspense,
-} from './useListSourceIndexesSuspense'
+  listModelProvidersSuspenseQueryKey,
+  listModelProvidersSuspenseQueryOptions,
+  useListModelProvidersSuspense,
+} from './useListModelProvidersSuspense'
 export {
   listSourcesQueryKey,
   listSourcesQueryOptions,
@@ -301,9 +403,33 @@ export {
   useListSourcesSuspense,
 } from './useListSourcesSuspense'
 export {
+  listVectorStoresQueryKey,
+  listVectorStoresQueryOptions,
+  useListVectorStores,
+} from './useListVectorStores'
+export {
+  listVectorStoreSelectOptionsQueryKey,
+  listVectorStoreSelectOptionsQueryOptions,
+  useListVectorStoreSelectOptions,
+} from './useListVectorStoreSelectOptions'
+export {
+  listVectorStoreSelectOptionsSuspenseQueryKey,
+  listVectorStoreSelectOptionsSuspenseQueryOptions,
+  useListVectorStoreSelectOptionsSuspense,
+} from './useListVectorStoreSelectOptionsSuspense'
+export {
+  listVectorStoresSuspenseQueryKey,
+  listVectorStoresSuspenseQueryOptions,
+  useListVectorStoresSuspense,
+} from './useListVectorStoresSuspense'
+export {
   regenerateMessageMutationKey,
   useRegenerateMessage,
 } from './useRegenerateMessage'
+export {
+  reindexKnowledgeBaseMutationKey,
+  useReindexKnowledgeBase,
+} from './useReindexKnowledgeBase'
 export { resendMessageMutationKey, useResendMessage } from './useResendMessage'
 export {
   respondToToolApprovalMutationKey,
@@ -331,6 +457,14 @@ export {
   useUpdateAgentConfiguration,
 } from './useUpdateAgentConfiguration'
 export {
+  updateAgentKnowledgeBaseMutationKey,
+  useUpdateAgentKnowledgeBase,
+} from './useUpdateAgentKnowledgeBase'
+export {
+  updateAgentSystemConfigurationMutationKey,
+  useUpdateAgentSystemConfiguration,
+} from './useUpdateAgentSystemConfiguration'
+export {
   updateConnectionMutationKey,
   useUpdateConnection,
 } from './useUpdateConnection'
@@ -342,15 +476,27 @@ export {
   updateConversationConfigurationMutationKey,
   useUpdateConversationConfiguration,
 } from './useUpdateConversationConfiguration'
+export {
+  updateIndexedSourcesMutationKey,
+  useUpdateIndexedSources,
+} from './useUpdateIndexedSources'
+export {
+  updateMcpServerMutationKey,
+  useUpdateMcpServer,
+} from './useUpdateMcpServer'
+export {
+  updateModelProviderMutationKey,
+  useUpdateModelProvider,
+} from './useUpdateModelProvider'
 export { updateSourceMutationKey, useUpdateSource } from './useUpdateSource'
 export {
   updateSourceFolderMutationKey,
   useUpdateSourceFolder,
 } from './useUpdateSourceFolder'
 export {
-  updateSourceIndexesMutationKey,
-  useUpdateSourceIndexes,
-} from './useUpdateSourceIndexes'
+  updateVectorStoreMutationKey,
+  useUpdateVectorStore,
+} from './useUpdateVectorStore'
 export { uploadFilesMutationKey, useUploadFiles } from './useUploadFiles'
 export {
   uploadFilesConversationMutationKey,
