@@ -5,6 +5,7 @@ export default defineConfig({
   splitting: false,
   // sourcemap: true,
   clean: true,
+  external: ['@langchain/community'],
   noExternal: [
     '@workspace/ai',
     '@workspace/auth',

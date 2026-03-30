@@ -19,8 +19,7 @@ import {
   sourceOperations,
   sources,
 } from '@workspace/db/schema'
-import type { IngestSourceTask } from '@workspace/engine/tasks/ingest-source'
-import { tasks } from '@workspace/engine/trigger'
+import { ingestSourceTask } from '@workspace/engine/tasks/ingest-source'
 import { z } from 'zod'
 
 export async function uploadFilesSource(app: FastifyTypedInstance) {
@@ -272,8 +271,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
       )
 
       if (successfulFiles.length) {
-        await tasks.batchTrigger<IngestSourceTask>(
-          'ingest-source',
+        await ingestSourceTask.batchTrigger(
           successfulFiles.map(({ source }) => ({
             payload: { sourceId: source.sourceId },
             options: { concurrencyKey: data.organizationId as string },
