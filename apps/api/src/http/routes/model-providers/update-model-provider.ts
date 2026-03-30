@@ -3,6 +3,11 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import {
+  modelProviderSchema,
+  modelProviderSettingsSchema,
+  validateModelProvider,
+} from '@workspace/core/model-providers'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -24,6 +29,9 @@ export async function updateModelProvider(app: FastifyTypedInstance) {
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           name: z.string().optional(),
+          provider: modelProviderSchema.optional(),
+          settings: modelProviderSettingsSchema.nullish(),
+          credentials: z.record(z.string(), z.unknown()).nullish(),
         }),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),
@@ -37,7 +45,14 @@ export async function updateModelProvider(app: FastifyTypedInstance) {
 
       const { modelProviderId } = request.params
 
-      const { organizationId, organizationSlug, name } = request.body
+      const {
+        organizationId,
+        organizationSlug,
+        name,
+        provider,
+        settings,
+        credentials,
+      } = request.body
 
       const { context } = await resolveMembershipContext({
         userId,
@@ -56,10 +71,25 @@ export async function updateModelProvider(app: FastifyTypedInstance) {
         })
       }
 
+      let validatedData = undefined
+
+      if (
+        provider !== undefined ||
+        settings !== undefined ||
+        credentials !== undefined
+      ) {
+        validatedData = validateModelProvider({
+          provider: provider ?? modelProvider.provider,
+          settings,
+          credentials,
+        })
+      }
+
       await db
         .update(modelProviders)
         .set({
           name,
+          ...validatedData,
         })
         .where(eq(modelProviders.id, modelProviderId))
 

@@ -142,7 +142,6 @@ export default async function Page({
         sourceIds={agentSourcesData?.indexedSources.map(
           ({ sourceId }) => sourceId,
         )}
-        totalCount={totalCount}
       />
     </div>
   )

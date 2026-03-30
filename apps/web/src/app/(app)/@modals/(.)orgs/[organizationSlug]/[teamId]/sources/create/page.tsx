@@ -29,7 +29,7 @@ export default async function Page({
 
   return (
     <Dialog defaultOpen>
-      <InterceptedDialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+      <InterceptedDialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>Add Source</DialogTitle>
           <DialogDescription>Add a data source to an agent.</DialogDescription>

@@ -12,21 +12,17 @@ export type ModelProvider = z.infer<typeof modelProviderSchema>
 
 export type ModelProviderSettings = z.infer<typeof modelProviderSettingsSchema>
 
-export type ModelProviderOpenAICredentials = z.infer<
-  typeof modelProviderOpenAISchema
->
+export type ModelProviderOpenAI = z.infer<typeof modelProviderOpenAISchema>
 
-export type ModelProviderGoogleCredentials = z.infer<
-  typeof modelProviderGoogleSchema
->
+export type ModelProviderGoogle = z.infer<typeof modelProviderGoogleSchema>
 
-export type ModelProviderOpenAICompatibleCredentials = z.infer<
+export type ModelProviderOpenAICompatible = z.infer<
   typeof modelProviderOpenAICompatibleSchema
 >
 
 export type ModelProviderCredentials =
-  | ModelProviderOpenAICredentials['credentials']
-  | ModelProviderGoogleCredentials['credentials']
-  | ModelProviderOpenAICompatibleCredentials['credentials']
+  | ModelProviderOpenAI['credentials']
+  | ModelProviderGoogle['credentials']
+  | ModelProviderOpenAICompatible['credentials']
 
 export type ModelProviderSchemas = z.infer<typeof modelProviderSchemas>

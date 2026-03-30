@@ -3,7 +3,6 @@
 import { sdk } from '@/lib/sdk'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { Button } from '@workspace/ui/components/button'
-import { Separator } from '@workspace/ui/components/separator'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import { Spinner } from '@workspace/ui/components/spinner'
 import * as React from 'react'
@@ -22,12 +21,10 @@ type Params = {
 export function SourceManager({
   params,
   sourceIds,
-  totalCount,
   onSelectSource,
 }: {
   params: Params
   sourceIds?: string[]
-  totalCount?: number
   onSelectSource?: (sourceId: string | null) => void
 }) {
   const [loadedRootItems, setLoadedRootItems] = React.useState(false)
@@ -40,11 +37,7 @@ export function SourceManager({
       onClickItem={({ sourceId }) => onSelectSource?.(sourceId || null)}
     >
       {loadedRootItems ? (
-        <SourceManagerContent
-          params={params}
-          initialSourceIds={sourceIds}
-          totalCount={totalCount}
-        />
+        <SourceManagerContent params={params} initialSourceIds={sourceIds} />
       ) : (
         <SourceManagerSkeleton />
       )}
@@ -55,11 +48,9 @@ export function SourceManager({
 function SourceManagerContent({
   params,
   initialSourceIds,
-  totalCount,
 }: {
   params: Params
   initialSourceIds?: string[]
-  totalCount?: number
 }) {
   const { tree, checkedItems, setCheckedItems, loadingSources } =
     useSourceExplorerContext()
@@ -90,6 +81,14 @@ function SourceManagerContent({
     )
   }, [sourceIds, defaultSourceIds])
 
+  const addSourceIds = React.useMemo(() => {
+    return sourceIds.filter((sourceId) => !defaultSourceIds.includes(sourceId))
+  }, [sourceIds, defaultSourceIds])
+
+  const removeSourceIds = React.useMemo(() => {
+    return defaultSourceIds.filter((sourceId) => !sourceIds.includes(sourceId))
+  }, [sourceIds, defaultSourceIds])
+
   const handleCancel = () => {
     const childrenIds = tree
       .getItems()
@@ -105,13 +104,6 @@ function SourceManagerContent({
   const handleSave = () => {
     startTransition(async () => {
       try {
-        const addSourceIds = sourceIds.filter(
-          (sourceId) => !defaultSourceIds.includes(sourceId),
-        )
-        const removeSourceIds = defaultSourceIds.filter(
-          (sourceId) => !sourceIds.includes(sourceId),
-        )
-
         const { error } = await sdk.updateIndexedSources({
           agentId: params.agentId,
           data: {
@@ -141,39 +133,59 @@ function SourceManagerContent({
       </div>
 
       <div className="sticky bottom-0 z-40 self-center py-4">
-        <div className="flex items-center justify-end gap-2 rounded-lg border bg-background p-2">
+        <div className="flex flex-col items-center gap-3 rounded-lg border bg-background p-2 md:flex-row">
           {loadingSources ? (
             <Skeleton className="h-5 w-35 px-2" />
           ) : (
-            <p className="px-2 text-muted-foreground text-xs">
-              {totalCount} of {sourceIds.length}{' '}
-              {sourceIds.length > 1 ? 'sources' : 'source'} selected.
-            </p>
+            <div className="flex flex-col items-center gap-2 font-medium text-xs md:flex-row md:gap-3">
+              <p className="ml-2 text-foreground">
+                {defaultSourceIds.length
+                  ? `${defaultSourceIds.length} indexed ${defaultSourceIds.length > 1 ? 'sources' : 'source'}`
+                  : 'No indexed sources'}
+              </p>
+
+              {!!addSourceIds.length && (
+                <>
+                  <div className="hidden h-4 w-px bg-border md:block" />
+                  <p className="text-green-500">
+                    +{addSourceIds.length} to index
+                  </p>
+                </>
+              )}
+
+              {!!removeSourceIds.length && (
+                <>
+                  <div className="hidden h-4 w-px bg-border md:block" />
+                  <p className="text-destructive">
+                    -{removeSourceIds.length} to unindex
+                  </p>
+                </>
+              )}
+            </div>
           )}
 
-          <Separator
-            orientation="vertical"
-            className="data-[orientation=vertical]:h-4"
-          />
+          <div className="hidden h-4 w-px bg-border md:block" />
 
-          <Button
-            type="reset"
-            size="sm"
-            variant="secondary"
-            onClick={handleCancel}
-            disabled={loadingSources || isPending || !hasDiff}
-          >
-            Discard
-          </Button>
-          <Button
-            type="submit"
-            size="sm"
-            onClick={handleSave}
-            disabled={loadingSources || isPending || !hasDiff}
-          >
-            {isPending && <Spinner />}
-            Index
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="reset"
+              size="sm"
+              variant="secondary"
+              onClick={handleCancel}
+              disabled={loadingSources || isPending || !hasDiff}
+            >
+              Discard
+            </Button>
+            <Button
+              type="submit"
+              size="sm"
+              onClick={handleSave}
+              disabled={loadingSources || isPending || !hasDiff}
+            >
+              {isPending && <Spinner />}
+              Index
+            </Button>
+          </div>
         </div>
       </div>
     </div>

@@ -53,6 +53,8 @@ import { getModelProvider } from './model-providers/get-model-provider'
 import { listModelProviders } from './model-providers/list-model-providers'
 import { updateModelProvider } from './model-providers/update-model-provider'
 import { getProfile } from './profile/get-profile'
+import { listConnectionSelectOptions } from './select-option/list-connection-select-options'
+import { listMcpServerSelectOptions } from './select-option/list-mcp-server-select-options'
 import { listModelProviderSelectOptions } from './select-option/list-model-provider-select-options'
 import { listVectorStoreSelectOptions } from './select-option/list-vector-store-select-options'
 import { createSource } from './sources/create-source'
@@ -97,12 +99,14 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(getConnection)
   app.register(updateConnection)
   app.register(deleteConnection)
+  app.register(listConnectionSelectOptions)
 
   app.register(listMcpServers)
   app.register(createMcpServer)
   app.register(getMcpServer)
   app.register(updateMcpServer)
   app.register(deleteMcpServer)
+  app.register(listMcpServerSelectOptions)
 
   app.register(listAgents)
   app.register(createAgent)

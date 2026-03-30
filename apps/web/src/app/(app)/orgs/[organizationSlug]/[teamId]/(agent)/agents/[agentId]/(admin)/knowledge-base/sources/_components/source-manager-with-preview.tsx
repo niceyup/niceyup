@@ -13,11 +13,9 @@ type Params = {
 export function SourceManagerWithPreview({
   params,
   sourceIds,
-  totalCount,
 }: {
   params: Params
   sourceIds?: string[]
-  totalCount?: number
 }) {
   const [selectedSourceId, setSelectedSourceId] = React.useState<string | null>(
     null,
@@ -29,7 +27,6 @@ export function SourceManagerWithPreview({
       <SourceManager
         params={params}
         sourceIds={sourceIds}
-        totalCount={totalCount}
         onSelectSource={(sourceId) => {
           if (sourceId) {
             setSelectedSourceId(sourceId)

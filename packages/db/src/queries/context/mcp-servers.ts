@@ -1,7 +1,7 @@
 import type { McpServerType } from '@workspace/core/mcp-servers'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, ilike, or } from 'drizzle-orm'
 import { db } from '../../db'
-import { connections, mcpServers, modelProviders } from '../../schema'
+import { connections, mcpServers } from '../../schema'
 
 type ContextListMcpServersParams = {
   organizationId: string
@@ -31,7 +31,7 @@ export async function listMcpServers(
     .from(mcpServers)
     .where(
       and(
-        eq(modelProviders.organizationId, context.organizationId),
+        eq(mcpServers.organizationId, context.organizationId),
         params.type ? eq(mcpServers.type, params.type) : undefined,
       ),
     )
@@ -82,4 +82,42 @@ export async function getMcpServer(
     .limit(1)
 
   return mcpServer || null
+}
+
+type ContextListMcpServerSelectOptionsParams = {
+  organizationId: string
+  isAdmin: boolean
+}
+
+type ListMcpServerSelectOptionsParams = {
+  search: string
+}
+
+export async function listMcpServerSelectOptions(
+  context: ContextListMcpServerSelectOptionsParams,
+  params: ListMcpServerSelectOptionsParams,
+) {
+  if (!context.isAdmin) {
+    return []
+  }
+
+  const listMcpServers = await db
+    .select({
+      id: mcpServers.id,
+      name: mcpServers.name,
+      type: mcpServers.type,
+    })
+    .from(mcpServers)
+    .where(
+      and(
+        eq(mcpServers.organizationId, context.organizationId),
+        or(
+          ilike(mcpServers.name, `%${params.search}%`),
+          ilike(mcpServers.type, `%${params.search}%`),
+        ),
+      ),
+    )
+    .limit(10)
+
+  return listMcpServers
 }

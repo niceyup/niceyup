@@ -37,7 +37,7 @@ export function SearchInput() {
   }
 
   return (
-    <InputGroup className="h-11 bg-background">
+    <InputGroup className="h-10 bg-background">
       <InputGroupAddon>
         <SearchIcon />
       </InputGroupAddon>

@@ -1,5 +1,5 @@
 import type { ConnectionApp } from '@workspace/core/connections'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, ilike, inArray, or } from 'drizzle-orm'
 import { db } from '../../db'
 import { connections } from '../../schema'
 
@@ -77,4 +77,46 @@ export async function getConnection(
     .limit(1)
 
   return connection || null
+}
+
+type ContextListConnectionSelectOptionsParams = {
+  organizationId: string
+  isAdmin: boolean
+}
+
+type ListConnectionSelectOptionsParams = {
+  apps?: ConnectionApp[]
+  search: string
+}
+
+export async function listConnectionSelectOptions(
+  context: ContextListConnectionSelectOptionsParams,
+  params: ListConnectionSelectOptionsParams,
+) {
+  if (!context.isAdmin) {
+    return []
+  }
+
+  const listConnections = await db
+    .select({
+      id: connections.id,
+      name: connections.name,
+      app: connections.app,
+      authentication: connections.authentication,
+      settings: connections.settings,
+    })
+    .from(connections)
+    .where(
+      and(
+        eq(connections.organizationId, context.organizationId),
+        params.apps ? inArray(connections.app, params.apps) : undefined,
+        or(
+          ilike(connections.name, `%${params.search}%`),
+          ilike(connections.app, `%${params.search}%`),
+        ),
+      ),
+    )
+    .limit(10)
+
+  return listConnections
 }

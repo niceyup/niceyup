@@ -21,7 +21,7 @@ export default async function Page({
   const { folderId } = await loadSearchParams(searchParams)
 
   return (
-    <div className="w-full max-w-2xl p-4">
+    <div className="w-full max-w-xl p-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">Add Source</CardTitle>

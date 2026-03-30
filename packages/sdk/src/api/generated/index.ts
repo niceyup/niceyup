@@ -52,12 +52,16 @@ export type { HealthSuspenseQueryKey } from './react-query/hooks/useHealthSuspen
 export type { ListAgentsQueryKey } from './react-query/hooks/useListAgents'
 export type { ListAgentsSuspenseQueryKey } from './react-query/hooks/useListAgentsSuspense'
 export type { ListConnectionsQueryKey } from './react-query/hooks/useListConnections'
+export type { ListConnectionSelectOptionsQueryKey } from './react-query/hooks/useListConnectionSelectOptions'
+export type { ListConnectionSelectOptionsSuspenseQueryKey } from './react-query/hooks/useListConnectionSelectOptionsSuspense'
 export type { ListConnectionsSuspenseQueryKey } from './react-query/hooks/useListConnectionsSuspense'
 export type { ListConversationsQueryKey } from './react-query/hooks/useListConversations'
 export type { ListConversationsSuspenseQueryKey } from './react-query/hooks/useListConversationsSuspense'
 export type { ListIndexedSourcesQueryKey } from './react-query/hooks/useListIndexedSources'
 export type { ListIndexedSourcesSuspenseQueryKey } from './react-query/hooks/useListIndexedSourcesSuspense'
 export type { ListMcpServersQueryKey } from './react-query/hooks/useListMcpServers'
+export type { ListMcpServerSelectOptionsQueryKey } from './react-query/hooks/useListMcpServerSelectOptions'
+export type { ListMcpServerSelectOptionsSuspenseQueryKey } from './react-query/hooks/useListMcpServerSelectOptionsSuspense'
 export type { ListMcpServersSuspenseQueryKey } from './react-query/hooks/useListMcpServersSuspense'
 export type { ListMessagesQueryKey } from './react-query/hooks/useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './react-query/hooks/useListMessagesSuspense'
@@ -608,6 +612,21 @@ export type {
   ListConnectionsQuery,
 } from './types/ListConnections'
 export type {
+  ListConnectionSelectOptionsQueryParamsAppsEnum,
+  ListConnectionSelectOptionsQueryParams,
+  ConnectionsAppEnum2,
+  ConnectionsAuthenticationEnum2,
+  ListConnectionSelectOptions200,
+  ListConnectionSelectOptions400,
+  ListConnectionSelectOptions401,
+  ListConnectionSelectOptions403,
+  ListConnectionSelectOptions404,
+  ListConnectionSelectOptions429,
+  ListConnectionSelectOptions500,
+  ListConnectionSelectOptionsQueryResponse,
+  ListConnectionSelectOptionsQuery,
+} from './types/ListConnectionSelectOptions'
+export type {
   ListConversationsQueryParamsVisibilityEnum,
   ListConversationsQueryParams,
   ConversationsVisibilityEnum,
@@ -649,6 +668,19 @@ export type {
   ListMcpServersQueryResponse,
   ListMcpServersQuery,
 } from './types/ListMcpServers'
+export type {
+  ListMcpServerSelectOptionsQueryParams,
+  McpServersTypeEnum2,
+  ListMcpServerSelectOptions200,
+  ListMcpServerSelectOptions400,
+  ListMcpServerSelectOptions401,
+  ListMcpServerSelectOptions403,
+  ListMcpServerSelectOptions404,
+  ListMcpServerSelectOptions429,
+  ListMcpServerSelectOptions500,
+  ListMcpServerSelectOptionsQueryResponse,
+  ListMcpServerSelectOptionsQuery,
+} from './types/ListMcpServerSelectOptions'
 export type {
   ListMessagesPathParams,
   ListMessagesQueryParams,
@@ -1243,6 +1275,7 @@ export type {
   UpdateModelProvider404,
   UpdateModelProvider429,
   UpdateModelProvider500,
+  UpdateModelProviderMutationRequestProviderEnum,
   UpdateModelProviderMutationRequest,
   UpdateModelProviderMutationResponse,
   UpdateModelProviderMutation,
@@ -1285,6 +1318,7 @@ export type {
   UpdateVectorStore404,
   UpdateVectorStore429,
   UpdateVectorStore500,
+  UpdateVectorStoreMutationRequestProviderEnum,
   UpdateVectorStoreMutationRequest,
   UpdateVectorStoreMutationResponse,
   UpdateVectorStoreMutation,
@@ -1371,9 +1405,11 @@ export { getVectorStore } from './operations/getVectorStore'
 export { health } from './operations/health'
 export { listAgents } from './operations/listAgents'
 export { listConnections } from './operations/listConnections'
+export { listConnectionSelectOptions } from './operations/listConnectionSelectOptions'
 export { listConversations } from './operations/listConversations'
 export { listIndexedSources } from './operations/listIndexedSources'
 export { listMcpServers } from './operations/listMcpServers'
+export { listMcpServerSelectOptions } from './operations/listMcpServerSelectOptions'
 export { listMessages } from './operations/listMessages'
 export { listModelProviders } from './operations/listModelProviders'
 export { listModelProviderSelectOptions } from './operations/listModelProviderSelectOptions'
@@ -1656,6 +1692,16 @@ export {
   useListConnections,
 } from './react-query/hooks/useListConnections'
 export {
+  listConnectionSelectOptionsQueryKey,
+  listConnectionSelectOptionsQueryOptions,
+  useListConnectionSelectOptions,
+} from './react-query/hooks/useListConnectionSelectOptions'
+export {
+  listConnectionSelectOptionsSuspenseQueryKey,
+  listConnectionSelectOptionsSuspenseQueryOptions,
+  useListConnectionSelectOptionsSuspense,
+} from './react-query/hooks/useListConnectionSelectOptionsSuspense'
+export {
   listConnectionsSuspenseQueryKey,
   listConnectionsSuspenseQueryOptions,
   useListConnectionsSuspense,
@@ -1685,6 +1731,16 @@ export {
   listMcpServersQueryOptions,
   useListMcpServers,
 } from './react-query/hooks/useListMcpServers'
+export {
+  listMcpServerSelectOptionsQueryKey,
+  listMcpServerSelectOptionsQueryOptions,
+  useListMcpServerSelectOptions,
+} from './react-query/hooks/useListMcpServerSelectOptions'
+export {
+  listMcpServerSelectOptionsSuspenseQueryKey,
+  listMcpServerSelectOptionsSuspenseQueryOptions,
+  useListMcpServerSelectOptionsSuspense,
+} from './react-query/hooks/useListMcpServerSelectOptionsSuspense'
 export {
   listMcpServersSuspenseQueryKey,
   listMcpServersSuspenseQueryOptions,
@@ -1912,6 +1968,11 @@ export {
   connectionsAuthenticationEnum,
 } from './types/ListConnections'
 export {
+  listConnectionSelectOptionsQueryParamsAppsEnum,
+  connectionsAppEnum2,
+  connectionsAuthenticationEnum2,
+} from './types/ListConnectionSelectOptions'
+export {
   listConversationsQueryParamsVisibilityEnum,
   conversationsVisibilityEnum,
 } from './types/ListConversations'
@@ -1920,6 +1981,7 @@ export {
   listMcpServersQueryParamsTypeEnum,
   mcpServersTypeEnum,
 } from './types/ListMcpServers'
+export { mcpServersTypeEnum2 } from './types/ListMcpServerSelectOptions'
 export {
   messagesStatusEnum,
   messagesRoleEnum,
@@ -2235,10 +2297,16 @@ export {
   updateMcpServer204Enum,
   updateMcpServerMutationRequestTypeEnum,
 } from './types/UpdateMcpServer'
-export { updateModelProvider204Enum } from './types/UpdateModelProvider'
+export {
+  updateModelProvider204Enum,
+  updateModelProviderMutationRequestProviderEnum,
+} from './types/UpdateModelProvider'
 export { updateSource204Enum } from './types/UpdateSource'
 export { updateSourceFolder204Enum } from './types/UpdateSourceFolder'
-export { updateVectorStore204Enum } from './types/UpdateVectorStore'
+export {
+  updateVectorStore204Enum,
+  updateVectorStoreMutationRequestProviderEnum,
+} from './types/UpdateVectorStore'
 export { filesStatusEnum, filesStatusEnum2 } from './types/UploadFiles'
 export {
   filesStatusEnum3,

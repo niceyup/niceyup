@@ -12,6 +12,4 @@ export const vectorStoreUpstashSchema = z.object({
   }),
 })
 
-export const vectorStoreSchemas = z.discriminatedUnion('provider', [
-  vectorStoreUpstashSchema,
-])
+export const vectorStoreSchemas = z.union([vectorStoreUpstashSchema])

@@ -111,6 +111,13 @@ export type UpdateVectorStore500 = {
   message: string
 }
 
+export const updateVectorStoreMutationRequestProviderEnum = {
+  upstash: 'upstash',
+} as const
+
+export type UpdateVectorStoreMutationRequestProviderEnum =
+  (typeof updateVectorStoreMutationRequestProviderEnum)[keyof typeof updateVectorStoreMutationRequestProviderEnum]
+
 export type UpdateVectorStoreMutationRequest = {
   /**
    * @type string | undefined
@@ -124,6 +131,22 @@ export type UpdateVectorStoreMutationRequest = {
    * @type string | undefined
    */
   name?: string
+  /**
+   * @type string | undefined
+   */
+  provider?: UpdateVectorStoreMutationRequestProviderEnum
+  /**
+   * @type object
+   */
+  settings?: {
+    [key: string]: any
+  } | null
+  /**
+   * @type object
+   */
+  credentials?: {
+    [key: string]: any
+  } | null
 }
 
 export type UpdateVectorStoreMutationResponse = UpdateVectorStore204

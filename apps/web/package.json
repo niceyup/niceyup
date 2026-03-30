@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm with-env next dev --turbopack",
-    "build": "pnpm with-env next build",
+    "build": "pnpm with-env next build --experimental-build-mode compile",
     "start": "pnpm with-env next start",
     "clean": "rm -rf .next .turbo node_modules",
     "lint": "biome check .",

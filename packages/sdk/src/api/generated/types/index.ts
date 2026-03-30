@@ -510,6 +510,21 @@ export type {
   ListConnectionsQuery,
 } from './ListConnections'
 export type {
+  ListConnectionSelectOptionsQueryParamsAppsEnum,
+  ListConnectionSelectOptionsQueryParams,
+  ConnectionsAppEnum2,
+  ConnectionsAuthenticationEnum2,
+  ListConnectionSelectOptions200,
+  ListConnectionSelectOptions400,
+  ListConnectionSelectOptions401,
+  ListConnectionSelectOptions403,
+  ListConnectionSelectOptions404,
+  ListConnectionSelectOptions429,
+  ListConnectionSelectOptions500,
+  ListConnectionSelectOptionsQueryResponse,
+  ListConnectionSelectOptionsQuery,
+} from './ListConnectionSelectOptions'
+export type {
   ListConversationsQueryParamsVisibilityEnum,
   ListConversationsQueryParams,
   ConversationsVisibilityEnum,
@@ -551,6 +566,19 @@ export type {
   ListMcpServersQueryResponse,
   ListMcpServersQuery,
 } from './ListMcpServers'
+export type {
+  ListMcpServerSelectOptionsQueryParams,
+  McpServersTypeEnum2,
+  ListMcpServerSelectOptions200,
+  ListMcpServerSelectOptions400,
+  ListMcpServerSelectOptions401,
+  ListMcpServerSelectOptions403,
+  ListMcpServerSelectOptions404,
+  ListMcpServerSelectOptions429,
+  ListMcpServerSelectOptions500,
+  ListMcpServerSelectOptionsQueryResponse,
+  ListMcpServerSelectOptionsQuery,
+} from './ListMcpServerSelectOptions'
 export type {
   ListMessagesPathParams,
   ListMessagesQueryParams,
@@ -1145,6 +1173,7 @@ export type {
   UpdateModelProvider404,
   UpdateModelProvider429,
   UpdateModelProvider500,
+  UpdateModelProviderMutationRequestProviderEnum,
   UpdateModelProviderMutationRequest,
   UpdateModelProviderMutationResponse,
   UpdateModelProviderMutation,
@@ -1187,6 +1216,7 @@ export type {
   UpdateVectorStore404,
   UpdateVectorStore429,
   UpdateVectorStore500,
+  UpdateVectorStoreMutationRequestProviderEnum,
   UpdateVectorStoreMutationRequest,
   UpdateVectorStoreMutationResponse,
   UpdateVectorStoreMutation,
@@ -1296,6 +1326,11 @@ export {
   connectionsAuthenticationEnum,
 } from './ListConnections'
 export {
+  listConnectionSelectOptionsQueryParamsAppsEnum,
+  connectionsAppEnum2,
+  connectionsAuthenticationEnum2,
+} from './ListConnectionSelectOptions'
+export {
   listConversationsQueryParamsVisibilityEnum,
   conversationsVisibilityEnum,
 } from './ListConversations'
@@ -1304,6 +1339,7 @@ export {
   listMcpServersQueryParamsTypeEnum,
   mcpServersTypeEnum,
 } from './ListMcpServers'
+export { mcpServersTypeEnum2 } from './ListMcpServerSelectOptions'
 export {
   messagesStatusEnum,
   messagesRoleEnum,
@@ -1619,10 +1655,16 @@ export {
   updateMcpServer204Enum,
   updateMcpServerMutationRequestTypeEnum,
 } from './UpdateMcpServer'
-export { updateModelProvider204Enum } from './UpdateModelProvider'
+export {
+  updateModelProvider204Enum,
+  updateModelProviderMutationRequestProviderEnum,
+} from './UpdateModelProvider'
 export { updateSource204Enum } from './UpdateSource'
 export { updateSourceFolder204Enum } from './UpdateSourceFolder'
-export { updateVectorStore204Enum } from './UpdateVectorStore'
+export {
+  updateVectorStore204Enum,
+  updateVectorStoreMutationRequestProviderEnum,
+} from './UpdateVectorStore'
 export { filesStatusEnum, filesStatusEnum2 } from './UploadFiles'
 export { filesStatusEnum3, filesStatusEnum4 } from './UploadFilesConversation'
 export { filesStatusEnum5, filesStatusEnum6 } from './UploadFilesSource'

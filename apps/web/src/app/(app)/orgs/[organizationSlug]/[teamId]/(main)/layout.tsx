@@ -55,7 +55,7 @@ export default async function Layout({
       href: `/orgs/${organizationSlug}/${currentTeamId || '~'}/overview`,
     },
     {
-      label: 'Agents',
+      label: 'AI Agents',
       href: `/orgs/${organizationSlug}/${currentTeamId || '~'}/agents`,
       deep: true,
     },

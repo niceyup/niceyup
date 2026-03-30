@@ -111,6 +111,14 @@ export type UpdateModelProvider500 = {
   message: string
 }
 
+export const updateModelProviderMutationRequestProviderEnum = {
+  openai: 'openai',
+  google: 'google',
+} as const
+
+export type UpdateModelProviderMutationRequestProviderEnum =
+  (typeof updateModelProviderMutationRequestProviderEnum)[keyof typeof updateModelProviderMutationRequestProviderEnum]
+
 export type UpdateModelProviderMutationRequest = {
   /**
    * @type string | undefined
@@ -124,6 +132,34 @@ export type UpdateModelProviderMutationRequest = {
    * @type string | undefined
    */
   name?: string
+  provider?: UpdateModelProviderMutationRequestProviderEnum | string
+  /**
+   * @type object
+   */
+  settings?: {
+    /**
+     * @type string, uri
+     */
+    baseURL: string
+    /**
+     * @type object | undefined
+     */
+    headers?: {
+      [key: string]: string
+    }
+    /**
+     * @type object | undefined
+     */
+    queryParams?: {
+      [key: string]: string
+    }
+  } | null
+  /**
+   * @type object
+   */
+  credentials?: {
+    [key: string]: any
+  } | null
 }
 
 export type UpdateModelProviderMutationResponse = UpdateModelProvider204

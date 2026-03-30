@@ -50,7 +50,7 @@ export const modelProviderOpenAICompatibleSchema = z.object({
     .optional(),
 })
 
-export const modelProviderSchemas = z.discriminatedUnion('provider', [
+export const modelProviderSchemas = z.union([
   modelProviderOpenAISchema,
   modelProviderGoogleSchema,
   modelProviderOpenAICompatibleSchema,

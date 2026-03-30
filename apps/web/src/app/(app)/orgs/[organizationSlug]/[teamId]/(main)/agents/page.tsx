@@ -21,6 +21,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
+import { cn } from '@workspace/ui/lib/utils'
 import { MoreHorizontalIcon, PlusIcon } from 'lucide-react'
 import Link from 'next/link'
 
@@ -98,7 +99,7 @@ export default async function Page({
               <Link
                 key={agent.id}
                 href={`/orgs/${organizationSlug}/${teamId}/agents/${agent.id}/chats/new`}
-                className="group/card flex cursor-pointer flex-col gap-4 rounded-xl border bg-background p-4"
+                className="flex cursor-pointer flex-col gap-4 rounded-xl border bg-background px-4 py-3"
               >
                 <div className="flex flex-row items-center justify-between gap-3">
                   <Avatar className="size-8">
@@ -112,11 +113,7 @@ export default async function Page({
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="opacity-0 transition-opacity group-hover/card:opacity-100"
-                      >
+                      <Button variant="ghost" size="icon">
                         <MoreHorizontalIcon />
                       </Button>
                     </DropdownMenuTrigger>
@@ -133,11 +130,13 @@ export default async function Page({
                   </DropdownMenu>
                 </div>
 
-                {agent.description && (
-                  <p className="line-clamp-3 text-muted-foreground text-sm">
-                    {agent.description}
-                  </p>
-                )}
+                <p
+                  className={cn('line-clamp-3 text-muted-foreground text-sm', {
+                    italic: !agent.description,
+                  })}
+                >
+                  {agent.description || 'No description'}
+                </p>
 
                 {agent.tags && (
                   <div className="flex flex-wrap gap-1">

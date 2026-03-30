@@ -10,7 +10,7 @@ import { NewChat } from './new-chat'
 type Params = OrganizationTeamParams & AgentParams & ChatParams
 
 export async function NewChatWrapper({ params }: { params: Params }) {
-  const { data } = await sdk.getAgent({
+  const { data } = await sdk.getAgentSystemConfiguration({
     agentId: params.agentId,
     params: {
       organizationSlug: params.organizationSlug,
@@ -22,7 +22,7 @@ export async function NewChatWrapper({ params }: { params: Params }) {
     <NewChat
       key={generateId()}
       params={params}
-      suggestions={data?.agent?.suggestions}
+      suggestions={data?.agent?.systemConfiguration?.suggestions}
     />
   )
 }

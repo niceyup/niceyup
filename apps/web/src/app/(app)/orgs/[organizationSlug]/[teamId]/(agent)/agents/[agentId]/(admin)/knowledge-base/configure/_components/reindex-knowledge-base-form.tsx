@@ -36,7 +36,7 @@ export function ReindexKnowledgeBaseForm({
         return
       }
 
-      toast.success('Knowledge base reindexed successfully')
+      toast.success('Knowledge base reindexing started')
       await updateTag('update-agent-knowledge-base')
     })
   }

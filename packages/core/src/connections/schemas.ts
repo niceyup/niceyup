@@ -47,7 +47,7 @@ export const connectionMysqlSchema = z.object({
   }),
 })
 
-export const connectionSchemas = z.discriminatedUnion('app', [
+export const connectionSchemas = z.union([
   connectionGithubSchema,
   connectionPostgresqlSchema,
   connectionMysqlSchema,

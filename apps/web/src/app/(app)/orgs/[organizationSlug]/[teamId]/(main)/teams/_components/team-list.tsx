@@ -49,7 +49,7 @@ export function TeamList({
   return (
     <>
       <div className="flex w-full max-w-4xl flex-col">
-        <InputGroup className="h-11 bg-background">
+        <InputGroup className="h-10 bg-background">
           <InputGroupAddon>
             <SearchIcon />
           </InputGroupAddon>
@@ -81,7 +81,7 @@ export function TeamList({
           {filteredTeams.map((team) => (
             <Link
               key={team.id}
-              className="flex items-center justify-start gap-4 p-4"
+              className="flex items-center justify-start gap-4 px-4 py-3"
               href={`/orgs/${params.organizationSlug}/~/teams/${team.id}`}
             >
               <div className="flex size-8 items-center justify-center rounded-sm bg-muted">

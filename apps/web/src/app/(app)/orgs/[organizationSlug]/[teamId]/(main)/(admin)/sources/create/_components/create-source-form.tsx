@@ -15,48 +15,45 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from '@workspace/ui/components/input-group'
-import { cn } from '@workspace/ui/lib/utils'
-import { FileTextIcon, SearchIcon, TextIcon } from 'lucide-react'
+import { SearchIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import * as React from 'react'
-import { TextSource } from './text-source'
-import { UploadFileSource } from './upload-file-source'
+import {
+  type AvailableSourceType,
+  availableSourceTypes,
+} from './available-source-types/source-types'
+import { TextSource } from './available-source-types/text-source'
+import { UploadFileSource } from './available-source-types/upload-file-source'
+import { SourceTypeCard } from './source-type-card'
 
-const sourceTypes = {
-  file: {
-    value: 'file' as const,
-    label: 'File',
-    description:
-      'Upload documents to index your AI. Extract text from PDFs, DOCX, and TXT files.',
-    icon: <FileTextIcon className="size-4" />,
-  },
-  text: {
-    value: 'text' as const,
-    label: 'Text',
-    description:
-      'Add plain text-based sources to index your AI Agent with precise information.',
-    icon: <TextIcon className="size-4" />,
-  },
-  // website: {
-  //   value: 'website' as const,
-  //   label: 'Website',
-  //   description:
-  //     'Crawl web pages or submit sitemaps to update your AI with the latest content.',
-  //   icon: <GlobeIcon className="size-4" />,
-  // },
-  // 'question-answer': {
-  //   value: 'question-answer' as const,
-  //   label: 'Q&A',
-  //   description:
-  //     'Craft responses for key questions, ensuring your AI shares relevant info.',
-  //   icon: <MessagesSquareIcon className="size-4" />,
-  // },
+type Step = 'select-source-type' | 'source-configuration'
+
+type CreateSourceFormContextType = {
+  modal?: boolean
+  organizationSlug: OrganizationTeamParams['organizationSlug']
+  folderId?: string | null
+  step: Step
+  setStep: (step: Step) => void
+  selectedSourceType: keyof AvailableSourceType | null
+  setSelectedSourceType: (sourceType: keyof AvailableSourceType | null) => void
 }
 
-type SourceType = keyof typeof sourceTypes
+const CreateSourceFormContext = React.createContext<
+  CreateSourceFormContextType | undefined
+>(undefined)
 
-type Step = 'source-type' | 'source-configuration'
+export function useCreateSourceFormContext(): CreateSourceFormContextType {
+  const context = React.useContext(CreateSourceFormContext)
+
+  if (context === undefined) {
+    throw new Error(
+      'useCreateSourceFormContext must be used within a CreateSourceForm',
+    )
+  }
+
+  return context
+}
 
 type CreateSourceFormProps = {
   modal?: boolean
@@ -69,63 +66,54 @@ export function CreateSourceForm({
   organizationSlug,
   folderId,
 }: CreateSourceFormProps) {
-  const [step, setStep] = React.useState<Step>('source-type')
+  const [step, setStep] = React.useState<Step>('select-source-type')
 
-  const [selectedSourceType, setSelectedSourceType] =
-    React.useState<SourceType | null>(null)
+  const [selectedSourceType, setSelectedSourceType] = React.useState<
+    keyof AvailableSourceType | null
+  >(null)
 
-  if (step === 'source-configuration') {
-    return (
-      <SourceConfigurationStep
-        selectedSourceType={selectedSourceType}
-        setSelectedSourceType={setSelectedSourceType}
-        modal={modal}
-        organizationSlug={organizationSlug}
-        folderId={folderId}
-        setStep={setStep}
-      />
-    )
+  const contextValue: CreateSourceFormContextType = {
+    modal,
+    organizationSlug,
+    folderId,
+    step,
+    setStep,
+    selectedSourceType,
+    setSelectedSourceType,
   }
 
   return (
-    <SourceTypeStep
-      setStep={setStep}
-      selectedSourceType={selectedSourceType}
-      setSelectedSourceType={setSelectedSourceType}
-      modal={modal}
-      organizationSlug={organizationSlug}
-      folderId={folderId}
-    />
+    <CreateSourceFormContext.Provider value={contextValue}>
+      {step === 'select-source-type' && <SelectSourceTypeStep />}
+
+      {step === 'source-configuration' && <SourceConfigurationStep />}
+    </CreateSourceFormContext.Provider>
   )
 }
 
-type SourceTypeStepProps = {
-  setStep: (step: Step) => void
-  selectedSourceType: SourceType | null
-  setSelectedSourceType: (sourceType: SourceType) => void
-}
+function SelectSourceTypeStep() {
+  const {
+    modal,
+    organizationSlug,
+    folderId,
+    setStep,
+    selectedSourceType,
+    setSelectedSourceType,
+  } = useCreateSourceFormContext()
 
-function SourceTypeStep({
-  setStep,
-  selectedSourceType,
-  setSelectedSourceType,
-  modal,
-  organizationSlug,
-  folderId,
-}: SourceTypeStepProps & CreateSourceFormProps) {
   const [search, setSearch] = React.useState('')
 
   const filteredSourceTypes = React.useMemo(() => {
-    return Object.values(sourceTypes).filter(
+    return Object.values(availableSourceTypes).filter(
       ({ label, description }) =>
         label.toLowerCase().includes(search.toLowerCase()) ||
         description.toLowerCase().includes(search.toLowerCase()),
     )
-  }, [sourceTypes, search])
+  }, [availableSourceTypes, search])
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <div className="flex w-full flex-col gap-2">
+      <div className="flex w-full flex-col gap-4">
         <InputGroup>
           <InputGroupAddon>
             <SearchIcon />
@@ -151,32 +139,14 @@ function SourceTypeStep({
         )}
 
         {!!filteredSourceTypes?.length && (
-          <div className="grid max-h-85 w-full grid-cols-1 gap-2 overflow-y-auto md:grid-cols-2">
+          <div className="grid max-h-85 w-full grid-cols-1 gap-2 overflow-y-auto">
             {filteredSourceTypes.map((sourceType) => (
-              <div
+              <SourceTypeCard
                 key={sourceType.value}
-                className={cn(
-                  'group flex cursor-pointer select-none items-center justify-start gap-4 rounded-md border p-2 hover:bg-accent',
-                  { 'border-primary': selectedSourceType === sourceType.value },
-                )}
-                onClick={() => setSelectedSourceType(sourceType.value)}
-              >
-                <div className="flex size-8 items-center justify-center rounded-sm bg-muted">
-                  {sourceType.icon}
-                </div>
-
-                <div className="flex flex-1 flex-col">
-                  <div className="flex flex-row items-center justify-start gap-2">
-                    <span className="line-clamp-1 break-all text-start font-medium text-sm">
-                      {sourceType.label}
-                    </span>
-                  </div>
-
-                  <span className="line-clamp-1 break-all text-start font-normal text-muted-foreground text-xs">
-                    {sourceType.description}
-                  </span>
-                </div>
-              </div>
+                sourceType={sourceType}
+                selected={selectedSourceType === sourceType.value}
+                onSelect={setSelectedSourceType}
+              />
             ))}
           </div>
         )}
@@ -208,29 +178,25 @@ function SourceTypeStep({
   )
 }
 
-type SourceConfigurationStepProps = {
-  setStep: (step: Step) => void
-  selectedSourceType: SourceType | null
-  setSelectedSourceType: (sourceType: SourceType | null) => void
-}
+function SourceConfigurationStep() {
+  const {
+    modal,
+    organizationSlug,
+    folderId,
+    setStep,
+    selectedSourceType,
+    setSelectedSourceType,
+  } = useCreateSourceFormContext()
 
-function SourceConfigurationStep({
-  setStep,
-  selectedSourceType,
-  setSelectedSourceType,
-  modal,
-  organizationSlug,
-  folderId,
-}: SourceConfigurationStepProps & CreateSourceFormProps) {
   const router = useRouter()
 
   const onReset = () => {
-    setStep('source-type')
+    setStep('select-source-type')
     setSelectedSourceType(null)
   }
 
   const onBack = () => {
-    setStep('source-type')
+    setStep('select-source-type')
   }
 
   const onSuccess = () => {
@@ -251,44 +217,41 @@ function SourceConfigurationStep({
     )
   }
 
-  if (selectedSourceType === 'file') {
-    return (
-      <UploadFileSource
-        onBack={onBack}
-        onSuccess={onSuccess}
-        sourceType={sourceTypes[selectedSourceType]}
-        folderId={folderId}
-      />
-    )
+  switch (selectedSourceType) {
+    case 'file':
+      return (
+        <UploadFileSource
+          onBack={onBack}
+          onSuccess={onSuccess}
+          folderId={folderId}
+        />
+      )
+
+    case 'text':
+      return (
+        <TextSource onSuccess={onSuccess} onBack={onBack} folderId={folderId} />
+      )
+
+    default:
+      return (
+        <div className="flex w-full flex-col">
+          <Empty>
+            <EmptyHeader>
+              <EmptyTitle className="text-sm">
+                Unsupported Source Type
+              </EmptyTitle>
+              <EmptyDescription>
+                This source type is not supported or could not be loaded.
+              </EmptyDescription>
+            </EmptyHeader>
+
+            <EmptyContent>
+              <Button variant="outline" onClick={onBack}>
+                Back
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </div>
+      )
   }
-
-  if (selectedSourceType === 'text') {
-    return (
-      <TextSource
-        onSuccess={onSuccess}
-        onBack={onBack}
-        sourceType={sourceTypes[selectedSourceType]}
-        folderId={folderId}
-      />
-    )
-  }
-
-  return (
-    <div className="flex w-full flex-col">
-      <Empty>
-        <EmptyHeader>
-          <EmptyTitle className="text-sm">No Source Type Selected</EmptyTitle>
-          <EmptyDescription>
-            Please select a source type to continue.
-          </EmptyDescription>
-        </EmptyHeader>
-
-        <EmptyContent>
-          <Button variant="outline" onClick={onBack}>
-            Back
-          </Button>
-        </EmptyContent>
-      </Empty>
-    </div>
-  )
 }

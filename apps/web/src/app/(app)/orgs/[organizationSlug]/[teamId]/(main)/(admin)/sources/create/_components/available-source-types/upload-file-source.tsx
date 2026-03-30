@@ -15,10 +15,14 @@ import { useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { useUploadLocalFileSource } from '../_store/use-upload-local-file-source'
-import { FilesUpload } from './files-upload'
+import { useUploadLocalFileSource } from '../../_store/use-upload-local-file-source'
+import { FilesUpload } from '../files-upload'
+import { SourceTypeCard } from '../source-type-card'
+import { availableSourceTypes } from './available-source-types'
 
-type Params = OrganizationTeamParams
+type Params = {
+  organizationSlug: OrganizationTeamParams['organizationSlug']
+}
 
 const formSchema = z.object({
   files: z
@@ -34,19 +38,12 @@ const formSchema = z.object({
 type UploadFileSourceProps = {
   onBack: () => void
   onSuccess: () => void
-  sourceType: {
-    value: 'file'
-    label: string
-    description: string
-    icon: React.ReactNode
-  }
   folderId?: string | null
 }
 
 export function UploadFileSource({
   onBack,
   onSuccess,
-  sourceType,
   folderId,
 }: UploadFileSourceProps) {
   const params = useParams<Params>()
@@ -100,20 +97,7 @@ export function UploadFileSource({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex w-full flex-col gap-4"
       >
-        <div className="flex select-none items-center justify-start gap-4 rounded-md border p-2">
-          <div className="flex size-8 items-center justify-center rounded-sm bg-muted">
-            {sourceType.icon}
-          </div>
-
-          <div className="flex flex-1 flex-col">
-            <span className="line-clamp-1 break-all text-start font-medium text-sm">
-              {sourceType.label}
-            </span>
-            <span className="line-clamp-1 break-all text-start font-normal text-muted-foreground text-xs">
-              {sourceType.description}
-            </span>
-          </div>
-        </div>
+        <SourceTypeCard sourceType={availableSourceTypes.file} />
 
         <div className="flex w-full flex-col gap-2">
           <FilesUpload

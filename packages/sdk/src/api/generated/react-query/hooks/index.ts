@@ -52,12 +52,16 @@ export type { HealthSuspenseQueryKey } from './useHealthSuspense'
 export type { ListAgentsQueryKey } from './useListAgents'
 export type { ListAgentsSuspenseQueryKey } from './useListAgentsSuspense'
 export type { ListConnectionsQueryKey } from './useListConnections'
+export type { ListConnectionSelectOptionsQueryKey } from './useListConnectionSelectOptions'
+export type { ListConnectionSelectOptionsSuspenseQueryKey } from './useListConnectionSelectOptionsSuspense'
 export type { ListConnectionsSuspenseQueryKey } from './useListConnectionsSuspense'
 export type { ListConversationsQueryKey } from './useListConversations'
 export type { ListConversationsSuspenseQueryKey } from './useListConversationsSuspense'
 export type { ListIndexedSourcesQueryKey } from './useListIndexedSources'
 export type { ListIndexedSourcesSuspenseQueryKey } from './useListIndexedSourcesSuspense'
 export type { ListMcpServersQueryKey } from './useListMcpServers'
+export type { ListMcpServerSelectOptionsQueryKey } from './useListMcpServerSelectOptions'
+export type { ListMcpServerSelectOptionsSuspenseQueryKey } from './useListMcpServerSelectOptionsSuspense'
 export type { ListMcpServersSuspenseQueryKey } from './useListMcpServersSuspense'
 export type { ListMessagesQueryKey } from './useListMessages'
 export type { ListMessagesSuspenseQueryKey } from './useListMessagesSuspense'
@@ -328,6 +332,16 @@ export {
   useListConnections,
 } from './useListConnections'
 export {
+  listConnectionSelectOptionsQueryKey,
+  listConnectionSelectOptionsQueryOptions,
+  useListConnectionSelectOptions,
+} from './useListConnectionSelectOptions'
+export {
+  listConnectionSelectOptionsSuspenseQueryKey,
+  listConnectionSelectOptionsSuspenseQueryOptions,
+  useListConnectionSelectOptionsSuspense,
+} from './useListConnectionSelectOptionsSuspense'
+export {
   listConnectionsSuspenseQueryKey,
   listConnectionsSuspenseQueryOptions,
   useListConnectionsSuspense,
@@ -357,6 +371,16 @@ export {
   listMcpServersQueryOptions,
   useListMcpServers,
 } from './useListMcpServers'
+export {
+  listMcpServerSelectOptionsQueryKey,
+  listMcpServerSelectOptionsQueryOptions,
+  useListMcpServerSelectOptions,
+} from './useListMcpServerSelectOptions'
+export {
+  listMcpServerSelectOptionsSuspenseQueryKey,
+  listMcpServerSelectOptionsSuspenseQueryOptions,
+  useListMcpServerSelectOptionsSuspense,
+} from './useListMcpServerSelectOptionsSuspense'
 export {
   listMcpServersSuspenseQueryKey,
   listMcpServersSuspenseQueryOptions,

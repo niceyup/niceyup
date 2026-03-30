@@ -1,9 +1,36 @@
-export default async function Page() {
+import { sdk } from '@/lib/sdk'
+import type { OrganizationTeamParams } from '@/lib/types'
+import { cacheTag } from 'next/cache'
+import { VectorStoreList } from './_components/vector-store-list'
+
+async function listVectorStores(params: {
+  organizationSlug: string
+}) {
+  'use cache: private'
+  cacheTag('create-vector-store', 'update-vector-store', 'delete-vector-store')
+
+  const { data } = await sdk.listVectorStores({
+    params: {
+      organizationSlug: params.organizationSlug,
+    },
+  })
+
+  return data?.vectorStores || []
+}
+
+export default async function Page({
+  params,
+}: Readonly<{
+  params: Promise<OrganizationTeamParams>
+}>) {
+  const { organizationSlug } = await params
+
+  const vectorStores = await listVectorStores({ organizationSlug })
+
   return (
-    <div className="rounded-lg border bg-background p-4">
-      <p className="py-24 text-center text-muted-foreground text-xs">
-        Coming soon
-      </p>
-    </div>
+    <VectorStoreList
+      params={{ organizationSlug }}
+      vectorStores={vectorStores}
+    />
   )
 }

@@ -16,18 +16,22 @@ export default async function Layout({
     {
       label: 'Model Providers',
       href: `/orgs/${organizationSlug}/~/integrations/model-providers`,
+      deep: true,
     },
     {
       label: 'Vector Stores',
       href: `/orgs/${organizationSlug}/~/integrations/vector-stores`,
+      deep: true,
     },
     {
       label: 'Connections',
       href: `/orgs/${organizationSlug}/~/integrations/connections`,
+      deep: true,
     },
     {
       label: 'MCP Servers',
       href: `/orgs/${organizationSlug}/~/integrations/mcp-servers`,
+      deep: true,
     },
     {
       label: 'Documentation',

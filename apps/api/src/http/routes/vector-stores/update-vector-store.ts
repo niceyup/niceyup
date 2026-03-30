@@ -3,6 +3,10 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import {
+  validateVectorStore,
+  vectorStoreProviderSchema,
+} from '@workspace/core/vector-stores'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -24,6 +28,9 @@ export async function updateVectorStore(app: FastifyTypedInstance) {
           organizationId: z.string().optional(),
           organizationSlug: z.string().optional(),
           name: z.string().optional(),
+          provider: vectorStoreProviderSchema.optional(),
+          settings: z.record(z.string(), z.unknown()).nullish(),
+          credentials: z.record(z.string(), z.unknown()).nullish(),
         }),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),
@@ -37,7 +44,14 @@ export async function updateVectorStore(app: FastifyTypedInstance) {
 
       const { vectorStoreId } = request.params
 
-      const { organizationId, organizationSlug, name } = request.body
+      const {
+        organizationId,
+        organizationSlug,
+        name,
+        provider,
+        settings,
+        credentials,
+      } = request.body
 
       const { context } = await resolveMembershipContext({
         userId,
@@ -56,10 +70,25 @@ export async function updateVectorStore(app: FastifyTypedInstance) {
         })
       }
 
+      let validatedData = undefined
+
+      if (
+        provider !== undefined ||
+        settings !== undefined ||
+        credentials !== undefined
+      ) {
+        validatedData = validateVectorStore({
+          provider: provider ?? vectorStore.provider,
+          settings,
+          credentials,
+        })
+      }
+
       await db
         .update(vectorStores)
         .set({
           name,
+          ...validatedData,
         })
         .where(eq(vectorStores.id, vectorStoreId))
 

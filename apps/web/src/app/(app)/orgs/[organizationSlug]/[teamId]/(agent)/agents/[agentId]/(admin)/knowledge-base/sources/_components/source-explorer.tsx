@@ -533,20 +533,24 @@ export function SourceExplorer() {
           >
             <ListTreeIcon />
           </Button>
-          <Button onClick={tree.collapseAll} size="icon" variant="outline">
+          <Button
+            onClick={() => tree.collapseAll()}
+            size="icon"
+            variant="outline"
+          >
             <ListCollapseIcon />
           </Button>
-
-          <Button variant="outline" asChild>
-            <Link
-              href={`/orgs/${params.organizationSlug}/~/sources`}
-              target="_blank"
-            >
-              <PlusIcon />
-              Add
-            </Link>
-          </Button>
         </ButtonGroup>
+
+        <Button variant="outline" asChild>
+          <Link
+            href={`/orgs/${params.organizationSlug}/~/sources`}
+            target="_blank"
+          >
+            <PlusIcon />
+            Add source
+          </Link>
+        </Button>
       </div>
 
       <Tree
