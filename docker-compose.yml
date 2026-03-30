@@ -1,24 +1,9 @@
 services:
-  postgres:
-    image: bitnami/postgresql
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
     ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: supersecret
-      POSTGRES_DB: db-niceyup
-    volumes:
-      - postgres-data:/bitnami/postgresql
-
-  redis:
-    image: bitnami/redis
-    ports:
-      - 6379:6379
-    environment:
-      ALLOW_EMPTY_PASSWORD: yes
-    volumes:
-      - redis-data:/bitnami/redis/data
-
-volumes:
-  postgres-data:
-  redis-data:
+      - 3333:3333
+    env_file:
+      - .env

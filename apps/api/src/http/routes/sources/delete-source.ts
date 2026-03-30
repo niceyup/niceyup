@@ -7,7 +7,8 @@ import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { sourceOperations } from '@workspace/db/schema'
-import { deleteSourceTask } from '@workspace/engine/tasks/delete-source'
+import type { DeleteSourceTask } from '@workspace/engine/tasks/delete-source'
+import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 export async function deleteSource(app: FastifyTypedInstance) {
@@ -65,7 +66,8 @@ export async function deleteSource(app: FastifyTypedInstance) {
         })
         .where(eq(sourceOperations.sourceId, sourceId))
 
-      await deleteSourceTask.trigger(
+      await tasks.trigger<DeleteSourceTask>(
+        'delete-source',
         { sourceId, destroy },
         { concurrencyKey: context.organizationId },
       )

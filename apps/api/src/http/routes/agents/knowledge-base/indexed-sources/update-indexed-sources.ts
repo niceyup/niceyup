@@ -8,8 +8,9 @@ import { and, eq, inArray } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { indexedSources, sourceOperations, sources } from '@workspace/db/schema'
 import { resolveAgentKnowledgeBase } from '@workspace/engine/agents'
-import { indexSourceTask } from '@workspace/engine/tasks/index-source'
-import { unindexSourceTask } from '@workspace/engine/tasks/unindex-source'
+import type { IndexSourceTask } from '@workspace/engine/tasks/index-source'
+import type { UnindexSourceTask } from '@workspace/engine/tasks/unindex-source'
+import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 const BATCH_SIZE = 100
@@ -312,7 +313,8 @@ async function manageIndexedSources({
   )
 
   if (addedIndexedSources.length) {
-    await indexSourceTask.batchTrigger(
+    await tasks.batchTrigger<IndexSourceTask>(
+      'index-source',
       addedIndexedSources.map(({ id }) => ({
         payload: { indexedSourceId: id },
         options: { concurrencyKey: knowledgeBaseId },
@@ -321,7 +323,8 @@ async function manageIndexedSources({
   }
 
   if (removedIndexedSources.length) {
-    await unindexSourceTask.batchTrigger(
+    await tasks.batchTrigger<UnindexSourceTask>(
+      'unindex-source',
       removedIndexedSources.map(({ id }) => ({
         payload: { indexedSourceId: id },
         options: { concurrencyKey: knowledgeBaseId },

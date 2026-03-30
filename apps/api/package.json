@@ -19,6 +19,7 @@
     "@fastify/redis": "7.0.2",
     "@fastify/swagger": "9.5.2",
     "@fastify/websocket": "11.2.0",
+    "@langchain/community": "1.0.0",
     "@scalar/fastify-api-reference": "1.38.1",
     "@workspace/ai": "workspace:*",
     "@workspace/auth": "workspace:*",

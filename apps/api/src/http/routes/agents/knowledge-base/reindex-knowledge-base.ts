@@ -8,7 +8,8 @@ import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { knowledgeBases } from '@workspace/db/schema'
 import { resolveAgentKnowledgeBase } from '@workspace/engine/agents'
-import { reindexKnowledgeBaseTask } from '@workspace/engine/tasks/reindex-knowledge-base'
+import type { ReindexKnowledgeBaseTask } from '@workspace/engine/tasks/reindex-knowledge-base'
+import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
@@ -83,7 +84,8 @@ export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
         })
         .where(eq(knowledgeBases.id, agentKnowledgeBase.id))
 
-      await reindexKnowledgeBaseTask.trigger(
+      await tasks.trigger<ReindexKnowledgeBaseTask>(
+        'reindex-knowledge-base',
         { knowledgeBaseId: agentKnowledgeBase.id },
         { concurrencyKey: context.organizationId },
       )

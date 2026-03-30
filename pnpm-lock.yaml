@@ -44,6 +44,9 @@ importers:
       '@fastify/websocket':
         specifier: 11.2.0
         version: 11.2.0
+      '@langchain/community':
+        specifier: 1.0.0
+        version: 1.0.0(72ad4475164bcf26b73d15c23aed7751)
       '@scalar/fastify-api-reference':
         specifier: 1.38.1
         version: 1.38.1
@@ -12681,7 +12684,7 @@ snapshots:
     dependencies:
       '@langchain/core': 1.0.1(@opentelemetry/api@1.9.0)(@opentelemetry/exporter-trace-otlp-proto@0.52.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(openai@6.29.0(ws@8.18.3)(zod@4.1.12))
       js-tiktoken: 1.0.21
-      openai: 6.6.0(ws@8.18.3)(zod@4.1.12)
+      openai: 6.29.0(ws@8.18.3)(zod@4.1.12)
       zod: 4.1.12
     transitivePeerDependencies:
       - ws
