@@ -61,7 +61,9 @@ const config = {
     cookiePrefix: COOKIE_PREFIX,
     crossSubDomainCookies: {
       enabled: true,
-      domain: new URL(env.WEB_URL).hostname,
+      domain: new URL(
+        env.WEB_URL ?? process.env.WEB_URL ?? 'http://localhost:3000',
+      ).hostname,
     },
     database: { generateId },
   },

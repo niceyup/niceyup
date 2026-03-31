@@ -26,7 +26,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: new URL(env.NEXT_PUBLIC_STORAGE_URL).hostname,
+        hostname: new URL(
+          env.NEXT_PUBLIC_STORAGE_URL ??
+            process.env.NEXT_PUBLIC_STORAGE_URL ??
+            'http://localhost:9000',
+        ).hostname,
       },
       {
         protocol: 'https',
@@ -47,7 +51,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path((?!auth/).*)*',
-        destination: `${env.NEXT_PUBLIC_API_URL}/api/:path*`,
+        destination: `${env.NEXT_PUBLIC_API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3333'}/api/:path*`,
       },
     ]
   },
