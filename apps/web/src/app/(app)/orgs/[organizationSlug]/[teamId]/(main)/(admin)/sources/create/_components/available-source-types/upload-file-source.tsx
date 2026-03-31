@@ -18,7 +18,7 @@ import { z } from 'zod'
 import { useUploadLocalFileSource } from '../../_store/use-upload-local-file-source'
 import { FilesUpload } from '../files-upload'
 import { SourceTypeCard } from '../source-type-card'
-import { availableSourceTypes } from './available-source-types'
+import { availableSourceTypes } from './source-types'
 
 type Params = {
   organizationSlug: OrganizationTeamParams['organizationSlug']

@@ -24,7 +24,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { SourceTypeCard } from '../source-type-card'
-import { availableSourceTypes } from './available-source-types'
+import { availableSourceTypes } from './source-types'
 
 type Params = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
