@@ -4,7 +4,9 @@ import { updateAgentConfiguration } from './agents/configuration/update-agent-co
 import { createAgent } from './agents/create-agent'
 import { deleteAgent } from './agents/delete-agent'
 import { getAgent } from './agents/get-agent'
+import { cancelKnowledgeBaseReindexing } from './agents/knowledge-base/cancel-knowledge-base-reindexing'
 import { getAgentKnowledgeBase } from './agents/knowledge-base/get-agent-knowledge-base'
+import { cancelSourceIndexing } from './agents/knowledge-base/indexed-sources/cancel-source-indexing'
 import { getSourceIndexingStatus } from './agents/knowledge-base/indexed-sources/get-source-indexing-status'
 import { listIndexedSources } from './agents/knowledge-base/indexed-sources/list-indexed-sources'
 import { triggerSourceIndexing } from './agents/knowledge-base/indexed-sources/trigger-source-indexing'
@@ -36,6 +38,7 @@ import { respondToToolApproval } from './conversations/messages/respond-to-tool-
 import { sendMessage } from './conversations/messages/send-message'
 import { stopMessage } from './conversations/messages/stop-message'
 import { streamMessage } from './conversations/messages/stream-message'
+import { realtimeConversation } from './conversations/realtime-conversation'
 import { realtimeConversations } from './conversations/realtime-conversations'
 import { updateConversation } from './conversations/update-conversation'
 import { generateUploadSignature } from './files/generate-upload-signature'
@@ -57,6 +60,7 @@ import { listConnectionSelectOptions } from './select-option/list-connection-sel
 import { listMcpServerSelectOptions } from './select-option/list-mcp-server-select-options'
 import { listModelProviderSelectOptions } from './select-option/list-model-provider-select-options'
 import { listVectorStoreSelectOptions } from './select-option/list-vector-store-select-options'
+import { cancelSource } from './sources/cancel-source'
 import { createSource } from './sources/create-source'
 import { createSourceFolder } from './sources/create-source-folder'
 import { getDatabaseSchema } from './sources/database/get-schema'
@@ -140,11 +144,13 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(getAgentKnowledgeBase)
   app.register(updateAgentKnowledgeBase)
   app.register(reindexKnowledgeBase)
+  app.register(cancelKnowledgeBaseReindexing)
 
   app.register(listIndexedSources)
   app.register(updateIndexedSources)
   app.register(getSourceIndexingStatus)
   app.register(triggerSourceIndexing)
+  app.register(cancelSourceIndexing)
 
   app.register(listSources)
   app.register(getSource)
@@ -155,6 +161,7 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(updateSourceFolder)
   app.register(deleteSourceFolder)
   app.register(getDatabaseSchema)
+  app.register(cancelSource)
 
   app.register(getFile)
   app.register(generateUploadSignature)
@@ -166,5 +173,6 @@ export async function routes(app: FastifyTypedInstance) {
 
   // Websocket routes
   app.register(realtimeConversations)
+  app.register(realtimeConversation)
   app.register(realtimeMessages)
 }

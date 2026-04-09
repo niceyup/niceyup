@@ -17,7 +17,7 @@ export type ResendMessagePathParams = {
 export const userMessageStatusEnum2 = {
   queued: 'queued',
   processing: 'processing',
-  cancelled: 'cancelled',
+  canceled: 'canceled',
   completed: 'completed',
   failed: 'failed',
 } as const
@@ -284,7 +284,7 @@ export type ApprovalApprovedEnum24 =
 export const assistantMessageStatusEnum2 = {
   queued: 'queued',
   processing: 'processing',
-  cancelled: 'cancelled',
+  canceled: 'canceled',
   completed: 'completed',
   failed: 'failed',
 } as const

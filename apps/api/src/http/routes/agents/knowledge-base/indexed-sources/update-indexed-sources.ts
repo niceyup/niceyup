@@ -158,8 +158,12 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
         })
       }
 
-      await manageIndexedSources({
+      const ctx = {
+        organizationId: context.organizationId,
         knowledgeBaseId: agentKnowledgeBase.id,
+      }
+
+      await manageIndexedSources(ctx, {
         addSourceIds,
         removeSourceIds,
         sourcesToAdd,
@@ -171,30 +175,29 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
   )
 }
 
-async function manageIndexedSources({
-  knowledgeBaseId,
-  addSourceIds,
-  removeSourceIds,
-  sourcesToAdd,
-  sourcesToRemove,
-}: {
-  knowledgeBaseId: string
-  addSourceIds: string[]
-  removeSourceIds: string[]
-  sourcesToAdd: SourceRow[]
-  sourcesToRemove: SourceRow[]
-}) {
+async function manageIndexedSources(
+  context: {
+    organizationId: string
+    knowledgeBaseId: string
+  },
+  params: {
+    addSourceIds: string[]
+    removeSourceIds: string[]
+    sourcesToAdd: SourceRow[]
+    sourcesToRemove: SourceRow[]
+  },
+) {
   const { addedIndexedSources, removedIndexedSources } = await db.transaction(
     async (tx) => {
       const addedIndexedSources: { id: string }[] = []
       const removedIndexedSources: { id: string }[] = []
 
-      if (addSourceIds.length) {
+      if (params.addSourceIds.length) {
         const sourcesWithoutIndexedSource: { id: string }[] = [] // create indexed sources
         const indexedSourcesWithoutOperation: { id: string }[] = [] // create source operations
         const indexedSourcesWithOperation: { id: string }[] = [] // update source operations
 
-        for (const source of sourcesToAdd) {
+        for (const source of params.sourcesToAdd) {
           if (!source.indexedSourceId) {
             sourcesWithoutIndexedSource.push({
               id: source.id,
@@ -222,7 +225,7 @@ async function manageIndexedSources({
             .insert(indexedSources)
             .values(
               sourcesWithoutIndexedSource.map((source) => ({
-                knowledgeBaseId,
+                knowledgeBaseId: context.knowledgeBaseId,
                 sourceId: source.id,
               })),
             )
@@ -260,11 +263,11 @@ async function manageIndexedSources({
         }
       }
 
-      if (removeSourceIds.length) {
+      if (params.removeSourceIds.length) {
         const indexedSourcesWithoutOperation = [] // create source operations
         const indexedSourcesWithOperation = [] // update source operations
 
-        for (const source of sourcesToRemove) {
+        for (const source of params.sourcesToRemove) {
           if (!source.indexedSourceId) {
             continue
           }
@@ -317,7 +320,14 @@ async function manageIndexedSources({
       'index-source',
       addedIndexedSources.map(({ id }) => ({
         payload: { indexedSourceId: id },
-        options: { concurrencyKey: knowledgeBaseId },
+        options: {
+          concurrencyKey: context.knowledgeBaseId,
+          tags: [
+            `organization:${context.organizationId}`,
+            `knowledge-base:${context.knowledgeBaseId}`,
+            `indexed-source:${id}`,
+          ],
+        },
       })),
     )
   }
@@ -327,7 +337,14 @@ async function manageIndexedSources({
       'unindex-source',
       removedIndexedSources.map(({ id }) => ({
         payload: { indexedSourceId: id },
-        options: { concurrencyKey: knowledgeBaseId },
+        options: {
+          concurrencyKey: context.knowledgeBaseId,
+          tags: [
+            `organization:${context.organizationId}`,
+            `knowledge-base:${context.knowledgeBaseId}`,
+            `indexed-source:${id}`,
+          ],
+        },
       })),
     )
   }

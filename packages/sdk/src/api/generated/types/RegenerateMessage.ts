@@ -17,7 +17,7 @@ export type RegenerateMessagePathParams = {
 export const assistantMessageStatusEnum3 = {
   queued: 'queued',
   processing: 'processing',
-  cancelled: 'cancelled',
+  canceled: 'canceled',
   completed: 'completed',
   failed: 'failed',
 } as const

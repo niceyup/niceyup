@@ -47,6 +47,7 @@
           {
             "group": "Open Source",
             "pages": [
+              "architecture",
               "local-development",
               "self-hosting"
             ]

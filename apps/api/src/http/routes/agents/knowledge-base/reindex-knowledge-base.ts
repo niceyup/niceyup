@@ -70,7 +70,7 @@ export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
         })
       }
 
-      if (agentKnowledgeBase?.status === 'reindexing') {
+      if (agentKnowledgeBase.status === 'reindexing') {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_ALREADY_REINDEXING',
           message: 'Knowledge base is already reindexing',
@@ -87,7 +87,13 @@ export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
       await tasks.trigger<ReindexKnowledgeBaseTask>(
         'reindex-knowledge-base',
         { knowledgeBaseId: agentKnowledgeBase.id },
-        { concurrencyKey: context.organizationId },
+        {
+          concurrencyKey: context.organizationId,
+          tags: [
+            `organization:${context.organizationId}`,
+            `knowledge-base:${agentKnowledgeBase.id}`,
+          ],
+        },
       )
 
       return reply.status(204).send()

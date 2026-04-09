@@ -69,7 +69,13 @@ export async function deleteSource(app: FastifyTypedInstance) {
       await tasks.trigger<DeleteSourceTask>(
         'delete-source',
         { sourceId, destroy },
-        { concurrencyKey: context.organizationId },
+        {
+          concurrencyKey: context.organizationId,
+          tags: [
+            `organization:${context.organizationId}`,
+            `source:${sourceId}`,
+          ],
+        },
       )
 
       return reply.status(204).send()

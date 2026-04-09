@@ -271,7 +271,7 @@ const toolAIPartSchemas = [
 const aiMessageStatusSchema = z.enum([
   'queued',
   'processing',
-  'cancelled',
+  'canceled',
   'completed',
   'failed',
 ])

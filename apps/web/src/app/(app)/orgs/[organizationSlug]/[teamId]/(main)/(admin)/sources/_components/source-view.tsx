@@ -82,6 +82,7 @@ export function SourceView({
 }
 
 export function SourceViewContent({
+  params,
   sourceId,
   className,
   ...props
@@ -97,3 +98,57 @@ export function SourceViewContent({
     </div>
   )
 }
+
+// function SourceViewAlertIngesting({
+//   params,
+//   sourceId,
+// }: {
+//   params: Params
+//   sourceId: string
+// }) {
+//   const [isPending, startTransition] = React.useTransition()
+
+//   const handleCancel = () => {
+//     startTransition(async () => {
+//       try {
+//         const { error } = await sdk.cancelSource({
+//           sourceId,
+//           data: {
+//             organizationSlug: params.organizationSlug,
+//           },
+//         })
+
+//         if (error) {
+//           toast.error(error.message)
+//           return
+//         }
+
+//         toast.success('Source cancellation started')
+//       } catch {
+//         toast.error('Failed to start source cancellation')
+//       }
+//     })
+//   }
+
+//   return (
+//     <Alert>
+//       <Spinner />
+//       <AlertTitle>Ingesting Source</AlertTitle>
+//       <AlertDescription>
+//         This source is currently being ingested. You can cancel this operation
+//         at any time.
+//       </AlertDescription>
+//       <AlertAction>
+//         <Button
+//           variant="outline"
+//           size="sm"
+//           onClick={handleCancel}
+//           disabled={isPending}
+//         >
+//           {isPending && <Spinner />}
+//           Cancel
+//         </Button>
+//       </AlertAction>
+//     </Alert>
+//   )
+// }

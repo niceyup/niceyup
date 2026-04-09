@@ -111,7 +111,7 @@ export async function createConversation(app: FastifyTypedInstance) {
           const [conversation] = await tx
             .insert(conversations)
             .values({
-              title: title ?? 'New conversation',
+              title,
               agentId,
               teamId: visibility === 'team' ? context.teamId : null,
               createdByUserId: context.userId,
@@ -153,6 +153,18 @@ export async function createConversation(app: FastifyTypedInstance) {
       )
 
       // Realtime PubSub
+
+      conversationPubSub.emitConversation({
+        conversationId: conversation.id,
+        data: {
+          action: 'create',
+          conversation: {
+            id: conversation.id,
+            title: conversation.title,
+            updatedAt: conversation.updatedAt.toISOString(),
+          },
+        },
+      })
 
       if (visibility === 'team' && context.teamId) {
         conversationPubSub.emitTeamConversations({

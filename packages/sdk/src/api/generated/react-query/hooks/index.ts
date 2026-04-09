@@ -1,3 +1,6 @@
+export type { CancelKnowledgeBaseReindexingMutationKey } from './useCancelKnowledgeBaseReindexing'
+export type { CancelSourceMutationKey } from './useCancelSource'
+export type { CancelSourceIndexingMutationKey } from './useCancelSourceIndexing'
 export type { CreateAgentMutationKey } from './useCreateAgent'
 export type { CreateConnectionMutationKey } from './useCreateConnection'
 export type { CreateConversationMutationKey } from './useCreateConversation'
@@ -100,6 +103,15 @@ export type { UpdateVectorStoreMutationKey } from './useUpdateVectorStore'
 export type { UploadFilesMutationKey } from './useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './useUploadFilesConversation'
 export type { UploadFilesSourceMutationKey } from './useUploadFilesSource'
+export {
+  cancelKnowledgeBaseReindexingMutationKey,
+  useCancelKnowledgeBaseReindexing,
+} from './useCancelKnowledgeBaseReindexing'
+export { cancelSourceMutationKey, useCancelSource } from './useCancelSource'
+export {
+  cancelSourceIndexingMutationKey,
+  useCancelSourceIndexing,
+} from './useCancelSourceIndexing'
 export { createAgentMutationKey, useCreateAgent } from './useCreateAgent'
 export {
   createConnectionMutationKey,

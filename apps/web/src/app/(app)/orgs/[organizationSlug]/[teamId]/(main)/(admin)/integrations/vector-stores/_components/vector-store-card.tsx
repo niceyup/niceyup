@@ -12,6 +12,7 @@ import type { AvailableVectorStore } from './available-vector-stores/vector-stor
 
 type VectorStore = AvailableVectorStore[keyof AvailableVectorStore] & {
   icon?: React.ReactNode
+  image?: string
 }
 
 export function VectorStoreCard({
@@ -34,19 +35,17 @@ export function VectorStoreCard({
       )}
       onClick={() => provider && onSelect?.(provider.value)}
     >
-      {!provider || provider.icon ? (
-        <div className="flex size-8 items-center justify-center rounded-sm border">
-          {provider?.icon ?? <CircleDashedIcon className="size-4" />}
-        </div>
-      ) : (
+      {provider?.image ? (
         <Avatar className="size-8 rounded-sm border bg-background">
-          <AvatarImage
-            src={`/integrations/vector-stores/${provider.value}.png`}
-          />
+          <AvatarImage src={provider.image} />
           <AvatarFallback className="rounded-sm text-xs">
             {getInitials(provider.value)}
           </AvatarFallback>
         </Avatar>
+      ) : (
+        <div className="flex size-8 items-center justify-center rounded-sm border">
+          {provider?.icon ?? <CircleDashedIcon className="size-4" />}
+        </div>
       )}
 
       <div className="flex flex-1 flex-col">

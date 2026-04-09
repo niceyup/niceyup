@@ -246,7 +246,13 @@ export async function createSource(app: FastifyTypedInstance) {
       await tasks.trigger<IngestSourceTask>(
         'ingest-source',
         { sourceId: source.id },
-        { concurrencyKey: context.organizationId },
+        {
+          concurrencyKey: context.organizationId,
+          tags: [
+            `organization:${context.organizationId}`,
+            `source:${source.id}`,
+          ],
+        },
       )
 
       return reply.status(201).send({

@@ -210,6 +210,9 @@ importers:
       lucide-react:
         specifier: ^0.475.0
         version: 0.475.0(react@19.2.3)
+      mitt:
+        specifier: ^3.0.1
+        version: 3.0.1
       next:
         specifier: ^16.2
         version: 16.2.0(@opentelemetry/api@1.9.0)(@playwright/test@1.56.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -5072,6 +5075,7 @@ packages:
   '@xmldom/xmldom@0.8.11':
     resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}

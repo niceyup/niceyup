@@ -401,7 +401,7 @@ export const agentsRelations = relations(agents, ({ one, many }) => ({
 
 export const conversations = pgTable('conversations', {
   ...id,
-  title: text('title').notNull().default('Untitled'),
+  title: text('title').notNull().default('New conversation'),
 
   agentId: text('agent_id')
     .notNull()

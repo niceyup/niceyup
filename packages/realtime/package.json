@@ -28,6 +28,7 @@
     "./pubsub": "./src/pubsub/index.ts",
     "./stream": "./src/stream/index.ts",
     "./hooks": "./src/hooks/index.ts",
+    "./types": "./src/lib/types.ts",
     "./env": "./src/lib/env.ts"
   }
 }

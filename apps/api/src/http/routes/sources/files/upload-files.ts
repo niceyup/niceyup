@@ -276,7 +276,13 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           'ingest-source',
           successfulFiles.map(({ source }) => ({
             payload: { sourceId: source.sourceId },
-            options: { concurrencyKey: data.organizationId as string },
+            options: {
+              concurrencyKey: data.organizationId as string,
+              tags: [
+                `organization:${data.organizationId}`,
+                `source:${source.sourceId}`,
+              ],
+            },
           })),
         )
       }

@@ -17,7 +17,7 @@ export type RespondToToolApprovalPathParams = {
 export const assistantMessageStatusEnum4 = {
   queued: 'queued',
   processing: 'processing',
-  cancelled: 'cancelled',
+  canceled: 'canceled',
   completed: 'completed',
   failed: 'failed',
 } as const

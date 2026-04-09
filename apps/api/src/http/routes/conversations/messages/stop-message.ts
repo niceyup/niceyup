@@ -65,10 +65,10 @@ export async function stopMessage(app: FastifyTypedInstance) {
 
       await queries.updateMessage({
         messageId,
-        status: 'cancelled',
+        status: 'canceled',
       })
 
-      return reply.status(204).send(null)
+      return reply.status(204).send()
     },
   )
 }

@@ -1,4 +1,46 @@
 export type {
+  CancelKnowledgeBaseReindexingPathParams,
+  CancelKnowledgeBaseReindexing204Enum,
+  CancelKnowledgeBaseReindexing204,
+  CancelKnowledgeBaseReindexing400,
+  CancelKnowledgeBaseReindexing401,
+  CancelKnowledgeBaseReindexing403,
+  CancelKnowledgeBaseReindexing404,
+  CancelKnowledgeBaseReindexing429,
+  CancelKnowledgeBaseReindexing500,
+  CancelKnowledgeBaseReindexingMutationRequest,
+  CancelKnowledgeBaseReindexingMutationResponse,
+  CancelKnowledgeBaseReindexingMutation,
+} from './CancelKnowledgeBaseReindexing'
+export type {
+  CancelSourcePathParams,
+  CancelSource204Enum,
+  CancelSource204,
+  CancelSource400,
+  CancelSource401,
+  CancelSource403,
+  CancelSource404,
+  CancelSource429,
+  CancelSource500,
+  CancelSourceMutationRequest,
+  CancelSourceMutationResponse,
+  CancelSourceMutation,
+} from './CancelSource'
+export type {
+  CancelSourceIndexingPathParams,
+  CancelSourceIndexing204Enum,
+  CancelSourceIndexing204,
+  CancelSourceIndexing400,
+  CancelSourceIndexing401,
+  CancelSourceIndexing403,
+  CancelSourceIndexing404,
+  CancelSourceIndexing429,
+  CancelSourceIndexing500,
+  CancelSourceIndexingMutationRequest,
+  CancelSourceIndexingMutationResponse,
+  CancelSourceIndexingMutation,
+} from './CancelSourceIndexing'
+export type {
   CreateAgent201,
   CreateAgent400,
   CreateAgent401,
@@ -1266,6 +1308,9 @@ export type {
   UploadFilesSourceMutationResponse,
   UploadFilesSourceMutation,
 } from './UploadFilesSource'
+export { cancelKnowledgeBaseReindexing204Enum } from './CancelKnowledgeBaseReindexing'
+export { cancelSource204Enum } from './CancelSource'
+export { cancelSourceIndexing204Enum } from './CancelSourceIndexing'
 export {
   createConnectionMutationRequestAppEnum,
   createConnectionMutationRequestAuthenticationEnum,

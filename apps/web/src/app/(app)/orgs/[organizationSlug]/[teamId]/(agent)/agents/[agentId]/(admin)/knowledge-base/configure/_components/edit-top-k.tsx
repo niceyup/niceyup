@@ -23,7 +23,7 @@ type Params = {
 }
 
 const formSchema = z.object({
-  topK: z.number().positive(),
+  topK: z.string(),
 })
 
 export function EditTopKForm({
@@ -36,7 +36,7 @@ export function EditTopKForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      topK: topK ?? undefined,
+      topK: String(topK ?? ''),
     },
   })
 
@@ -45,7 +45,7 @@ export function EditTopKForm({
       agentId: params.agentId,
       data: {
         organizationSlug: params.organizationSlug,
-        topK: values.topK,
+        topK: values.topK ? Number(values.topK) : null,
       },
     })
 
@@ -79,6 +79,7 @@ export function EditTopKForm({
                     <Input
                       {...field}
                       type="number"
+                      min={1}
                       className="w-full max-w-xs"
                       placeholder="5"
                     />

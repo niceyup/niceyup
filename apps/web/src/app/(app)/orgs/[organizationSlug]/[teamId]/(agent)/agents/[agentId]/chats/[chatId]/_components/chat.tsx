@@ -134,6 +134,13 @@ import {
 
 type Params = OrganizationTeamParams & AgentParams & ChatParams
 
+type ToolKnowledgeBasePart = ToolUIPart<{
+  knowledge_base: {
+    input: { question: string }
+    output: string[]
+  }
+}>
+
 type ToolImageGenerationPart = ToolUIPart<{
   image_generation: {
     input: unknown
@@ -148,6 +155,7 @@ type MessageParts = {
   texts: TextUIPart[]
   files: FileUIPart[]
   tools: (ToolUIPart | DynamicToolUIPart)[]
+  toolKnowledgeBaseParts: ToolKnowledgeBasePart[]
   toolImageGenerations: ToolImageGenerationPart[]
 }
 
@@ -158,6 +166,8 @@ function extractMessageParts({
   const textParts: TextUIPart[] = []
   const fileParts: FileUIPart[] = []
   const toolParts: (ToolUIPart | DynamicToolUIPart)[] = []
+
+  const toolKnowledgeBaseParts: ToolKnowledgeBasePart[] = []
   const toolImageGenerationParts: ToolImageGenerationPart[] = []
 
   for (const part of message.parts || []) {
@@ -168,7 +178,9 @@ function extractMessageParts({
     } else if (isFileUIPart(part)) {
       fileParts.push(part)
     } else if (isToolUIPart(part)) {
-      if (part.type === 'tool-image_generation') {
+      if (part.type === 'tool-knowledge_base') {
+        toolKnowledgeBaseParts.push(part as ToolKnowledgeBasePart)
+      } else if (part.type === 'tool-image_generation') {
         toolImageGenerationParts.push(part as ToolImageGenerationPart)
       } else {
         toolParts.push(part)
@@ -183,6 +195,7 @@ function extractMessageParts({
     texts: textParts,
     files: fileParts,
     tools: toolParts,
+    toolKnowledgeBaseParts: toolKnowledgeBaseParts,
     toolImageGenerations: toolImageGenerationParts,
   }
 }
@@ -195,7 +208,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100 MB
 const messageStatusToPromptInputStatus = {
   queued: 'submitted',
   processing: 'streaming',
-  cancelled: 'ready',
+  canceled: 'ready',
   completed: 'ready',
   failed: 'error',
 } as const
@@ -605,7 +618,7 @@ const ChatMessage = React.memo(function ChatMessage({
   }
 
   const isOtherUser =
-    authorId && message.authorId && authorId !== message.authorId
+    !authorId || !message.authorId || authorId !== message.authorId
 
   return (
     <ChatMessageProvider message={message}>
@@ -728,7 +741,7 @@ function ChatUserMessageAvatar() {
 
   const user = {
     id: message.authorId,
-    name: 'Guest',
+    name: 'Anonymous',
     image: `https://avatar.vercel.sh/${message.authorId}`,
   }
 
@@ -843,7 +856,11 @@ function ChatUserMessageContent() {
   const { parts } = useChatMessageContext()
 
   return (
-    <MessageContent className={cn('group-[.is-other-user]:bg-secondary/50!')}>
+    <MessageContent
+      className={cn(
+        'group-[.is-other-user]:ml-0! group-[.is-other-user]:bg-secondary/50!',
+      )}
+    >
       {parts.text ? (
         <pre className="whitespace-pre-wrap break-words font-sans">
           {parts.text}
@@ -997,16 +1014,23 @@ function ChatAssistantMessageParts() {
     <>
       <ChatAssistantMessageReasoning />
 
+      {/* {parts.toolKnowledgeBaseParts.map((tool) => (
+        <ChatAssistantMessageToolKnowledgeBase
+          key={tool.toolCallId}
+          tool={tool}
+        />
+      ))} */}
+
       {parts.tools.map((tool) => (
         <ChatAssistantMessageTool key={tool.toolCallId} tool={tool} />
       ))}
 
       <ChatAssistantMessageContent />
 
-      {parts.toolImageGenerations.map((part) => (
+      {parts.toolImageGenerations.map((tool) => (
         <ChatAssistantMessageToolImageGeneration
-          key={part.toolCallId}
-          part={part}
+          key={tool.toolCallId}
+          tool={tool}
         />
       ))}
     </>
@@ -1136,20 +1160,38 @@ function ChatAssistantMessageContent() {
   )
 }
 
+// const ChatAssistantMessageToolKnowledgeBase = React.memo(
+//   function ChatAssistantMessageToolKnowledgeBase({
+//     tool,
+//   }: { tool: ToolKnowledgeBasePart }) {
+//     return (
+//       <Tool className="mb-0">
+//         <ToolHeader type={tool.type as ToolUIPart['type']} state={tool.state} />
+//         <ToolContent>
+//           <ToolInput input={tool.input?.question} />
+
+//           {(tool.state === 'output-available' ||
+//             tool.state === 'output-error') && (
+//             <ToolOutput output={tool.output} errorText={tool.errorText} />
+//           )}
+//         </ToolContent>
+//       </Tool>
+//     )
+//   },
+// )
+
 const ChatAssistantMessageToolImageGeneration = React.memo(
   function ChatAssistantMessageToolImageGeneration({
-    part,
-  }: { part: ToolImageGenerationPart }) {
-    const { toolCallId, state, output } = part
-
-    const isError = state === 'output-error'
-    const isGenerating = state !== 'output-available'
-    const base64 = output?.result
+    tool,
+  }: { tool: ToolImageGenerationPart }) {
+    const isError = tool.state === 'output-error'
+    const isGenerating = tool.state !== 'output-available'
+    const base64 = tool.output?.result
 
     if (isError) {
       return (
         <div
-          key={toolCallId}
+          key={tool.toolCallId}
           className="flex h-[200px] w-[200px] items-center justify-center rounded-lg border p-4"
         >
           <AlertCircleIcon className="size-4 shrink-0 text-destructive" />
@@ -1158,12 +1200,12 @@ const ChatAssistantMessageToolImageGeneration = React.memo(
     }
 
     if (isGenerating || !base64) {
-      return <Skeleton key={toolCallId} className="h-[200px] w-[200px]" />
+      return <Skeleton key={tool.toolCallId} className="h-[200px] w-[200px]" />
     }
 
     return (
       <Image
-        key={toolCallId}
+        key={tool.toolCallId}
         base64={base64}
         uint8Array={new Uint8Array()}
         mediaType="image/jpeg"

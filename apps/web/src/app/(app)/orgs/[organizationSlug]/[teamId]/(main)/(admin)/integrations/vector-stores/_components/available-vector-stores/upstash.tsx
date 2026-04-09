@@ -69,7 +69,7 @@ export function UpstashVectorStore({
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (params.vectorStoreId) {
+    if (params.vectorStoreId && initialData) {
       const { error } = await sdk.updateVectorStore({
         vectorStoreId: params.vectorStoreId,
         data: {

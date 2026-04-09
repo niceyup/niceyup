@@ -49,9 +49,9 @@ export async function getItemInSourceExplorerNode(
     return null
   }
 
-  const sourceIndexOperations = aliasedTable(
+  const indexedSourceOperations = aliasedTable(
     sourceOperations,
-    'source_index_operations',
+    'indexed_source_operations',
   )
 
   const [itemData] = await db
@@ -76,8 +76,8 @@ export async function getItemInSourceExplorerNode(
       indexedSource: {
         status: indexedSources.status,
         indexedAt: indexedSources.indexedAt,
-        operationType: sourceIndexOperations.type,
-        operationStatus: sourceIndexOperations.status,
+        operationType: indexedSourceOperations.type,
+        operationStatus: indexedSourceOperations.status,
       },
       fractionalIndex: sourceExplorerNodes.fractionalIndex,
       children: sql<string[]>`
@@ -99,8 +99,8 @@ export async function getItemInSourceExplorerNode(
     )
     .leftJoin(sourceOperations, eq(sourceOperations.sourceId, sources.id))
     .leftJoin(
-      sourceIndexOperations,
-      eq(sourceIndexOperations.indexedSourceId, indexedSources.id),
+      indexedSourceOperations,
+      eq(indexedSourceOperations.indexedSourceId, indexedSources.id),
     )
     .where(
       and(
@@ -136,9 +136,9 @@ export async function getChildrenWithDataInSourceExplorerNode(
     return []
   }
 
-  const sourceIndexOperations = aliasedTable(
+  const indexedSourceOperations = aliasedTable(
     sourceOperations,
-    'source_index_operations',
+    'indexed_source_operations',
   )
 
   const childrenWithData = await db
@@ -163,8 +163,8 @@ export async function getChildrenWithDataInSourceExplorerNode(
       indexedSource: {
         status: indexedSources.status,
         indexedAt: indexedSources.indexedAt,
-        operationType: sourceIndexOperations.type,
-        operationStatus: sourceIndexOperations.status,
+        operationType: indexedSourceOperations.type,
+        operationStatus: indexedSourceOperations.status,
       },
       fractionalIndex: sourceExplorerNodes.fractionalIndex,
       children: sql<string[]>`
@@ -186,8 +186,8 @@ export async function getChildrenWithDataInSourceExplorerNode(
     )
     .leftJoin(sourceOperations, eq(sourceOperations.sourceId, sources.id))
     .leftJoin(
-      sourceIndexOperations,
-      eq(sourceIndexOperations.indexedSourceId, indexedSources.id),
+      indexedSourceOperations,
+      eq(indexedSourceOperations.indexedSourceId, indexedSources.id),
     )
     .where(
       and(

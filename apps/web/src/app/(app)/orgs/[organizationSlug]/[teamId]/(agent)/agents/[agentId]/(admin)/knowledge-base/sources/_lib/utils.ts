@@ -29,7 +29,7 @@ export const sourceExplorerNodeStatus = ({
       }
     | undefined
 }): SourceExplorerNodeStatus | null => {
-  // Source Index Status
+  // Indexed Source Status
   if (indexedSource) {
     if (indexedSource.operationType === 'index') {
       switch (indexedSource.operationStatus) {

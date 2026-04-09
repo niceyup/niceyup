@@ -12,6 +12,7 @@ import type { AvailableMcpServer } from './available-mcp-servers/mcp-servers'
 
 type McpServer = AvailableMcpServer[keyof AvailableMcpServer] & {
   icon?: React.ReactNode
+  image?: string
 }
 
 export function McpServerCard({
@@ -34,7 +35,14 @@ export function McpServerCard({
       )}
       onClick={() => connection && onSelect?.(connection.value)}
     >
-      {!connection || connection.icon ? (
+      {connection?.image ? (
+        <Avatar className="size-8 rounded-sm border bg-background">
+          <AvatarImage src={connection.image} />
+          <AvatarFallback className="rounded-sm text-xs">
+            {getInitials(connection.value)}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
         <div
           className={cn(
             'flex size-8 items-center justify-center rounded-sm border',
@@ -43,15 +51,6 @@ export function McpServerCard({
         >
           {connection?.icon ?? <CircleDashedIcon className="size-4" />}
         </div>
-      ) : (
-        <Avatar className="size-8 rounded-sm border bg-background">
-          <AvatarImage
-            src={`/integrations/mcp-servers/${connection.value}.png`}
-          />
-          <AvatarFallback className="rounded-sm text-xs">
-            {getInitials(connection.value)}
-          </AvatarFallback>
-        </Avatar>
       )}
 
       <div className="flex flex-1 flex-col">

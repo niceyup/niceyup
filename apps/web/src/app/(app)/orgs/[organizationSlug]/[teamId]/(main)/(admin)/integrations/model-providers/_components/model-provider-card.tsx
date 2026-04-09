@@ -12,6 +12,7 @@ import type { AvailableModelProvider } from './available-model-providers/model-p
 
 type ModelProvider = AvailableModelProvider[keyof AvailableModelProvider] & {
   icon?: React.ReactNode
+  image?: string
 }
 
 export function ModelProviderCard({
@@ -34,7 +35,14 @@ export function ModelProviderCard({
       )}
       onClick={() => provider && onSelect?.(provider.value)}
     >
-      {!provider || provider.icon ? (
+      {provider?.image ? (
+        <Avatar className="size-8 rounded-sm border bg-background">
+          <AvatarImage src={provider.image} />
+          <AvatarFallback className="rounded-sm text-xs">
+            {getInitials(provider.value)}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
         <div
           className={cn(
             'flex size-8 items-center justify-center rounded-sm border',
@@ -43,15 +51,6 @@ export function ModelProviderCard({
         >
           {provider?.icon ?? <CircleDashedIcon className="size-4" />}
         </div>
-      ) : (
-        <Avatar className="size-8 rounded-sm border bg-background">
-          <AvatarImage
-            src={`https://7nyt0uhk7sse4zvn.public.blob.vercel-storage.com/docs-assets/static/docs/ai-gateway/logos/${provider.value}.png`}
-          />
-          <AvatarFallback className="rounded-sm text-xs">
-            {getInitials(provider.value)}
-          </AvatarFallback>
-        </Avatar>
       )}
 
       <div className="flex flex-1 flex-col">

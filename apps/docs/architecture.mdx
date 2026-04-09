@@ -1,0 +1,310 @@
+---
+title: 'Architecture'
+description: 'An overview of Niceyup architecture and technology choices.'
+icon: boxes-stacked
+---
+
+Niceyup is built as a modern monorepo using **pnpm workspaces** and **Turborepo** for efficient builds and development. The architecture follows a clean separation of concerns with shared packages and independent applications.
+
+### Frontend (`apps/web`)
+
+<CardGroup cols={2}>
+  <Card title="Next.js 16" icon="layer-group">
+    App Router with Server Components
+  </Card>
+  <Card title="React 19" icon="react">
+    Concurrent rendering and modern hooks
+  </Card>
+  <Card title="TypeScript 5" icon="code">
+    Full type safety across the codebase
+  </Card>
+  <Card title="TailwindCSS" icon="paintbrush">
+    Utility-first CSS framework
+  </Card>
+  <Card title="Shadcn/ui" icon="palette">
+    High-quality component library
+  </Card>
+  <Card title="TanStack Query" icon="arrows-rotate">
+    Powerful data synchronization for React
+  </Card>
+  <Card title="Zustand" icon="database">
+    Lightweight state management
+  </Card>
+  <Card title="Zod" icon="shield-check">
+    TypeScript-first schema validation
+  </Card>
+  <Card title="Lucide React" icon="star">
+    Beautiful icon library
+  </Card>
+  <Card title="Turbopack" icon="bolt">
+    Fast development bundling
+  </Card>
+</CardGroup>
+
+### Backend (`apps/api`)
+
+<CardGroup cols={2}>
+  <Card title="Fastify 5" icon="server">
+    Fast and low overhead web framework
+  </Card>
+  <Card title="TypeScript" icon="code">
+    Type-safe backend development
+  </Card>
+  <Card title="Zod" icon="shield-check">
+    Runtime type validation with Fastify integration
+  </Card>
+  <Card title="Swagger/OpenAPI" icon="file-lines">
+    Auto-generated API documentation
+  </Card>
+  <Card title="Scalar" icon="book-open">
+    Interactive API reference
+  </Card>
+  <Card title="WebSocket" icon="wifi">
+    Real-time bidirectional communication
+  </Card>
+  <Card title="Redis" icon="database">
+    Caching and session storage
+  </Card>
+</CardGroup>
+
+### Documentation (`apps/docs`)
+
+<CardGroup cols={2}>
+  <Card title="Mintlify" icon="file-code">
+    Developer documentation app
+  </Card>
+  <Card title="OpenAPI scraping" icon="arrows-rotate">
+    Generated endpoint docs from API schema
+  </Card>
+</CardGroup>
+
+### AI & ML Stack
+
+<CardGroup cols={2}>
+  <Card title="Vercel AI SDK" icon="microchip">
+    Unified interface for AI models
+  </Card>
+  <Card title="AI SDK Gateway" icon="network-wired">
+    Optional multi-provider model routing
+  </Card>
+  <Card title="AI SDK OpenAI Provider" icon="robot">
+    OpenAI-compatible integration through AI SDK
+  </Card>
+  <Card title="LangChain" icon="link">
+    LLM application framework
+  </Card>
+  <Card title="Vector Store" icon="magnifying-glass">
+    Semantic search and embeddings
+  </Card>
+  <Card title="Embeddings" icon="brain">
+    Text embedding generation for RAG
+  </Card>
+  <Card title="Streaming" icon="wave-square">
+    Real-time AI response streaming
+  </Card>
+</CardGroup>
+
+### Database & ORM
+
+<CardGroup cols={2}>
+  <Card title="PostgreSQL" icon="database">
+    Primary relational database
+  </Card>
+  <Card title="Drizzle ORM" icon="code">
+    TypeScript ORM with excellent DX
+  </Card>
+  <Card title="Drizzle Kit" icon="screwdriver-wrench">
+    Database migrations and introspection
+  </Card>
+  <Card title="Neon" icon="cloud">
+    Serverless Postgres hosting
+  </Card>
+</CardGroup>
+
+### Storage
+
+<CardGroup cols={2}>
+  <Card title="AWS S3" icon="box-archive">
+    Object storage for files and documents
+  </Card>
+  <Card title="S3 Presigned URLs" icon="lock">
+    Secure file upload/download
+  </Card>
+  <Card title="Multi-bucket" icon="folder-tree">
+    Separate buckets for different file types
+  </Card>
+</CardGroup>
+
+### Caching & Real-time
+
+<CardGroup cols={2}>
+  <Card title="Redis (ioredis)" icon="bolt">
+    In-memory data store for caching
+  </Card>
+  <Card title="WebSocket" icon="wifi">
+    Real-time message streaming
+  </Card>
+  <Card title="Resumable Streams" icon="arrows-rotate">
+    Recoverable real-time stream handling
+  </Card>
+  <Card title="Pub/Sub" icon="rss">
+    Event-driven architecture
+  </Card>
+  <Card title="Cache Layer" icon="layer-group">
+    Intelligent caching strategy
+  </Card>
+</CardGroup>
+
+### Background Jobs
+
+<CardGroup cols={2}>
+  <Card title="Trigger.dev" icon="clock">
+    Reliable background job processing
+  </Card>
+  <Card title="Python Integration" icon="python">
+    Database operations and file processing
+  </Card>
+  <Card title="Task Scheduling" icon="calendar">
+    Automated ingestion and processing
+  </Card>
+  <Card title="Job Queues" icon="list-check">
+    Async task execution
+  </Card>
+</CardGroup>
+
+### Authentication & Authorization
+
+<CardGroup cols={2}>
+  <Card title="Better Auth" icon="key">
+    Modern authentication library
+  </Card>
+  <Card title="OAuth" icon="github">
+    GitHub social login
+  </Card>
+  <Card title="Email/Password" icon="envelope">
+    Traditional authentication
+  </Card>
+  <Card title="Email Verification" icon="circle-check">
+    Secure account activation
+  </Card>
+  <Card title="Organizations & Teams" icon="users">
+    Multi-tenant support
+  </Card>
+  <Card title="Role-Based Access Control" icon="shield">
+    Fine-grained permissions
+  </Card>
+</CardGroup>
+
+### Packages (`packages/*`)
+
+The monorepo includes several shared packages:
+
+| Package | Description |
+|---|---|
+| `@workspace/ai` | Unified AI primitives (generation, embeddings, tools, and providers) |
+| `@workspace/auth` | Authentication and authorization |
+| `@workspace/billing` | Payment processing integration |
+| `@workspace/cache` | Redis caching layer |
+| `@workspace/core` | Shared domain schemas, contracts, and validation types |
+| `@workspace/db` | Database schema and queries |
+| `@workspace/email` | Email templating and sending |
+| `@workspace/engine` | Agent runtime orchestration (streaming, tools/MCP, retrieval, ingestion, and Trigger.dev task pipelines) |
+| `@workspace/env` | Environment variable validation |
+| `@workspace/realtime` | Realtime transport, pub/sub, stream handling, and chat hooks |
+| `@workspace/sdk` | Auto-generated API client (Kubb) |
+| `@workspace/storage` | S3 file storage operations |
+| `@workspace/ui` | Shared UI components |
+| `@workspace/utils` | Common utilities |
+| `@workspace/vector-store` | Vector retrieval and embedding utilities |
+| `@workspace/encryption` | Data encryption utilities |
+| `@workspace/notification` | Notification system (Novu) |
+| `@workspace/tsconfig` | Shared TypeScript configuration |
+
+### Build Tools & DevOps
+
+<CardGroup cols={2}>
+  <Card title="Turborepo" icon="rocket">
+    Monorepo build system
+  </Card>
+  <Card title="pnpm" icon="box">
+    Fast, disk space efficient package manager
+  </Card>
+  <Card title="Biome" icon="broom">
+    Fast formatter and linter
+  </Card>
+  <Card title="TypeScript" icon="code">
+    Static type checking
+  </Card>
+  <Card title="Docker" icon="docker">
+    Containerization
+  </Card>
+  <Card title="Docker Compose" icon="cubes">
+    Local development environment
+  </Card>
+  <Card title="Kubb" icon="gear">
+    SDK generation from OpenAPI schema
+  </Card>
+</CardGroup>
+
+### Hosting & Infrastructure
+
+<CardGroup cols={2}>
+  <Card title="Vercel" icon="triangle">
+    Frontend hosting and edge functions
+  </Card>
+  <Card title="Railway" icon="train">
+    Backend API hosting
+  </Card>
+  <Card title="Neon" icon="cloud">
+    Serverless PostgreSQL database
+  </Card>
+  <Card title="Upstash" icon="bolt">
+    Serverless Redis
+  </Card>
+  <Card title="Cloudflare R2" icon="cloud-arrow-up">
+    File storage
+  </Card>
+</CardGroup>
+
+### Third-Party Services
+
+<CardGroup cols={2}>
+  <Card title="Trigger.dev" icon="clock">
+    Background job processing
+  </Card>
+  <Card title="Resend" icon="paper-plane">
+    Transactional and marketing emails
+  </Card>
+  <Card title="Polar" icon="credit-card">
+    Payment processing and subscriptions
+  </Card>
+  <Card title="Novu" icon="bell">
+    Multi-channel notifications
+  </Card>
+  <Card title="GitHub Actions" icon="github">
+    CI/CD pipeline
+  </Card>
+  <Card title="GitHub OAuth" icon="key">
+    Social authentication
+  </Card>
+</CardGroup>
+
+### Development Experience
+
+<CardGroup cols={2}>
+  <Card title="Hot Module Replacement" icon="fire">
+    Fast development iteration
+  </Card>
+  <Card title="Type Safety" icon="shield-check">
+    End-to-end TypeScript
+  </Card>
+  <Card title="Auto-generated SDK" icon="wand-magic-sparkles">
+    Type-safe API client from OpenAPI
+  </Card>
+  <Card title="API Documentation" icon="book">
+    Interactive Swagger docs
+  </Card>
+  <Card title="Database Studio" icon="table-columns">
+    Drizzle Studio for DB management
+  </Card>
+</CardGroup>

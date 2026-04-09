@@ -7,6 +7,7 @@ import type {
 import { Separator } from '@workspace/ui/components/separator'
 import { cacheTag } from 'next/cache'
 import { ChatNotFound } from './_components/chat-not-found'
+import { ChatRealtime } from './_components/chat-realtime'
 import { ChatViewWrapper } from './_components/chat-view-wrapper'
 import { NewChatWrapper } from './_components/new-chat-wrapper'
 import { Tabbar } from './_components/tabbar'
@@ -44,23 +45,25 @@ export default async function Page({
   const chat = await getConversation({ organizationSlug, agentId, chatId })
 
   return (
-    <div className="flex h-full flex-col bg-background">
-      <Tabbar params={{ chatId }} chat={chat} />
+    <ChatRealtime params={{ organizationSlug, teamId, agentId, chatId }}>
+      <div className="flex h-full flex-col bg-background">
+        <Tabbar params={{ chatId }} chat={chat} />
 
-      <Separator />
+        <Separator />
 
-      {chat ? (
-        <ChatViewWrapper
-          params={{ organizationSlug, teamId, agentId, chatId }}
-          chat={chat}
-        />
-      ) : chatId === 'new' ? (
-        <NewChatWrapper
-          params={{ organizationSlug, teamId, agentId, chatId }}
-        />
-      ) : (
-        <ChatNotFound />
-      )}
-    </div>
+        {chat ? (
+          <ChatViewWrapper
+            params={{ organizationSlug, teamId, agentId, chatId }}
+            chat={chat}
+          />
+        ) : chatId === 'new' ? (
+          <NewChatWrapper
+            params={{ organizationSlug, teamId, agentId, chatId }}
+          />
+        ) : (
+          <ChatNotFound />
+        )}
+      </div>
+    </ChatRealtime>
   )
 }

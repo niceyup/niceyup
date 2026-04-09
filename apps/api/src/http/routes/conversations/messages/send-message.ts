@@ -195,19 +195,9 @@ export async function sendMessage(app: FastifyTypedInstance) {
         let _itemExplorerNode = null
 
         if (conversationId === 'new') {
-          const userMessage = message.parts.find(
-            (part) => part.type === 'text',
-          )?.text
-
-          const generatedTitle = await generateConversationTitle({
-            agentId,
-            userMessage,
-          })
-
           const [newConversation] = await tx
             .insert(conversations)
             .values({
-              title: generatedTitle || 'New conversation',
               agentId,
               teamId: visibility === 'team' ? context.teamId : null,
               createdByUserId: context.userId,
@@ -351,6 +341,11 @@ export async function sendMessage(app: FastifyTypedInstance) {
 
       // Realtime PubSub
 
+      conversationPubSub.emitMessages({
+        conversationId: _conversationId,
+        data: [userMessageWithTemporaryId, assistantMessage],
+      })
+
       if (newConversation && visibility === 'team' && context.teamId) {
         conversationPubSub.emitTeamConversations({
           agentId,
@@ -382,10 +377,18 @@ export async function sendMessage(app: FastifyTypedInstance) {
         }
       }
 
-      conversationPubSub.emitMessages({
-        conversationId: _conversationId,
-        data: [userMessageWithTemporaryId, assistantMessage],
-      })
+      if (newConversation) {
+        console.log('newConversation', newConversation)
+
+        updateConversationTitle({
+          conversationId: newConversation.id,
+          agentId,
+          text: message.parts.find((part) => part.type === 'text')?.text,
+          visibility,
+          teamId: context.teamId,
+          itemExplorerNode,
+        })
+      }
 
       return {
         conversationId: _conversationId,
@@ -397,4 +400,86 @@ export async function sendMessage(app: FastifyTypedInstance) {
       }
     },
   )
+}
+
+async function updateConversationTitle(params: {
+  conversationId: string
+  agentId: string
+  text: string | undefined
+  visibility?: 'team' | 'private'
+  teamId?: string | null
+  itemExplorerNode?: {
+    id: string
+    parentId: string | null
+  } | null
+}) {
+  const generatedTitle = await generateConversationTitle({
+    agentId: params.agentId,
+    userMessage: params.text,
+  })
+
+  if (!generatedTitle) {
+    return
+  }
+
+  const [conversation] = await db
+    .update(conversations)
+    .set({
+      title: generatedTitle,
+    })
+    .where(eq(conversations.id, params.conversationId))
+    .returning({
+      id: conversations.id,
+      title: conversations.title,
+      updatedAt: conversations.updatedAt,
+    })
+
+  if (!conversation) {
+    return
+  }
+
+  // Realtime PubSub
+
+  conversationPubSub.emitConversation({
+    conversationId: params.conversationId,
+    data: {
+      action: 'update',
+      conversation: {
+        id: conversation.id,
+        title: conversation.title,
+        updatedAt: conversation.updatedAt.toISOString(),
+      },
+    },
+  })
+
+  if (params.visibility === 'team' && params.teamId) {
+    conversationPubSub.emitTeamConversations({
+      agentId: params.agentId,
+      teamId: params.teamId,
+      view: 'list',
+      data: {
+        action: 'create',
+        conversation: {
+          id: conversation.id,
+          title: conversation.title,
+          updatedAt: conversation.updatedAt.toISOString(),
+        },
+      },
+    })
+
+    if (params.itemExplorerNode) {
+      conversationPubSub.emitTeamConversations({
+        agentId: params.agentId,
+        teamId: params.teamId,
+        view: 'explorer',
+        data: {
+          action: 'create',
+          item: {
+            id: params.itemExplorerNode.id,
+            parentId: params.itemExplorerNode.parentId,
+          },
+        },
+      })
+    }
+  }
 }

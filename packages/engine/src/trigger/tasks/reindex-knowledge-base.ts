@@ -22,13 +22,14 @@ export const reindexKnowledgeBaseTask = schemaTask({
   schema: z.object({
     knowledgeBaseId: z.string(),
   }),
-  run: async (payload) => {
+  run: async (payload, { signal }) => {
     const [knowledgeBase] = await db
       .select({
         id: knowledgeBases.id,
         status: knowledgeBases.status,
         vectorStoreId: knowledgeBases.vectorStoreId,
         embeddingModelSettingsId: knowledgeBases.embeddingModelSettingsId,
+        organizationId: knowledgeBases.organizationId,
       })
       .from(knowledgeBases)
       .where(eq(knowledgeBases.id, payload.knowledgeBaseId))
@@ -62,6 +63,13 @@ export const reindexKnowledgeBaseTask = schemaTask({
       namespace: knowledgeBase.id,
       embeddingModel: embeddingModel.model,
     })
+
+    if (signal.aborted) {
+      return {
+        status: 'canceled',
+        message: 'Job canceled by user',
+      }
+    }
 
     while (true) {
       const result = await db.execute(sql`
@@ -119,6 +127,13 @@ export const reindexKnowledgeBaseTask = schemaTask({
     let cursorIndexedSourceId: string | undefined
 
     while (true) {
+      if (signal.aborted) {
+        return {
+          status: 'canceled',
+          message: 'Job canceled by user',
+        }
+      }
+
       const indexedSourcesToIndex = await db
         .select({
           id: indexedSources.id,
@@ -159,7 +174,14 @@ export const reindexKnowledgeBaseTask = schemaTask({
       await indexSourceTask.batchTriggerAndWait(
         indexedSourcesToIndex.map(({ id }) => ({
           payload: { indexedSourceId: id, reindexing: true },
-          options: { concurrencyKey: payload.knowledgeBaseId },
+          options: {
+            concurrencyKey: payload.knowledgeBaseId,
+            tags: [
+              `organization:${knowledgeBase.organizationId}`,
+              `knowledge-base:${payload.knowledgeBaseId}`,
+              `indexed-source:${id}`,
+            ],
+          },
         })),
       )
     }

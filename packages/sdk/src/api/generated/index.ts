@@ -1,3 +1,6 @@
+export type { CancelKnowledgeBaseReindexingMutationKey } from './react-query/hooks/useCancelKnowledgeBaseReindexing'
+export type { CancelSourceMutationKey } from './react-query/hooks/useCancelSource'
+export type { CancelSourceIndexingMutationKey } from './react-query/hooks/useCancelSourceIndexing'
 export type { CreateAgentMutationKey } from './react-query/hooks/useCreateAgent'
 export type { CreateConnectionMutationKey } from './react-query/hooks/useCreateConnection'
 export type { CreateConversationMutationKey } from './react-query/hooks/useCreateConversation'
@@ -100,6 +103,48 @@ export type { UpdateVectorStoreMutationKey } from './react-query/hooks/useUpdate
 export type { UploadFilesMutationKey } from './react-query/hooks/useUploadFiles'
 export type { UploadFilesConversationMutationKey } from './react-query/hooks/useUploadFilesConversation'
 export type { UploadFilesSourceMutationKey } from './react-query/hooks/useUploadFilesSource'
+export type {
+  CancelKnowledgeBaseReindexingPathParams,
+  CancelKnowledgeBaseReindexing204Enum,
+  CancelKnowledgeBaseReindexing204,
+  CancelKnowledgeBaseReindexing400,
+  CancelKnowledgeBaseReindexing401,
+  CancelKnowledgeBaseReindexing403,
+  CancelKnowledgeBaseReindexing404,
+  CancelKnowledgeBaseReindexing429,
+  CancelKnowledgeBaseReindexing500,
+  CancelKnowledgeBaseReindexingMutationRequest,
+  CancelKnowledgeBaseReindexingMutationResponse,
+  CancelKnowledgeBaseReindexingMutation,
+} from './types/CancelKnowledgeBaseReindexing'
+export type {
+  CancelSourcePathParams,
+  CancelSource204Enum,
+  CancelSource204,
+  CancelSource400,
+  CancelSource401,
+  CancelSource403,
+  CancelSource404,
+  CancelSource429,
+  CancelSource500,
+  CancelSourceMutationRequest,
+  CancelSourceMutationResponse,
+  CancelSourceMutation,
+} from './types/CancelSource'
+export type {
+  CancelSourceIndexingPathParams,
+  CancelSourceIndexing204Enum,
+  CancelSourceIndexing204,
+  CancelSourceIndexing400,
+  CancelSourceIndexing401,
+  CancelSourceIndexing403,
+  CancelSourceIndexing404,
+  CancelSourceIndexing429,
+  CancelSourceIndexing500,
+  CancelSourceIndexingMutationRequest,
+  CancelSourceIndexingMutationResponse,
+  CancelSourceIndexingMutation,
+} from './types/CancelSourceIndexing'
 export type {
   CreateAgent201,
   CreateAgent400,
@@ -1368,6 +1413,9 @@ export type {
   UploadFilesSourceMutationResponse,
   UploadFilesSourceMutation,
 } from './types/UploadFilesSource'
+export { cancelKnowledgeBaseReindexing } from './operations/cancelKnowledgeBaseReindexing'
+export { cancelSource } from './operations/cancelSource'
+export { cancelSourceIndexing } from './operations/cancelSourceIndexing'
 export { createAgent } from './operations/createAgent'
 export { createConnection } from './operations/createConnection'
 export { createConversation } from './operations/createConversation'
@@ -1440,6 +1488,18 @@ export { updateVectorStore } from './operations/updateVectorStore'
 export { uploadFiles } from './operations/uploadFiles'
 export { uploadFilesConversation } from './operations/uploadFilesConversation'
 export { uploadFilesSource } from './operations/uploadFilesSource'
+export {
+  cancelKnowledgeBaseReindexingMutationKey,
+  useCancelKnowledgeBaseReindexing,
+} from './react-query/hooks/useCancelKnowledgeBaseReindexing'
+export {
+  cancelSourceMutationKey,
+  useCancelSource,
+} from './react-query/hooks/useCancelSource'
+export {
+  cancelSourceIndexingMutationKey,
+  useCancelSourceIndexing,
+} from './react-query/hooks/useCancelSourceIndexing'
 export {
   createAgentMutationKey,
   useCreateAgent,
@@ -1908,6 +1968,9 @@ export {
   uploadFilesSourceMutationKey,
   useUploadFilesSource,
 } from './react-query/hooks/useUploadFilesSource'
+export { cancelKnowledgeBaseReindexing204Enum } from './types/CancelKnowledgeBaseReindexing'
+export { cancelSource204Enum } from './types/CancelSource'
+export { cancelSourceIndexing204Enum } from './types/CancelSourceIndexing'
 export {
   createConnectionMutationRequestAppEnum,
   createConnectionMutationRequestAuthenticationEnum,

@@ -98,7 +98,7 @@ export function CustomMcpServer({
       {} as Record<string, string>,
     )
 
-    if (params.mcpServerId) {
+    if (params.mcpServerId && initialData) {
       const { error } = await sdk.updateMcpServer({
         mcpServerId: params.mcpServerId,
         data: {
@@ -191,20 +191,25 @@ export function CustomMcpServer({
                   name={`headers.${index}.value`}
                   render={({ field: valueField }) => (
                     <FormItem className="flex-1">
-                      <InputGroup>
-                        <InputGroupInput {...valueField} placeholder="Value" />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => remove(index)}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2Icon />
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <FormControl>
+                        <InputGroup>
+                          <InputGroupInput
+                            {...valueField}
+                            placeholder="Value"
+                          />
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => remove(index)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2Icon />
+                            </InputGroupButton>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

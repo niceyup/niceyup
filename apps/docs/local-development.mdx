@@ -3,3 +3,59 @@ title: 'Local development'
 description: 'A guide on how to run Niceyup’s codebase locally.'
 icon: code
 ---
+
+## Get started
+
+### Prerequisites
+
+- Node.js >= 22
+- pnpm >= 10.4.1
+- Docker and Docker Compose (for local development)
+
+### Installation
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/niceyup/niceyup.git
+    cd niceyup
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    pnpm install
+    ```
+  </Step>
+
+  <Step title="Set up environment variables">
+    ```bash
+    cp .env.example .env
+    # Edit .env with your configuration
+    ```
+  </Step>
+
+  <Step title="Start local services (PostgreSQL and Redis)">
+    ```bash
+    docker-compose up -d
+    ```
+  </Step>
+
+  <Step title="Run database migrations">
+    ```bash
+    cd packages/db
+    pnpm run db:push
+    ```
+  </Step>
+
+  <Step title="Start the development servers">
+    ```bash
+    pnpm dev
+    ```
+
+    This will start:
+
+    - Web app at `http://localhost:3000`
+    - API server at `http://localhost:3333`
+  </Step>
+</Steps>

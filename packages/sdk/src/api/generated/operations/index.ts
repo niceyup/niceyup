@@ -1,3 +1,6 @@
+export { cancelKnowledgeBaseReindexing } from './cancelKnowledgeBaseReindexing'
+export { cancelSource } from './cancelSource'
+export { cancelSourceIndexing } from './cancelSourceIndexing'
 export { createAgent } from './createAgent'
 export { createConnection } from './createConnection'
 export { createConversation } from './createConversation'

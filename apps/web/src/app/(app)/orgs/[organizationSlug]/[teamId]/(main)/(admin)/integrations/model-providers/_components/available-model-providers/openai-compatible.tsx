@@ -138,7 +138,7 @@ export function OpenAICompatibleModelProvider({
 
     const provider = `openai-compatible/${providerName}`
 
-    if (params.modelProviderId) {
+    if (params.modelProviderId && initialData) {
       const { error } = await sdk.updateModelProvider({
         modelProviderId: params.modelProviderId,
         data: {
@@ -257,20 +257,27 @@ export function OpenAICompatibleModelProvider({
                   name={`queryParams.${index}.value`}
                   render={({ field: valueField }) => (
                     <FormItem className="flex-1">
-                      <InputGroup>
-                        <InputGroupInput {...valueField} placeholder="Value" />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => queryParamsFieldArray.remove(index)}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2Icon />
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <FormControl>
+                        <InputGroup>
+                          <InputGroupInput
+                            {...valueField}
+                            placeholder="Value"
+                          />
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() =>
+                                queryParamsFieldArray.remove(index)
+                              }
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2Icon />
+                            </InputGroupButton>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -344,20 +351,25 @@ export function OpenAICompatibleModelProvider({
                   name={`headers.${index}.value`}
                   render={({ field: valueField }) => (
                     <FormItem className="flex-1">
-                      <InputGroup>
-                        <InputGroupInput {...valueField} placeholder="Value" />
-                        <InputGroupAddon align="inline-end">
-                          <InputGroupButton
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => headersFieldArray.remove(index)}
-                            className="text-muted-foreground hover:text-destructive"
-                          >
-                            <Trash2Icon />
-                          </InputGroupButton>
-                        </InputGroupAddon>
-                      </InputGroup>
+                      <FormControl>
+                        <InputGroup>
+                          <InputGroupInput
+                            {...valueField}
+                            placeholder="Value"
+                          />
+                          <InputGroupAddon align="inline-end">
+                            <InputGroupButton
+                              type="button"
+                              variant="ghost"
+                              size="icon-xs"
+                              onClick={() => headersFieldArray.remove(index)}
+                              className="text-muted-foreground hover:text-destructive"
+                            >
+                              <Trash2Icon />
+                            </InputGroupButton>
+                          </InputGroupAddon>
+                        </InputGroup>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -67,6 +67,12 @@ export async function getDatabaseSchema(app: FastifyTypedInstance) {
       const result = await tasks.triggerAndWait<GetDbSchemaTask>(
         'get-db-schema',
         { sourceId },
+        {
+          tags: [
+            `organization:${context.organizationId}`,
+            `source:${sourceId}`,
+          ],
+        },
       )
 
       if (!result.ok) {

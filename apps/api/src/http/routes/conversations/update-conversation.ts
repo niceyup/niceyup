@@ -73,15 +73,9 @@ export async function updateConversation(app: FastifyTypedInstance) {
 
       // Realtime PubSub
 
-      if (
-        updatedConversation &&
-        conversation.visibility === 'team' &&
-        conversation.teamId
-      ) {
-        conversationPubSub.emitTeamConversations({
-          agentId,
-          teamId: conversation.teamId,
-          view: 'list',
+      if (updatedConversation) {
+        conversationPubSub.emitConversation({
+          conversationId: conversation.id,
           data: {
             action: 'update',
             conversation: {
@@ -92,28 +86,44 @@ export async function updateConversation(app: FastifyTypedInstance) {
           },
         })
 
-        const [itemExplorerNode] = await db
-          .select({
-            id: conversationExplorerNodes.id,
-            parentId: conversationExplorerNodes.parentId,
-          })
-          .from(conversationExplorerNodes)
-          .where(eq(conversationExplorerNodes.conversationId, conversationId))
-          .limit(1)
-
-        if (itemExplorerNode) {
+        if (conversation.visibility === 'team' && conversation.teamId) {
           conversationPubSub.emitTeamConversations({
             agentId,
             teamId: conversation.teamId,
-            view: 'explorer',
+            view: 'list',
             data: {
               action: 'update',
-              item: {
-                id: itemExplorerNode.id,
-                parentId: itemExplorerNode.parentId,
+              conversation: {
+                id: updatedConversation.id,
+                title: updatedConversation.title,
+                updatedAt: updatedConversation.updatedAt.toISOString(),
               },
             },
           })
+
+          const [itemExplorerNode] = await db
+            .select({
+              id: conversationExplorerNodes.id,
+              parentId: conversationExplorerNodes.parentId,
+            })
+            .from(conversationExplorerNodes)
+            .where(eq(conversationExplorerNodes.conversationId, conversationId))
+            .limit(1)
+
+          if (itemExplorerNode) {
+            conversationPubSub.emitTeamConversations({
+              agentId,
+              teamId: conversation.teamId,
+              view: 'explorer',
+              data: {
+                action: 'update',
+                item: {
+                  id: itemExplorerNode.id,
+                  parentId: itemExplorerNode.parentId,
+                },
+              },
+            })
+          }
         }
       }
 

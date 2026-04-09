@@ -1,6 +1,14 @@
 'use client'
 
 import { ModelProviderSelect } from '@/components/model-provider-select'
+import {
+  type ModelOptionValue,
+  inferModelOptionType,
+  modelOptionSchema,
+  parseBooleanLikeString,
+  parseModelOptionValue,
+  serializeModelOptionValue,
+} from '@/lib/model-options'
 import { sdk } from '@/lib/sdk'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,8 +35,22 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from '@workspace/ui/components/input-group'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@workspace/ui/components/select'
 import { Spinner } from '@workspace/ui/components/spinner'
-import { PlusIcon, Trash2Icon } from 'lucide-react'
+import {
+  CalculatorIcon,
+  CircleOffIcon,
+  PlusIcon,
+  ToggleRightIcon,
+  Trash2Icon,
+  TypeIcon,
+} from 'lucide-react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -51,12 +73,7 @@ const formSchema = z.object({
     })
     .nullable(),
   model: z.string().nonempty(),
-  options: z.array(
-    z.object({
-      key: z.string().trim().nonempty(),
-      value: z.string().trim(),
-    }),
-  ),
+  options: z.array(modelOptionSchema),
 })
 
 export function EditAuxiliaryLanguageModelSettingsForm({
@@ -84,10 +101,15 @@ export function EditAuxiliaryLanguageModelSettingsForm({
       model: auxiliaryLanguageModelSettings?.model || '',
       options: auxiliaryLanguageModelSettings?.options
         ? Object.entries(auxiliaryLanguageModelSettings.options).map(
-            ([key, value]) => ({
-              key,
-              value: String(value),
-            }),
+            ([key, value]) => {
+              const type = inferModelOptionType(value)
+
+              return {
+                key,
+                type,
+                value: serializeModelOptionValue(value, type),
+              }
+            },
           )
         : [],
     },
@@ -102,13 +124,14 @@ export function EditAuxiliaryLanguageModelSettingsForm({
     const providerId = values.provider?.id ?? null
 
     const optionsObject = values.options.reduce(
-      (acc, { key, value }) => {
+      (acc, { key, type, value }) => {
         if (key) {
-          acc[key] = value
+          acc[key] = parseModelOptionValue(value, type)
         }
+
         return acc
       },
-      {} as Record<string, string>,
+      {} as Record<string, ModelOptionValue>,
     )
 
     const { error } = await sdk.updateAgentSystemConfiguration({
@@ -132,7 +155,7 @@ export function EditAuxiliaryLanguageModelSettingsForm({
   }
 
   const addOption = () => {
-    append({ key: '', value: '' })
+    append({ key: '', type: 'string', value: '' })
   }
 
   return (
@@ -214,29 +237,116 @@ export function EditAuxiliaryLanguageModelSettingsForm({
                     />
                     <FormField
                       control={form.control}
-                      name={`options.${index}.value`}
-                      render={({ field: valueField }) => (
+                      name={`options.${index}.type`}
+                      render={({ field: typeField }) => (
                         <FormItem className="flex-1">
-                          <InputGroup>
-                            <InputGroupInput
-                              {...valueField}
-                              placeholder="Value"
-                            />
-                            <InputGroupAddon align="inline-end">
-                              <InputGroupButton
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => remove(index)}
-                                className="text-muted-foreground hover:text-destructive"
-                              >
-                                <Trash2Icon />
-                              </InputGroupButton>
-                            </InputGroupAddon>
-                          </InputGroup>
+                          <Select
+                            onValueChange={typeField.onChange}
+                            value={typeField.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="string">
+                                <TypeIcon />
+                                String
+                              </SelectItem>
+                              <SelectItem value="number">
+                                <CalculatorIcon />
+                                Number
+                              </SelectItem>
+                              <SelectItem value="boolean">
+                                <ToggleRightIcon />
+                                Boolean
+                              </SelectItem>
+                              <SelectItem value="null">
+                                <CircleOffIcon />
+                                Null
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`options.${index}.value`}
+                      render={({ field: valueField }) => {
+                        const type = form.watch(`options.${index}.type`)
+
+                        return (
+                          <FormItem className="flex-1">
+                            {type === 'boolean' ? (
+                              <>
+                                <Select
+                                  onValueChange={valueField.onChange}
+                                  value={String(
+                                    parseBooleanLikeString(valueField.value),
+                                  )}
+                                >
+                                  <FormControl>
+                                    <InputGroup>
+                                      <SelectTrigger
+                                        data-slot="input-group-control"
+                                        className="flex-1 rounded-none border-0 bg-transparent shadow-none focus-visible:ring-0 dark:bg-transparent"
+                                      >
+                                        <SelectValue placeholder="Select value" />
+                                      </SelectTrigger>
+                                      <InputGroupAddon align="inline-end">
+                                        <InputGroupButton
+                                          type="button"
+                                          variant="ghost"
+                                          size="icon-xs"
+                                          onClick={() => remove(index)}
+                                          className="text-muted-foreground hover:text-destructive"
+                                        >
+                                          <Trash2Icon />
+                                        </InputGroupButton>
+                                      </InputGroupAddon>
+                                    </InputGroup>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="true">True</SelectItem>
+                                    <SelectItem value="false">False</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </>
+                            ) : (
+                              <FormControl>
+                                <InputGroup>
+                                  <InputGroupInput
+                                    {...valueField}
+                                    value={
+                                      type === 'null'
+                                        ? 'NULL'
+                                        : valueField.value
+                                    }
+                                    placeholder="Value"
+                                    type={type === 'number' ? 'number' : 'text'}
+                                    disabled={type === 'null'}
+                                  />
+                                  <InputGroupAddon align="inline-end">
+                                    <InputGroupButton
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon-xs"
+                                      onClick={() => remove(index)}
+                                      className="text-muted-foreground hover:text-destructive"
+                                    >
+                                      <Trash2Icon />
+                                    </InputGroupButton>
+                                  </InputGroupAddon>
+                                </InputGroup>
+                              </FormControl>
+                            )}
+                            <FormMessage />
+                          </FormItem>
+                        )
+                      }}
                     />
                   </div>
                 ))}

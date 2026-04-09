@@ -66,7 +66,7 @@ export function GoogleModelProvider({
   })
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (params.modelProviderId) {
+    if (params.modelProviderId && initialData) {
       const { error } = await sdk.updateModelProvider({
         modelProviderId: params.modelProviderId,
         data: {
