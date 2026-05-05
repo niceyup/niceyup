@@ -12,6 +12,7 @@ import type {
   DeleteConnectionMutationRequest,
   DeleteConnectionMutationResponse,
   DeleteConnectionPathParams,
+  DeleteConnectionHeaderParams,
   DeleteConnection400,
   DeleteConnection401,
   DeleteConnection403,
@@ -49,6 +50,7 @@ export function useDeleteConnection<TContext>(
       {
         connectionId: DeleteConnectionPathParams['connectionId']
         data?: DeleteConnectionMutationRequest
+        headers?: DeleteConnectionHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useDeleteConnection<TContext>(
     {
       connectionId: DeleteConnectionPathParams['connectionId']
       data?: DeleteConnectionMutationRequest
+      headers?: DeleteConnectionHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ connectionId, data }) => {
-        return deleteConnection({ connectionId, data }, config)
+      mutationFn: async ({ connectionId, data, headers }) => {
+        return deleteConnection({ connectionId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

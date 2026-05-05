@@ -12,6 +12,7 @@ import type {
   StreamMessageQueryResponse,
   StreamMessagePathParams,
   StreamMessageQueryParams,
+  StreamMessageHeaderParams,
   StreamMessage400,
   StreamMessage401,
   StreamMessage403,
@@ -39,10 +40,12 @@ export async function streamMessage(
     conversationId,
     messageId,
     params,
+    headers,
   }: {
     conversationId: StreamMessagePathParams['conversationId']
     messageId: StreamMessagePathParams['messageId']
     params: StreamMessageQueryParams
+    headers?: StreamMessageHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -64,6 +67,7 @@ export async function streamMessage(
     url: getStreamMessageUrl({ conversationId, messageId }).toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

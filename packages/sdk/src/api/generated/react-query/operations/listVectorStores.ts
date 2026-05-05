@@ -11,6 +11,7 @@ import type {
 import type {
   ListVectorStoresQueryResponse,
   ListVectorStoresQueryParams,
+  ListVectorStoresHeaderParams,
   ListVectorStores400,
   ListVectorStores401,
   ListVectorStores403,
@@ -28,7 +29,13 @@ function getListVectorStoresUrl() {
  * {@link /vector-stores}
  */
 export async function listVectorStores(
-  { params }: { params?: ListVectorStoresQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoresQueryParams
+    headers?: ListVectorStoresHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listVectorStores(
     url: getListVectorStoresUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

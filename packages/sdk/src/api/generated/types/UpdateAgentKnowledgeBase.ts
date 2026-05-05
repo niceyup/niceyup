@@ -10,6 +10,17 @@ export type UpdateAgentKnowledgeBasePathParams = {
   agentId: string
 }
 
+export type UpdateAgentKnowledgeBaseHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateAgentKnowledgeBase204Enum = {} as const
 
 export type UpdateAgentKnowledgeBase204Enum =
@@ -113,14 +124,6 @@ export type UpdateAgentKnowledgeBase500 = {
 
 export type UpdateAgentKnowledgeBaseMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   vectorStoreId?: string | null
@@ -158,6 +161,7 @@ export type UpdateAgentKnowledgeBaseMutation = {
   Response: UpdateAgentKnowledgeBase204
   Request: UpdateAgentKnowledgeBaseMutationRequest
   PathParams: UpdateAgentKnowledgeBasePathParams
+  HeaderParams: UpdateAgentKnowledgeBaseHeaderParams
   Errors:
     | UpdateAgentKnowledgeBase400
     | UpdateAgentKnowledgeBase401

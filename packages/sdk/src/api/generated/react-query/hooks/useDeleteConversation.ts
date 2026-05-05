@@ -12,6 +12,7 @@ import type {
   DeleteConversationMutationRequest,
   DeleteConversationMutationResponse,
   DeleteConversationPathParams,
+  DeleteConversationHeaderParams,
   DeleteConversation400,
   DeleteConversation401,
   DeleteConversation403,
@@ -49,6 +50,7 @@ export function useDeleteConversation<TContext>(
       {
         conversationId: DeleteConversationPathParams['conversationId']
         data: DeleteConversationMutationRequest
+        headers?: DeleteConversationHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useDeleteConversation<TContext>(
     {
       conversationId: DeleteConversationPathParams['conversationId']
       data: DeleteConversationMutationRequest
+      headers?: DeleteConversationHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, data }) => {
-        return deleteConversation({ conversationId, data }, config)
+      mutationFn: async ({ conversationId, data, headers }) => {
+        return deleteConversation({ conversationId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

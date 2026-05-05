@@ -10,6 +10,17 @@ export type DeleteConnectionPathParams = {
   connectionId: string
 }
 
+export type DeleteConnectionHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteConnection204Enum = {} as const
 
 export type DeleteConnection204Enum =
@@ -111,16 +122,7 @@ export type DeleteConnection500 = {
   message: string
 }
 
-export type DeleteConnectionMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type DeleteConnectionMutationRequest = object
 
 export type DeleteConnectionMutationResponse = DeleteConnection204
 
@@ -128,6 +130,7 @@ export type DeleteConnectionMutation = {
   Response: DeleteConnection204
   Request: DeleteConnectionMutationRequest
   PathParams: DeleteConnectionPathParams
+  HeaderParams: DeleteConnectionHeaderParams
   Errors:
     | DeleteConnection400
     | DeleteConnection401

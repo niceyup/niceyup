@@ -11,6 +11,7 @@ import type {
 import type {
   ListConversationsQueryResponse,
   ListConversationsQueryParams,
+  ListConversationsHeaderParams,
   ListConversations400,
   ListConversations401,
   ListConversations403,
@@ -36,7 +37,13 @@ export type ListConversationsQueryKey = ReturnType<
 >
 
 export function listConversationsQueryOptions(
-  { params }: { params: ListConversationsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params: ListConversationsQueryParams
+    headers?: ListConversationsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listConversationsQueryKey(params)
@@ -57,7 +64,7 @@ export function listConversationsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listConversations({ params }, config)
+      return listConversations({ params, headers }, config)
     },
   })
 }
@@ -71,7 +78,13 @@ export function useListConversations<
   TQueryData = ListConversationsQueryResponse,
   TQueryKey extends QueryKey = ListConversationsQueryKey,
 >(
-  { params }: { params: ListConversationsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params: ListConversationsQueryParams
+    headers?: ListConversationsHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -100,7 +113,7 @@ export function useListConversations<
 
   const query = useQuery(
     {
-      ...listConversationsQueryOptions({ params }, config),
+      ...listConversationsQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

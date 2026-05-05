@@ -26,13 +26,14 @@ export default async function Page({
     return null
   }
 
-  const isOwner = membership?.role === 'owner'
-  const isAdmin = membership?.isAdmin
-  const isPremium = true
+  // TODO: implement premium check
+  const isPremium = false
 
   const [members, pendingInvitations, teams] = await Promise.all([
     listOrganizationMembers({ organizationSlug }),
-    isAdmin ? listPendingInvitations({ organizationSlug }) : undefined,
+    membership.isAdmin
+      ? listPendingInvitations({ organizationSlug })
+      : undefined,
     listTeams({ organizationSlug }),
   ])
 
@@ -43,7 +44,7 @@ export default async function Page({
     },
   ]
 
-  if (isAdmin) {
+  if (membership.isAdmin) {
     tabs.push({
       value: 'pending' as const,
       label: 'Pending Invitations',
@@ -61,9 +62,7 @@ export default async function Page({
             organizationSlug,
             organizationId: membership.organizationId,
           }}
-          userId={membership.userId}
-          isOwner={isOwner}
-          isAdmin={isAdmin}
+          membership={membership}
           isPremium={isPremium}
           members={members}
           teams={teams}
@@ -71,7 +70,7 @@ export default async function Page({
       )}
 
       {tab === 'pending' &&
-        (isAdmin ? (
+        (membership.isAdmin ? (
           <PendingInvitationsList
             params={{
               organizationSlug,

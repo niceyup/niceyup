@@ -11,7 +11,7 @@ import type {
 import type {
   GetModelProviderQueryResponse,
   GetModelProviderPathParams,
-  GetModelProviderQueryParams,
+  GetModelProviderHeaderParams,
   GetModelProvider400,
   GetModelProvider401,
   GetModelProvider403,
@@ -33,10 +33,10 @@ function getGetModelProviderUrl({
 export async function getModelProvider(
   {
     modelProviderId,
-    params,
+    headers,
   }: {
     modelProviderId: GetModelProviderPathParams['modelProviderId']
-    params?: GetModelProviderQueryParams
+    headers?: GetModelProviderHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -56,8 +56,8 @@ export async function getModelProvider(
   >({
     method: 'GET',
     url: getGetModelProviderUrl({ modelProviderId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

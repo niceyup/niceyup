@@ -9,6 +9,7 @@ import type {
   UpdateMcpServerMutationRequest,
   UpdateMcpServerMutationResponse,
   UpdateMcpServerPathParams,
+  UpdateMcpServerHeaderParams,
   UpdateMcpServer400,
   UpdateMcpServer401,
   UpdateMcpServer403,
@@ -31,9 +32,11 @@ export async function updateMcpServer(
   {
     mcpServerId,
     data,
+    headers,
   }: {
     mcpServerId: UpdateMcpServerPathParams['mcpServerId']
     data?: UpdateMcpServerMutationRequest
+    headers?: UpdateMcpServerHeaderParams
   },
   config: Partial<RequestConfig<UpdateMcpServerMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function updateMcpServer(
     url: getUpdateMcpServerUrl({ mcpServerId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

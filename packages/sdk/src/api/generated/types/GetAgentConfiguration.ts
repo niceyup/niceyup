@@ -10,15 +10,15 @@ export type GetAgentConfigurationPathParams = {
   agentId: string
 }
 
-export type GetAgentConfigurationQueryParams = {
+export type GetAgentConfigurationHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const languageModelSettingsTypeEnum = {
@@ -240,7 +240,7 @@ export type GetAgentConfigurationQueryResponse = GetAgentConfiguration200
 export type GetAgentConfigurationQuery = {
   Response: GetAgentConfiguration200
   PathParams: GetAgentConfigurationPathParams
-  QueryParams: GetAgentConfigurationQueryParams
+  HeaderParams: GetAgentConfigurationHeaderParams
   Errors:
     | GetAgentConfiguration400
     | GetAgentConfiguration401

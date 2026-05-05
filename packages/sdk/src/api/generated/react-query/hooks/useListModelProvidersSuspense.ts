@@ -11,6 +11,7 @@ import type {
 import type {
   ListModelProvidersQueryResponse,
   ListModelProvidersQueryParams,
+  ListModelProvidersHeaderParams,
   ListModelProviders400,
   ListModelProviders401,
   ListModelProviders403,
@@ -36,7 +37,13 @@ export type ListModelProvidersSuspenseQueryKey = ReturnType<
 >
 
 export function listModelProvidersSuspenseQueryOptions(
-  { params }: { params?: ListModelProvidersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProvidersQueryParams
+    headers?: ListModelProvidersHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listModelProvidersSuspenseQueryKey(params)
@@ -56,7 +63,7 @@ export function listModelProvidersSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listModelProviders({ params }, config)
+      return listModelProviders({ params, headers }, config)
     },
   })
 }
@@ -69,7 +76,13 @@ export function useListModelProvidersSuspense<
   TData = ListModelProvidersQueryResponse,
   TQueryKey extends QueryKey = ListModelProvidersSuspenseQueryKey,
 >(
-  { params }: { params?: ListModelProvidersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProvidersQueryParams
+    headers?: ListModelProvidersHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -98,7 +111,7 @@ export function useListModelProvidersSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listModelProvidersSuspenseQueryOptions({ params }, config),
+      ...listModelProvidersSuspenseQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

@@ -10,7 +10,7 @@ import type {
 } from '../../../../client/fetch-react-query'
 import type {
   ListSourcesQueryResponse,
-  ListSourcesQueryParams,
+  ListSourcesHeaderParams,
   ListSources400,
   ListSources401,
   ListSources403,
@@ -27,16 +27,15 @@ import type {
 import { listSources } from '../operations/listSources'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const listSourcesQueryKey = (params?: ListSourcesQueryParams) =>
-  [{ url: '/sources' }, ...(params ? [params] : [])] as const
+export const listSourcesQueryKey = () => [{ url: '/sources' }] as const
 
 export type ListSourcesQueryKey = ReturnType<typeof listSourcesQueryKey>
 
 export function listSourcesQueryOptions(
-  { params }: { params?: ListSourcesQueryParams },
+  { headers }: { headers?: ListSourcesHeaderParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = listSourcesQueryKey(params)
+  const queryKey = listSourcesQueryKey()
   return queryOptions<
     ListSourcesQueryResponse,
     ResponseErrorConfig<
@@ -53,7 +52,7 @@ export function listSourcesQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listSources({ params }, config)
+      return listSources({ headers }, config)
     },
   })
 }
@@ -67,7 +66,7 @@ export function useListSources<
   TQueryData = ListSourcesQueryResponse,
   TQueryKey extends QueryKey = ListSourcesQueryKey,
 >(
-  { params }: { params?: ListSourcesQueryParams },
+  { headers }: { headers?: ListSourcesHeaderParams },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -92,11 +91,11 @@ export function useListSources<
     query: { client: queryClient, ...queryOptions } = {},
     client: config = {},
   } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listSourcesQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? listSourcesQueryKey()
 
   const query = useQuery(
     {
-      ...listSourcesQueryOptions({ params }, config),
+      ...listSourcesQueryOptions({ headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

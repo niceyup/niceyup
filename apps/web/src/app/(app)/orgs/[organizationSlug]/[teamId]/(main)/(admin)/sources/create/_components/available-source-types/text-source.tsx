@@ -54,8 +54,10 @@ export function TextSource({ onSuccess, onBack, folderId }: TextSourceProps) {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { error } = await sdk.createSource({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       data: {
-        organizationSlug: params.organizationSlug,
         type: 'text',
         name: values.name,
         text: values.text,

@@ -5,7 +5,6 @@ import { connections } from '../../schema'
 
 type ContextListConnectionsParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListConnectionsParams = {
@@ -16,10 +15,6 @@ export async function listConnections(
   context: ContextListConnectionsParams,
   params: ListConnectionsParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listConnections = await db
     .select({
       id: connections.id,
@@ -40,9 +35,7 @@ export async function listConnections(
 }
 
 type ContextGetConnectionParams = {
-  userId: string
   organizationId: string
-  isAdmin: boolean
 }
 
 type GetConnectionParams = {
@@ -53,10 +46,6 @@ export async function getConnection(
   context: ContextGetConnectionParams,
   params: GetConnectionParams,
 ) {
-  if (!context.isAdmin) {
-    return null
-  }
-
   const [connection] = await db
     .select({
       id: connections.id,
@@ -81,7 +70,6 @@ export async function getConnection(
 
 type ContextListConnectionSelectOptionsParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListConnectionSelectOptionsParams = {
@@ -93,10 +81,6 @@ export async function listConnectionSelectOptions(
   context: ContextListConnectionSelectOptionsParams,
   params: ListConnectionSelectOptionsParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listConnections = await db
     .select({
       id: connections.id,

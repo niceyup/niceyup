@@ -1,4 +1,4 @@
-export * from './erros'
-export * from './ai-tools'
-export * from './create-agent-ai-stream'
+export * from './errors'
+export * from './agent-toolkit'
+export * from './create-agent-stream'
 export * from './create-model-provider-registry'

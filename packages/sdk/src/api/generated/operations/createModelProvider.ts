@@ -8,6 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   CreateModelProviderMutationRequest,
   CreateModelProviderMutationResponse,
+  CreateModelProviderHeaderParams,
   CreateModelProvider400,
   CreateModelProvider401,
   CreateModelProvider403,
@@ -25,7 +26,13 @@ function getCreateModelProviderUrl() {
  * {@link /model-providers}
  */
 export async function createModelProvider(
-  { data }: { data: CreateModelProviderMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: CreateModelProviderMutationRequest
+    headers?: CreateModelProviderHeaderParams
+  },
   config: Partial<RequestConfig<CreateModelProviderMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -49,6 +56,7 @@ export async function createModelProvider(
     url: getCreateModelProviderUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

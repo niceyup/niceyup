@@ -9,6 +9,7 @@ import type {
   UpdateAgentConfigurationMutationRequest,
   UpdateAgentConfigurationMutationResponse,
   UpdateAgentConfigurationPathParams,
+  UpdateAgentConfigurationHeaderParams,
   UpdateAgentConfiguration400,
   UpdateAgentConfiguration401,
   UpdateAgentConfiguration403,
@@ -31,9 +32,11 @@ export async function updateAgentConfiguration(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: UpdateAgentConfigurationPathParams['agentId']
     data?: UpdateAgentConfigurationMutationRequest
+    headers?: UpdateAgentConfigurationHeaderParams
   },
   config: Partial<RequestConfig<UpdateAgentConfigurationMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function updateAgentConfiguration(
     url: getUpdateAgentConfigurationUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

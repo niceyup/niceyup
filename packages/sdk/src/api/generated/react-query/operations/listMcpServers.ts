@@ -11,6 +11,7 @@ import type {
 import type {
   ListMcpServersQueryResponse,
   ListMcpServersQueryParams,
+  ListMcpServersHeaderParams,
   ListMcpServers400,
   ListMcpServers401,
   ListMcpServers403,
@@ -28,7 +29,13 @@ function getListMcpServersUrl() {
  * {@link /mcp-servers}
  */
 export async function listMcpServers(
-  { params }: { params?: ListMcpServersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServersQueryParams
+    headers?: ListMcpServersHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listMcpServers(
     url: getListMcpServersUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

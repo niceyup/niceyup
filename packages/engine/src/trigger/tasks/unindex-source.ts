@@ -1,5 +1,6 @@
 import { schemaTask } from '@trigger.dev/sdk'
 import { mockEmbeddingModel } from '@workspace/ai/mocks'
+import { InvalidArgumentError, NiceyupError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { eq, sql } from '@workspace/db/orm'
 import {
@@ -9,7 +10,7 @@ import {
 } from '@workspace/db/schema'
 import { z } from 'zod'
 import { resolveVectorStore } from '../../agents'
-import { InvalidArgumentError } from '../../erros'
+import { RetryableError } from '../../errors'
 import { indexedSourceQueue } from './queue'
 
 export type UnindexSourceTask = typeof unindexSourceTask
@@ -106,7 +107,7 @@ export const unindexSourceTask = schemaTask({
     }
   },
   catchError: async ({ payload, error }) => {
-    if (error instanceof InvalidArgumentError) {
+    if (!RetryableError.isInstance(error)) {
       return { skipRetrying: true }
     }
 
@@ -118,14 +119,15 @@ export const unindexSourceTask = schemaTask({
       .where(eq(sourceOperations.indexedSourceId, payload.indexedSourceId))
   },
   onFailure: async ({ payload, error }) => {
+    const errorObject = NiceyupError.isInstance(error)
+      ? { code: error.code, message: error.message }
+      : { code: 'UNKNOWN_ERROR', message: 'Unknown error' }
+
     await db
       .update(sourceOperations)
       .set({
         status: 'failed',
-        error:
-          error instanceof InvalidArgumentError
-            ? { code: error.code, message: error.message }
-            : { code: 'UNKNOWN_ERROR', message: 'Unknown error' },
+        error: errorObject,
       })
       .where(eq(sourceOperations.indexedSourceId, payload.indexedSourceId))
   },

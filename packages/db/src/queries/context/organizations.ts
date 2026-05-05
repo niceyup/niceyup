@@ -7,13 +7,33 @@ import {
   teams,
   users,
 } from '../../schema/auth'
-import { getOrganizationIdBySlug } from '../organizations'
 
-type ContextGetOrganizationParams = {
+type ContextGetFirstOrganizationParams = {
   userId: string
 }
 
-type GetOrganizationParams =
+export async function getFirstOrganization(
+  context: ContextGetFirstOrganizationParams,
+) {
+  const [organization] = await db
+    .select({
+      id: organizations.id,
+      slug: organizations.slug,
+    })
+    .from(organizations)
+    .innerJoin(members, eq(organizations.id, members.organizationId))
+    .where(
+      and(eq(members.userId, context.userId), isNotNull(organizations.slug)),
+    )
+    .orderBy(asc(organizations.createdAt))
+    .limit(1)
+
+  return organization || null
+}
+
+type ContextGetOrganizationParams = {
+  userId: string
+} & (
   | {
       organizationId: string
       organizationSlug?: never
@@ -22,11 +42,9 @@ type GetOrganizationParams =
       organizationId?: never
       organizationSlug: string
     }
+)
 
-export async function getOrganization(
-  context: ContextGetOrganizationParams,
-  params: GetOrganizationParams,
-) {
+export async function getOrganization(context: ContextGetOrganizationParams) {
   const [organization] = await db
     .select({
       id: organizations.id,
@@ -39,9 +57,9 @@ export async function getOrganization(
     .innerJoin(members, eq(organizations.id, members.organizationId))
     .where(
       and(
-        params.organizationId !== undefined
-          ? eq(organizations.id, params.organizationId)
-          : eq(organizations.slug, params.organizationSlug),
+        context.organizationId !== undefined
+          ? eq(organizations.id, context.organizationId)
+          : eq(organizations.slug, context.organizationSlug),
         eq(members.userId, context.userId),
       ),
     )
@@ -79,9 +97,7 @@ export async function listOrganizations(
 
 type ContextGetOrganizationTeamParams = {
   userId: string
-}
-
-type GetOrganizationTeamParams = (
+} & (
   | {
       organizationId: string
       organizationSlug?: never
@@ -91,23 +107,12 @@ type GetOrganizationTeamParams = (
       organizationSlug: string
     }
 ) & {
-  teamId: string
-}
+    teamId: string
+  }
 
 export async function getOrganizationTeam(
   context: ContextGetOrganizationTeamParams,
-  params: GetOrganizationTeamParams,
 ) {
-  const orgId =
-    params.organizationId ??
-    (await getOrganizationIdBySlug({
-      organizationSlug: params.organizationSlug,
-    }))
-
-  if (!orgId) {
-    return null
-  }
-
   const [organizationTeam] = await db
     .select({
       organization: {
@@ -123,10 +128,16 @@ export async function getOrganizationTeam(
       },
     })
     .from(teams)
-    .innerJoin(organizations, eq(teams.organizationId, organizations.id))
     .innerJoin(teamMembers, eq(teams.id, teamMembers.teamId))
+    .innerJoin(organizations, eq(teams.organizationId, organizations.id))
     .where(
-      and(eq(teams.id, params.teamId), eq(teamMembers.userId, context.userId)),
+      and(
+        eq(teams.id, context.teamId),
+        eq(teamMembers.userId, context.userId),
+        context.organizationId !== undefined
+          ? eq(organizations.id, context.organizationId)
+          : eq(organizations.slug, context.organizationSlug),
+      ),
     )
     .limit(1)
 
@@ -135,9 +146,7 @@ export async function getOrganizationTeam(
 
 type ContextListOrganizationTeamsParams = {
   userId: string
-}
-
-type ListOrganizationTeamsParams =
+} & (
   | {
       organizationId: string
       organizationSlug?: never
@@ -146,21 +155,11 @@ type ListOrganizationTeamsParams =
       organizationId?: never
       organizationSlug: string
     }
+)
 
 export async function listOrganizationTeams(
   context: ContextListOrganizationTeamsParams,
-  params: ListOrganizationTeamsParams,
 ) {
-  const orgId =
-    params.organizationId ??
-    (await getOrganizationIdBySlug({
-      organizationSlug: params.organizationSlug,
-    }))
-
-  if (!orgId) {
-    return []
-  }
-
   const listOrganizationTeams = await db
     .select({
       organization: {
@@ -177,139 +176,19 @@ export async function listOrganizationTeams(
       },
     })
     .from(teams)
-    .innerJoin(organizations, eq(teams.organizationId, organizations.id))
     .innerJoin(teamMembers, eq(teams.id, teamMembers.teamId))
+    .innerJoin(organizations, eq(teams.organizationId, organizations.id))
     .where(
       and(
-        eq(teams.organizationId, orgId),
         eq(teamMembers.userId, context.userId),
+        context.organizationId !== undefined
+          ? eq(organizations.id, context.organizationId)
+          : eq(organizations.slug, context.organizationSlug),
       ),
     )
     .orderBy(asc(teams.createdAt))
 
   return listOrganizationTeams
-}
-
-type ContextGetMembershipParams = {
-  userId: string
-} & (
-  | {
-      organizationId: string
-      organizationSlug?: never
-    }
-  | {
-      organizationId?: never
-      organizationSlug: string
-    }
-)
-
-export async function getMembership(context: ContextGetMembershipParams) {
-  const orgId =
-    context.organizationId ??
-    (await getOrganizationIdBySlug({
-      organizationSlug: context.organizationSlug,
-    }))
-
-  if (!orgId) {
-    return null
-  }
-
-  const [membership] = await db
-    .select({
-      id: members.id,
-      role: members.role,
-      userId: members.userId,
-      organizationId: members.organizationId,
-    })
-    .from(members)
-    .where(
-      and(
-        eq(members.userId, context.userId),
-        eq(members.organizationId, orgId),
-      ),
-    )
-    .limit(1)
-
-  if (!membership) {
-    return null
-  }
-
-  return {
-    ...membership,
-    isAdmin:
-      membership.role === 'owner' ||
-      membership.role === 'admin' ||
-      membership.role === 'billing',
-  }
-}
-
-type ContextIsOrganizationMemberAdminParams = {
-  userId: string
-} & (
-  | {
-      organizationId: string
-      organizationSlug?: never
-    }
-  | {
-      organizationId?: never
-      organizationSlug: string
-    }
-)
-
-export async function isOrganizationMemberAdmin(
-  context: ContextIsOrganizationMemberAdminParams,
-) {
-  const orgId =
-    context.organizationId ??
-    (await getOrganizationIdBySlug({
-      organizationSlug: context.organizationSlug,
-    }))
-
-  if (!orgId) {
-    return false
-  }
-
-  const [member] = await db
-    .select({
-      role: members.role,
-    })
-    .from(members)
-    .where(
-      and(
-        eq(members.userId, context.userId),
-        eq(members.organizationId, orgId),
-      ),
-    )
-    .limit(1)
-
-  return (
-    member?.role === 'owner' ||
-    member?.role === 'admin' ||
-    member?.role === 'billing'
-  )
-}
-
-type ContextGetFirstOrganizationParams = {
-  userId: string
-}
-
-export async function getFirstOrganization(
-  context: ContextGetFirstOrganizationParams,
-) {
-  const [organization] = await db
-    .select({
-      id: organizations.id,
-      slug: organizations.slug,
-    })
-    .from(organizations)
-    .innerJoin(members, eq(organizations.id, members.organizationId))
-    .where(
-      and(eq(members.userId, context.userId), isNotNull(organizations.slug)),
-    )
-    .orderBy(asc(organizations.createdAt))
-    .limit(1)
-
-  return organization || null
 }
 
 type ContextListOrganizationMembersParams = {
@@ -328,10 +207,10 @@ type ContextListOrganizationMembersParams = {
 export async function listOrganizationMembers(
   context: ContextListOrganizationMembersParams,
 ) {
-  const checkAccessToOrganization = await getOrganization(context, context)
+  const checkAccessToOrganization = await getOrganization(context)
 
   if (!checkAccessToOrganization) {
-    return []
+    return null
   }
 
   const listOrganizationMembers = await db
@@ -345,8 +224,108 @@ export async function listOrganizationMembers(
     })
     .from(members)
     .innerJoin(users, eq(members.userId, users.id))
-    .where(eq(members.organizationId, checkAccessToOrganization.id))
+    .innerJoin(organizations, eq(members.organizationId, organizations.id))
+    .where(
+      and(
+        context.organizationId !== undefined
+          ? eq(organizations.id, context.organizationId)
+          : eq(organizations.slug, context.organizationSlug),
+      ),
+    )
     .orderBy(asc(members.createdAt))
 
   return listOrganizationMembers
+}
+
+type ContextGetMembershipParams = {
+  userId: string
+} & (
+  | {
+      organizationId: string
+      organizationSlug?: never
+    }
+  | {
+      organizationId?: never
+      organizationSlug: string
+    }
+)
+
+export async function getMembership(context: ContextGetMembershipParams) {
+  const [membership] = await db
+    .select({
+      id: members.id,
+      role: members.role,
+      userId: members.userId,
+      organizationId: members.organizationId,
+    })
+    .from(members)
+    .innerJoin(organizations, eq(members.organizationId, organizations.id))
+    .where(
+      and(
+        eq(members.userId, context.userId),
+        context.organizationId !== undefined
+          ? eq(organizations.id, context.organizationId)
+          : eq(organizations.slug, context.organizationSlug),
+      ),
+    )
+    .limit(1)
+
+  if (!membership) {
+    return null
+  }
+
+  return {
+    ...membership,
+    isOwner: membership.role === 'owner',
+    isBilling: membership.role === 'owner' || membership.role === 'billing',
+    isAdmin:
+      membership.role === 'owner' ||
+      membership.role === 'admin' ||
+      membership.role === 'billing',
+    isMember: membership.role === 'member',
+  }
+}
+
+type ContextGetMembershipRoleParams = {
+  userId: string
+} & (
+  | {
+      organizationId: string
+      organizationSlug?: never
+    }
+  | {
+      organizationId?: never
+      organizationSlug: string
+    }
+)
+
+export async function getMembershipRole(
+  context: ContextGetMembershipRoleParams,
+) {
+  const [member] = await db
+    .select({
+      role: members.role,
+    })
+    .from(members)
+    .innerJoin(organizations, eq(members.organizationId, organizations.id))
+    .where(
+      and(
+        eq(members.userId, context.userId),
+        context.organizationId !== undefined
+          ? eq(organizations.id, context.organizationId)
+          : eq(organizations.slug, context.organizationSlug),
+      ),
+    )
+    .limit(1)
+
+  return {
+    role: member?.role || null,
+    isOwner: member?.role === 'owner',
+    isBilling: member?.role === 'owner' || member?.role === 'billing',
+    isAdmin:
+      member?.role === 'owner' ||
+      member?.role === 'admin' ||
+      member?.role === 'billing',
+    isMember: member?.role === 'member',
+  }
 }

@@ -11,6 +11,7 @@ import type {
 import type {
   ListVectorStoresQueryResponse,
   ListVectorStoresQueryParams,
+  ListVectorStoresHeaderParams,
   ListVectorStores400,
   ListVectorStores401,
   ListVectorStores403,
@@ -36,7 +37,13 @@ export type ListVectorStoresSuspenseQueryKey = ReturnType<
 >
 
 export function listVectorStoresSuspenseQueryOptions(
-  { params }: { params?: ListVectorStoresQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoresQueryParams
+    headers?: ListVectorStoresHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listVectorStoresSuspenseQueryKey(params)
@@ -56,7 +63,7 @@ export function listVectorStoresSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listVectorStores({ params }, config)
+      return listVectorStores({ params, headers }, config)
     },
   })
 }
@@ -69,7 +76,13 @@ export function useListVectorStoresSuspense<
   TData = ListVectorStoresQueryResponse,
   TQueryKey extends QueryKey = ListVectorStoresSuspenseQueryKey,
 >(
-  { params }: { params?: ListVectorStoresQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoresQueryParams
+    headers?: ListVectorStoresHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -98,7 +111,7 @@ export function useListVectorStoresSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listVectorStoresSuspenseQueryOptions({ params }, config),
+      ...listVectorStoresSuspenseQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

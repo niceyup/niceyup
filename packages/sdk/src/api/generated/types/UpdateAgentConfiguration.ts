@@ -10,6 +10,17 @@ export type UpdateAgentConfigurationPathParams = {
   agentId: string
 }
 
+export type UpdateAgentConfigurationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateAgentConfiguration204Enum = {} as const
 
 export type UpdateAgentConfiguration204Enum =
@@ -121,14 +132,6 @@ export type PromptMessagesRoleEnum2 =
 
 export type UpdateAgentConfigurationMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type object
    */
   languageModelSettings?: {
@@ -180,6 +183,7 @@ export type UpdateAgentConfigurationMutation = {
   Response: UpdateAgentConfiguration204
   Request: UpdateAgentConfigurationMutationRequest
   PathParams: UpdateAgentConfigurationPathParams
+  HeaderParams: UpdateAgentConfigurationHeaderParams
   Errors:
     | UpdateAgentConfiguration400
     | UpdateAgentConfiguration401

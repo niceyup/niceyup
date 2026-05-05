@@ -5,7 +5,6 @@ import { modelProviders } from '../../schema'
 
 type ContextListModelProvidersParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListModelProvidersParams = {
@@ -16,10 +15,6 @@ export async function listModelProviders(
   context: ContextListModelProvidersParams,
   params: ListModelProvidersParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listModelProviders = await db
     .select({
       id: modelProviders.id,
@@ -41,9 +36,7 @@ export async function listModelProviders(
 }
 
 type ContextGetModelProviderParams = {
-  userId: string
   organizationId: string
-  isAdmin: boolean
 }
 
 type GetModelProviderParams = {
@@ -54,10 +47,6 @@ export async function getModelProvider(
   context: ContextGetModelProviderParams,
   params: GetModelProviderParams,
 ) {
-  if (!context.isAdmin) {
-    return null
-  }
-
   const [modelProvider] = await db
     .select({
       id: modelProviders.id,
@@ -80,7 +69,6 @@ export async function getModelProvider(
 
 type ContextListModelProviderSelectOptionsParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListModelProviderSelectOptionsParams = {
@@ -92,10 +80,6 @@ export async function listModelProviderSelectOptions(
   context: ContextListModelProviderSelectOptionsParams,
   params: ListModelProviderSelectOptionsParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listModelProviders = await db
     .select({
       id: modelProviders.id,

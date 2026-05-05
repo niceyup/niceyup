@@ -1,4 +1,4 @@
-import { getAgent } from '@/actions/agents'
+import { getAgentDetailed } from '@/actions/agents'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { EditLanguageModelSettingsForm } from './_components/edit-language-model-settings'
 import { EditPromptMessageForm } from './_components/edit-prompt-message'
@@ -11,7 +11,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, agentId } = await params
 
-  const agent = await getAgent(
+  const agentDetailed = await getAgentDetailed(
     { organizationSlug, agentId },
     {
       with: {
@@ -20,7 +20,7 @@ export default async function Page({
     },
   )
 
-  if (!agent) {
+  if (!agentDetailed) {
     return null
   }
 
@@ -29,13 +29,17 @@ export default async function Page({
       <EditLanguageModelSettingsForm
         params={{ organizationSlug, agentId }}
         languageModelSettings={
-          agent.configuration?.languageModelSettings
+          agentDetailed.configuration?.languageModelSettings
             ? {
-                ...agent.configuration.languageModelSettings,
-                provider: agent.configuration.languageModelSettings.provider
+                ...agentDetailed.configuration.languageModelSettings,
+                provider: agentDetailed.configuration.languageModelSettings
+                  .provider
                   ? {
-                      id: agent.configuration.languageModelSettings.provider.id,
-                      value: agent.configuration.languageModelSettings.provider,
+                      id: agentDetailed.configuration.languageModelSettings
+                        .provider.id,
+                      value:
+                        agentDetailed.configuration.languageModelSettings
+                          .provider,
                     }
                   : null,
               }
@@ -45,12 +49,12 @@ export default async function Page({
 
       <EditSystemMessageForm
         params={{ organizationSlug, agentId }}
-        systemMessage={agent.configuration?.systemMessage}
+        systemMessage={agentDetailed.configuration?.systemMessage}
       />
 
       <EditPromptMessageForm
         params={{ organizationSlug, agentId }}
-        promptMessages={agent.configuration?.promptMessages}
+        promptMessages={agentDetailed.configuration?.promptMessages}
       />
     </div>
   )

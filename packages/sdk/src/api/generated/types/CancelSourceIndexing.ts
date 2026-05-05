@@ -14,6 +14,17 @@ export type CancelSourceIndexingPathParams = {
   indexedSourceId: string
 }
 
+export type CancelSourceIndexingHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const cancelSourceIndexing204Enum = {} as const
 
 export type CancelSourceIndexing204Enum =
@@ -115,16 +126,7 @@ export type CancelSourceIndexing500 = {
   message: string
 }
 
-export type CancelSourceIndexingMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type CancelSourceIndexingMutationRequest = object
 
 export type CancelSourceIndexingMutationResponse = CancelSourceIndexing204
 
@@ -132,6 +134,7 @@ export type CancelSourceIndexingMutation = {
   Response: CancelSourceIndexing204
   Request: CancelSourceIndexingMutationRequest
   PathParams: CancelSourceIndexingPathParams
+  HeaderParams: CancelSourceIndexingHeaderParams
   Errors:
     | CancelSourceIndexing400
     | CancelSourceIndexing401

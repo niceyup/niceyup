@@ -12,6 +12,7 @@ import type {
   CancelKnowledgeBaseReindexingMutationRequest,
   CancelKnowledgeBaseReindexingMutationResponse,
   CancelKnowledgeBaseReindexingPathParams,
+  CancelKnowledgeBaseReindexingHeaderParams,
   CancelKnowledgeBaseReindexing400,
   CancelKnowledgeBaseReindexing401,
   CancelKnowledgeBaseReindexing403,
@@ -49,6 +50,7 @@ export function useCancelKnowledgeBaseReindexing<TContext>(
       {
         agentId: CancelKnowledgeBaseReindexingPathParams['agentId']
         data?: CancelKnowledgeBaseReindexingMutationRequest
+        headers?: CancelKnowledgeBaseReindexingHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useCancelKnowledgeBaseReindexing<TContext>(
     {
       agentId: CancelKnowledgeBaseReindexingPathParams['agentId']
       data?: CancelKnowledgeBaseReindexingMutationRequest
+      headers?: CancelKnowledgeBaseReindexingHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return cancelKnowledgeBaseReindexing({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return cancelKnowledgeBaseReindexing({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

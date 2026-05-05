@@ -5,19 +5,22 @@
 
 export type ListMcpServerSelectOptionsQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @maxLength 100
    * @default ""
    * @type string | undefined
    */
   search?: string
+}
+
+export type ListMcpServerSelectOptionsHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const mcpServersTypeEnum2 = {
@@ -161,6 +164,7 @@ export type ListMcpServerSelectOptionsQueryResponse =
 export type ListMcpServerSelectOptionsQuery = {
   Response: ListMcpServerSelectOptions200
   QueryParams: ListMcpServerSelectOptionsQueryParams
+  HeaderParams: ListMcpServerSelectOptionsHeaderParams
   Errors:
     | ListMcpServerSelectOptions400
     | ListMcpServerSelectOptions401

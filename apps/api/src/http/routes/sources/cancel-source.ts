@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -18,34 +18,34 @@ export async function cancelSource(app: FastifyTypedInstance) {
         tags: ['Sources'],
         description: 'Cancel source indexing',
         operationId: 'cancelSource',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           sourceId: z.string(),
         }),
-        body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
-        }),
+        body: z.object({}),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),
         }),
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { sourceId } = request.params
 
-      const { organizationId, organizationSlug } = request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const source = await queries.context.getSource(context, { sourceId })
+      const source = await queries.ctx.getSource(
+        { organizationId: organization.id },
+        { sourceId },
+      )
 
       if (!source) {
         throw new BadRequestError({
@@ -72,7 +72,7 @@ export async function cancelSource(app: FastifyTypedInstance) {
           data: [run],
         } = await runs.list({
           taskIdentifier: ['ingest-source', 'delete-source'],
-          tag: [`organization:${context.organizationId}`, `source:${sourceId}`],
+          tag: [`organization:${organization.id}`, `source:${sourceId}`],
           status: ['EXECUTING'],
           limit: 1,
         })

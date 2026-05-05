@@ -112,10 +112,11 @@ export function SourceViewContent({
 //     startTransition(async () => {
 //       try {
 //         const { error } = await sdk.cancelSource({
-//           sourceId,
-//           data: {
-//             organizationSlug: params.organizationSlug,
+//           headers: {
+//             'x-organization-slug': params.organizationSlug,
 //           },
+//           sourceId,
+//           data: {},
 //         })
 
 //         if (error) {

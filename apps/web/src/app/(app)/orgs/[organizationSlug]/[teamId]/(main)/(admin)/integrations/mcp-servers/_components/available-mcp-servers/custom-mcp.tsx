@@ -10,6 +10,7 @@ import { Button } from '@workspace/ui/components/button'
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +24,13 @@ import {
   InputGroupInput,
 } from '@workspace/ui/components/input-group'
 import { Label } from '@workspace/ui/components/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@workspace/ui/components/select'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { PlusIcon, Trash2Icon } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -71,8 +79,8 @@ export function CustomMcpServer({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name ?? '',
-      type: 'http',
-      url: '',
+      type: initialData?.type ?? 'http',
+      url: initialData?.url ?? '',
       headers: initialData?.headers
         ? Object.entries(initialData.headers).map(([key, value]) => ({
             key,
@@ -100,9 +108,11 @@ export function CustomMcpServer({
 
     if (params.mcpServerId && initialData) {
       const { error } = await sdk.updateMcpServer({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         mcpServerId: params.mcpServerId,
         data: {
-          organizationSlug: params.organizationSlug,
           name: values.name,
           type: values.type,
           url: values.url,
@@ -118,8 +128,10 @@ export function CustomMcpServer({
       await updateTag('update-mcp-server')
     } else {
       const { error } = await sdk.createMcpServer({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         data: {
-          organizationSlug: params.organizationSlug,
           name: values.name,
           type: values.type,
           url: values.url,
@@ -165,11 +177,56 @@ export function CustomMcpServer({
             )}
           />
 
+          <FormField
+            control={form.control}
+            name="type"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Type</FormLabel>
+                <FormDescription>
+                  Select how the MCP server communicates with your agent.
+                </FormDescription>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="http">
+                      HTTP — Request/response connection
+                    </SelectItem>
+                    <SelectItem value="sse">
+                      SSE — Real-time streaming connection
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="url"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>URL</FormLabel>
+                <FormDescription>
+                  Enter the endpoint URL of your MCP server.
+                </FormDescription>
+                <FormControl>
+                  <Input {...field} placeholder="https://your-server.com/mcp" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="flex w-full flex-col gap-2">
             <Label>Headers</Label>
             <p className="text-muted-foreground text-sm">
-              Optional headers to include in every request. These are applied
-              after default headers and may override them.
+              Optional headers to include in every request.
             </p>
 
             {fields.map((field, index) => (

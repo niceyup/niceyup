@@ -12,6 +12,7 @@ import type {
   DeleteSourceMutationRequest,
   DeleteSourceMutationResponse,
   DeleteSourcePathParams,
+  DeleteSourceHeaderParams,
   DeleteSource400,
   DeleteSource401,
   DeleteSource403,
@@ -47,6 +48,7 @@ export function useDeleteSource<TContext>(
       {
         sourceId: DeleteSourcePathParams['sourceId']
         data?: DeleteSourceMutationRequest
+        headers?: DeleteSourceHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -72,12 +74,13 @@ export function useDeleteSource<TContext>(
     {
       sourceId: DeleteSourcePathParams['sourceId']
       data?: DeleteSourceMutationRequest
+      headers?: DeleteSourceHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ sourceId, data }) => {
-        return deleteSource({ sourceId, data }, config)
+      mutationFn: async ({ sourceId, data, headers }) => {
+        return deleteSource({ sourceId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

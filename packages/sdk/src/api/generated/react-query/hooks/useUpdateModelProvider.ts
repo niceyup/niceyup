@@ -12,6 +12,7 @@ import type {
   UpdateModelProviderMutationRequest,
   UpdateModelProviderMutationResponse,
   UpdateModelProviderPathParams,
+  UpdateModelProviderHeaderParams,
   UpdateModelProvider400,
   UpdateModelProvider401,
   UpdateModelProvider403,
@@ -49,6 +50,7 @@ export function useUpdateModelProvider<TContext>(
       {
         modelProviderId: UpdateModelProviderPathParams['modelProviderId']
         data?: UpdateModelProviderMutationRequest
+        headers?: UpdateModelProviderHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateModelProvider<TContext>(
     {
       modelProviderId: UpdateModelProviderPathParams['modelProviderId']
       data?: UpdateModelProviderMutationRequest
+      headers?: UpdateModelProviderHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ modelProviderId, data }) => {
-        return updateModelProvider({ modelProviderId, data }, config)
+      mutationFn: async ({ modelProviderId, data, headers }) => {
+        return updateModelProvider({ modelProviderId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

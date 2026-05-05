@@ -8,6 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   CreateAgentMutationRequest,
   CreateAgentMutationResponse,
+  CreateAgentHeaderParams,
   CreateAgent400,
   CreateAgent401,
   CreateAgent403,
@@ -25,7 +26,10 @@ function getCreateAgentUrl() {
  * {@link /agents}
  */
 export async function createAgent(
-  { data }: { data: CreateAgentMutationRequest },
+  {
+    data,
+    headers,
+  }: { data: CreateAgentMutationRequest; headers?: CreateAgentHeaderParams },
   config: Partial<RequestConfig<CreateAgentMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -49,6 +53,7 @@ export async function createAgent(
     url: getCreateAgentUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

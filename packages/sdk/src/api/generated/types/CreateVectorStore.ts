@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateVectorStoreHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -113,14 +124,6 @@ export type CreateVectorStoreMutationRequestProviderEnum =
 
 export type CreateVectorStoreMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -147,6 +150,7 @@ export type CreateVectorStoreMutationResponse = CreateVectorStore201
 export type CreateVectorStoreMutation = {
   Response: CreateVectorStore201
   Request: CreateVectorStoreMutationRequest
+  HeaderParams: CreateVectorStoreHeaderParams
   Errors:
     | CreateVectorStore400
     | CreateVectorStore401

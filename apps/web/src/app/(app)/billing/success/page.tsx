@@ -1,8 +1,8 @@
+import { ConfettiSideCannons } from '@/components/confetti-side-cannons'
 import { Header } from '@/components/header'
 import { Button } from '@workspace/ui/components/button'
 import { Skeleton } from '@workspace/ui/components/skeleton'
 import Link from 'next/link'
-import { ConfettiSideCannons } from './confetti-side-cannons'
 
 export default async function Page() {
   return (

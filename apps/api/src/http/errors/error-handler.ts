@@ -1,4 +1,5 @@
 import { env } from '@/lib/env'
+import { AuthError, NiceyupError } from '@workspace/core/errros'
 import type { WebSocket } from '@workspace/realtime'
 import type { FastifyInstance } from 'fastify'
 import {
@@ -37,16 +38,28 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
     })
   }
 
-  if (error instanceof BaseError) {
-    if (error instanceof BadRequestError) {
+  if (BaseError.isInstance(error)) {
+    if (BadRequestError.isInstance(error)) {
       reply
         .status(error.status)
         .send({ code: error.code, message: error.message })
     }
 
-    if (error instanceof UnauthorizedError) {
+    if (UnauthorizedError.isInstance(error)) {
       reply.status(401).send({ code: error.code, message: error.message })
     }
+
+    reply
+      .status(error.status)
+      .send({ code: error.code, message: error.message })
+  }
+
+  if (NiceyupError.isInstance(error)) {
+    if (AuthError.isInstance(error)) {
+      reply.status(401).send({ code: error.code, message: error.message })
+    }
+
+    reply.status(400).send({ code: error.code, message: error.message })
   }
 
   if (env.APP_ENV !== 'production') {
@@ -62,7 +75,7 @@ export const errorHandler: FastifyErrorHandler = (error, _, reply) => {
 }
 
 export const errorHandlerWebsocket = (error: Error, socket: WebSocket) => {
-  if (error instanceof BaseError) {
+  if (BaseError.isInstance(error)) {
     socket.close(
       1008,
       JSON.stringify({ code: error.code, message: error.message }),

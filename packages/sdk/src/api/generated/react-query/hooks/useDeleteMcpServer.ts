@@ -12,6 +12,7 @@ import type {
   DeleteMcpServerMutationRequest,
   DeleteMcpServerMutationResponse,
   DeleteMcpServerPathParams,
+  DeleteMcpServerHeaderParams,
   DeleteMcpServer400,
   DeleteMcpServer401,
   DeleteMcpServer403,
@@ -49,6 +50,7 @@ export function useDeleteMcpServer<TContext>(
       {
         mcpServerId: DeleteMcpServerPathParams['mcpServerId']
         data?: DeleteMcpServerMutationRequest
+        headers?: DeleteMcpServerHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useDeleteMcpServer<TContext>(
     {
       mcpServerId: DeleteMcpServerPathParams['mcpServerId']
       data?: DeleteMcpServerMutationRequest
+      headers?: DeleteMcpServerHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ mcpServerId, data }) => {
-        return deleteMcpServer({ mcpServerId, data }, config)
+      mutationFn: async ({ mcpServerId, data, headers }) => {
+        return deleteMcpServer({ mcpServerId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

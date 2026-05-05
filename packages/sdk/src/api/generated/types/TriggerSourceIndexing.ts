@@ -10,6 +10,17 @@ export type TriggerSourceIndexingPathParams = {
   agentId: string
 }
 
+export type TriggerSourceIndexingHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const triggerSourceIndexing204Enum = {} as const
 
 export type TriggerSourceIndexing204Enum =
@@ -123,14 +134,6 @@ export type TriggerSourceIndexingMutationRequestStatusEnum =
 
 export type TriggerSourceIndexingMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @default "all"
    * @type string | undefined
    */
@@ -148,6 +151,7 @@ export type TriggerSourceIndexingMutation = {
   Response: TriggerSourceIndexing204
   Request: TriggerSourceIndexingMutationRequest
   PathParams: TriggerSourceIndexingPathParams
+  HeaderParams: TriggerSourceIndexingHeaderParams
   Errors:
     | TriggerSourceIndexing400
     | TriggerSourceIndexing401

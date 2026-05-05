@@ -1,8 +1,15 @@
 import 'fastify'
-import type { auth } from '@workspace/auth'
+import type { Context, WithAuthContext } from '@workspace/auth/context'
 
 declare module 'fastify' {
   export interface FastifyRequest {
-    authSession: typeof auth.$Infer.Session
+    ctx: Context<WithAuthContext>
+    ctxParams: {
+      organizationId?: string | null
+      organizationSlug?: string | null
+      teamId?: string | null
+      agentId?: string | null
+      agentSlug?: string | null
+    }
   }
 }

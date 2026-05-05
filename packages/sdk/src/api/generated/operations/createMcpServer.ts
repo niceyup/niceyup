@@ -8,6 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   CreateMcpServerMutationRequest,
   CreateMcpServerMutationResponse,
+  CreateMcpServerHeaderParams,
   CreateMcpServer400,
   CreateMcpServer401,
   CreateMcpServer403,
@@ -25,7 +26,13 @@ function getCreateMcpServerUrl() {
  * {@link /mcp-servers}
  */
 export async function createMcpServer(
-  { data }: { data: CreateMcpServerMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: CreateMcpServerMutationRequest
+    headers?: CreateMcpServerHeaderParams
+  },
   config: Partial<RequestConfig<CreateMcpServerMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -49,6 +56,7 @@ export async function createMcpServer(
     url: getCreateMcpServerUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

@@ -1,8 +1,6 @@
 'use server'
 
-import { isOrganizationMemberAdmin } from '@/actions/membership'
-import { authenticatedUser } from '@/lib/auth/server'
-import { resolveOrganizationContext } from '@/lib/organization'
+import { getMembership } from '@/actions/membership'
 import type {
   AgentParams,
   ConversationVisibility,
@@ -24,28 +22,49 @@ import {
 type ContextConversationExplorerNodeParams = OrganizationTeamParams &
   AgentParams
 
-async function checkAdminAccess(
-  context: { userId: string } & ContextConversationExplorerNodeParams,
-) {
-  const isAdmin = await isOrganizationMemberAdmin(context)
-
-  return isAdmin
+type ResolveConversationExplorerNodeContextParams = {
+  visibility: ConversationVisibility
 }
 
-async function checkAccessToAgent(
-  context: { userId: string } & ContextConversationExplorerNodeParams,
+async function resolveConversationExplorerNodeContext(
+  context: ContextConversationExplorerNodeParams,
+  params: ResolveConversationExplorerNodeContextParams,
 ) {
-  const ctx = await resolveOrganizationContext(context)
-
-  if (!ctx) {
-    return false
+  if (params.visibility === 'team' && context.teamId === '~') {
+    return null
   }
 
-  const agent = await queries.context.getAgent(ctx, {
-    agentId: context.agentId,
+  const membership = await getMembership({
+    organizationSlug: context.organizationSlug,
   })
 
-  return Boolean(agent)
+  if (!membership) {
+    return null
+  }
+
+  const agent = await queries.ctx.getAgent(
+    { organizationId: membership.organizationId },
+    { agentId: context.agentId },
+  )
+
+  if (!agent) {
+    return null
+  }
+
+  if (params.visibility === 'team') {
+    const team = await queries.ctx.getTeam(
+      { organizationId: membership.organizationId },
+      { teamId: context.teamId },
+    )
+
+    if (!team) {
+      return null
+    }
+
+    return { membership, agent, visibility: 'team' as const, team }
+  }
+
+  return { membership, agent, visibility: params.visibility, team: null }
 }
 
 type GetItemInConversationExplorerNodeParams = {
@@ -55,24 +74,20 @@ type GetItemInConversationExplorerNodeParams = {
 
 export async function getItemInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility, itemId }: GetItemInConversationExplorerNodeParams,
+  params: GetItemInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return null
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return null
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? eq(conversationExplorerNodes.ownerTeamId, context.teamId)
-      : eq(conversationExplorerNodes.ownerUserId, userId)
+    ctx.visibility === 'team'
+      ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
+      : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
   const [itemData] = await db
     .select({
@@ -100,10 +115,10 @@ export async function getItemInConversationExplorerNode(
     )
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, visibility),
-        eq(conversationExplorerNodes.agentId, context.agentId),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
         ownerTypeCondition,
-        eq(conversationExplorerNodes.id, itemId),
+        eq(conversationExplorerNodes.id, params.itemId),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -119,26 +134,22 @@ type GetChildrenWithDataInConversationExplorerNodeParams = {
 
 export async function getChildrenWithDataInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility, itemId }: GetChildrenWithDataInConversationExplorerNodeParams,
+  params: GetChildrenWithDataInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return []
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return []
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? eq(conversationExplorerNodes.ownerTeamId, context.teamId)
-      : eq(conversationExplorerNodes.ownerUserId, userId)
+    ctx.visibility === 'team'
+      ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
+      : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
-  if (itemId === 'root') {
+  if (params.itemId === 'root') {
     const childrenWithData = await db
       .select({
         id: conversationExplorerNodes.id,
@@ -168,8 +179,8 @@ export async function getChildrenWithDataInConversationExplorerNode(
       )
       .where(
         and(
-          eq(conversationExplorerNodes.visibility, visibility),
-          eq(conversationExplorerNodes.agentId, context.agentId),
+          eq(conversationExplorerNodes.visibility, ctx.visibility),
+          eq(conversationExplorerNodes.agentId, ctx.agent.id),
           ownerTypeCondition,
           isNull(conversationExplorerNodes.parentId),
           isNull(conversationExplorerNodes.deletedAt),
@@ -211,10 +222,10 @@ export async function getChildrenWithDataInConversationExplorerNode(
     )
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, visibility),
-        eq(conversationExplorerNodes.agentId, context.agentId),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
         ownerTypeCondition,
-        eq(conversationExplorerNodes.parentId, itemId),
+        eq(conversationExplorerNodes.parentId, params.itemId),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -238,32 +249,24 @@ type GetParentsInConversationExplorerNodeParams = {
 
 export async function getParentsInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  {
-    visibility,
-    itemId,
-    conversationId,
-  }: GetParentsInConversationExplorerNodeParams,
+  params: GetParentsInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
+
+  if (!ctx) {
     return []
   }
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
-    return []
-  }
-
-  const itemTypeCondition = conversationId
-    ? sql`node.conversation_id = ${conversationId}`
-    : sql`node.id = ${itemId}`
+  const itemTypeCondition = params.conversationId
+    ? sql`node.conversation_id = ${params.conversationId}`
+    : sql`node.id = ${params.itemId}`
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? sql`node.owner_team_id = ${context.teamId}`
-      : sql`node.owner_user_id = ${userId}`
+    ctx.visibility === 'team'
+      ? sql`node.owner_team_id = ${ctx.team.id}`
+      : sql`node.owner_user_id = ${ctx.membership.userId}`
 
   const parents = await db.execute<{
     id: string
@@ -287,8 +290,8 @@ export async function getParentsInConversationExplorerNode(
       FROM ${conversationExplorerNodes} node
       LEFT JOIN ${conversations} conversation ON node.conversation_id = conversation.id
       WHERE ${itemTypeCondition}
-        AND node.visibility = ${visibility}
-        AND node.agent_id = ${context.agentId}
+        AND node.visibility = ${ctx.visibility}
+        AND node.agent_id = ${ctx.agent.id}
         AND ${ownerTypeCondition}
       UNION ALL
       
@@ -330,40 +333,31 @@ type UpdateNameOfItemInConversationExplorerNodeParams = {
 
 export async function updateNameOfItemInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  {
-    visibility,
-    itemId,
-    conversationId,
-    name,
-  }: UpdateNameOfItemInConversationExplorerNodeParams,
+  params: UpdateNameOfItemInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
+
+  if (!ctx) {
     return
   }
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
-    return
-  }
-
-  if (conversationId !== undefined) {
+  if (params.conversationId !== undefined) {
     const ownerTypeCondition =
-      visibility === 'team'
-        ? eq(conversations.teamId, context.teamId)
-        : eq(conversations.createdByUserId, userId)
+      ctx.visibility === 'team'
+        ? eq(conversations.teamId, ctx.team.id)
+        : eq(conversations.createdByUserId, ctx.membership.userId)
 
     await db
       .update(conversations)
       .set({
-        title: name,
+        title: params.name,
       })
       .where(
         and(
-          eq(conversations.id, conversationId),
-          eq(conversations.agentId, context.agentId),
+          eq(conversations.id, params.conversationId),
+          eq(conversations.agentId, ctx.agent.id),
           ownerTypeCondition,
           isNull(conversations.deletedAt),
         ),
@@ -373,21 +367,21 @@ export async function updateNameOfItemInConversationExplorerNode(
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? eq(conversationExplorerNodes.ownerTeamId, context.teamId)
-      : eq(conversationExplorerNodes.ownerUserId, userId)
+    ctx.visibility === 'team'
+      ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
+      : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
   await db
     .update(conversationExplorerNodes)
     .set({
-      name,
+      name: params.name,
     })
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, visibility),
-        eq(conversationExplorerNodes.agentId, context.agentId),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
         ownerTypeCondition,
-        eq(conversationExplorerNodes.id, itemId),
+        eq(conversationExplorerNodes.id, params.itemId),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -402,29 +396,20 @@ type UpdateParentIdOfItemsInConversationExplorerNodeParams = {
 
 export async function updateParentIdOfItemsInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  {
-    visibility,
-    itemIds,
-    parentId,
-    insertionIndex,
-  }: UpdateParentIdOfItemsInConversationExplorerNodeParams,
+  params: UpdateParentIdOfItemsInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? eq(conversationExplorerNodes.ownerTeamId, context.teamId)
-      : eq(conversationExplorerNodes.ownerUserId, userId)
+    ctx.visibility === 'team'
+      ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
+      : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
   const siblings = await db
     .select({
@@ -433,43 +418,43 @@ export async function updateParentIdOfItemsInConversationExplorerNode(
     .from(conversationExplorerNodes)
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, visibility),
-        eq(conversationExplorerNodes.agentId, context.agentId),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
         ownerTypeCondition,
-        !parentId || parentId === 'root'
+        !params.parentId || params.parentId === 'root'
           ? isNull(conversationExplorerNodes.parentId)
-          : eq(conversationExplorerNodes.parentId, parentId),
-        notInArray(conversationExplorerNodes.id, itemIds),
+          : eq(conversationExplorerNodes.parentId, params.parentId),
+        notInArray(conversationExplorerNodes.id, params.itemIds),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
     .orderBy(sql`${conversationExplorerNodes.fractionalIndex} COLLATE "C" ASC`)
-    .offset(Math.max(0, (insertionIndex || 0) - 1))
-    .limit(insertionIndex ? 2 : 1)
+    .offset(Math.max(0, (params.insertionIndex || 0) - 1))
+    .limit(params.insertionIndex ? 2 : 1)
 
-  const previousSibling = insertionIndex ? siblings[0] : null
-  const nextSibling = insertionIndex ? siblings[1] : siblings[0]
+  const previousSibling = params.insertionIndex ? siblings[0] : null
+  const nextSibling = params.insertionIndex ? siblings[1] : siblings[0]
 
   const fractionalIndexes = generateNKeysBetween(
     previousSibling?.fractionalIndex,
     nextSibling?.fractionalIndex,
-    itemIds.length,
+    params.itemIds.length,
   )
 
   await db.transaction(
     async (tx) =>
       await Promise.all(
-        itemIds.map((itemId, index) =>
+        params.itemIds.map((itemId, index) =>
           tx
             .update(conversationExplorerNodes)
             .set({
-              parentId: parentId === 'root' ? null : parentId,
+              parentId: params.parentId === 'root' ? null : params.parentId,
               fractionalIndex: fractionalIndexes[index] || null,
             })
             .where(
               and(
-                eq(conversationExplorerNodes.visibility, visibility),
-                eq(conversationExplorerNodes.agentId, context.agentId),
+                eq(conversationExplorerNodes.visibility, ctx.visibility),
+                eq(conversationExplorerNodes.agentId, ctx.agent.id),
                 ownerTypeCondition,
                 eq(conversationExplorerNodes.id, itemId),
                 isNull(conversationExplorerNodes.deletedAt),
@@ -488,24 +473,20 @@ type CreateFolderInConversationExplorerNodeParams = {
 
 export async function createFolderInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility, parentId, name }: CreateFolderInConversationExplorerNodeParams,
+  params: CreateFolderInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return null
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return null
   }
 
   const explorerOwnerTypeCondition =
-    visibility === 'team'
-      ? eq(conversationExplorerNodes.ownerTeamId, context.teamId)
-      : eq(conversationExplorerNodes.ownerUserId, userId)
+    ctx.visibility === 'team'
+      ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
+      : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
   const [firstSibling] = await db
     .select({
@@ -514,12 +495,12 @@ export async function createFolderInConversationExplorerNode(
     .from(conversationExplorerNodes)
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, visibility),
-        eq(conversationExplorerNodes.agentId, context.agentId),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
         explorerOwnerTypeCondition,
-        !parentId || parentId === 'root'
+        !params.parentId || params.parentId === 'root'
           ? isNull(conversationExplorerNodes.parentId)
-          : eq(conversationExplorerNodes.parentId, parentId),
+          : eq(conversationExplorerNodes.parentId, params.parentId),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -532,19 +513,19 @@ export async function createFolderInConversationExplorerNode(
   )
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? { ownerTeamId: context.teamId }
-      : { ownerUserId: userId }
+    ctx.visibility === 'team'
+      ? { ownerTeamId: ctx.team.id }
+      : { ownerUserId: ctx.membership.userId }
 
   const [newFolder] = await db
     .insert(conversationExplorerNodes)
     .values({
-      visibility,
-      agentId: context.agentId,
+      visibility: ctx.visibility,
+      agentId: ctx.agent.id,
       ...ownerTypeCondition,
-      parentId: parentId === 'root' ? null : parentId,
+      parentId: params.parentId === 'root' ? null : params.parentId,
       fractionalIndex,
-      name,
+      name: params.name,
     })
     .returning({
       id: conversationExplorerNodes.id,
@@ -560,26 +541,22 @@ type DeleteItemInConversationExplorerNodeParams = {
 
 export async function deleteItemInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility, itemId }: DeleteItemInConversationExplorerNodeParams,
+  params: DeleteItemInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? sql`owner_team_id = ${context.teamId}`
-      : sql`owner_user_id = ${userId}`
+    ctx.visibility === 'team'
+      ? sql`owner_team_id = ${ctx.team.id}`
+      : sql`owner_user_id = ${ctx.membership.userId}`
 
-  if (visibility === 'shared') {
+  if (ctx.visibility === 'shared') {
     await db.transaction(async (tx) => {
       const deletedConversations = await tx.execute<{
         conversation_id: string
@@ -587,9 +564,9 @@ export async function deleteItemInConversationExplorerNode(
       WITH RECURSIVE explorer_nodes AS (
         SELECT id, conversation_id
         FROM ${conversationExplorerNodes}
-        WHERE id = ${itemId}
-          AND visibility = ${visibility}
-          AND agent_id = ${context.agentId}
+        WHERE id = ${params.itemId}
+          AND visibility = ${ctx.visibility}
+          AND agent_id = ${ctx.agent.id}
           AND ${ownerTypeCondition}
           AND deleted_at IS NULL
         
@@ -631,7 +608,7 @@ export async function deleteItemInConversationExplorerNode(
           .where(
             and(
               inArray(participants.conversationId, leaveConversationIds),
-              eq(participants.userId, userId),
+              eq(participants.userId, ctx.membership.userId),
             ),
           )
       }
@@ -642,9 +619,9 @@ export async function deleteItemInConversationExplorerNode(
         WITH RECURSIVE explorer_nodes AS (
           SELECT id
           FROM ${conversationExplorerNodes}
-          WHERE id = ${itemId}
-            AND visibility = ${visibility}
-            AND agent_id = ${context.agentId}
+          WHERE id = ${params.itemId}
+            AND visibility = ${ctx.visibility}
+            AND agent_id = ${ctx.agent.id}
             AND ${ownerTypeCondition}
             AND deleted_at IS NULL
           
@@ -691,24 +668,20 @@ type GetItemsDeletedInConversationExplorerNodeParams = {
 
 export async function getItemsDeletedInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility }: GetItemsDeletedInConversationExplorerNodeParams,
+  params: GetItemsDeletedInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return []
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return []
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? sql`node.owner_team_id = ${context.teamId}`
-      : sql`node.owner_user_id = ${userId}`
+    ctx.visibility === 'team'
+      ? sql`node.owner_team_id = ${ctx.team.id}`
+      : sql`node.owner_user_id = ${ctx.membership.userId}`
 
   const deletedItems = await db.execute<{
     id: string
@@ -728,15 +701,15 @@ export async function getItemsDeletedInConversationExplorerNode(
       node.deleted_at
     FROM ${conversationExplorerNodes} node
     LEFT JOIN ${conversations} conversation ON node.conversation_id = conversation.id
-    WHERE node.agent_id = ${context.agentId}
-      AND node.visibility = ${visibility}
+    WHERE node.agent_id = ${ctx.agent.id}
+      AND node.visibility = ${ctx.visibility}
       AND ${ownerTypeCondition}
       AND node.deleted_at IS NOT NULL
       AND (node.parent_id IS NULL OR NOT EXISTS (
         SELECT 1 FROM ${conversationExplorerNodes} parent_node
         WHERE parent_node.id = node.parent_id
-          AND parent_node.agent_id = ${context.agentId}
-          AND parent_node.visibility = ${visibility}
+          AND parent_node.agent_id = ${ctx.agent.id}
+          AND parent_node.visibility = ${ctx.visibility}
           AND parent_node.deleted_at IS NOT NULL
       ))
     ORDER BY node.deleted_at DESC
@@ -752,36 +725,28 @@ type RestoreItemInConversationExplorerNodeParams = {
 
 export async function restoreItemInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility, itemId }: RestoreItemInConversationExplorerNodeParams,
+  params: RestoreItemInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return
-  }
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx) {
     return
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? sql`owner_team_id = ${context.teamId}`
-      : sql`owner_user_id = ${userId}`
+    ctx.visibility === 'team'
+      ? sql`owner_team_id = ${ctx.team.id}`
+      : sql`owner_user_id = ${ctx.membership.userId}`
 
   await db.execute(sql`
     WITH RECURSIVE explorer_nodes AS (
       SELECT id, conversation_id, deleted_at
       FROM ${conversationExplorerNodes}
-      WHERE id = ${itemId}
-        AND visibility = ${visibility}
-        AND agent_id = ${context.agentId}
+      WHERE id = ${params.itemId}
+        AND visibility = ${ctx.visibility}
+        AND agent_id = ${ctx.agent.id}
         AND ${ownerTypeCondition}
         AND deleted_at IS NOT NULL
       
@@ -809,7 +774,7 @@ export async function restoreItemInConversationExplorerNode(
         WHERE explorer_nodes.conversation_id = ${conversations}.id
           AND explorer_nodes.conversation_id IS NOT NULL
       )
-        AND agent_id = ${context.agentId}
+        AND agent_id = ${ctx.agent.id}
         AND deleted_at IS NOT NULL
     )
   `)
@@ -822,28 +787,20 @@ type DestroyItemInConversationExplorerNodeParams = {
 
 export async function destroyItemInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility, itemId }: DestroyItemInConversationExplorerNodeParams,
+  params: DestroyItemInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return
-  }
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx || (ctx.visibility === 'team' && !ctx.membership.isAdmin)) {
     return
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? sql`owner_team_id = ${context.teamId}`
-      : sql`owner_user_id = ${userId}`
+    ctx.visibility === 'team'
+      ? sql`owner_team_id = ${ctx.team.id}`
+      : sql`owner_user_id = ${ctx.membership.userId}`
 
   throw new Error('Not implemented')
 }
@@ -854,28 +811,20 @@ type DestroyAllItemsInConversationExplorerNodeParams = {
 
 export async function destroyAllItemsInConversationExplorerNode(
   context: ContextConversationExplorerNodeParams,
-  { visibility }: DestroyAllItemsInConversationExplorerNodeParams,
+  params: DestroyAllItemsInConversationExplorerNodeParams,
 ) {
-  if (visibility === 'team' && context.teamId === '~') {
-    return
-  }
+  const ctx = await resolveConversationExplorerNodeContext(context, {
+    visibility: params.visibility,
+  })
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return
-  }
-
-  if (!(await checkAccessToAgent({ userId, ...context }))) {
+  if (!ctx || (ctx.visibility === 'team' && !ctx.membership.isAdmin)) {
     return
   }
 
   const ownerTypeCondition =
-    visibility === 'team'
-      ? sql`owner_team_id = ${context.teamId}`
-      : sql`owner_user_id = ${userId}`
+    ctx.visibility === 'team'
+      ? sql`owner_team_id = ${ctx.team.id}`
+      : sql`owner_user_id = ${ctx.membership.userId}`
 
   throw new Error('Not implemented')
 }

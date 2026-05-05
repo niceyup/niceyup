@@ -8,6 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   CreateSourceFolderMutationRequest,
   CreateSourceFolderMutationResponse,
+  CreateSourceFolderHeaderParams,
   CreateSourceFolder400,
   CreateSourceFolder401,
   CreateSourceFolder403,
@@ -25,7 +26,13 @@ function getCreateSourceFolderUrl() {
  * {@link /sources/folders}
  */
 export async function createSourceFolder(
-  { data }: { data: CreateSourceFolderMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: CreateSourceFolderMutationRequest
+    headers?: CreateSourceFolderHeaderParams
+  },
   config: Partial<RequestConfig<CreateSourceFolderMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -49,6 +56,7 @@ export async function createSourceFolder(
     url: getCreateSourceFolderUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

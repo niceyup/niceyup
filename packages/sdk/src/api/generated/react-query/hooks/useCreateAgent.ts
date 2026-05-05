@@ -11,6 +11,7 @@ import type {
 import type {
   CreateAgentMutationRequest,
   CreateAgentMutationResponse,
+  CreateAgentHeaderParams,
   CreateAgent400,
   CreateAgent401,
   CreateAgent403,
@@ -42,7 +43,7 @@ export function useCreateAgent<TContext>(
         | CreateAgent429
         | CreateAgent500
       >,
-      { data: CreateAgentMutationRequest },
+      { data: CreateAgentMutationRequest; headers?: CreateAgentHeaderParams },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateAgentMutationRequest>> & {
@@ -64,12 +65,12 @@ export function useCreateAgent<TContext>(
       | CreateAgent429
       | CreateAgent500
     >,
-    { data: CreateAgentMutationRequest },
+    { data: CreateAgentMutationRequest; headers?: CreateAgentHeaderParams },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createAgent({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createAgent({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

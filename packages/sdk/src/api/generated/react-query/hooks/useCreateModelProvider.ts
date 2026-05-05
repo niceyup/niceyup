@@ -11,6 +11,7 @@ import type {
 import type {
   CreateModelProviderMutationRequest,
   CreateModelProviderMutationResponse,
+  CreateModelProviderHeaderParams,
   CreateModelProvider400,
   CreateModelProvider401,
   CreateModelProvider403,
@@ -45,7 +46,10 @@ export function useCreateModelProvider<TContext>(
         | CreateModelProvider429
         | CreateModelProvider500
       >,
-      { data: CreateModelProviderMutationRequest },
+      {
+        data: CreateModelProviderMutationRequest
+        headers?: CreateModelProviderHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateModelProviderMutationRequest>> & {
@@ -68,12 +72,15 @@ export function useCreateModelProvider<TContext>(
       | CreateModelProvider429
       | CreateModelProvider500
     >,
-    { data: CreateModelProviderMutationRequest },
+    {
+      data: CreateModelProviderMutationRequest
+      headers?: CreateModelProviderHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createModelProvider({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createModelProvider({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

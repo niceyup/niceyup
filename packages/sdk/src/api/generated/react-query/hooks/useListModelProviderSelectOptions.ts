@@ -11,6 +11,7 @@ import type {
 import type {
   ListModelProviderSelectOptionsQueryResponse,
   ListModelProviderSelectOptionsQueryParams,
+  ListModelProviderSelectOptionsHeaderParams,
   ListModelProviderSelectOptions400,
   ListModelProviderSelectOptions401,
   ListModelProviderSelectOptions403,
@@ -40,7 +41,13 @@ export type ListModelProviderSelectOptionsQueryKey = ReturnType<
 >
 
 export function listModelProviderSelectOptionsQueryOptions(
-  { params }: { params?: ListModelProviderSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProviderSelectOptionsQueryParams
+    headers?: ListModelProviderSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listModelProviderSelectOptionsQueryKey(params)
@@ -60,7 +67,7 @@ export function listModelProviderSelectOptionsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listModelProviderSelectOptions({ params }, config)
+      return listModelProviderSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -74,7 +81,13 @@ export function useListModelProviderSelectOptions<
   TQueryData = ListModelProviderSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListModelProviderSelectOptionsQueryKey,
 >(
-  { params }: { params?: ListModelProviderSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProviderSelectOptionsQueryParams
+    headers?: ListModelProviderSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -104,7 +117,10 @@ export function useListModelProviderSelectOptions<
 
   const query = useQuery(
     {
-      ...listModelProviderSelectOptionsQueryOptions({ params }, config),
+      ...listModelProviderSelectOptionsQueryOptions(
+        { params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

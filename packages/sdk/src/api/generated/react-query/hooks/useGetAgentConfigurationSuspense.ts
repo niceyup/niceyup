@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentConfigurationQueryResponse,
   GetAgentConfigurationPathParams,
-  GetAgentConfigurationQueryParams,
+  GetAgentConfigurationHeaderParams,
   GetAgentConfiguration400,
   GetAgentConfiguration401,
   GetAgentConfiguration403,
@@ -28,13 +28,11 @@ import type {
 import { getAgentConfiguration } from '../operations/getAgentConfiguration'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getAgentConfigurationSuspenseQueryKey = (
-  { agentId }: { agentId: GetAgentConfigurationPathParams['agentId'] },
-  params?: GetAgentConfigurationQueryParams,
-) =>
+export const getAgentConfigurationSuspenseQueryKey = ({
+  agentId,
+}: { agentId: GetAgentConfigurationPathParams['agentId'] }) =>
   [
     { url: '/agents/:agentId/configuration', params: { agentId: agentId } },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetAgentConfigurationSuspenseQueryKey = ReturnType<
@@ -44,14 +42,14 @@ export type GetAgentConfigurationSuspenseQueryKey = ReturnType<
 export function getAgentConfigurationSuspenseQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentConfigurationPathParams['agentId']
-    params?: GetAgentConfigurationQueryParams
+    headers?: GetAgentConfigurationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getAgentConfigurationSuspenseQueryKey({ agentId }, params)
+  const queryKey = getAgentConfigurationSuspenseQueryKey({ agentId })
   return queryOptions<
     GetAgentConfigurationQueryResponse,
     ResponseErrorConfig<
@@ -69,7 +67,7 @@ export function getAgentConfigurationSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getAgentConfiguration({ agentId, params }, config)
+      return getAgentConfiguration({ agentId, headers }, config)
     },
   })
 }
@@ -84,10 +82,10 @@ export function useGetAgentConfigurationSuspense<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentConfigurationPathParams['agentId']
-    params?: GetAgentConfigurationQueryParams
+    headers?: GetAgentConfigurationHeaderParams
   },
   options: {
     query?: Partial<
@@ -113,12 +111,14 @@ export function useGetAgentConfigurationSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getAgentConfigurationSuspenseQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? getAgentConfigurationSuspenseQueryKey({ agentId })
 
   const query = useSuspenseQuery(
     {
-      ...getAgentConfigurationSuspenseQueryOptions({ agentId, params }, config),
+      ...getAgentConfigurationSuspenseQueryOptions(
+        { agentId, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

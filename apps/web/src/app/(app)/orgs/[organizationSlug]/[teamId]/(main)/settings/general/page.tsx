@@ -1,4 +1,4 @@
-import { getMembership } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { getOrganization } from '@/actions/organizations'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { DeleteOrganizationForm } from './_components/delete-organization-form'
@@ -15,10 +15,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId } = await params
 
-  const membership = await getMembership({ organizationSlug })
-
-  const isOwner = membership?.role === 'owner'
-  const isAdmin = membership?.isAdmin
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
   const organization = await getOrganization({ organizationSlug })
 
@@ -31,26 +28,26 @@ export default async function Page({
       <EditOrganizationNameForm
         params={{ organizationId: organization.id }}
         name={organization.name}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <EditOrganizationSlugForm
         params={{ organizationId: organization.id }}
         slug={organization.slug}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <EditOrganizationLogoForm
         params={{ organizationId: organization.id, organizationSlug, teamId }}
         logo={organization.logo}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <ViewOrganizationId id={organization.id} />
 
       <LeaveOrganizationForm params={{ organizationId: organization.id }} />
 
-      {isOwner && (
+      {membershipRole.isOwner && (
         <DeleteOrganizationForm params={{ organizationId: organization.id }} />
       )}
     </div>

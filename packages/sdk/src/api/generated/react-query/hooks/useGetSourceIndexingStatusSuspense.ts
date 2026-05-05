@@ -11,7 +11,7 @@ import type {
 import type {
   GetSourceIndexingStatusQueryResponse,
   GetSourceIndexingStatusPathParams,
-  GetSourceIndexingStatusQueryParams,
+  GetSourceIndexingStatusHeaderParams,
   GetSourceIndexingStatus400,
   GetSourceIndexingStatus401,
   GetSourceIndexingStatus403,
@@ -28,16 +28,14 @@ import type {
 import { getSourceIndexingStatus } from '../operations/getSourceIndexingStatus'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getSourceIndexingStatusSuspenseQueryKey = (
-  { agentId }: { agentId: GetSourceIndexingStatusPathParams['agentId'] },
-  params?: GetSourceIndexingStatusQueryParams,
-) =>
+export const getSourceIndexingStatusSuspenseQueryKey = ({
+  agentId,
+}: { agentId: GetSourceIndexingStatusPathParams['agentId'] }) =>
   [
     {
       url: '/agents/:agentId/knowledge-base/indexed-sources/status',
       params: { agentId: agentId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetSourceIndexingStatusSuspenseQueryKey = ReturnType<
@@ -47,14 +45,14 @@ export type GetSourceIndexingStatusSuspenseQueryKey = ReturnType<
 export function getSourceIndexingStatusSuspenseQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetSourceIndexingStatusPathParams['agentId']
-    params?: GetSourceIndexingStatusQueryParams
+    headers?: GetSourceIndexingStatusHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getSourceIndexingStatusSuspenseQueryKey({ agentId }, params)
+  const queryKey = getSourceIndexingStatusSuspenseQueryKey({ agentId })
   return queryOptions<
     GetSourceIndexingStatusQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +70,7 @@ export function getSourceIndexingStatusSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getSourceIndexingStatus({ agentId, params }, config)
+      return getSourceIndexingStatus({ agentId, headers }, config)
     },
   })
 }
@@ -87,10 +85,10 @@ export function useGetSourceIndexingStatusSuspense<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetSourceIndexingStatusPathParams['agentId']
-    params?: GetSourceIndexingStatusQueryParams
+    headers?: GetSourceIndexingStatusHeaderParams
   },
   options: {
     query?: Partial<
@@ -117,12 +115,12 @@ export function useGetSourceIndexingStatusSuspense<
   } = options ?? {}
   const queryKey =
     queryOptions?.queryKey ??
-    getSourceIndexingStatusSuspenseQueryKey({ agentId }, params)
+    getSourceIndexingStatusSuspenseQueryKey({ agentId })
 
   const query = useSuspenseQuery(
     {
       ...getSourceIndexingStatusSuspenseQueryOptions(
-        { agentId, params },
+        { agentId, headers },
         config,
       ),
       queryKey,

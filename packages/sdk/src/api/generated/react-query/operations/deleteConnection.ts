@@ -12,6 +12,7 @@ import type {
   DeleteConnectionMutationRequest,
   DeleteConnectionMutationResponse,
   DeleteConnectionPathParams,
+  DeleteConnectionHeaderParams,
   DeleteConnection400,
   DeleteConnection401,
   DeleteConnection403,
@@ -34,9 +35,11 @@ export async function deleteConnection(
   {
     connectionId,
     data,
+    headers,
   }: {
     connectionId: DeleteConnectionPathParams['connectionId']
     data?: DeleteConnectionMutationRequest
+    headers?: DeleteConnectionHeaderParams
   },
   config: Partial<RequestConfig<DeleteConnectionMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function deleteConnection(
     url: getDeleteConnectionUrl({ connectionId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

@@ -1,4 +1,4 @@
-import { InvalidArgumentError } from '../erros'
+import { InvalidArgumentError, NiceyupError } from '@workspace/core/errros'
 import { resolveEmbeddingModelSettings } from './resolve-model-settings'
 import { resolveVectorStore } from './resolve-vector-store'
 
@@ -41,16 +41,14 @@ export const safeValidateKnowledgeBaseConfiguration = async (
       error: null,
     }
   } catch (error) {
+    const errorObject = NiceyupError.isInstance(error)
+      ? { code: error.code, message: error.message }
+      : { code: 'CONFIGURATION_INVALID', message: 'Configuration is invalid' }
+
     return {
       success: false as const,
       data: null,
-      error:
-        error instanceof InvalidArgumentError
-          ? error
-          : {
-              code: 'CONFIGURATION_INVALID',
-              message: 'Configuration is invalid',
-            },
+      error: errorObject,
     }
   }
 }

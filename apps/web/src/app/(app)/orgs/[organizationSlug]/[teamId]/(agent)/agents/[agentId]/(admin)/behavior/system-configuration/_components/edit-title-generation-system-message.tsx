@@ -42,9 +42,11 @@ export function EditTitleGenerationSystemMessageForm({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { error } = await sdk.updateAgentSystemConfiguration({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       agentId: params.agentId,
       data: {
-        organizationSlug: params.organizationSlug,
         titleGenerationSystemMessage: values.titleGenerationSystemMessage,
       },
     })

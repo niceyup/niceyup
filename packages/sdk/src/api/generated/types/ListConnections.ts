@@ -16,15 +16,18 @@ export type ListConnectionsQueryParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   app?: ListConnectionsQueryParamsAppEnum
+}
+
+export type ListConnectionsHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const connectionsAppEnum = {
@@ -176,6 +179,7 @@ export type ListConnectionsQueryResponse = ListConnections200
 export type ListConnectionsQuery = {
   Response: ListConnections200
   QueryParams: ListConnectionsQueryParams
+  HeaderParams: ListConnectionsHeaderParams
   Errors:
     | ListConnections400
     | ListConnections401

@@ -10,6 +10,17 @@ export type UpdateIndexedSourcesPathParams = {
   agentId: string
 }
 
+export type UpdateIndexedSourcesHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateIndexedSources204Enum = {} as const
 
 export type UpdateIndexedSources204Enum =
@@ -113,14 +124,6 @@ export type UpdateIndexedSources500 = {
 
 export type UpdateIndexedSourcesMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @description Source IDs to add
    * @type array
    */
@@ -138,6 +141,7 @@ export type UpdateIndexedSourcesMutation = {
   Response: UpdateIndexedSources204
   Request: UpdateIndexedSourcesMutationRequest
   PathParams: UpdateIndexedSourcesPathParams
+  HeaderParams: UpdateIndexedSourcesHeaderParams
   Errors:
     | UpdateIndexedSources400
     | UpdateIndexedSources401

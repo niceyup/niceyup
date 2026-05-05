@@ -787,7 +787,7 @@ export const sourceOperations = pgTable(
       }),
 
     error: jsonb('error').$type<OperationError>(),
-    attempts: integer('attempts').notNull().default(0),
+    attempts: integer('attempts').notNull().default(1),
     ...timestamps,
   },
   (table) => [
@@ -822,9 +822,7 @@ export const files = pgTable('files', {
   scope: text('scope').notNull().$type<FileScope>(),
   metadata: jsonb('metadata').$type<FileMetadata>(),
 
-  organizationId: text('organization_id').references(() => organizations.id, {
-    onDelete: 'set null',
-  }),
+  referenceId: text('reference_id').notNull(),
 
   ...timestamps,
 })
@@ -874,6 +872,48 @@ export const conversationExplorerNodes = pgTable(
   ],
 )
 
+// export const conversationExplorerNodes = pgTable(
+//   'conversation_explorer_nodes',
+//   {
+//     ...id,
+//     name: text('name'),
+//     type: text('type').$type<ConversationExplorerNodeType>(),
+//     parentId: text('parent_id'),
+//     fractionalIndex: text('fractional_index'),
+
+//     visibility: text('visibility')
+//       .notNull()
+//       .default('private')
+//       .$type<ConversationVisibility>(),
+//     sharedByUser: boolean('shared_by_user').notNull().default(false), // True if the owner user shared the private conversation with other users
+
+//     agentId: text('agent_id')
+//       .notNull()
+//       .references(() => agents.id, {
+//         onDelete: 'cascade',
+//       }),
+//     conversationId: text('conversation_id').references(() => conversations.id, {
+//       onDelete: 'cascade',
+//     }),
+
+//     ownerUserId: text('owner_user_id').references(() => users.id, {
+//       onDelete: 'cascade',
+//     }),
+//     ownerTeamId: text('owner_team_id').references(() => teams.id, {
+//       onDelete: 'cascade',
+//     }),
+
+//     deletedAt: timestamp('deleted_at', { withTimezone: true }),
+//     ...timestamps,
+//   },
+//   (table) => [
+//     check(
+//       'exactly_one_owner',
+//       sql`(${table.ownerUserId} IS NOT NULL AND ${table.ownerTeamId} IS NULL) OR (${table.ownerUserId} IS NULL AND ${table.ownerTeamId} IS NOT NULL)`,
+//     ),
+//   ],
+// )
+
 export const conversationExplorerNodesRelations = relations(
   conversationExplorerNodes,
   ({ one, many }) => ({
@@ -916,6 +956,30 @@ export const sourceExplorerNodes = pgTable('source_explorer_nodes', {
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
   ...timestamps,
 })
+
+// export const sourceExplorerNodes = pgTable('source_explorer_nodes', {
+//   ...id,
+//   name: text('name'),
+//   type: text('type').$type<SourceExplorerNodeType>(),
+//   parentId: text('parent_id'),
+//   fractionalIndex: text('fractional_index'),
+
+//   flag: text('flag').$type<SourceExplorerNodeFlag>(),
+//   readOnly: boolean('read_only').notNull().default(false),
+
+//   sourceId: text('source_id').references(() => sources.id, {
+//     onDelete: 'cascade',
+//   }),
+
+//   organizationId: text('organization_id')
+//     .notNull()
+//     .references(() => organizations.id, {
+//       onDelete: 'cascade',
+//     }),
+
+//   deletedAt: timestamp('deleted_at', { withTimezone: true }),
+//   ...timestamps,
+// })
 
 export const sourceExplorerNodesRelations = relations(
   sourceExplorerNodes,

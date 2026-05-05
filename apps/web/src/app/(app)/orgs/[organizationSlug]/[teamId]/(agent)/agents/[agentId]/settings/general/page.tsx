@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { sdk } from '@/lib/sdk'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { cacheTag } from 'next/cache'
@@ -17,8 +17,10 @@ async function getAgent(params: {
   cacheTag('update-agent')
 
   const { data } = await sdk.getAgent({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     agentId: params.agentId,
-    params: { organizationSlug: params.organizationSlug },
   })
 
   return data?.agent || null
@@ -31,7 +33,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
   const agent = await getAgent({ organizationSlug, agentId })
 
@@ -44,30 +46,30 @@ export default async function Page({
       <EditAgentNameForm
         params={{ organizationSlug, agentId }}
         name={agent.name}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <EditAgentDescriptionForm
         params={{ organizationSlug, agentId }}
         description={agent.description}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <EditAgentSlugForm
         params={{ organizationSlug, agentId }}
         slug={agent.slug}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <EditAgentLogoForm
         params={{ organizationSlug, agentId }}
         logo={agent.logo}
-        isAdmin={isAdmin}
+        isAdmin={membershipRole.isAdmin}
       />
 
       <ViewAgentId id={agentId} />
 
-      {isAdmin && (
+      {membershipRole.isAdmin && (
         <DeleteAgentForm params={{ organizationSlug, teamId, agentId }} />
       )}
     </div>

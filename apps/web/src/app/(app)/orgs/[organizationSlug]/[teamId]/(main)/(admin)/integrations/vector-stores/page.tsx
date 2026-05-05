@@ -10,8 +10,8 @@ async function listVectorStores(params: {
   cacheTag('create-vector-store', 'update-vector-store', 'delete-vector-store')
 
   const { data } = await sdk.listVectorStores({
-    params: {
-      organizationSlug: params.organizationSlug,
+    headers: {
+      'x-organization-slug': params.organizationSlug,
     },
   })
 

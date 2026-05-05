@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { knowledgeBaseStatusSchema } from '@workspace/core/knowledge-bases'
 import {
   modelProviderSchema,
@@ -45,12 +45,12 @@ export async function getAgentKnowledgeBase(app: FastifyTypedInstance) {
         tags: ['Agent Knowledge Bases'],
         description: 'Get agent knowledge base',
         operationId: 'getAgentKnowledgeBase',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
-        }),
-        querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -72,23 +72,20 @@ export async function getAgentKnowledgeBase(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
-      const { organizationId, organizationSlug } = request.query
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({

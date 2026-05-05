@@ -11,7 +11,7 @@ import type {
 import type {
   GetModelProviderQueryResponse,
   GetModelProviderPathParams,
-  GetModelProviderQueryParams,
+  GetModelProviderHeaderParams,
   GetModelProvider400,
   GetModelProvider401,
   GetModelProvider403,
@@ -28,18 +28,14 @@ import type {
 import { getModelProvider } from '../operations/getModelProvider'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getModelProviderQueryKey = (
-  {
-    modelProviderId,
-  }: { modelProviderId: GetModelProviderPathParams['modelProviderId'] },
-  params?: GetModelProviderQueryParams,
-) =>
+export const getModelProviderQueryKey = ({
+  modelProviderId,
+}: { modelProviderId: GetModelProviderPathParams['modelProviderId'] }) =>
   [
     {
       url: '/model-providers/:modelProviderId',
       params: { modelProviderId: modelProviderId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetModelProviderQueryKey = ReturnType<
@@ -49,14 +45,14 @@ export type GetModelProviderQueryKey = ReturnType<
 export function getModelProviderQueryOptions(
   {
     modelProviderId,
-    params,
+    headers,
   }: {
     modelProviderId: GetModelProviderPathParams['modelProviderId']
-    params?: GetModelProviderQueryParams
+    headers?: GetModelProviderHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getModelProviderQueryKey({ modelProviderId }, params)
+  const queryKey = getModelProviderQueryKey({ modelProviderId })
   return queryOptions<
     GetModelProviderQueryResponse,
     ResponseErrorConfig<
@@ -74,7 +70,7 @@ export function getModelProviderQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getModelProvider({ modelProviderId, params }, config)
+      return getModelProvider({ modelProviderId, headers }, config)
     },
   })
 }
@@ -90,10 +86,10 @@ export function useGetModelProvider<
 >(
   {
     modelProviderId,
-    params,
+    headers,
   }: {
     modelProviderId: GetModelProviderPathParams['modelProviderId']
-    params?: GetModelProviderQueryParams
+    headers?: GetModelProviderHeaderParams
   },
   options: {
     query?: Partial<
@@ -120,12 +116,11 @@ export function useGetModelProvider<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getModelProviderQueryKey({ modelProviderId }, params)
+    queryOptions?.queryKey ?? getModelProviderQueryKey({ modelProviderId })
 
   const query = useQuery(
     {
-      ...getModelProviderQueryOptions({ modelProviderId, params }, config),
+      ...getModelProviderQueryOptions({ modelProviderId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

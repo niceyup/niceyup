@@ -9,6 +9,7 @@ import type {
   TriggerSourceIndexingMutationRequest,
   TriggerSourceIndexingMutationResponse,
   TriggerSourceIndexingPathParams,
+  TriggerSourceIndexingHeaderParams,
   TriggerSourceIndexing400,
   TriggerSourceIndexing401,
   TriggerSourceIndexing403,
@@ -31,9 +32,11 @@ export async function triggerSourceIndexing(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: TriggerSourceIndexingPathParams['agentId']
     data?: TriggerSourceIndexingMutationRequest
+    headers?: TriggerSourceIndexingHeaderParams
   },
   config: Partial<RequestConfig<TriggerSourceIndexingMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function triggerSourceIndexing(
     url: getTriggerSourceIndexingUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

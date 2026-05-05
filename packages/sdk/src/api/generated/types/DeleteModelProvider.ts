@@ -10,6 +10,17 @@ export type DeleteModelProviderPathParams = {
   modelProviderId: string
 }
 
+export type DeleteModelProviderHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteModelProvider204Enum = {} as const
 
 export type DeleteModelProvider204Enum =
@@ -111,16 +122,7 @@ export type DeleteModelProvider500 = {
   message: string
 }
 
-export type DeleteModelProviderMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type DeleteModelProviderMutationRequest = object
 
 export type DeleteModelProviderMutationResponse = DeleteModelProvider204
 
@@ -128,6 +130,7 @@ export type DeleteModelProviderMutation = {
   Response: DeleteModelProvider204
   Request: DeleteModelProviderMutationRequest
   PathParams: DeleteModelProviderPathParams
+  HeaderParams: DeleteModelProviderHeaderParams
   Errors:
     | DeleteModelProvider400
     | DeleteModelProvider401

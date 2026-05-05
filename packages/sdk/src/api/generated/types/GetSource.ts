@@ -10,15 +10,15 @@ export type GetSourcePathParams = {
   sourceId: string
 }
 
-export type GetSourceQueryParams = {
+export type GetSourceHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const sourceTypeEnum = {
@@ -164,7 +164,7 @@ export type GetSourceQueryResponse = GetSource200
 export type GetSourceQuery = {
   Response: GetSource200
   PathParams: GetSourcePathParams
-  QueryParams: GetSourceQueryParams
+  HeaderParams: GetSourceHeaderParams
   Errors:
     | GetSource400
     | GetSource401

@@ -11,6 +11,7 @@ import type {
 import type {
   ListMcpServersQueryResponse,
   ListMcpServersQueryParams,
+  ListMcpServersHeaderParams,
   ListMcpServers400,
   ListMcpServers401,
   ListMcpServers403,
@@ -33,7 +34,13 @@ export const listMcpServersQueryKey = (params?: ListMcpServersQueryParams) =>
 export type ListMcpServersQueryKey = ReturnType<typeof listMcpServersQueryKey>
 
 export function listMcpServersQueryOptions(
-  { params }: { params?: ListMcpServersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServersQueryParams
+    headers?: ListMcpServersHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listMcpServersQueryKey(params)
@@ -53,7 +60,7 @@ export function listMcpServersQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listMcpServers({ params }, config)
+      return listMcpServers({ params, headers }, config)
     },
   })
 }
@@ -67,7 +74,13 @@ export function useListMcpServers<
   TQueryData = ListMcpServersQueryResponse,
   TQueryKey extends QueryKey = ListMcpServersQueryKey,
 >(
-  { params }: { params?: ListMcpServersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServersQueryParams
+    headers?: ListMcpServersHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -96,7 +109,7 @@ export function useListMcpServers<
 
   const query = useQuery(
     {
-      ...listMcpServersQueryOptions({ params }, config),
+      ...listMcpServersQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

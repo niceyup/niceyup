@@ -71,9 +71,11 @@ export function UpstashVectorStore({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (params.vectorStoreId && initialData) {
       const { error } = await sdk.updateVectorStore({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         vectorStoreId: params.vectorStoreId,
         data: {
-          organizationSlug: params.organizationSlug,
           provider: 'upstash',
           name: values.name,
           settings: {
@@ -93,8 +95,10 @@ export function UpstashVectorStore({
       await updateTag('update-vector-store')
     } else {
       const { error } = await sdk.createVectorStore({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         data: {
-          organizationSlug: params.organizationSlug,
           provider: 'upstash',
           name: values.name,
           settings: {

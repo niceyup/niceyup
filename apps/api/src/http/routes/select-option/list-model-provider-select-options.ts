@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { modelProviderSchema } from '@workspace/core/model-providers'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
@@ -21,9 +21,11 @@ export async function listModelProviderSelectOptions(
         tags: ['Model Providers'],
         description: 'Get model providers for select options',
         operationId: 'listModelProviderSelectOptions',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           providers: modelProvidersSchema.optional(),
           search: z.string().max(100).default(''),
         }),
@@ -47,24 +49,21 @@ export async function listModelProviderSelectOptions(
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, providers, search } =
-        request.query
+      const { providers, search } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const modelProviders =
-        await queries.context.listModelProviderSelectOptions(context, {
-          providers,
-          search,
-        })
+      const modelProviders = await queries.ctx.listModelProviderSelectOptions(
+        { organizationId: organization.id },
+        { providers, search },
+      )
 
       return {
         meta: {

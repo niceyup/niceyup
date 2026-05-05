@@ -1,4 +1,5 @@
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { context } from '../middlewares/context'
 import { getAgentConfiguration } from './agents/configuration/get-agent-configuration'
 import { updateAgentConfiguration } from './agents/configuration/update-agent-configuration'
 import { createAgent } from './agents/create-agent'
@@ -63,7 +64,6 @@ import { listVectorStoreSelectOptions } from './select-option/list-vector-store-
 import { cancelSource } from './sources/cancel-source'
 import { createSource } from './sources/create-source'
 import { createSourceFolder } from './sources/create-source-folder'
-import { getDatabaseSchema } from './sources/database/get-schema'
 import { deleteSource } from './sources/delete-source'
 import { deleteSourceFolder } from './sources/delete-source-folder'
 import { generateUploadSignatureSource } from './sources/files/generate-upload-signature'
@@ -82,8 +82,13 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(health)
   // app.register(authRoutes)
 
+  // Middlewares
+  app.register(context)
+
+  // Profile
   app.register(getProfile)
 
+  // Model Providers
   app.register(listModelProviders)
   app.register(createModelProvider)
   app.register(getModelProvider)
@@ -91,6 +96,7 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(deleteModelProvider)
   app.register(listModelProviderSelectOptions)
 
+  // Vector Stores
   app.register(listVectorStores)
   app.register(createVectorStore)
   app.register(getVectorStore)
@@ -98,6 +104,7 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(deleteVectorStore)
   app.register(listVectorStoreSelectOptions)
 
+  // Connections
   app.register(listConnections)
   app.register(createConnection)
   app.register(getConnection)
@@ -105,6 +112,7 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(deleteConnection)
   app.register(listConnectionSelectOptions)
 
+  // MCP Servers
   app.register(listMcpServers)
   app.register(createMcpServer)
   app.register(getMcpServer)
@@ -112,27 +120,33 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(deleteMcpServer)
   app.register(listMcpServerSelectOptions)
 
+  // Agents
   app.register(listAgents)
   app.register(createAgent)
   app.register(getAgent)
   app.register(updateAgent)
   app.register(deleteAgent)
 
+  // Agent System Configuration
   app.register(getAgentSystemConfiguration)
   app.register(updateAgentSystemConfiguration)
 
+  // Agent Configuration
   app.register(getAgentConfiguration)
   app.register(updateAgentConfiguration)
 
+  // Conversations
   app.register(listConversations)
   app.register(createConversation)
   app.register(getConversation)
   app.register(updateConversation)
   app.register(deleteConversation)
 
+  // Conversation Configuration
   app.register(getConversationConfiguration)
   app.register(updateConversationConfiguration)
 
+  // Messages
   app.register(listMessages)
   app.register(sendMessage)
   app.register(resendMessage)
@@ -141,17 +155,20 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(streamMessage)
   app.register(stopMessage)
 
+  // Agent Knowledge Base
   app.register(getAgentKnowledgeBase)
   app.register(updateAgentKnowledgeBase)
   app.register(reindexKnowledgeBase)
   app.register(cancelKnowledgeBaseReindexing)
 
+  // Indexed Sources
   app.register(listIndexedSources)
   app.register(updateIndexedSources)
   app.register(getSourceIndexingStatus)
   app.register(triggerSourceIndexing)
   app.register(cancelSourceIndexing)
 
+  // Sources
   app.register(listSources)
   app.register(getSource)
   app.register(createSource)
@@ -160,9 +177,9 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(createSourceFolder)
   app.register(updateSourceFolder)
   app.register(deleteSourceFolder)
-  app.register(getDatabaseSchema)
   app.register(cancelSource)
 
+  // Files
   app.register(getFile)
   app.register(generateUploadSignature)
   app.register(uploadFiles)

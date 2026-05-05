@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { vectorStoreProviderSchema } from '@workspace/core/vector-stores'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
@@ -19,9 +19,11 @@ export async function listVectorStoreSelectOptions(app: FastifyTypedInstance) {
         tags: ['Vector Stores'],
         description: 'Get vector stores for select options',
         operationId: 'listVectorStoreSelectOptions',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           providers: vectorStoreProvidersSchema.optional(),
           search: z.string().max(100).default(''),
         }),
@@ -45,21 +47,19 @@ export async function listVectorStoreSelectOptions(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, providers, search } =
-        request.query
+      const { providers, search } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const vectorStores = await queries.context.listVectorStoreSelectOptions(
-        context,
+      const vectorStores = await queries.ctx.listVectorStoreSelectOptions(
+        { organizationId: organization.id },
         { providers, search },
       )
 

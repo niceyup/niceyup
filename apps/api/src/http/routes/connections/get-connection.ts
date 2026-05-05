@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   connectionAppSchema,
   connectionAuthenticationSchema,
@@ -18,12 +18,12 @@ export async function getConnection(app: FastifyTypedInstance) {
         tags: ['Connections'],
         description: 'Get connection details',
         operationId: 'getConnection',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           connectionId: z.string(),
-        }),
-        querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -42,23 +42,20 @@ export async function getConnection(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { connectionId } = request.params
 
-      const { organizationId, organizationSlug } = request.query
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const connection = await queries.context.getConnection(context, {
-        connectionId,
-      })
+      const connection = await queries.ctx.getConnection(
+        { organizationId: organization.id },
+        { connectionId },
+      )
 
       if (!connection) {
         throw new BadRequestError({

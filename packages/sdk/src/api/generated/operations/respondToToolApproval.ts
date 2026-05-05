@@ -9,6 +9,7 @@ import type {
   RespondToToolApprovalMutationRequest,
   RespondToToolApprovalMutationResponse,
   RespondToToolApprovalPathParams,
+  RespondToToolApprovalHeaderParams,
   RespondToToolApproval400,
   RespondToToolApproval401,
   RespondToToolApproval403,
@@ -36,10 +37,12 @@ export async function respondToToolApproval(
     conversationId,
     messageId,
     data,
+    headers,
   }: {
     conversationId: RespondToToolApprovalPathParams['conversationId']
     messageId: RespondToToolApprovalPathParams['messageId']
     data: RespondToToolApprovalMutationRequest
+    headers?: RespondToToolApprovalHeaderParams
   },
   config: Partial<RequestConfig<RespondToToolApprovalMutationRequest>> & {
     client?: typeof fetch
@@ -64,6 +67,7 @@ export async function respondToToolApproval(
     url: getRespondToToolApprovalUrl({ conversationId, messageId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

@@ -12,17 +12,20 @@ export type GetConversationPathParams = {
 
 export type GetConversationQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
+}
+
+export type GetConversationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const conversationVisibilityEnum = {
@@ -187,6 +190,7 @@ export type GetConversationQuery = {
   Response: GetConversation200
   PathParams: GetConversationPathParams
   QueryParams: GetConversationQueryParams
+  HeaderParams: GetConversationHeaderParams
   Errors:
     | GetConversation400
     | GetConversation401

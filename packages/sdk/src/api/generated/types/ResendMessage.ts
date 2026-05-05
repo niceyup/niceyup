@@ -14,6 +14,17 @@ export type ResendMessagePathParams = {
   messageId: string
 }
 
+export type ResendMessageHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const userMessageStatusEnum2 = {
   queued: 'queued',
   processing: 'processing',
@@ -2165,14 +2176,6 @@ export type PartsTypeEnum69 =
 
 export type ResendMessageMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -2228,6 +2231,7 @@ export type ResendMessageMutation = {
   Response: ResendMessage200
   Request: ResendMessageMutationRequest
   PathParams: ResendMessagePathParams
+  HeaderParams: ResendMessageHeaderParams
   Errors:
     | ResendMessage400
     | ResendMessage401

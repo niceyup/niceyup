@@ -163,10 +163,11 @@ function SourceExplorerFolderActionDelete({
   const onRemove = async () => {
     startTransition(async () => {
       const { error } = await sdk.deleteSourceFolder({
-        folderId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        folderId,
+        data: {},
       })
 
       if (error) {
@@ -218,9 +219,11 @@ function RenameSourceExplorerFolderDialog({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { error } = await sdk.updateSourceFolder({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       folderId,
       data: {
-        organizationSlug: params.organizationSlug,
         name: values.name,
       },
     })

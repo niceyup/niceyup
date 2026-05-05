@@ -5,9 +5,9 @@ import type {
   AIMessageMetadata,
   AIMessagePart,
 } from '@workspace/ai/types'
+import { InvalidArgumentError } from '@workspace/core/errros'
 import { queries } from '@workspace/db/queries'
-import { createAgentAIStream } from '@workspace/engine'
-import { InvalidArgumentError } from '@workspace/engine'
+import { createAgentStream } from '@workspace/engine'
 import {
   type ConversationConfiguration,
   resolveConversationConfiguration,
@@ -100,7 +100,7 @@ export async function streamAgentResponse({
           }
         }, 1000)
 
-        await createAgentAIStream({
+        await createAgentStream({
           model: languageModel.model,
           tools: { ...tools, ...mcpTools },
           activeTools,

@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { sourceStatusSchema, sourceTypeSchema } from '@workspace/core/sources'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
@@ -14,9 +14,9 @@ export async function listSources(app: FastifyTypedInstance) {
         tags: ['Sources'],
         description: 'Get all sources',
         operationId: 'listSources',
-        querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -35,19 +35,17 @@ export async function listSources(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug } = request.query
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
+      const sources = await queries.ctx.listSources({
+        organizationId: organization.id,
       })
-
-      const sources = await queries.context.listSources(context)
 
       return { sources }
     },

@@ -11,7 +11,7 @@ import type {
 import type {
   GetSourceIndexingStatusQueryResponse,
   GetSourceIndexingStatusPathParams,
-  GetSourceIndexingStatusQueryParams,
+  GetSourceIndexingStatusHeaderParams,
   GetSourceIndexingStatus400,
   GetSourceIndexingStatus401,
   GetSourceIndexingStatus403,
@@ -33,10 +33,10 @@ function getGetSourceIndexingStatusUrl({
 export async function getSourceIndexingStatus(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetSourceIndexingStatusPathParams['agentId']
-    params?: GetSourceIndexingStatusQueryParams
+    headers?: GetSourceIndexingStatusHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -56,8 +56,8 @@ export async function getSourceIndexingStatus(
   >({
     method: 'GET',
     url: getGetSourceIndexingStatusUrl({ agentId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

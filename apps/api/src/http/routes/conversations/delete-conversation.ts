@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { and, eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -22,12 +22,14 @@ export async function deleteConversation(app: FastifyTypedInstance) {
         tags: ['Conversations'],
         description: 'Delete a conversation',
         operationId: 'deleteConversation',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           agentId: z.string(),
           destroy: z.boolean().optional(),
         }),
@@ -37,25 +39,22 @@ export async function deleteConversation(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: request.ctxParams,
+        },
+      )
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, agentId, destroy } =
-        request.body
+      const { agentId, destroy } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const conversation = await queries.context.getConversation(context, {
-        agentId,
-        conversationId,
-      })
+      const conversation = await queries.ctx.getConversation(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId },
+      )
 
       if (!conversation) {
         throw new BadRequestError({
@@ -73,7 +72,7 @@ export async function deleteConversation(app: FastifyTypedInstance) {
             .where(
               and(
                 eq(conversationExplorerNodes.conversationId, conversationId),
-                eq(conversationExplorerNodes.ownerUserId, userId),
+                eq(conversationExplorerNodes.ownerUserId, user.id),
               ),
             )
             .returning({
@@ -88,17 +87,17 @@ export async function deleteConversation(app: FastifyTypedInstance) {
             .where(
               and(
                 eq(participants.conversationId, conversationId),
-                eq(participants.userId, userId),
+                eq(participants.userId, user.id),
               ),
             )
         } else {
           const explorerOwnerTypeCondition = conversation.teamId
             ? eq(conversationExplorerNodes.ownerTeamId, conversation.teamId)
-            : eq(conversationExplorerNodes.ownerUserId, userId)
+            : eq(conversationExplorerNodes.ownerUserId, user.id)
 
           const ownerTypeCondition = conversation.teamId
             ? eq(conversations.teamId, conversation.teamId)
-            : eq(conversations.createdByUserId, userId)
+            : eq(conversations.createdByUserId, user.id)
 
           if (destroy) {
             const [itemExplorerNode] = await tx

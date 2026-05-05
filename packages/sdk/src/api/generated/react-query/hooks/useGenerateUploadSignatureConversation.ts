@@ -11,6 +11,7 @@ import type {
 import type {
   GenerateUploadSignatureConversationMutationRequest,
   GenerateUploadSignatureConversationMutationResponse,
+  GenerateUploadSignatureConversationHeaderParams,
   GenerateUploadSignatureConversation400,
   GenerateUploadSignatureConversation401,
   GenerateUploadSignatureConversation403,
@@ -45,7 +46,10 @@ export function useGenerateUploadSignatureConversation<TContext>(
         | GenerateUploadSignatureConversation429
         | GenerateUploadSignatureConversation500
       >,
-      { data: GenerateUploadSignatureConversationMutationRequest },
+      {
+        data: GenerateUploadSignatureConversationMutationRequest
+        headers?: GenerateUploadSignatureConversationHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<
@@ -69,12 +73,15 @@ export function useGenerateUploadSignatureConversation<TContext>(
       | GenerateUploadSignatureConversation429
       | GenerateUploadSignatureConversation500
     >,
-    { data: GenerateUploadSignatureConversationMutationRequest },
+    {
+      data: GenerateUploadSignatureConversationMutationRequest
+      headers?: GenerateUploadSignatureConversationHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return generateUploadSignatureConversation({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return generateUploadSignatureConversation({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

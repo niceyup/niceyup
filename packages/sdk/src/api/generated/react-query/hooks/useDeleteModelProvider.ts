@@ -12,6 +12,7 @@ import type {
   DeleteModelProviderMutationRequest,
   DeleteModelProviderMutationResponse,
   DeleteModelProviderPathParams,
+  DeleteModelProviderHeaderParams,
   DeleteModelProvider400,
   DeleteModelProvider401,
   DeleteModelProvider403,
@@ -49,6 +50,7 @@ export function useDeleteModelProvider<TContext>(
       {
         modelProviderId: DeleteModelProviderPathParams['modelProviderId']
         data?: DeleteModelProviderMutationRequest
+        headers?: DeleteModelProviderHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useDeleteModelProvider<TContext>(
     {
       modelProviderId: DeleteModelProviderPathParams['modelProviderId']
       data?: DeleteModelProviderMutationRequest
+      headers?: DeleteModelProviderHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ modelProviderId, data }) => {
-        return deleteModelProvider({ modelProviderId, data }, config)
+      mutationFn: async ({ modelProviderId, data, headers }) => {
+        return deleteModelProvider({ modelProviderId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

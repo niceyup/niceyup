@@ -11,6 +11,7 @@ import type {
 import type {
   ListModelProviderSelectOptionsQueryResponse,
   ListModelProviderSelectOptionsQueryParams,
+  ListModelProviderSelectOptionsHeaderParams,
   ListModelProviderSelectOptions400,
   ListModelProviderSelectOptions401,
   ListModelProviderSelectOptions403,
@@ -40,7 +41,13 @@ export type ListModelProviderSelectOptionsSuspenseQueryKey = ReturnType<
 >
 
 export function listModelProviderSelectOptionsSuspenseQueryOptions(
-  { params }: { params?: ListModelProviderSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProviderSelectOptionsQueryParams
+    headers?: ListModelProviderSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listModelProviderSelectOptionsSuspenseQueryKey(params)
@@ -60,7 +67,7 @@ export function listModelProviderSelectOptionsSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listModelProviderSelectOptions({ params }, config)
+      return listModelProviderSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -73,7 +80,13 @@ export function useListModelProviderSelectOptionsSuspense<
   TData = ListModelProviderSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListModelProviderSelectOptionsSuspenseQueryKey,
 >(
-  { params }: { params?: ListModelProviderSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProviderSelectOptionsQueryParams
+    headers?: ListModelProviderSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -103,7 +116,10 @@ export function useListModelProviderSelectOptionsSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listModelProviderSelectOptionsSuspenseQueryOptions({ params }, config),
+      ...listModelProviderSelectOptionsSuspenseQueryOptions(
+        { params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

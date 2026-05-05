@@ -1,4 +1,4 @@
-import { getAgent } from '@/actions/agents'
+import { getAgentDetailed } from '@/actions/agents'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { EditAuxiliaryLanguageModelSettingsForm } from './_components/edit-auxiliary-language-model-settings'
 import { EditSuggestionForm } from './_components/edit-suggestion'
@@ -11,7 +11,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, agentId } = await params
 
-  const agent = await getAgent(
+  const agentDetailed = await getAgentDetailed(
     { organizationSlug, agentId },
     {
       with: {
@@ -20,7 +20,7 @@ export default async function Page({
     },
   )
 
-  if (!agent) {
+  if (!agentDetailed) {
     return null
   }
 
@@ -29,17 +29,18 @@ export default async function Page({
       <EditAuxiliaryLanguageModelSettingsForm
         params={{ organizationSlug, agentId }}
         auxiliaryLanguageModelSettings={
-          agent.systemConfiguration?.auxiliaryLanguageModelSettings
+          agentDetailed.systemConfiguration?.auxiliaryLanguageModelSettings
             ? {
-                ...agent.systemConfiguration.auxiliaryLanguageModelSettings,
-                provider: agent.systemConfiguration
+                ...agentDetailed.systemConfiguration
+                  .auxiliaryLanguageModelSettings,
+                provider: agentDetailed.systemConfiguration
                   .auxiliaryLanguageModelSettings.provider
                   ? {
-                      id: agent.systemConfiguration
+                      id: agentDetailed.systemConfiguration
                         .auxiliaryLanguageModelSettings.provider.id,
                       value:
-                        agent.systemConfiguration.auxiliaryLanguageModelSettings
-                          .provider,
+                        agentDetailed.systemConfiguration
+                          .auxiliaryLanguageModelSettings.provider,
                     }
                   : null,
               }
@@ -50,13 +51,13 @@ export default async function Page({
       <EditTitleGenerationSystemMessageForm
         params={{ organizationSlug, agentId }}
         titleGenerationSystemMessage={
-          agent.systemConfiguration?.titleGenerationSystemMessage
+          agentDetailed.systemConfiguration?.titleGenerationSystemMessage
         }
       />
 
       <EditSuggestionForm
         params={{ organizationSlug, agentId }}
-        suggestions={agent.systemConfiguration?.suggestions}
+        suggestions={agentDetailed.systemConfiguration?.suggestions}
       />
     </div>
   )

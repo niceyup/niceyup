@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { mcpServerTypeSchema } from '@workspace/core/mcp-servers'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
@@ -14,9 +14,11 @@ export async function listMcpServers(app: FastifyTypedInstance) {
         tags: ['MCP Servers'],
         description: 'Get all MCP servers',
         operationId: 'listMcpServers',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           type: mcpServerTypeSchema.optional(),
         }),
         response: withDefaultErrorResponses({
@@ -36,21 +38,20 @@ export async function listMcpServers(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, type } = request.query
+      const { type } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const mcpServers = await queries.context.listMcpServers(context, {
-        type,
-      })
+      const mcpServers = await queries.ctx.listMcpServers(
+        { organizationId: organization.id },
+        { type },
+      )
 
       return { mcpServers }
     },

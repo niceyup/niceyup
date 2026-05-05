@@ -11,6 +11,7 @@ import type {
 import type {
   ListVectorStoreSelectOptionsQueryResponse,
   ListVectorStoreSelectOptionsQueryParams,
+  ListVectorStoreSelectOptionsHeaderParams,
   ListVectorStoreSelectOptions400,
   ListVectorStoreSelectOptions401,
   ListVectorStoreSelectOptions403,
@@ -28,7 +29,13 @@ function getListVectorStoreSelectOptionsUrl() {
  * {@link /select-option/vector-stores}
  */
 export async function listVectorStoreSelectOptions(
-  { params }: { params?: ListVectorStoreSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoreSelectOptionsQueryParams
+    headers?: ListVectorStoreSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listVectorStoreSelectOptions(
     url: getListVectorStoreSelectOptionsUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

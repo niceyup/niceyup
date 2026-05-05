@@ -1,8 +1,8 @@
 import type { EmbeddingModel } from '@workspace/ai'
+import { InvalidArgumentError } from '@workspace/core/errros'
 import { vectorStoreSchemas } from '@workspace/core/vector-stores'
 import { queries } from '@workspace/db/queries'
 import { createVectorStoreRegistry } from '@workspace/vector-store'
-import { InvalidArgumentError } from '../erros'
 
 export type VectorStore = Awaited<ReturnType<typeof resolveVectorStore>>
 

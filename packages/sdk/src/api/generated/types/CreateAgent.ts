@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateAgentHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -106,14 +117,6 @@ export type CreateAgent500 = {
 
 export type CreateAgentMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -141,6 +144,7 @@ export type CreateAgentMutationResponse = CreateAgent201
 export type CreateAgentMutation = {
   Response: CreateAgent201
   Request: CreateAgentMutationRequest
+  HeaderParams: CreateAgentHeaderParams
   Errors:
     | CreateAgent400
     | CreateAgent401

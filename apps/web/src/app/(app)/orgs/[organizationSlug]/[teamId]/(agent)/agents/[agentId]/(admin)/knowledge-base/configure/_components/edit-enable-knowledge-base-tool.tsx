@@ -25,9 +25,11 @@ export function EditEnableKnowledgeBaseToolForm({
   const onSubmit = async () => {
     startTransition(async () => {
       const { error } = await sdk.updateAgentConfiguration({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         agentId: params.agentId,
         data: {
-          organizationSlug: params.organizationSlug,
           enableKnowledgeBaseTool: !enableKnowledgeBaseTool,
         },
       })

@@ -12,6 +12,7 @@ import type {
   CancelKnowledgeBaseReindexingMutationRequest,
   CancelKnowledgeBaseReindexingMutationResponse,
   CancelKnowledgeBaseReindexingPathParams,
+  CancelKnowledgeBaseReindexingHeaderParams,
   CancelKnowledgeBaseReindexing400,
   CancelKnowledgeBaseReindexing401,
   CancelKnowledgeBaseReindexing403,
@@ -34,9 +35,11 @@ export async function cancelKnowledgeBaseReindexing(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: CancelKnowledgeBaseReindexingPathParams['agentId']
     data?: CancelKnowledgeBaseReindexingMutationRequest
+    headers?: CancelKnowledgeBaseReindexingHeaderParams
   },
   config: Partial<
     RequestConfig<CancelKnowledgeBaseReindexingMutationRequest>
@@ -61,6 +64,7 @@ export async function cancelKnowledgeBaseReindexing(
     url: getCancelKnowledgeBaseReindexingUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

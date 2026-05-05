@@ -12,6 +12,7 @@ import type {
   StopMessageMutationRequest,
   StopMessageMutationResponse,
   StopMessagePathParams,
+  StopMessageHeaderParams,
   StopMessage400,
   StopMessage401,
   StopMessage403,
@@ -50,6 +51,7 @@ export function useStopMessage<TContext>(
         conversationId: StopMessagePathParams['conversationId']
         messageId: StopMessagePathParams['messageId']
         data: StopMessageMutationRequest
+        headers?: StopMessageHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -76,12 +78,13 @@ export function useStopMessage<TContext>(
       conversationId: StopMessagePathParams['conversationId']
       messageId: StopMessagePathParams['messageId']
       data: StopMessageMutationRequest
+      headers?: StopMessageHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, messageId, data }) => {
-        return stopMessage({ conversationId, messageId, data }, config)
+      mutationFn: async ({ conversationId, messageId, data, headers }) => {
+        return stopMessage({ conversationId, messageId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

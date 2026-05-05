@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
 
@@ -14,13 +14,15 @@ export async function stopMessage(app: FastifyTypedInstance) {
         tags: ['Messages'],
         description: 'Stop message processing',
         operationId: 'stopMessage',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           conversationId: z.string(),
           messageId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           agentId: z.string(),
         }),
         response: withDefaultErrorResponses({
@@ -29,25 +31,22 @@ export async function stopMessage(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: request.ctxParams,
+        },
+      )
 
       const { conversationId, messageId } = request.params
 
-      const { organizationId, organizationSlug, agentId } = request.body
+      const { agentId } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const message = await queries.context.getMessage(context, {
-        agentId,
-        conversationId,
-        messageId,
-      })
+      const message = await queries.ctx.getMessage(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId, messageId },
+      )
 
       if (!message) {
         throw new BadRequestError({

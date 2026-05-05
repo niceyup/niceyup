@@ -1,11 +1,8 @@
-import { getActiveSubscription } from '@/actions/billing'
 import { Header } from '@/components/header'
 import { Skeleton } from '@workspace/ui/components/skeleton'
-import { StandardPlan } from './standard-plan'
+import { PlusPlan } from './_components/plus-plan'
 
 export default async function Page() {
-  const activeSubscription = await getActiveSubscription()
-
   return (
     <>
       <Header selectedOrganizationLabel="Onboarding" />
@@ -21,7 +18,7 @@ export default async function Page() {
         </div>
 
         <div className="absolute flex h-full max-h-300 w-full items-center justify-center">
-          <StandardPlan isActive={!!activeSubscription} />
+          <PlusPlan />
         </div>
       </main>
     </>

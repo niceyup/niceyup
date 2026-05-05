@@ -1,7 +1,6 @@
 import { and, asc, eq } from 'drizzle-orm'
 import { db } from '../../db'
 import { invitations, organizations, teams, users } from '../../schema/auth'
-import { getOrganization } from './organizations'
 
 type ContextGetInvitationParams = {
   userId: string
@@ -70,27 +69,12 @@ export async function getInvitation(
 }
 
 type ContextListPendingInvitationsParams = {
-  userId: string
-} & (
-  | {
-      organizationId: string
-      organizationSlug?: never
-    }
-  | {
-      organizationId?: never
-      organizationSlug: string
-    }
-)
+  organizationId: string
+}
 
 export async function listPendingInvitations(
   context: ContextListPendingInvitationsParams,
 ) {
-  const checkAccessToOrganization = await getOrganization(context, context)
-
-  if (!checkAccessToOrganization) {
-    return []
-  }
-
   const listOrganizationPendingInvitations = await db
     .select({
       id: invitations.id,
@@ -116,7 +100,7 @@ export async function listPendingInvitations(
     .leftJoin(teams, eq(invitations.teamId, teams.id))
     .where(
       and(
-        eq(invitations.organizationId, checkAccessToOrganization.id),
+        eq(invitations.organizationId, context.organizationId),
         eq(invitations.status, 'pending'),
       ),
     )

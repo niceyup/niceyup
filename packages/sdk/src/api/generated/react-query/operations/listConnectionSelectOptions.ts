@@ -11,6 +11,7 @@ import type {
 import type {
   ListConnectionSelectOptionsQueryResponse,
   ListConnectionSelectOptionsQueryParams,
+  ListConnectionSelectOptionsHeaderParams,
   ListConnectionSelectOptions400,
   ListConnectionSelectOptions401,
   ListConnectionSelectOptions403,
@@ -28,7 +29,13 @@ function getListConnectionSelectOptionsUrl() {
  * {@link /select-option/connections}
  */
 export async function listConnectionSelectOptions(
-  { params }: { params?: ListConnectionSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionSelectOptionsQueryParams
+    headers?: ListConnectionSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listConnectionSelectOptions(
     url: getListConnectionSelectOptionsUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

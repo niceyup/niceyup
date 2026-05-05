@@ -61,3 +61,9 @@ export const sourceOperationStatusSchema = z.enum([
   'completed',
   'failed',
 ])
+
+// Source Explorer Nodes
+
+export const sourceExplorerNodeTypeSchema = z.enum(['folder', 'source'])
+
+export const sourceExplorerNodeFlagSchema = z.enum(['external'])

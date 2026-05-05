@@ -12,6 +12,7 @@ import type {
   CancelSourceMutationRequest,
   CancelSourceMutationResponse,
   CancelSourcePathParams,
+  CancelSourceHeaderParams,
   CancelSource400,
   CancelSource401,
   CancelSource403,
@@ -47,6 +48,7 @@ export function useCancelSource<TContext>(
       {
         sourceId: CancelSourcePathParams['sourceId']
         data?: CancelSourceMutationRequest
+        headers?: CancelSourceHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -72,12 +74,13 @@ export function useCancelSource<TContext>(
     {
       sourceId: CancelSourcePathParams['sourceId']
       data?: CancelSourceMutationRequest
+      headers?: CancelSourceHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ sourceId, data }) => {
-        return cancelSource({ sourceId, data }, config)
+      mutationFn: async ({ sourceId, data, headers }) => {
+        return cancelSource({ sourceId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

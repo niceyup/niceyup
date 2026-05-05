@@ -11,7 +11,7 @@ import type {
 import type {
   GetMcpServerQueryResponse,
   GetMcpServerPathParams,
-  GetMcpServerQueryParams,
+  GetMcpServerHeaderParams,
   GetMcpServer400,
   GetMcpServer401,
   GetMcpServer403,
@@ -28,13 +28,11 @@ import type {
 import { getMcpServer } from '../operations/getMcpServer'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getMcpServerSuspenseQueryKey = (
-  { mcpServerId }: { mcpServerId: GetMcpServerPathParams['mcpServerId'] },
-  params?: GetMcpServerQueryParams,
-) =>
+export const getMcpServerSuspenseQueryKey = ({
+  mcpServerId,
+}: { mcpServerId: GetMcpServerPathParams['mcpServerId'] }) =>
   [
     { url: '/mcp-servers/:mcpServerId', params: { mcpServerId: mcpServerId } },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetMcpServerSuspenseQueryKey = ReturnType<
@@ -44,14 +42,14 @@ export type GetMcpServerSuspenseQueryKey = ReturnType<
 export function getMcpServerSuspenseQueryOptions(
   {
     mcpServerId,
-    params,
+    headers,
   }: {
     mcpServerId: GetMcpServerPathParams['mcpServerId']
-    params?: GetMcpServerQueryParams
+    headers?: GetMcpServerHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getMcpServerSuspenseQueryKey({ mcpServerId }, params)
+  const queryKey = getMcpServerSuspenseQueryKey({ mcpServerId })
   return queryOptions<
     GetMcpServerQueryResponse,
     ResponseErrorConfig<
@@ -69,7 +67,7 @@ export function getMcpServerSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getMcpServer({ mcpServerId, params }, config)
+      return getMcpServer({ mcpServerId, headers }, config)
     },
   })
 }
@@ -84,10 +82,10 @@ export function useGetMcpServerSuspense<
 >(
   {
     mcpServerId,
-    params,
+    headers,
   }: {
     mcpServerId: GetMcpServerPathParams['mcpServerId']
-    params?: GetMcpServerQueryParams
+    headers?: GetMcpServerHeaderParams
   },
   options: {
     query?: Partial<
@@ -113,12 +111,11 @@ export function useGetMcpServerSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getMcpServerSuspenseQueryKey({ mcpServerId }, params)
+    queryOptions?.queryKey ?? getMcpServerSuspenseQueryKey({ mcpServerId })
 
   const query = useSuspenseQuery(
     {
-      ...getMcpServerSuspenseQueryOptions({ mcpServerId, params }, config),
+      ...getMcpServerSuspenseQueryOptions({ mcpServerId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

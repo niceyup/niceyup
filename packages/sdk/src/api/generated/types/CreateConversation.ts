@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateConversationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -123,14 +134,6 @@ export type CreateConversationMutationRequestVisibilityEnum =
 
 export type CreateConversationMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   teamId?: string | null
@@ -163,6 +166,7 @@ export type CreateConversationMutationResponse = CreateConversation201
 export type CreateConversationMutation = {
   Response: CreateConversation201
   Request: CreateConversationMutationRequest
+  HeaderParams: CreateConversationHeaderParams
   Errors:
     | CreateConversation400
     | CreateConversation401

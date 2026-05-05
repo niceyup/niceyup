@@ -11,6 +11,7 @@ import type {
 import type {
   CreateConnectionMutationRequest,
   CreateConnectionMutationResponse,
+  CreateConnectionHeaderParams,
   CreateConnection400,
   CreateConnection401,
   CreateConnection403,
@@ -45,7 +46,10 @@ export function useCreateConnection<TContext>(
         | CreateConnection429
         | CreateConnection500
       >,
-      { data: CreateConnectionMutationRequest },
+      {
+        data: CreateConnectionMutationRequest
+        headers?: CreateConnectionHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateConnectionMutationRequest>> & {
@@ -68,12 +72,15 @@ export function useCreateConnection<TContext>(
       | CreateConnection429
       | CreateConnection500
     >,
-    { data: CreateConnectionMutationRequest },
+    {
+      data: CreateConnectionMutationRequest
+      headers?: CreateConnectionHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createConnection({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createConnection({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

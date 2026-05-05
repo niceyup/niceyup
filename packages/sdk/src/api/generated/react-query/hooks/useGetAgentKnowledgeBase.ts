@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentKnowledgeBaseQueryResponse,
   GetAgentKnowledgeBasePathParams,
-  GetAgentKnowledgeBaseQueryParams,
+  GetAgentKnowledgeBaseHeaderParams,
   GetAgentKnowledgeBase400,
   GetAgentKnowledgeBase401,
   GetAgentKnowledgeBase403,
@@ -28,13 +28,11 @@ import type {
 import { getAgentKnowledgeBase } from '../operations/getAgentKnowledgeBase'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getAgentKnowledgeBaseQueryKey = (
-  { agentId }: { agentId: GetAgentKnowledgeBasePathParams['agentId'] },
-  params?: GetAgentKnowledgeBaseQueryParams,
-) =>
+export const getAgentKnowledgeBaseQueryKey = ({
+  agentId,
+}: { agentId: GetAgentKnowledgeBasePathParams['agentId'] }) =>
   [
     { url: '/agents/:agentId/knowledge-base', params: { agentId: agentId } },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetAgentKnowledgeBaseQueryKey = ReturnType<
@@ -44,14 +42,14 @@ export type GetAgentKnowledgeBaseQueryKey = ReturnType<
 export function getAgentKnowledgeBaseQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentKnowledgeBasePathParams['agentId']
-    params?: GetAgentKnowledgeBaseQueryParams
+    headers?: GetAgentKnowledgeBaseHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getAgentKnowledgeBaseQueryKey({ agentId }, params)
+  const queryKey = getAgentKnowledgeBaseQueryKey({ agentId })
   return queryOptions<
     GetAgentKnowledgeBaseQueryResponse,
     ResponseErrorConfig<
@@ -69,7 +67,7 @@ export function getAgentKnowledgeBaseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getAgentKnowledgeBase({ agentId, params }, config)
+      return getAgentKnowledgeBase({ agentId, headers }, config)
     },
   })
 }
@@ -85,10 +83,10 @@ export function useGetAgentKnowledgeBase<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentKnowledgeBasePathParams['agentId']
-    params?: GetAgentKnowledgeBaseQueryParams
+    headers?: GetAgentKnowledgeBaseHeaderParams
   },
   options: {
     query?: Partial<
@@ -115,11 +113,11 @@ export function useGetAgentKnowledgeBase<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? getAgentKnowledgeBaseQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? getAgentKnowledgeBaseQueryKey({ agentId })
 
   const query = useQuery(
     {
-      ...getAgentKnowledgeBaseQueryOptions({ agentId, params }, config),
+      ...getAgentKnowledgeBaseQueryOptions({ agentId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

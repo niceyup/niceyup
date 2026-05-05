@@ -9,6 +9,7 @@ import type {
   DeleteSourceMutationRequest,
   DeleteSourceMutationResponse,
   DeleteSourcePathParams,
+  DeleteSourceHeaderParams,
   DeleteSource400,
   DeleteSource401,
   DeleteSource403,
@@ -31,9 +32,11 @@ export async function deleteSource(
   {
     sourceId,
     data,
+    headers,
   }: {
     sourceId: DeleteSourcePathParams['sourceId']
     data?: DeleteSourceMutationRequest
+    headers?: DeleteSourceHeaderParams
   },
   config: Partial<RequestConfig<DeleteSourceMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function deleteSource(
     url: getDeleteSourceUrl({ sourceId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

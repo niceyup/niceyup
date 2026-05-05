@@ -161,9 +161,11 @@ const createBranchChangeHandler = (
         setLoadingMessage({ id: previousNodeId, role })
 
         const { data, error } = await sdk.listMessages({
+          headers: {
+            'x-organization-slug': params.organizationSlug,
+          },
           conversationId: params.chatId,
           params: {
-            organizationSlug: params.organizationSlug,
             agentId: params.agentId,
             targetMessageId: targetNodeId,
           },
@@ -670,9 +672,11 @@ export function useChat({
       const persistentParentId = getPersistentParent(parentId)?.id
 
       const { data, error } = await sdk.sendMessage({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         conversationId: params.chatId,
         data: {
-          organizationSlug: params.organizationSlug,
           teamId: params.teamId,
           agentId: params.agentId,
           parentMessageId: persistentParentId,
@@ -736,10 +740,12 @@ export function useChat({
 
     try {
       const { data, error } = await sdk.resendMessage({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         conversationId: params.chatId,
         messageId,
         data: {
-          organizationSlug: params.organizationSlug,
           agentId: params.agentId,
           message: { parts },
           temporaryMessageId: temporaryId,
@@ -799,10 +805,12 @@ export function useChat({
       }
 
       const { data, error } = await sdk.regenerateMessage({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         conversationId: params.chatId,
         messageId: persistentLastSiblingId,
         data: {
-          organizationSlug: params.organizationSlug,
           agentId: params.agentId,
           temporaryMessageId: temporaryId,
         },
@@ -841,10 +849,12 @@ export function useChat({
 
     try {
       const { error } = await sdk.stopMessage({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         conversationId: params.chatId,
         messageId: id,
         data: {
-          organizationSlug: params.organizationSlug,
           agentId: params.agentId,
         },
       })
@@ -881,10 +891,12 @@ export function useChat({
 
     try {
       const { data, error } = await sdk.respondToToolApproval({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         conversationId: params.chatId,
         messageId,
         data: {
-          organizationSlug: params.organizationSlug,
           agentId: params.agentId,
           // toolCallId,
           approvalId,

@@ -11,7 +11,7 @@ import type {
 import type {
   GetConnectionQueryResponse,
   GetConnectionPathParams,
-  GetConnectionQueryParams,
+  GetConnectionHeaderParams,
   GetConnection400,
   GetConnection401,
   GetConnection403,
@@ -33,10 +33,10 @@ function getGetConnectionUrl({
 export async function getConnection(
   {
     connectionId,
-    params,
+    headers,
   }: {
     connectionId: GetConnectionPathParams['connectionId']
-    params?: GetConnectionQueryParams
+    headers?: GetConnectionHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -56,8 +56,8 @@ export async function getConnection(
   >({
     method: 'GET',
     url: getGetConnectionUrl({ connectionId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

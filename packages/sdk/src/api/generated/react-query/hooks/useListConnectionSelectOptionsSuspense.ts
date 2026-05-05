@@ -11,6 +11,7 @@ import type {
 import type {
   ListConnectionSelectOptionsQueryResponse,
   ListConnectionSelectOptionsQueryParams,
+  ListConnectionSelectOptionsHeaderParams,
   ListConnectionSelectOptions400,
   ListConnectionSelectOptions401,
   ListConnectionSelectOptions403,
@@ -37,7 +38,13 @@ export type ListConnectionSelectOptionsSuspenseQueryKey = ReturnType<
 >
 
 export function listConnectionSelectOptionsSuspenseQueryOptions(
-  { params }: { params?: ListConnectionSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionSelectOptionsQueryParams
+    headers?: ListConnectionSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listConnectionSelectOptionsSuspenseQueryKey(params)
@@ -57,7 +64,7 @@ export function listConnectionSelectOptionsSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listConnectionSelectOptions({ params }, config)
+      return listConnectionSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -70,7 +77,13 @@ export function useListConnectionSelectOptionsSuspense<
   TData = ListConnectionSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListConnectionSelectOptionsSuspenseQueryKey,
 >(
-  { params }: { params?: ListConnectionSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionSelectOptionsQueryParams
+    headers?: ListConnectionSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -100,7 +113,10 @@ export function useListConnectionSelectOptionsSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listConnectionSelectOptionsSuspenseQueryOptions({ params }, config),
+      ...listConnectionSelectOptionsSuspenseQueryOptions(
+        { params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

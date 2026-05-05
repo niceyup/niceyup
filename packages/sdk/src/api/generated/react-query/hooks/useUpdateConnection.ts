@@ -12,6 +12,7 @@ import type {
   UpdateConnectionMutationRequest,
   UpdateConnectionMutationResponse,
   UpdateConnectionPathParams,
+  UpdateConnectionHeaderParams,
   UpdateConnection400,
   UpdateConnection401,
   UpdateConnection403,
@@ -49,6 +50,7 @@ export function useUpdateConnection<TContext>(
       {
         connectionId: UpdateConnectionPathParams['connectionId']
         data?: UpdateConnectionMutationRequest
+        headers?: UpdateConnectionHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateConnection<TContext>(
     {
       connectionId: UpdateConnectionPathParams['connectionId']
       data?: UpdateConnectionMutationRequest
+      headers?: UpdateConnectionHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ connectionId, data }) => {
-        return updateConnection({ connectionId, data }, config)
+      mutationFn: async ({ connectionId, data, headers }) => {
+        return updateConnection({ connectionId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

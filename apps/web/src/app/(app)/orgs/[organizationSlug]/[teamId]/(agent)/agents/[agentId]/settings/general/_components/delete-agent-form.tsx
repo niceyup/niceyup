@@ -18,10 +18,11 @@ export function DeleteAgentForm({ params }: { params: Params }) {
   const onSubmit = async () => {
     startTransition(async () => {
       const { error } = await sdk.deleteAgent({
-        agentId: params.agentId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        agentId: params.agentId,
+        data: {},
       })
 
       if (error) {

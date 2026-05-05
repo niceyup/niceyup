@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm'
 import {
   boolean,
   index,
+  integer,
   pgTable,
   text,
   timestamp,
@@ -17,6 +18,7 @@ export const users = pgTable('users', {
     .$defaultFn(() => false)
     .notNull(),
   image: text('image'),
+  stripeCustomerId: text('stripe_customer_id'),
   ...timestamps,
 })
 
@@ -83,6 +85,7 @@ export const organizations = pgTable(
     slug: text('slug').notNull().unique(),
     logo: text('logo'),
     metadata: text('metadata'),
+    stripeCustomerId: text('stripe_customer_id'),
     createdAt: timestamps.createdAt,
   },
   (table) => [uniqueIndex('organizations_slug_uidx').on(table.slug)],
@@ -161,6 +164,58 @@ export const invitations = pgTable(
   ],
 )
 
+export const apikeys = pgTable(
+  'apikeys',
+  {
+    ...id,
+    configId: text('config_id').default('default').notNull(),
+    name: text('name'),
+    start: text('start'),
+    referenceId: text('reference_id').notNull(),
+    prefix: text('prefix'),
+    key: text('key').notNull(),
+    refillInterval: integer('refill_interval'),
+    refillAmount: integer('refill_amount'),
+    lastRefillAt: timestamp('last_refill_at', { withTimezone: true }),
+    enabled: boolean('enabled').default(true),
+    rateLimitEnabled: boolean('rate_limit_enabled').default(true),
+    rateLimitTimeWindow: integer('rate_limit_time_window').default(86400000),
+    rateLimitMax: integer('rate_limit_max').default(10),
+    requestCount: integer('request_count').default(0),
+    remaining: integer('remaining'),
+    lastRequest: timestamp('last_request', { withTimezone: true }),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    permissions: text('permissions'),
+    metadata: text('metadata'),
+    ...timestamps,
+  },
+  (table) => [
+    index('apikeys_configId_idx').on(table.configId),
+    index('apikeys_referenceId_idx').on(table.referenceId),
+    index('apikeys_key_idx').on(table.key),
+  ],
+)
+
+export const subscriptions = pgTable('subscriptions', {
+  ...id,
+  plan: text('plan').notNull(),
+  referenceId: text('reference_id').notNull(),
+  stripeCustomerId: text('stripe_customer_id'),
+  stripeSubscriptionId: text('stripe_subscription_id'),
+  status: text('status').default('incomplete'),
+  periodStart: timestamp('period_start', { withTimezone: true }),
+  periodEnd: timestamp('period_end', { withTimezone: true }),
+  trialStart: timestamp('trial_start', { withTimezone: true }),
+  trialEnd: timestamp('trial_end', { withTimezone: true }),
+  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
+  cancelAt: timestamp('cancel_at', { withTimezone: true }),
+  canceledAt: timestamp('canceled_at', { withTimezone: true }),
+  endedAt: timestamp('ended_at', { withTimezone: true }),
+  seats: integer('seats'),
+  billingInterval: text('billing_interval'),
+  stripeScheduleId: text('stripe_schedule_id'),
+})
+
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
@@ -170,7 +225,7 @@ export const usersRelations = relations(users, ({ many }) => ({
 }))
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
-  user: one(users, {
+  users: one(users, {
     fields: [sessions.userId],
     references: [users.id],
   }),

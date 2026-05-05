@@ -1,5 +1,3 @@
-// import { isOrganizationMemberAdmin } from '@/actions/membership'
-import { isOrganizationMemberAdmin } from '@/actions/membership'
 import { Sidebar, type SidebarItem } from '@/components/sidebar'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { cn } from '@workspace/ui/lib/utils'
@@ -14,28 +12,18 @@ export default async function Layout({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
-
   const items: SidebarItem[] = [
     {
       label: 'General',
       href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/settings/general`,
     },
+    {
+      label: 'Documentation',
+      href: 'https://docs.niceyup.com/agents',
+      target: '_blank',
+      icon: <SquareArrowOutUpRightIcon className="ml-auto" />,
+    },
   ]
-
-  if (isAdmin) {
-    items.push({
-      label: 'Advanced',
-      href: `/orgs/${organizationSlug}/${teamId}/agents/${agentId}/settings/advanced`,
-    })
-  }
-
-  items.push({
-    label: 'Documentation',
-    href: 'https://docs.niceyup.com/agents',
-    target: '_blank',
-    icon: <SquareArrowOutUpRightIcon className="ml-auto" />,
-  })
 
   return (
     <div className="flex size-full flex-1 flex-col">

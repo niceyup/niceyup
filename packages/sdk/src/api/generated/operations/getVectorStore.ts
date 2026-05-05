@@ -8,7 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   GetVectorStoreQueryResponse,
   GetVectorStorePathParams,
-  GetVectorStoreQueryParams,
+  GetVectorStoreHeaderParams,
   GetVectorStore400,
   GetVectorStore401,
   GetVectorStore403,
@@ -30,10 +30,10 @@ function getGetVectorStoreUrl({
 export async function getVectorStore(
   {
     vectorStoreId,
-    params,
+    headers,
   }: {
     vectorStoreId: GetVectorStorePathParams['vectorStoreId']
-    params?: GetVectorStoreQueryParams
+    headers?: GetVectorStoreHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -53,8 +53,8 @@ export async function getVectorStore(
   >({
     method: 'GET',
     url: getGetVectorStoreUrl({ vectorStoreId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

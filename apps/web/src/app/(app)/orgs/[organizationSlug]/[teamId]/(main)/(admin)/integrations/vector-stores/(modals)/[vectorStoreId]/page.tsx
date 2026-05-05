@@ -17,8 +17,10 @@ export default async function Page({
   const { organizationSlug, vectorStoreId } = await params
 
   const { data } = await sdk.getVectorStore({
+    headers: {
+      'x-organization-slug': organizationSlug,
+    },
     vectorStoreId,
-    params: { organizationSlug },
   })
 
   if (!data) {

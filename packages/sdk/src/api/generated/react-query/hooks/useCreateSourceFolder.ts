@@ -11,6 +11,7 @@ import type {
 import type {
   CreateSourceFolderMutationRequest,
   CreateSourceFolderMutationResponse,
+  CreateSourceFolderHeaderParams,
   CreateSourceFolder400,
   CreateSourceFolder401,
   CreateSourceFolder403,
@@ -45,7 +46,10 @@ export function useCreateSourceFolder<TContext>(
         | CreateSourceFolder429
         | CreateSourceFolder500
       >,
-      { data: CreateSourceFolderMutationRequest },
+      {
+        data: CreateSourceFolderMutationRequest
+        headers?: CreateSourceFolderHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateSourceFolderMutationRequest>> & {
@@ -68,12 +72,15 @@ export function useCreateSourceFolder<TContext>(
       | CreateSourceFolder429
       | CreateSourceFolder500
     >,
-    { data: CreateSourceFolderMutationRequest },
+    {
+      data: CreateSourceFolderMutationRequest
+      headers?: CreateSourceFolderHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createSourceFolder({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createSourceFolder({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

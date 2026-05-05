@@ -12,6 +12,7 @@ import type {
   ListMessagesQueryResponse,
   ListMessagesPathParams,
   ListMessagesQueryParams,
+  ListMessagesHeaderParams,
   ListMessages400,
   ListMessages401,
   ListMessages403,
@@ -48,9 +49,11 @@ export function listMessagesQueryOptions(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: ListMessagesPathParams['conversationId']
     params: ListMessagesQueryParams
+    headers?: ListMessagesHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -72,7 +75,7 @@ export function listMessagesQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listMessages({ conversationId, params }, config)
+      return listMessages({ conversationId, params, headers }, config)
     },
   })
 }
@@ -89,9 +92,11 @@ export function useListMessages<
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: ListMessagesPathParams['conversationId']
     params: ListMessagesQueryParams
+    headers?: ListMessagesHeaderParams
   },
   options: {
     query?: Partial<
@@ -122,7 +127,7 @@ export function useListMessages<
 
   const query = useQuery(
     {
-      ...listMessagesQueryOptions({ conversationId, params }, config),
+      ...listMessagesQueryOptions({ conversationId, params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

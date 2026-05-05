@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -26,12 +26,14 @@ export async function updateAgentSystemConfiguration(
         tags: ['Agents'],
         description: 'Update an agent system configuration',
         operationId: 'updateAgentSystemConfiguration',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           auxiliaryLanguageModelSettings: modelSettingsSchema.nullish(),
           titleGenerationSystemMessage: z.string().nullish(),
           suggestions: z.array(z.string()).nullish(),
@@ -42,29 +44,26 @@ export async function updateAgentSystemConfiguration(
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
       const {
-        organizationId,
-        organizationSlug,
         auxiliaryLanguageModelSettings,
         titleGenerationSystemMessage,
         suggestions,
       } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({
@@ -78,9 +77,10 @@ export async function updateAgentSystemConfiguration(
       })
 
       if (auxiliaryLanguageModelSettings?.providerId) {
-        const modelProvider = await queries.context.getModelProvider(context, {
-          modelProviderId: auxiliaryLanguageModelSettings.providerId,
-        })
+        const modelProvider = await queries.ctx.getModelProvider(
+          { organizationId: organization.id },
+          { modelProviderId: auxiliaryLanguageModelSettings.providerId },
+        )
 
         if (!modelProvider) {
           throw new BadRequestError({
@@ -175,7 +175,7 @@ export async function updateAgentSystemConfiguration(
               type: 'language-model',
               options: auxiliaryLanguageModelSettings.options,
               providerId: auxiliaryLanguageModelSettings.providerId,
-              organizationId: context.organizationId,
+              organizationId: organization.id,
             })
             .returning({
               id: modelSettings.id,

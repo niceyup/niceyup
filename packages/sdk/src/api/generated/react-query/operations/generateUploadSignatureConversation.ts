@@ -11,6 +11,7 @@ import type {
 import type {
   GenerateUploadSignatureConversationMutationRequest,
   GenerateUploadSignatureConversationMutationResponse,
+  GenerateUploadSignatureConversationHeaderParams,
   GenerateUploadSignatureConversation400,
   GenerateUploadSignatureConversation401,
   GenerateUploadSignatureConversation403,
@@ -28,7 +29,13 @@ function getGenerateUploadSignatureConversationUrl() {
  * {@link /conversations/files/signature}
  */
 export async function generateUploadSignatureConversation(
-  { data }: { data: GenerateUploadSignatureConversationMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: GenerateUploadSignatureConversationMutationRequest
+    headers?: GenerateUploadSignatureConversationHeaderParams
+  },
   config: Partial<
     RequestConfig<GenerateUploadSignatureConversationMutationRequest>
   > & { client?: typeof fetch } = {},
@@ -52,6 +59,7 @@ export async function generateUploadSignatureConversation(
     url: getGenerateUploadSignatureConversationUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type GenerateUploadSignatureConversationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -106,14 +117,6 @@ export type GenerateUploadSignatureConversation500 = {
 
 export type GenerateUploadSignatureConversationMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -129,6 +132,7 @@ export type GenerateUploadSignatureConversationMutationResponse =
 export type GenerateUploadSignatureConversationMutation = {
   Response: GenerateUploadSignatureConversation200
   Request: GenerateUploadSignatureConversationMutationRequest
+  HeaderParams: GenerateUploadSignatureConversationHeaderParams
   Errors:
     | GenerateUploadSignatureConversation400
     | GenerateUploadSignatureConversation401

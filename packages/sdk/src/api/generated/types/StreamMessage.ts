@@ -16,17 +16,20 @@ export type StreamMessagePathParams = {
 
 export type StreamMessageQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
+}
+
+export type StreamMessageHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 /**
@@ -131,6 +134,7 @@ export type StreamMessageQuery = {
   Response: StreamMessage200
   PathParams: StreamMessagePathParams
   QueryParams: StreamMessageQueryParams
+  HeaderParams: StreamMessageHeaderParams
   Errors:
     | StreamMessage400
     | StreamMessage401

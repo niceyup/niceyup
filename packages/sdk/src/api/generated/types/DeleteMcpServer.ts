@@ -10,6 +10,17 @@ export type DeleteMcpServerPathParams = {
   mcpServerId: string
 }
 
+export type DeleteMcpServerHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteMcpServer204Enum = {} as const
 
 export type DeleteMcpServer204Enum =
@@ -111,16 +122,7 @@ export type DeleteMcpServer500 = {
   message: string
 }
 
-export type DeleteMcpServerMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type DeleteMcpServerMutationRequest = object
 
 export type DeleteMcpServerMutationResponse = DeleteMcpServer204
 
@@ -128,6 +130,7 @@ export type DeleteMcpServerMutation = {
   Response: DeleteMcpServer204
   Request: DeleteMcpServerMutationRequest
   PathParams: DeleteMcpServerPathParams
+  HeaderParams: DeleteMcpServerHeaderParams
   Errors:
     | DeleteMcpServer400
     | DeleteMcpServer401

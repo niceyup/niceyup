@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentKnowledgeBaseQueryResponse,
   GetAgentKnowledgeBasePathParams,
-  GetAgentKnowledgeBaseQueryParams,
+  GetAgentKnowledgeBaseHeaderParams,
   GetAgentKnowledgeBase400,
   GetAgentKnowledgeBase401,
   GetAgentKnowledgeBase403,
@@ -28,13 +28,11 @@ import type {
 import { getAgentKnowledgeBase } from '../operations/getAgentKnowledgeBase'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getAgentKnowledgeBaseSuspenseQueryKey = (
-  { agentId }: { agentId: GetAgentKnowledgeBasePathParams['agentId'] },
-  params?: GetAgentKnowledgeBaseQueryParams,
-) =>
+export const getAgentKnowledgeBaseSuspenseQueryKey = ({
+  agentId,
+}: { agentId: GetAgentKnowledgeBasePathParams['agentId'] }) =>
   [
     { url: '/agents/:agentId/knowledge-base', params: { agentId: agentId } },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetAgentKnowledgeBaseSuspenseQueryKey = ReturnType<
@@ -44,14 +42,14 @@ export type GetAgentKnowledgeBaseSuspenseQueryKey = ReturnType<
 export function getAgentKnowledgeBaseSuspenseQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentKnowledgeBasePathParams['agentId']
-    params?: GetAgentKnowledgeBaseQueryParams
+    headers?: GetAgentKnowledgeBaseHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getAgentKnowledgeBaseSuspenseQueryKey({ agentId }, params)
+  const queryKey = getAgentKnowledgeBaseSuspenseQueryKey({ agentId })
   return queryOptions<
     GetAgentKnowledgeBaseQueryResponse,
     ResponseErrorConfig<
@@ -69,7 +67,7 @@ export function getAgentKnowledgeBaseSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getAgentKnowledgeBase({ agentId, params }, config)
+      return getAgentKnowledgeBase({ agentId, headers }, config)
     },
   })
 }
@@ -84,10 +82,10 @@ export function useGetAgentKnowledgeBaseSuspense<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentKnowledgeBasePathParams['agentId']
-    params?: GetAgentKnowledgeBaseQueryParams
+    headers?: GetAgentKnowledgeBaseHeaderParams
   },
   options: {
     query?: Partial<
@@ -113,12 +111,14 @@ export function useGetAgentKnowledgeBaseSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getAgentKnowledgeBaseSuspenseQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? getAgentKnowledgeBaseSuspenseQueryKey({ agentId })
 
   const query = useSuspenseQuery(
     {
-      ...getAgentKnowledgeBaseSuspenseQueryOptions({ agentId, params }, config),
+      ...getAgentKnowledgeBaseSuspenseQueryOptions(
+        { agentId, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

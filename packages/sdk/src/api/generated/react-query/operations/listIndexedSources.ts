@@ -11,7 +11,7 @@ import type {
 import type {
   ListIndexedSourcesQueryResponse,
   ListIndexedSourcesPathParams,
-  ListIndexedSourcesQueryParams,
+  ListIndexedSourcesHeaderParams,
   ListIndexedSources400,
   ListIndexedSources401,
   ListIndexedSources403,
@@ -33,10 +33,10 @@ function getListIndexedSourcesUrl({
 export async function listIndexedSources(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: ListIndexedSourcesPathParams['agentId']
-    params?: ListIndexedSourcesQueryParams
+    headers?: ListIndexedSourcesHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -56,8 +56,8 @@ export async function listIndexedSources(
   >({
     method: 'GET',
     url: getListIndexedSourcesUrl({ agentId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

@@ -11,6 +11,7 @@ import type {
 import type {
   ListConversationsQueryResponse,
   ListConversationsQueryParams,
+  ListConversationsHeaderParams,
   ListConversations400,
   ListConversations401,
   ListConversations403,
@@ -28,7 +29,13 @@ function getListConversationsUrl() {
  * {@link /conversations}
  */
 export async function listConversations(
-  { params }: { params: ListConversationsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params: ListConversationsQueryParams
+    headers?: ListConversationsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listConversations(
     url: getListConversationsUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

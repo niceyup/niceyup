@@ -11,6 +11,7 @@ import type {
 import type {
   CreateConversationMutationRequest,
   CreateConversationMutationResponse,
+  CreateConversationHeaderParams,
   CreateConversation400,
   CreateConversation401,
   CreateConversation403,
@@ -45,7 +46,10 @@ export function useCreateConversation<TContext>(
         | CreateConversation429
         | CreateConversation500
       >,
-      { data: CreateConversationMutationRequest },
+      {
+        data: CreateConversationMutationRequest
+        headers?: CreateConversationHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateConversationMutationRequest>> & {
@@ -68,12 +72,15 @@ export function useCreateConversation<TContext>(
       | CreateConversation429
       | CreateConversation500
     >,
-    { data: CreateConversationMutationRequest },
+    {
+      data: CreateConversationMutationRequest
+      headers?: CreateConversationHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createConversation({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createConversation({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

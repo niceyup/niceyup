@@ -14,6 +14,17 @@ export type RegenerateMessagePathParams = {
   messageId: string
 }
 
+export type RegenerateMessageHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const assistantMessageStatusEnum3 = {
   queued: 'queued',
   processing: 'processing',
@@ -1132,14 +1143,6 @@ export type RegenerateMessage500 = {
 
 export type RegenerateMessageMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -1155,6 +1158,7 @@ export type RegenerateMessageMutation = {
   Response: RegenerateMessage200
   Request: RegenerateMessageMutationRequest
   PathParams: RegenerateMessagePathParams
+  HeaderParams: RegenerateMessageHeaderParams
   Errors:
     | RegenerateMessage400
     | RegenerateMessage401

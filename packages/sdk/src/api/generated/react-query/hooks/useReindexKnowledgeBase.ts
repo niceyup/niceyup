@@ -12,6 +12,7 @@ import type {
   ReindexKnowledgeBaseMutationRequest,
   ReindexKnowledgeBaseMutationResponse,
   ReindexKnowledgeBasePathParams,
+  ReindexKnowledgeBaseHeaderParams,
   ReindexKnowledgeBase400,
   ReindexKnowledgeBase401,
   ReindexKnowledgeBase403,
@@ -49,6 +50,7 @@ export function useReindexKnowledgeBase<TContext>(
       {
         agentId: ReindexKnowledgeBasePathParams['agentId']
         data?: ReindexKnowledgeBaseMutationRequest
+        headers?: ReindexKnowledgeBaseHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useReindexKnowledgeBase<TContext>(
     {
       agentId: ReindexKnowledgeBasePathParams['agentId']
       data?: ReindexKnowledgeBaseMutationRequest
+      headers?: ReindexKnowledgeBaseHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return reindexKnowledgeBase({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return reindexKnowledgeBase({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

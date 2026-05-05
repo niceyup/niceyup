@@ -19,14 +19,14 @@ export async function ChatViewWrapper({
   params: Params
   chat: Chat
 }) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
   const { data, error } = await sdk.listMessages({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     conversationId: chat.id,
     params: {
-      organizationSlug: params.organizationSlug,
       agentId: params.agentId,
       parents: true,
     },
@@ -50,7 +50,7 @@ export async function ChatViewWrapper({
   return (
     <ChatView
       params={params}
-      authorId={userId}
+      authorId={user.id}
       chat={chat}
       initialMessages={
         [...siblingRootMessages, ...data.messages] as MessageNode[]

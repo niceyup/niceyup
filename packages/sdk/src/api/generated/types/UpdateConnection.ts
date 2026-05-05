@@ -10,6 +10,17 @@ export type UpdateConnectionPathParams = {
   connectionId: string
 }
 
+export type UpdateConnectionHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateConnection204Enum = {} as const
 
 export type UpdateConnection204Enum =
@@ -115,14 +126,6 @@ export type UpdateConnectionMutationRequest = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   name?: string
 }
 
@@ -132,6 +135,7 @@ export type UpdateConnectionMutation = {
   Response: UpdateConnection204
   Request: UpdateConnectionMutationRequest
   PathParams: UpdateConnectionPathParams
+  HeaderParams: UpdateConnectionHeaderParams
   Errors:
     | UpdateConnection400
     | UpdateConnection401

@@ -45,9 +45,11 @@ export function EditAgentNameForm({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { error } = await sdk.updateAgent({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       agentId: params.agentId,
       data: {
-        organizationSlug: params.organizationSlug,
         name: values.name,
       },
     })

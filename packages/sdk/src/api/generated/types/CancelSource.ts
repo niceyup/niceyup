@@ -10,6 +10,17 @@ export type CancelSourcePathParams = {
   sourceId: string
 }
 
+export type CancelSourceHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const cancelSource204Enum = {} as const
 
 export type CancelSource204Enum =
@@ -111,16 +122,7 @@ export type CancelSource500 = {
   message: string
 }
 
-export type CancelSourceMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type CancelSourceMutationRequest = object
 
 export type CancelSourceMutationResponse = CancelSource204
 
@@ -128,6 +130,7 @@ export type CancelSourceMutation = {
   Response: CancelSource204
   Request: CancelSourceMutationRequest
   PathParams: CancelSourcePathParams
+  HeaderParams: CancelSourceHeaderParams
   Errors:
     | CancelSource400
     | CancelSource401

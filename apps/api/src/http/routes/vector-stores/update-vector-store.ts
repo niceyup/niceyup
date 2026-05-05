@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   validateVectorStore,
   vectorStoreProviderSchema,
@@ -21,12 +21,14 @@ export async function updateVectorStore(app: FastifyTypedInstance) {
         tags: ['Vector Stores'],
         description: 'Update a vector store',
         operationId: 'updateVectorStore',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           vectorStoreId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string().optional(),
           provider: vectorStoreProviderSchema.optional(),
           settings: z.record(z.string(), z.unknown()).nullish(),
@@ -38,30 +40,22 @@ export async function updateVectorStore(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { vectorStoreId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        name,
-        provider,
-        settings,
-        credentials,
-      } = request.body
+      const { name, provider, settings, credentials } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const vectorStore = await queries.context.getVectorStore(context, {
-        vectorStoreId,
-      })
+      const vectorStore = await queries.ctx.getVectorStore(
+        { organizationId: organization.id },
+        { vectorStoreId },
+      )
 
       if (!vectorStore) {
         throw new BadRequestError({

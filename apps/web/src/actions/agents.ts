@@ -1,7 +1,5 @@
 'use server'
 
-import { authenticatedUser } from '@/lib/auth/server'
-import { resolveOrganizationContext } from '@/lib/organization'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { queries } from '@workspace/db/queries'
 import {
@@ -10,6 +8,7 @@ import {
   resolveAgentSystemConfiguration,
 } from '@workspace/engine/agents'
 import { cacheTag } from 'next/cache'
+import { getMembership } from './membership'
 
 type ListAgentsParams = {
   organizationId?: string | null
@@ -19,17 +18,21 @@ export async function listAgents({ organizationId }: ListAgentsParams) {
   'use cache: private'
   cacheTag('update-agent', 'delete-agent')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  const ctx = await resolveOrganizationContext({ userId, organizationId })
-
-  if (!ctx) {
+  if (!organizationId) {
     return []
   }
 
-  const agents = await queries.context.listAgents(ctx)
+  const membership = await getMembership({
+    organizationId,
+  })
+
+  if (!membership) {
+    return []
+  }
+
+  const agents = await queries.ctx.listAgents({
+    organizationId: membership.organizationId,
+  })
 
   return agents
 }
@@ -39,19 +42,46 @@ type ContextGetAgentParams = {
   agentId: AgentParams['agentId']
 }
 
-type GetAgentWithParams = {
+export async function getAgent(context: ContextGetAgentParams) {
+  'use cache: private'
+  cacheTag('update-agent')
+
+  const membership = await getMembership({
+    organizationSlug: context.organizationSlug,
+  })
+
+  if (!membership) {
+    return null
+  }
+
+  const agent = await queries.ctx.getAgent(
+    { organizationId: membership.organizationId },
+    { agentId: context.agentId },
+  )
+
+  return agent
+}
+
+type ContextGetAgentDetailedParams = {
+  organizationSlug: OrganizationTeamParams['organizationSlug']
+  agentId: AgentParams['agentId']
+}
+
+type GetAgentDetailedWithParams = {
   systemConfiguration?: boolean
   configuration?: boolean
   knowledgeBase?: boolean
 }
 
-type GetAgentParams<WithParams extends GetAgentWithParams> = {
+type GetAgentDetailedParams<WithParams extends GetAgentDetailedWithParams> = {
   with?: WithParams
 }
 
-export async function getAgent<WithParams extends GetAgentWithParams>(
-  context: ContextGetAgentParams,
-  params: GetAgentParams<WithParams> = {},
+export async function getAgentDetailed<
+  WithParams extends GetAgentDetailedWithParams,
+>(
+  context: ContextGetAgentDetailedParams,
+  params: GetAgentDetailedParams<WithParams> = {},
 ) {
   'use cache: private'
   cacheTag(
@@ -61,23 +91,23 @@ export async function getAgent<WithParams extends GetAgentWithParams>(
     'update-agent-knowledge-base',
   )
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const membership = await getMembership({
+    organizationSlug: context.organizationSlug,
+  })
 
-  const ctx = await resolveOrganizationContext({ userId, ...context })
-
-  if (!ctx) {
+  if (!membership?.isAdmin) {
     return null
   }
 
-  const agent = await queries.context.getAgent(ctx, {
-    agentId: context.agentId,
-  })
+  const agent = await queries.ctx.getAgent(
+    { organizationId: membership.organizationId },
+    { agentId: context.agentId },
+  )
 
   if (!agent) {
     return null
   }
+
   const [agentSystemConfiguration, agentConfiguration, agentKnowledgeBase] =
     await Promise.all([
       params.with?.systemConfiguration
@@ -142,6 +172,6 @@ export async function getAgent<WithParams extends GetAgentWithParams>(
       ? { configuration: typeof configuration }
       : unknown) &
     (WithParams extends { knowledgeBase: true }
-      ? { knowledgeBase: typeof knowledgeBase & { isConfigured: boolean } }
+      ? { knowledgeBase: typeof knowledgeBase }
       : unknown)
 }

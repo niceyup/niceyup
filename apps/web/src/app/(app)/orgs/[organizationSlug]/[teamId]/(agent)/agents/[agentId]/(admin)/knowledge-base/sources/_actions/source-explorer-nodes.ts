@@ -1,11 +1,10 @@
 'use server'
 
-import { isOrganizationMemberAdmin } from '@/actions/membership'
-import { authenticatedUser } from '@/lib/auth/server'
-import { resolveOrganizationContext } from '@/lib/organization'
+import { getMembership } from '@/actions/membership'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { db } from '@workspace/db'
 import { aliasedTable, and, eq, isNull, sql } from '@workspace/db/orm'
+import { queries } from '@workspace/db/queries'
 import {
   indexedSources,
   knowledgeBases,
@@ -19,12 +18,27 @@ type ContextSourceExplorerNodeParams = {
   agentId: AgentParams['agentId']
 }
 
-async function checkAdminAccess(
-  context: { userId: string } & ContextSourceExplorerNodeParams,
+async function resolveSourceExplorerNodeContext(
+  context: ContextSourceExplorerNodeParams,
 ) {
-  const isAdmin = await isOrganizationMemberAdmin(context)
+  const membership = await getMembership({
+    organizationSlug: context.organizationSlug,
+  })
 
-  return isAdmin
+  if (!membership?.isAdmin) {
+    return null
+  }
+
+  const agent = await queries.ctx.getAgent(
+    { organizationId: membership.organizationId },
+    { agentId: context.agentId },
+  )
+
+  if (!agent) {
+    return null
+  }
+
+  return { membership, agent }
 }
 
 type GetItemInSourceExplorerNodeParams = {
@@ -33,17 +47,9 @@ type GetItemInSourceExplorerNodeParams = {
 
 export async function getItemInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { itemId }: GetItemInSourceExplorerNodeParams,
+  params: GetItemInSourceExplorerNodeParams,
 ) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return null
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return null
@@ -89,7 +95,7 @@ export async function getItemInSourceExplorerNode(
     })
     .from(sourceExplorerNodes)
     .leftJoin(sources, eq(sources.id, sourceExplorerNodes.sourceId))
-    .leftJoin(knowledgeBases, eq(knowledgeBases.agentId, context.agentId))
+    .leftJoin(knowledgeBases, eq(knowledgeBases.agentId, ctx.agent.id))
     .leftJoin(
       indexedSources,
       and(
@@ -104,8 +110,8 @@ export async function getItemInSourceExplorerNode(
     )
     .where(
       and(
-        eq(sourceExplorerNodes.id, itemId),
-        eq(sourceExplorerNodes.organizationId, ctx.organizationId),
+        eq(sourceExplorerNodes.id, params.itemId),
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )
@@ -120,17 +126,9 @@ type GetChildrenWithDataInSourceExplorerNodeParams = {
 
 export async function getChildrenWithDataInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { itemId }: GetChildrenWithDataInSourceExplorerNodeParams,
+  params: GetChildrenWithDataInSourceExplorerNodeParams,
 ) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return []
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return []
@@ -176,7 +174,7 @@ export async function getChildrenWithDataInSourceExplorerNode(
     })
     .from(sourceExplorerNodes)
     .leftJoin(sources, eq(sources.id, sourceExplorerNodes.sourceId))
-    .leftJoin(knowledgeBases, eq(knowledgeBases.agentId, context.agentId))
+    .leftJoin(knowledgeBases, eq(knowledgeBases.agentId, ctx.agent.id))
     .leftJoin(
       indexedSources,
       and(
@@ -191,10 +189,10 @@ export async function getChildrenWithDataInSourceExplorerNode(
     )
     .where(
       and(
-        itemId === 'root'
+        params.itemId === 'root'
           ? isNull(sourceExplorerNodes.parentId)
-          : eq(sourceExplorerNodes.parentId, itemId),
-        eq(sourceExplorerNodes.organizationId, ctx.organizationId),
+          : eq(sourceExplorerNodes.parentId, params.itemId),
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )

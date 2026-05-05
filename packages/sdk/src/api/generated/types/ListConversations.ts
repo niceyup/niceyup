@@ -16,14 +16,6 @@ export type ListConversationsQueryParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   teamId?: string
   /**
    * @type string
@@ -34,6 +26,17 @@ export type ListConversationsQueryParams = {
    * @type string | undefined
    */
   visibility?: ListConversationsQueryParamsVisibilityEnum
+}
+
+export type ListConversationsHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const conversationsVisibilityEnum = {
@@ -176,6 +179,7 @@ export type ListConversationsQueryResponse = ListConversations200
 export type ListConversationsQuery = {
   Response: ListConversations200
   QueryParams: ListConversationsQueryParams
+  HeaderParams: ListConversationsHeaderParams
   Errors:
     | ListConversations400
     | ListConversations401

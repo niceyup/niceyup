@@ -12,6 +12,7 @@ import type {
   GetConversationConfigurationQueryResponse,
   GetConversationConfigurationPathParams,
   GetConversationConfigurationQueryParams,
+  GetConversationConfigurationHeaderParams,
   GetConversationConfiguration400,
   GetConversationConfiguration401,
   GetConversationConfiguration403,
@@ -52,9 +53,11 @@ export function getConversationConfigurationQueryOptions(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationConfigurationPathParams['conversationId']
     params: GetConversationConfigurationQueryParams
+    headers?: GetConversationConfigurationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -79,7 +82,10 @@ export function getConversationConfigurationQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getConversationConfiguration({ conversationId, params }, config)
+      return getConversationConfiguration(
+        { conversationId, params, headers },
+        config,
+      )
     },
   })
 }
@@ -96,9 +102,11 @@ export function useGetConversationConfiguration<
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationConfigurationPathParams['conversationId']
     params: GetConversationConfigurationQueryParams
+    headers?: GetConversationConfigurationHeaderParams
   },
   options: {
     query?: Partial<
@@ -131,7 +139,7 @@ export function useGetConversationConfiguration<
   const query = useQuery(
     {
       ...getConversationConfigurationQueryOptions(
-        { conversationId, params },
+        { conversationId, params, headers },
         config,
       ),
       queryKey,

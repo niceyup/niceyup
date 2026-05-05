@@ -22,9 +22,11 @@ async function getConversation(params: {
 
   if (params.chatId !== 'new') {
     const { data } = await sdk.getConversation({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       conversationId: params.chatId,
       params: {
-        organizationSlug: params.organizationSlug,
         agentId: params.agentId,
       },
     })

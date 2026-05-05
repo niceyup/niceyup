@@ -254,10 +254,11 @@ function SourceExplorerItemActionDelete({
   const onRemove = async () => {
     startTransition(async () => {
       const { error } = await sdk.deleteSource({
-        sourceId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        sourceId,
+        data: {},
       })
 
       if (error) {

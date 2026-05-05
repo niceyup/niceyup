@@ -12,6 +12,7 @@ import type {
   UpdateMcpServerMutationRequest,
   UpdateMcpServerMutationResponse,
   UpdateMcpServerPathParams,
+  UpdateMcpServerHeaderParams,
   UpdateMcpServer400,
   UpdateMcpServer401,
   UpdateMcpServer403,
@@ -49,6 +50,7 @@ export function useUpdateMcpServer<TContext>(
       {
         mcpServerId: UpdateMcpServerPathParams['mcpServerId']
         data?: UpdateMcpServerMutationRequest
+        headers?: UpdateMcpServerHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateMcpServer<TContext>(
     {
       mcpServerId: UpdateMcpServerPathParams['mcpServerId']
       data?: UpdateMcpServerMutationRequest
+      headers?: UpdateMcpServerHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ mcpServerId, data }) => {
-        return updateMcpServer({ mcpServerId, data }, config)
+      mutationFn: async ({ mcpServerId, data, headers }) => {
+        return updateMcpServer({ mcpServerId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

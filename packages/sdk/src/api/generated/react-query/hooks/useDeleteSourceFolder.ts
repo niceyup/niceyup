@@ -12,6 +12,7 @@ import type {
   DeleteSourceFolderMutationRequest,
   DeleteSourceFolderMutationResponse,
   DeleteSourceFolderPathParams,
+  DeleteSourceFolderHeaderParams,
   DeleteSourceFolder400,
   DeleteSourceFolder401,
   DeleteSourceFolder403,
@@ -49,6 +50,7 @@ export function useDeleteSourceFolder<TContext>(
       {
         folderId: DeleteSourceFolderPathParams['folderId']
         data?: DeleteSourceFolderMutationRequest
+        headers?: DeleteSourceFolderHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useDeleteSourceFolder<TContext>(
     {
       folderId: DeleteSourceFolderPathParams['folderId']
       data?: DeleteSourceFolderMutationRequest
+      headers?: DeleteSourceFolderHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ folderId, data }) => {
-        return deleteSourceFolder({ folderId, data }, config)
+      mutationFn: async ({ folderId, data, headers }) => {
+        return deleteSourceFolder({ folderId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

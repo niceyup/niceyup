@@ -4,14 +4,9 @@ import { sources } from '../../schema'
 
 type ContextListSourcesParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 export async function listSources(context: ContextListSourcesParams) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listSources = await db
     .select({
       id: sources.id,
@@ -33,7 +28,6 @@ export async function listSources(context: ContextListSourcesParams) {
 
 type ContextGetSourceParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type GetSourceParams = {
@@ -44,10 +38,6 @@ export async function getSource(
   context: ContextGetSourceParams,
   params: GetSourceParams,
 ) {
-  if (!context.isAdmin) {
-    return null
-  }
-
   const [source] = await db
     .select({
       id: sources.id,

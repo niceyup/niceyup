@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { mcpServerTypeSchema } from '@workspace/core/mcp-servers'
 import { db } from '@workspace/db'
 import { mcpServers } from '@workspace/db/schema'
@@ -16,9 +16,11 @@ export async function createMcpServer(app: FastifyTypedInstance) {
         tags: ['MCP Servers'],
         description: 'Create a new MCP server',
         operationId: 'createMcpServer',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string(),
           type: mcpServerTypeSchema.default('http'),
           url: z.url(),
@@ -35,25 +37,15 @@ export async function createMcpServer(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const {
-        organizationId,
-        organizationSlug,
-        name,
-        type,
-        url,
-        headers,
-        connectionId,
-      } = request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
+      const { name, type, url, headers, connectionId } = request.body
 
       const [createdMcpServer] = await db
         .insert(mcpServers)
@@ -63,7 +55,7 @@ export async function createMcpServer(app: FastifyTypedInstance) {
           url,
           headers,
           connectionId,
-          organizationId: context.organizationId,
+          organizationId: organization.id,
         })
         .returning({
           id: mcpServers.id,

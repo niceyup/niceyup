@@ -65,8 +65,10 @@ export function NewSourceFolderDialog({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { data, error } = await sdk.createSourceFolder({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       data: {
-        organizationSlug: params.organizationSlug,
         name: values.name,
         explorerNode: { folderId },
       },

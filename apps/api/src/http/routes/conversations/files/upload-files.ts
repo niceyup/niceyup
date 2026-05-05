@@ -1,5 +1,4 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
-import type { BaseErrorParams } from '@/http/errors/base-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
 import {
   uploadFileToStorage,
@@ -7,6 +6,7 @@ import {
   verifySignatureForUpload,
 } from '@/http/functions/upload-file-to-storage'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { NiceyupError } from '@workspace/core/errros'
 import { z } from 'zod'
 
 export async function uploadFilesConversation(app: FastifyTypedInstance) {
@@ -94,20 +94,12 @@ export async function uploadFilesConversation(app: FastifyTypedInstance) {
             ...uploadedFile,
           })
         } catch (error) {
-          let errorObject = {
-            code: 'FAILED_TO_UPLOAD_FILE',
-            message: 'Failed to upload file',
-          }
-
-          if (error instanceof BadRequestError) {
-            const { code, message } = JSON.parse(
-              error.message,
-            ) as BaseErrorParams
-
-            if (code && message) {
-              errorObject = { code, message }
-            }
-          }
+          const errorObject = NiceyupError.isInstance(error)
+            ? { code: error.code, message: error.message }
+            : {
+                code: 'FAILED_TO_UPLOAD_FILE',
+                message: 'Failed to upload file',
+              }
 
           uploadedFiles.push({
             status: 'error' as const,

@@ -9,6 +9,7 @@ import type {
   DeleteMcpServerMutationRequest,
   DeleteMcpServerMutationResponse,
   DeleteMcpServerPathParams,
+  DeleteMcpServerHeaderParams,
   DeleteMcpServer400,
   DeleteMcpServer401,
   DeleteMcpServer403,
@@ -31,9 +32,11 @@ export async function deleteMcpServer(
   {
     mcpServerId,
     data,
+    headers,
   }: {
     mcpServerId: DeleteMcpServerPathParams['mcpServerId']
     data?: DeleteMcpServerMutationRequest
+    headers?: DeleteMcpServerHeaderParams
   },
   config: Partial<RequestConfig<DeleteMcpServerMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function deleteMcpServer(
     url: getDeleteMcpServerUrl({ mcpServerId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

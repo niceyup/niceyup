@@ -10,6 +10,17 @@ export type UpdateVectorStorePathParams = {
   vectorStoreId: string
 }
 
+export type UpdateVectorStoreHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateVectorStore204Enum = {} as const
 
 export type UpdateVectorStore204Enum =
@@ -122,14 +133,6 @@ export type UpdateVectorStoreMutationRequest = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   name?: string
   /**
    * @type string | undefined
@@ -155,6 +158,7 @@ export type UpdateVectorStoreMutation = {
   Response: UpdateVectorStore204
   Request: UpdateVectorStoreMutationRequest
   PathParams: UpdateVectorStorePathParams
+  HeaderParams: UpdateVectorStoreHeaderParams
   Errors:
     | UpdateVectorStore400
     | UpdateVectorStore401

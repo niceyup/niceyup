@@ -9,6 +9,7 @@ import type {
   ResendMessageMutationRequest,
   ResendMessageMutationResponse,
   ResendMessagePathParams,
+  ResendMessageHeaderParams,
   ResendMessage400,
   ResendMessage401,
   ResendMessage403,
@@ -36,10 +37,12 @@ export async function resendMessage(
     conversationId,
     messageId,
     data,
+    headers,
   }: {
     conversationId: ResendMessagePathParams['conversationId']
     messageId: ResendMessagePathParams['messageId']
     data: ResendMessageMutationRequest
+    headers?: ResendMessageHeaderParams
   },
   config: Partial<RequestConfig<ResendMessageMutationRequest>> & {
     client?: typeof fetch
@@ -64,6 +67,7 @@ export async function resendMessage(
     url: getResendMessageUrl({ conversationId, messageId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

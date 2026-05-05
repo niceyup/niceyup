@@ -33,14 +33,12 @@ type GetOrganizationParams = {
 export async function getOrganization({
   organizationSlug,
 }: GetOrganizationParams) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
-  const organization = await queries.context.getOrganization(
-    { userId },
-    { organizationSlug },
-  )
+  const organization = await queries.ctx.getOrganization({
+    userId: user.id,
+    organizationSlug,
+  })
 
   return organization
 }
@@ -54,14 +52,13 @@ export async function getOrganizationTeam({
   organizationSlug,
   teamId,
 }: GetOrganizationTeamParams) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
-  const organizationTeam = await queries.context.getOrganizationTeam(
-    { userId },
-    { organizationSlug, teamId },
-  )
+  const organizationTeam = await queries.ctx.getOrganizationTeam({
+    userId: user.id,
+    organizationSlug,
+    teamId,
+  })
 
   return organizationTeam
 }
@@ -70,11 +67,11 @@ export async function listOrganizations() {
   'use cache: private'
   cacheTag('update-organization')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
-  const organizations = await queries.context.listOrganizations({ userId })
+  const organizations = await queries.ctx.listOrganizations({
+    userId: user.id,
+  })
 
   return organizations
 }
@@ -89,14 +86,12 @@ export async function listOrganizationTeams({
   'use cache: private'
   cacheTag('create-team', 'update-team', 'delete-team')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
-  const organizationTeams = await queries.context.listOrganizationTeams(
-    { userId },
-    { organizationSlug },
-  )
+  const organizationTeams = await queries.ctx.listOrganizationTeams({
+    userId: user.id,
+    organizationSlug,
+  })
 
   return organizationTeams.map(({ team }) => team)
 }
@@ -111,12 +106,10 @@ export async function listOrganizationMembers({
   'use cache: private'
   cacheTag('remove-member')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
-  const members = await queries.context.listOrganizationMembers({
-    userId,
+  const members = await queries.ctx.listOrganizationMembers({
+    userId: user.id,
     organizationSlug,
   })
 

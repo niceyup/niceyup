@@ -12,6 +12,7 @@ import type {
   UpdateAgentMutationRequest,
   UpdateAgentMutationResponse,
   UpdateAgentPathParams,
+  UpdateAgentHeaderParams,
   UpdateAgent400,
   UpdateAgent401,
   UpdateAgent403,
@@ -47,6 +48,7 @@ export function useUpdateAgent<TContext>(
       {
         agentId: UpdateAgentPathParams['agentId']
         data?: UpdateAgentMutationRequest
+        headers?: UpdateAgentHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -72,12 +74,13 @@ export function useUpdateAgent<TContext>(
     {
       agentId: UpdateAgentPathParams['agentId']
       data?: UpdateAgentMutationRequest
+      headers?: UpdateAgentHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return updateAgent({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return updateAgent({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

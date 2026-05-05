@@ -9,6 +9,7 @@ import type {
   UpdateIndexedSourcesMutationRequest,
   UpdateIndexedSourcesMutationResponse,
   UpdateIndexedSourcesPathParams,
+  UpdateIndexedSourcesHeaderParams,
   UpdateIndexedSources400,
   UpdateIndexedSources401,
   UpdateIndexedSources403,
@@ -31,9 +32,11 @@ export async function updateIndexedSources(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: UpdateIndexedSourcesPathParams['agentId']
     data: UpdateIndexedSourcesMutationRequest
+    headers?: UpdateIndexedSourcesHeaderParams
   },
   config: Partial<RequestConfig<UpdateIndexedSourcesMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function updateIndexedSources(
     url: getUpdateIndexedSourcesUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

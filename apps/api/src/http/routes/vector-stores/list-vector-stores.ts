@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { vectorStoreProviderSchema } from '@workspace/core/vector-stores'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
@@ -14,9 +14,11 @@ export async function listVectorStores(app: FastifyTypedInstance) {
         tags: ['Vector Stores'],
         description: 'Get all vector stores',
         operationId: 'listVectorStores',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           provider: vectorStoreProviderSchema.optional(),
         }),
         response: withDefaultErrorResponses({
@@ -36,21 +38,20 @@ export async function listVectorStores(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, provider } = request.query
+      const { provider } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const vectorStores = await queries.context.listVectorStores(context, {
-        provider,
-      })
+      const vectorStores = await queries.ctx.listVectorStores(
+        { organizationId: organization.id },
+        { provider },
+      )
 
       return { vectorStores }
     },

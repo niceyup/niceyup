@@ -11,7 +11,7 @@ import type {
 import type {
   ListIndexedSourcesQueryResponse,
   ListIndexedSourcesPathParams,
-  ListIndexedSourcesQueryParams,
+  ListIndexedSourcesHeaderParams,
   ListIndexedSources400,
   ListIndexedSources401,
   ListIndexedSources403,
@@ -28,16 +28,14 @@ import type {
 import { listIndexedSources } from '../operations/listIndexedSources'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const listIndexedSourcesQueryKey = (
-  { agentId }: { agentId: ListIndexedSourcesPathParams['agentId'] },
-  params?: ListIndexedSourcesQueryParams,
-) =>
+export const listIndexedSourcesQueryKey = ({
+  agentId,
+}: { agentId: ListIndexedSourcesPathParams['agentId'] }) =>
   [
     {
       url: '/agents/:agentId/knowledge-base/indexed-sources',
       params: { agentId: agentId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type ListIndexedSourcesQueryKey = ReturnType<
@@ -47,14 +45,14 @@ export type ListIndexedSourcesQueryKey = ReturnType<
 export function listIndexedSourcesQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: ListIndexedSourcesPathParams['agentId']
-    params?: ListIndexedSourcesQueryParams
+    headers?: ListIndexedSourcesHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = listIndexedSourcesQueryKey({ agentId }, params)
+  const queryKey = listIndexedSourcesQueryKey({ agentId })
   return queryOptions<
     ListIndexedSourcesQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +70,7 @@ export function listIndexedSourcesQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listIndexedSources({ agentId, params }, config)
+      return listIndexedSources({ agentId, headers }, config)
     },
   })
 }
@@ -88,10 +86,10 @@ export function useListIndexedSources<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: ListIndexedSourcesPathParams['agentId']
-    params?: ListIndexedSourcesQueryParams
+    headers?: ListIndexedSourcesHeaderParams
   },
   options: {
     query?: Partial<
@@ -118,11 +116,11 @@ export function useListIndexedSources<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? listIndexedSourcesQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? listIndexedSourcesQueryKey({ agentId })
 
   const query = useQuery(
     {
-      ...listIndexedSourcesQueryOptions({ agentId, params }, config),
+      ...listIndexedSourcesQueryOptions({ agentId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

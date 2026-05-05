@@ -11,6 +11,7 @@ import type {
 import type {
   ListModelProvidersQueryResponse,
   ListModelProvidersQueryParams,
+  ListModelProvidersHeaderParams,
   ListModelProviders400,
   ListModelProviders401,
   ListModelProviders403,
@@ -28,7 +29,13 @@ function getListModelProvidersUrl() {
  * {@link /model-providers}
  */
 export async function listModelProviders(
-  { params }: { params?: ListModelProvidersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProvidersQueryParams
+    headers?: ListModelProvidersHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listModelProviders(
     url: getListModelProvidersUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

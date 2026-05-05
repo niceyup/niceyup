@@ -1,9 +1,10 @@
 import { schemaTask } from '@trigger.dev/sdk'
+import { NiceyupError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { eq, sql } from '@workspace/db/orm'
 import { sourceOperations, sources } from '@workspace/db/schema'
 import { z } from 'zod'
-import { InvalidArgumentError } from '../../erros'
+import { RetryableError } from '../../errors'
 import { sourceQueue } from './queue'
 
 export type IngestSourceTask = typeof ingestSourceTask
@@ -72,7 +73,7 @@ export const ingestSourceTask = schemaTask({
     }
   },
   catchError: async ({ payload, error }) => {
-    if (error instanceof InvalidArgumentError) {
+    if (!RetryableError.isInstance(error)) {
       return { skipRetrying: true }
     }
 
@@ -84,14 +85,15 @@ export const ingestSourceTask = schemaTask({
       .where(eq(sourceOperations.sourceId, payload.sourceId))
   },
   onFailure: async ({ payload, error }) => {
+    const errorObject = NiceyupError.isInstance(error)
+      ? { code: error.code, message: error.message }
+      : { code: 'UNKNOWN_ERROR', message: 'Unknown error' }
+
     await db
       .update(sourceOperations)
       .set({
         status: 'failed',
-        error:
-          error instanceof InvalidArgumentError
-            ? { code: error.code, message: error.message }
-            : { code: 'UNKNOWN_ERROR', message: 'Unknown error' },
+        error: errorObject,
       })
       .where(eq(sourceOperations.sourceId, payload.sourceId))
   },

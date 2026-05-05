@@ -12,6 +12,7 @@ import type {
   DeleteAgentMutationRequest,
   DeleteAgentMutationResponse,
   DeleteAgentPathParams,
+  DeleteAgentHeaderParams,
   DeleteAgent400,
   DeleteAgent401,
   DeleteAgent403,
@@ -47,6 +48,7 @@ export function useDeleteAgent<TContext>(
       {
         agentId: DeleteAgentPathParams['agentId']
         data?: DeleteAgentMutationRequest
+        headers?: DeleteAgentHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -72,12 +74,13 @@ export function useDeleteAgent<TContext>(
     {
       agentId: DeleteAgentPathParams['agentId']
       data?: DeleteAgentMutationRequest
+      headers?: DeleteAgentHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return deleteAgent({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return deleteAgent({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

@@ -5,3 +5,10 @@ export const conversationVisibilitySchema = z.enum([
   'shared',
   'team',
 ])
+
+// Conversation Explorer Nodes
+
+export const conversationExplorerNodeTypeSchema = z.enum([
+  'folder',
+  'conversation',
+])

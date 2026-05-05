@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { sdk } from '@/lib/sdk'
 import type { OrganizationTeamParams } from '@/lib/types'
 import {
@@ -32,10 +32,12 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId } = await params
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
   const { data } = await sdk.listAgents({
-    params: { organizationSlug },
+    headers: {
+      'x-organization-slug': organizationSlug,
+    },
   })
 
   return (
@@ -51,7 +53,7 @@ export default async function Page({
             </div>
           </div>
 
-          {isAdmin && (
+          {membershipRole.isAdmin && (
             <div className="flex items-center gap-4">
               <Button asChild>
                 <Link
@@ -77,7 +79,7 @@ export default async function Page({
                 </EmptyDescription>
               </EmptyHeader>
 
-              {isAdmin && (
+              {membershipRole.isAdmin && (
                 <EmptyContent>
                   <Button asChild>
                     <Link

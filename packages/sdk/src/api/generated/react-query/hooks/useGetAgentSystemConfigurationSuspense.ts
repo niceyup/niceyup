@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentSystemConfigurationQueryResponse,
   GetAgentSystemConfigurationPathParams,
-  GetAgentSystemConfigurationQueryParams,
+  GetAgentSystemConfigurationHeaderParams,
   GetAgentSystemConfiguration400,
   GetAgentSystemConfiguration401,
   GetAgentSystemConfiguration403,
@@ -28,16 +28,14 @@ import type {
 import { getAgentSystemConfiguration } from '../operations/getAgentSystemConfiguration'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getAgentSystemConfigurationSuspenseQueryKey = (
-  { agentId }: { agentId: GetAgentSystemConfigurationPathParams['agentId'] },
-  params?: GetAgentSystemConfigurationQueryParams,
-) =>
+export const getAgentSystemConfigurationSuspenseQueryKey = ({
+  agentId,
+}: { agentId: GetAgentSystemConfigurationPathParams['agentId'] }) =>
   [
     {
       url: '/agents/:agentId/system-configuration',
       params: { agentId: agentId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetAgentSystemConfigurationSuspenseQueryKey = ReturnType<
@@ -47,17 +45,14 @@ export type GetAgentSystemConfigurationSuspenseQueryKey = ReturnType<
 export function getAgentSystemConfigurationSuspenseQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentSystemConfigurationPathParams['agentId']
-    params?: GetAgentSystemConfigurationQueryParams
+    headers?: GetAgentSystemConfigurationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getAgentSystemConfigurationSuspenseQueryKey(
-    { agentId },
-    params,
-  )
+  const queryKey = getAgentSystemConfigurationSuspenseQueryKey({ agentId })
   return queryOptions<
     GetAgentSystemConfigurationQueryResponse,
     ResponseErrorConfig<
@@ -75,7 +70,7 @@ export function getAgentSystemConfigurationSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getAgentSystemConfiguration({ agentId, params }, config)
+      return getAgentSystemConfiguration({ agentId, headers }, config)
     },
   })
 }
@@ -90,10 +85,10 @@ export function useGetAgentSystemConfigurationSuspense<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentSystemConfigurationPathParams['agentId']
-    params?: GetAgentSystemConfigurationQueryParams
+    headers?: GetAgentSystemConfigurationHeaderParams
   },
   options: {
     query?: Partial<
@@ -120,12 +115,12 @@ export function useGetAgentSystemConfigurationSuspense<
   } = options ?? {}
   const queryKey =
     queryOptions?.queryKey ??
-    getAgentSystemConfigurationSuspenseQueryKey({ agentId }, params)
+    getAgentSystemConfigurationSuspenseQueryKey({ agentId })
 
   const query = useSuspenseQuery(
     {
       ...getAgentSystemConfigurationSuspenseQueryOptions(
-        { agentId, params },
+        { agentId, headers },
         config,
       ),
       queryKey,

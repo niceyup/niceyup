@@ -4,9 +4,9 @@ import {
   createSourceExplorerNodeFolder,
   getSourceExplorerNodeFolder,
 } from '@/http/functions/explorer-nodes/source-explorer-nodes'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { z } from 'zod'
 
 export async function createSourceFolder(app: FastifyTypedInstance) {
@@ -17,9 +17,11 @@ export async function createSourceFolder(app: FastifyTypedInstance) {
         tags: ['Sources'],
         description: 'Create a new source folder',
         operationId: 'createSourceFolder',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string(),
           explorerNode: z
             .object({
@@ -39,23 +41,20 @@ export async function createSourceFolder(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, name, explorerNode } =
-        request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
+      const { name, explorerNode } = request.body
 
       if (explorerNode?.folderId && explorerNode.folderId !== 'root') {
         const folderExplorerNode = await getSourceExplorerNodeFolder({
           id: explorerNode.folderId,
-          organizationId: context.organizationId,
+          organizationId: organization.id,
         })
 
         if (!folderExplorerNode) {
@@ -69,7 +68,7 @@ export async function createSourceFolder(app: FastifyTypedInstance) {
       const folderExplorerNode = await createSourceExplorerNodeFolder({
         parentId: explorerNode?.folderId,
         name,
-        organizationId: context.organizationId,
+        organizationId: organization.id,
       })
 
       if (!folderExplorerNode) {

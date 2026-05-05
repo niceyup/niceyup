@@ -9,6 +9,7 @@ import type {
   DeleteVectorStoreMutationRequest,
   DeleteVectorStoreMutationResponse,
   DeleteVectorStorePathParams,
+  DeleteVectorStoreHeaderParams,
   DeleteVectorStore400,
   DeleteVectorStore401,
   DeleteVectorStore403,
@@ -31,9 +32,11 @@ export async function deleteVectorStore(
   {
     vectorStoreId,
     data,
+    headers,
   }: {
     vectorStoreId: DeleteVectorStorePathParams['vectorStoreId']
     data?: DeleteVectorStoreMutationRequest
+    headers?: DeleteVectorStoreHeaderParams
   },
   config: Partial<RequestConfig<DeleteVectorStoreMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function deleteVectorStore(
     url: getDeleteVectorStoreUrl({ vectorStoreId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

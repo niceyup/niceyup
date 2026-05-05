@@ -14,6 +14,17 @@ export type RespondToToolApprovalPathParams = {
   messageId: string
 }
 
+export type RespondToToolApprovalHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const assistantMessageStatusEnum4 = {
   queued: 'queued',
   processing: 'processing',
@@ -1124,14 +1135,6 @@ export type RespondToToolApproval500 = {
 
 export type RespondToToolApprovalMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -1151,6 +1154,7 @@ export type RespondToToolApprovalMutation = {
   Response: RespondToToolApproval200
   Request: RespondToToolApprovalMutationRequest
   PathParams: RespondToToolApprovalPathParams
+  HeaderParams: RespondToToolApprovalHeaderParams
   Errors:
     | RespondToToolApproval400
     | RespondToToolApproval401

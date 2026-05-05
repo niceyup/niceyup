@@ -10,15 +10,15 @@ export type GetAgentKnowledgeBasePathParams = {
   agentId: string
 }
 
-export type GetAgentKnowledgeBaseQueryParams = {
+export type GetAgentKnowledgeBaseHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const knowledgeBaseStatusEnum = {
@@ -263,7 +263,7 @@ export type GetAgentKnowledgeBaseQueryResponse = GetAgentKnowledgeBase200
 export type GetAgentKnowledgeBaseQuery = {
   Response: GetAgentKnowledgeBase200
   PathParams: GetAgentKnowledgeBasePathParams
-  QueryParams: GetAgentKnowledgeBaseQueryParams
+  HeaderParams: GetAgentKnowledgeBaseHeaderParams
   Errors:
     | GetAgentKnowledgeBase400
     | GetAgentKnowledgeBase401

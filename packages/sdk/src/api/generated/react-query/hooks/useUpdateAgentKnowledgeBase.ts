@@ -12,6 +12,7 @@ import type {
   UpdateAgentKnowledgeBaseMutationRequest,
   UpdateAgentKnowledgeBaseMutationResponse,
   UpdateAgentKnowledgeBasePathParams,
+  UpdateAgentKnowledgeBaseHeaderParams,
   UpdateAgentKnowledgeBase400,
   UpdateAgentKnowledgeBase401,
   UpdateAgentKnowledgeBase403,
@@ -49,6 +50,7 @@ export function useUpdateAgentKnowledgeBase<TContext>(
       {
         agentId: UpdateAgentKnowledgeBasePathParams['agentId']
         data?: UpdateAgentKnowledgeBaseMutationRequest
+        headers?: UpdateAgentKnowledgeBaseHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateAgentKnowledgeBase<TContext>(
     {
       agentId: UpdateAgentKnowledgeBasePathParams['agentId']
       data?: UpdateAgentKnowledgeBaseMutationRequest
+      headers?: UpdateAgentKnowledgeBaseHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return updateAgentKnowledgeBase({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return updateAgentKnowledgeBase({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

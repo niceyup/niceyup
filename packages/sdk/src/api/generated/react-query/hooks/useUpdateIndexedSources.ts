@@ -12,6 +12,7 @@ import type {
   UpdateIndexedSourcesMutationRequest,
   UpdateIndexedSourcesMutationResponse,
   UpdateIndexedSourcesPathParams,
+  UpdateIndexedSourcesHeaderParams,
   UpdateIndexedSources400,
   UpdateIndexedSources401,
   UpdateIndexedSources403,
@@ -49,6 +50,7 @@ export function useUpdateIndexedSources<TContext>(
       {
         agentId: UpdateIndexedSourcesPathParams['agentId']
         data: UpdateIndexedSourcesMutationRequest
+        headers?: UpdateIndexedSourcesHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateIndexedSources<TContext>(
     {
       agentId: UpdateIndexedSourcesPathParams['agentId']
       data: UpdateIndexedSourcesMutationRequest
+      headers?: UpdateIndexedSourcesHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return updateIndexedSources({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return updateIndexedSources({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

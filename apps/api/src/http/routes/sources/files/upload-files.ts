@@ -1,5 +1,4 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
-import type { BaseErrorParams } from '@/http/errors/base-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
 import {
   createSourceExplorerNodeItem,
@@ -11,6 +10,8 @@ import {
   verifySignatureForUpload,
 } from '@/http/functions/upload-file-to-storage'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { billing } from '@workspace/billing'
+import { NiceyupError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import {
@@ -90,7 +91,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
       if (explorerNode.folderId && explorerNode.folderId !== 'root') {
         const folderExplorerNode = await getSourceExplorerNodeFolder({
           id: explorerNode.folderId,
-          organizationId: data.organizationId,
+          organizationId: data.referenceId,
         })
 
         if (!folderExplorerNode) {
@@ -100,6 +101,10 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           })
         }
       }
+
+      await billing.meters.processUsage.assertWithinLimit({
+        referenceId: data.referenceId,
+      })
 
       const uploadedFiles = []
 
@@ -127,7 +132,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                 .values({
                   name: validatedFile.filename,
                   type: sourceType,
-                  organizationId: data.organizationId as string,
+                  organizationId: data.referenceId,
                 })
                 .returning({
                   id: sources.id,
@@ -144,7 +149,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                 {
                   parentId: explorerNode.folderId,
                   sourceId: source.id,
-                  organizationId: data.organizationId,
+                  organizationId: data.referenceId,
                 },
                 tx,
               )
@@ -192,7 +197,13 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
               }
 
               const uploadedFile = await uploadFileToStorage({
-                data,
+                data: {
+                  ...data,
+                  metadata: {
+                    ...data.metadata,
+                    sourceId: source.id,
+                  },
+                },
                 file: validatedFile,
               })
 
@@ -237,20 +248,12 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
             },
           })
         } catch (error) {
-          let errorObject = {
-            code: 'FAILED_TO_UPLOAD_FILE',
-            message: 'Failed to upload file',
-          }
-
-          if (error instanceof BadRequestError) {
-            const { code, message } = JSON.parse(
-              error.message,
-            ) as BaseErrorParams
-
-            if (code && message) {
-              errorObject = { code, message }
-            }
-          }
+          const errorObject = NiceyupError.isInstance(error)
+            ? { code: error.code, message: error.message }
+            : {
+                code: 'FAILED_TO_UPLOAD_FILE',
+                message: 'Failed to upload file',
+              }
 
           uploadedFiles.push({
             status: 'error' as const,
@@ -277,9 +280,9 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           successfulFiles.map(({ source }) => ({
             payload: { sourceId: source.sourceId },
             options: {
-              concurrencyKey: data.organizationId as string,
+              concurrencyKey: data.referenceId,
               tags: [
-                `organization:${data.organizationId}`,
+                `organization:${data.referenceId}`,
                 `source:${source.sourceId}`,
               ],
             },

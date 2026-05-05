@@ -34,8 +34,6 @@ export type { GetConversationQueryKey } from './useGetConversation'
 export type { GetConversationConfigurationQueryKey } from './useGetConversationConfiguration'
 export type { GetConversationConfigurationSuspenseQueryKey } from './useGetConversationConfigurationSuspense'
 export type { GetConversationSuspenseQueryKey } from './useGetConversationSuspense'
-export type { GetDatabaseSchemaQueryKey } from './useGetDatabaseSchema'
-export type { GetDatabaseSchemaSuspenseQueryKey } from './useGetDatabaseSchemaSuspense'
 export type { GetFileQueryKey } from './useGetFile'
 export type { GetFileSuspenseQueryKey } from './useGetFileSuspense'
 export type { GetMcpServerQueryKey } from './useGetMcpServer'
@@ -246,16 +244,6 @@ export {
   getConversationSuspenseQueryOptions,
   useGetConversationSuspense,
 } from './useGetConversationSuspense'
-export {
-  getDatabaseSchemaQueryKey,
-  getDatabaseSchemaQueryOptions,
-  useGetDatabaseSchema,
-} from './useGetDatabaseSchema'
-export {
-  getDatabaseSchemaSuspenseQueryKey,
-  getDatabaseSchemaSuspenseQueryOptions,
-  useGetDatabaseSchemaSuspense,
-} from './useGetDatabaseSchemaSuspense'
 export { getFileQueryKey, getFileQueryOptions, useGetFile } from './useGetFile'
 export {
   getFileSuspenseQueryKey,

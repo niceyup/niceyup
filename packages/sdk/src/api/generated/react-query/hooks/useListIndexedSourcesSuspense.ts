@@ -11,7 +11,7 @@ import type {
 import type {
   ListIndexedSourcesQueryResponse,
   ListIndexedSourcesPathParams,
-  ListIndexedSourcesQueryParams,
+  ListIndexedSourcesHeaderParams,
   ListIndexedSources400,
   ListIndexedSources401,
   ListIndexedSources403,
@@ -28,16 +28,14 @@ import type {
 import { listIndexedSources } from '../operations/listIndexedSources'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const listIndexedSourcesSuspenseQueryKey = (
-  { agentId }: { agentId: ListIndexedSourcesPathParams['agentId'] },
-  params?: ListIndexedSourcesQueryParams,
-) =>
+export const listIndexedSourcesSuspenseQueryKey = ({
+  agentId,
+}: { agentId: ListIndexedSourcesPathParams['agentId'] }) =>
   [
     {
       url: '/agents/:agentId/knowledge-base/indexed-sources',
       params: { agentId: agentId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type ListIndexedSourcesSuspenseQueryKey = ReturnType<
@@ -47,14 +45,14 @@ export type ListIndexedSourcesSuspenseQueryKey = ReturnType<
 export function listIndexedSourcesSuspenseQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: ListIndexedSourcesPathParams['agentId']
-    params?: ListIndexedSourcesQueryParams
+    headers?: ListIndexedSourcesHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = listIndexedSourcesSuspenseQueryKey({ agentId }, params)
+  const queryKey = listIndexedSourcesSuspenseQueryKey({ agentId })
   return queryOptions<
     ListIndexedSourcesQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +70,7 @@ export function listIndexedSourcesSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listIndexedSources({ agentId, params }, config)
+      return listIndexedSources({ agentId, headers }, config)
     },
   })
 }
@@ -87,10 +85,10 @@ export function useListIndexedSourcesSuspense<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: ListIndexedSourcesPathParams['agentId']
-    params?: ListIndexedSourcesQueryParams
+    headers?: ListIndexedSourcesHeaderParams
   },
   options: {
     query?: Partial<
@@ -116,12 +114,11 @@ export function useListIndexedSourcesSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    listIndexedSourcesSuspenseQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? listIndexedSourcesSuspenseQueryKey({ agentId })
 
   const query = useSuspenseQuery(
     {
-      ...listIndexedSourcesSuspenseQueryOptions({ agentId, params }, config),
+      ...listIndexedSourcesSuspenseQueryOptions({ agentId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

@@ -10,6 +10,17 @@ export type ReindexKnowledgeBasePathParams = {
   agentId: string
 }
 
+export type ReindexKnowledgeBaseHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const reindexKnowledgeBase204Enum = {} as const
 
 export type ReindexKnowledgeBase204Enum =
@@ -111,16 +122,7 @@ export type ReindexKnowledgeBase500 = {
   message: string
 }
 
-export type ReindexKnowledgeBaseMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type ReindexKnowledgeBaseMutationRequest = object
 
 export type ReindexKnowledgeBaseMutationResponse = ReindexKnowledgeBase204
 
@@ -128,6 +130,7 @@ export type ReindexKnowledgeBaseMutation = {
   Response: ReindexKnowledgeBase204
   Request: ReindexKnowledgeBaseMutationRequest
   PathParams: ReindexKnowledgeBasePathParams
+  HeaderParams: ReindexKnowledgeBaseHeaderParams
   Errors:
     | ReindexKnowledgeBase400
     | ReindexKnowledgeBase401

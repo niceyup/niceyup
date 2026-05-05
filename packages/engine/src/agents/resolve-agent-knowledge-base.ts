@@ -3,7 +3,7 @@ import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
 import { knowledgeBases } from '@workspace/db/schema'
-import { agentKnowledgeBaseTool } from '../ai-tools'
+import { agentToolkit } from '../agent-toolkit'
 import { resolveEmbeddingModelSettings } from './resolve-model-settings'
 import { resolveVectorStore } from './resolve-vector-store'
 import {
@@ -87,7 +87,7 @@ export async function resolveAgentKnowledgeBase(params: {
     const { vectorStore } =
       await validateKnowledgeBaseConfiguration(agentKnowledgeBase)
 
-    return agentKnowledgeBaseTool({
+    return agentToolkit.knowledgeBaseTool({
       vectorStore,
       topK: topK ?? undefined,
     })

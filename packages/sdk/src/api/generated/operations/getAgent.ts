@@ -8,7 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   GetAgentQueryResponse,
   GetAgentPathParams,
-  GetAgentQueryParams,
+  GetAgentHeaderParams,
   GetAgent400,
   GetAgent401,
   GetAgent403,
@@ -30,8 +30,8 @@ function getGetAgentUrl({
 export async function getAgent(
   {
     agentId,
-    params,
-  }: { agentId: GetAgentPathParams['agentId']; params?: GetAgentQueryParams },
+    headers,
+  }: { agentId: GetAgentPathParams['agentId']; headers?: GetAgentHeaderParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -50,8 +50,8 @@ export async function getAgent(
   >({
     method: 'GET',
     url: getGetAgentUrl({ agentId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

@@ -11,6 +11,7 @@ import type {
 import type {
   CreateConnectionMutationRequest,
   CreateConnectionMutationResponse,
+  CreateConnectionHeaderParams,
   CreateConnection400,
   CreateConnection401,
   CreateConnection403,
@@ -28,7 +29,13 @@ function getCreateConnectionUrl() {
  * {@link /connections}
  */
 export async function createConnection(
-  { data }: { data: CreateConnectionMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: CreateConnectionMutationRequest
+    headers?: CreateConnectionHeaderParams
+  },
   config: Partial<RequestConfig<CreateConnectionMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -52,6 +59,7 @@ export async function createConnection(
     url: getCreateConnectionUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

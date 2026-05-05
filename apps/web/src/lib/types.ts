@@ -32,6 +32,17 @@ export type Team = {
   organizationId: string
 }
 
+export type Membership = {
+  id: string
+  role: string
+  userId: string
+  organizationId: string
+  isOwner?: boolean
+  isBilling?: boolean
+  isAdmin?: boolean
+  isMember?: boolean
+}
+
 export type Agent = {
   id: string
   name: string

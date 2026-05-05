@@ -12,6 +12,7 @@ import type {
   TriggerSourceIndexingMutationRequest,
   TriggerSourceIndexingMutationResponse,
   TriggerSourceIndexingPathParams,
+  TriggerSourceIndexingHeaderParams,
   TriggerSourceIndexing400,
   TriggerSourceIndexing401,
   TriggerSourceIndexing403,
@@ -49,6 +50,7 @@ export function useTriggerSourceIndexing<TContext>(
       {
         agentId: TriggerSourceIndexingPathParams['agentId']
         data?: TriggerSourceIndexingMutationRequest
+        headers?: TriggerSourceIndexingHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useTriggerSourceIndexing<TContext>(
     {
       agentId: TriggerSourceIndexingPathParams['agentId']
       data?: TriggerSourceIndexingMutationRequest
+      headers?: TriggerSourceIndexingHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, data }) => {
-        return triggerSourceIndexing({ agentId, data }, config)
+      mutationFn: async ({ agentId, data, headers }) => {
+        return triggerSourceIndexing({ agentId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

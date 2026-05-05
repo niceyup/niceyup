@@ -12,6 +12,7 @@ import type {
   GetConversationQueryResponse,
   GetConversationPathParams,
   GetConversationQueryParams,
+  GetConversationHeaderParams,
   GetConversation400,
   GetConversation401,
   GetConversation403,
@@ -50,9 +51,11 @@ export function getConversationSuspenseQueryOptions(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationPathParams['conversationId']
     params: GetConversationQueryParams
+    headers?: GetConversationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -74,7 +77,7 @@ export function getConversationSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getConversation({ conversationId, params }, config)
+      return getConversation({ conversationId, params, headers }, config)
     },
   })
 }
@@ -90,9 +93,11 @@ export function useGetConversationSuspense<
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationPathParams['conversationId']
     params: GetConversationQueryParams
+    headers?: GetConversationHeaderParams
   },
   options: {
     query?: Partial<
@@ -124,7 +129,7 @@ export function useGetConversationSuspense<
   const query = useSuspenseQuery(
     {
       ...getConversationSuspenseQueryOptions(
-        { conversationId, params },
+        { conversationId, params, headers },
         config,
       ),
       queryKey,

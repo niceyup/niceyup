@@ -10,8 +10,9 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@better-auth/core": "1.4.7",
-    "@polar-sh/better-auth": "1.6.3",
+    "@better-auth/api-key": "1.6.2",
+    "@better-auth/core": "1.6.2",
+    "@better-auth/stripe": "1.6.2",
     "@workspace/billing": "workspace:*",
     "@workspace/cache": "workspace:*",
     "@workspace/core": "workspace:*",
@@ -19,7 +20,7 @@
     "@workspace/email": "workspace:*",
     "@workspace/env": "workspace:*",
     "@workspace/utils": "workspace:*",
-    "better-auth": "1.4.7"
+    "better-auth": "1.6.2"
   },
   "devDependencies": {
     "@workspace/tsconfig": "workspace:*",
@@ -30,6 +31,8 @@
     "./client": "./src/client.ts",
     "./access": "./src/lib/access.ts",
     "./constants": "./src/lib/constants.ts",
+    "./api-key": "./src/lib/api-key.ts",
+    "./context": "./src/lib/context.ts",
     "./types": "./src/lib/types.ts",
     "./env": "./src/lib/env.ts"
   }

@@ -10,6 +10,17 @@ export type CancelKnowledgeBaseReindexingPathParams = {
   agentId: string
 }
 
+export type CancelKnowledgeBaseReindexingHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const cancelKnowledgeBaseReindexing204Enum = {} as const
 
 export type CancelKnowledgeBaseReindexing204Enum =
@@ -112,16 +123,7 @@ export type CancelKnowledgeBaseReindexing500 = {
   message: string
 }
 
-export type CancelKnowledgeBaseReindexingMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type CancelKnowledgeBaseReindexingMutationRequest = object
 
 export type CancelKnowledgeBaseReindexingMutationResponse =
   CancelKnowledgeBaseReindexing204
@@ -130,6 +132,7 @@ export type CancelKnowledgeBaseReindexingMutation = {
   Response: CancelKnowledgeBaseReindexing204
   Request: CancelKnowledgeBaseReindexingMutationRequest
   PathParams: CancelKnowledgeBaseReindexingPathParams
+  HeaderParams: CancelKnowledgeBaseReindexingHeaderParams
   Errors:
     | CancelKnowledgeBaseReindexing400
     | CancelKnowledgeBaseReindexing401

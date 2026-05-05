@@ -3,7 +3,7 @@
 import { updateTag } from '@/actions/cache'
 import type { listTeamMembers } from '@/actions/teams'
 import { authClient } from '@/lib/auth/client'
-import type { OrganizationTeamParams } from '@/lib/types'
+import type { Membership, OrganizationTeamParams } from '@/lib/types'
 import { getInitials } from '@/lib/utils'
 import {
   Avatar,
@@ -45,13 +45,11 @@ type TeamMember = Awaited<ReturnType<typeof listTeamMembers>>[number]
 
 export function TeamMemberList({
   params,
-  userId,
-  isAdmin,
+  membership,
   teamMembers,
 }: {
   params: Params
-  userId: string
-  isAdmin?: boolean
+  membership: Membership
   teamMembers?: TeamMember[]
 }) {
   const [addTeamMemberDialogOpen, setAddTeamMemberDialogOpen] =
@@ -68,7 +66,7 @@ export function TeamMemberList({
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {isAdmin && (
+      {membership.isAdmin && (
         <AddTeamMemberDialog
           params={params}
           teamMemberIds={teamMembers?.map(({ id }) => id)}
@@ -92,7 +90,7 @@ export function TeamMemberList({
           />
         </InputGroup>
 
-        {isAdmin && (
+        {membership.isAdmin && (
           <Button
             variant="outline"
             className="h-10"
@@ -114,7 +112,7 @@ export function TeamMemberList({
               </EmptyDescription>
             </EmptyHeader>
 
-            {isAdmin && (
+            {membership.isAdmin && (
               <EmptyContent>
                 <Button onClick={() => setAddTeamMemberDialogOpen(true)}>
                   <PlusIcon />
@@ -163,7 +161,7 @@ export function TeamMemberList({
               </div>
 
               <div className="flex items-center gap-1">
-                {userId === teamMember.id && (
+                {membership.userId === teamMember.id && (
                   <Badge variant="outline">You</Badge>
                 )}
                 <Badge variant="outline" className="capitalize">
@@ -171,7 +169,7 @@ export function TeamMemberList({
                 </Badge>
               </div>
 
-              {isAdmin && (
+              {membership.isAdmin && (
                 <div className="ml-auto flex items-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

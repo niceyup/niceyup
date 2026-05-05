@@ -8,7 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   GetSourceQueryResponse,
   GetSourcePathParams,
-  GetSourceQueryParams,
+  GetSourceHeaderParams,
   GetSource400,
   GetSource401,
   GetSource403,
@@ -30,10 +30,10 @@ function getGetSourceUrl({
 export async function getSource(
   {
     sourceId,
-    params,
+    headers,
   }: {
     sourceId: GetSourcePathParams['sourceId']
-    params?: GetSourceQueryParams
+    headers?: GetSourceHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -53,8 +53,8 @@ export async function getSource(
   >({
     method: 'GET',
     url: getGetSourceUrl({ sourceId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { PermissionDenied } from '@/components/permission-denied'
 import type { OrganizationTeamParams } from '@/lib/types'
 
@@ -11,9 +11,9 @@ export default async function Layout({
 }>) {
   const { organizationSlug } = await params
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
-  if (!isAdmin) {
+  if (!membershipRole.isAdmin) {
     return <PermissionDenied />
   }
 

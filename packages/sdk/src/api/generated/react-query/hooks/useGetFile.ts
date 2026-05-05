@@ -12,6 +12,7 @@ import type {
   GetFileQueryResponse,
   GetFilePathParams,
   GetFileQueryParams,
+  GetFileHeaderParams,
   GetFile400,
   GetFile401,
   GetFile403,
@@ -43,7 +44,12 @@ export function getFileQueryOptions(
   {
     fileId,
     params,
-  }: { fileId: GetFilePathParams['fileId']; params?: GetFileQueryParams },
+    headers,
+  }: {
+    fileId: GetFilePathParams['fileId']
+    params?: GetFileQueryParams
+    headers?: GetFileHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getFileQueryKey({ fileId }, params)
@@ -64,7 +70,7 @@ export function getFileQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getFile({ fileId, params }, config)
+      return getFile({ fileId, params, headers }, config)
     },
   })
 }
@@ -81,7 +87,12 @@ export function useGetFile<
   {
     fileId,
     params,
-  }: { fileId: GetFilePathParams['fileId']; params?: GetFileQueryParams },
+    headers,
+  }: {
+    fileId: GetFilePathParams['fileId']
+    params?: GetFileQueryParams
+    headers?: GetFileHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -110,7 +121,7 @@ export function useGetFile<
 
   const query = useQuery(
     {
-      ...getFileQueryOptions({ fileId, params }, config),
+      ...getFileQueryOptions({ fileId, params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

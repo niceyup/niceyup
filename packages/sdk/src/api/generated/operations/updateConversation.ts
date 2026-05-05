@@ -9,6 +9,7 @@ import type {
   UpdateConversationMutationRequest,
   UpdateConversationMutationResponse,
   UpdateConversationPathParams,
+  UpdateConversationHeaderParams,
   UpdateConversation400,
   UpdateConversation401,
   UpdateConversation403,
@@ -31,9 +32,11 @@ export async function updateConversation(
   {
     conversationId,
     data,
+    headers,
   }: {
     conversationId: UpdateConversationPathParams['conversationId']
     data: UpdateConversationMutationRequest
+    headers?: UpdateConversationHeaderParams
   },
   config: Partial<RequestConfig<UpdateConversationMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function updateConversation(
     url: getUpdateConversationUrl({ conversationId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

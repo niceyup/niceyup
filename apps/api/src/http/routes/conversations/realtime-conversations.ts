@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { conversationVisibilitySchema } from '@workspace/core/conversations'
 import { queries } from '@workspace/db/queries'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
@@ -31,29 +31,22 @@ export async function realtimeConversations(app: FastifyTypedInstance) {
       },
     },
     async (socket, request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organizationId, organizationSlug, teamId } = request.query
 
-      const {
-        organizationId,
-        organizationSlug,
-        teamId,
-        agentId,
-        visibility,
-        view,
-      } = request.query
+      const { organization, team } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: { organizationId, organizationSlug, teamId },
+        },
+      )
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-        teamId,
-      })
+      const { agentId, visibility, view } = request.query
 
-      const checkAccessToAgent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const checkAccessToAgent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!checkAccessToAgent) {
         throw new BadRequestError({
@@ -62,10 +55,10 @@ export async function realtimeConversations(app: FastifyTypedInstance) {
         })
       }
 
-      if (visibility === 'team' && context.teamId) {
+      if (visibility === 'team' && team) {
         conversationPubSub.subscribeTeamConversations({
           agentId,
-          teamId: context.teamId,
+          teamId: team.id,
           view,
           socket,
         })

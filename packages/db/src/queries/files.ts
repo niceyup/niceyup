@@ -1,3 +1,4 @@
+import { and, eq } from 'drizzle-orm'
 import { type DBTransaction, db } from '../db'
 import type { FileBucket, FileMetadata, FileScope } from '../lib/types'
 import { files } from '../schema'
@@ -10,7 +11,7 @@ type CreateFileParams = {
   bucket: FileBucket
   scope: FileScope
   metadata?: FileMetadata
-  organizationId?: string | null
+  referenceId: string
 }
 
 export async function createFile(params: CreateFileParams, tx?: DBTransaction) {
@@ -24,7 +25,7 @@ export async function createFile(params: CreateFileParams, tx?: DBTransaction) {
       bucket: params.bucket,
       scope: params.scope,
       metadata: params.metadata,
-      organizationId: params.organizationId,
+      referenceId: params.referenceId,
     })
     .returning({
       id: files.id,
@@ -35,8 +36,41 @@ export async function createFile(params: CreateFileParams, tx?: DBTransaction) {
       bucket: files.bucket,
       scope: files.scope,
       metadata: files.metadata,
-      organizationId: files.organizationId,
+      referenceId: files.referenceId,
     })
+
+  return file || null
+}
+
+type GetFileParams = {
+  fileId: string
+  referenceId: string | null | undefined
+}
+
+export async function getFile(params: GetFileParams) {
+  if (!params.referenceId) {
+    return null
+  }
+
+  const [file] = await db
+    .select({
+      id: files.id,
+      fileName: files.fileName,
+      fileMimeType: files.fileMimeType,
+      fileSize: files.fileSize,
+      filePath: files.filePath,
+      bucket: files.bucket,
+      scope: files.scope,
+      metadata: files.metadata,
+    })
+    .from(files)
+    .where(
+      and(
+        eq(files.id, params.fileId),
+        eq(files.referenceId, params.referenceId),
+      ),
+    )
+    .limit(1)
 
   return file || null
 }

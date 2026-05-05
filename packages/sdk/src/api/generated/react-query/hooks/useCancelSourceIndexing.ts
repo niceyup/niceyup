@@ -12,6 +12,7 @@ import type {
   CancelSourceIndexingMutationRequest,
   CancelSourceIndexingMutationResponse,
   CancelSourceIndexingPathParams,
+  CancelSourceIndexingHeaderParams,
   CancelSourceIndexing400,
   CancelSourceIndexing401,
   CancelSourceIndexing403,
@@ -54,6 +55,7 @@ export function useCancelSourceIndexing<TContext>(
         agentId: CancelSourceIndexingPathParams['agentId']
         indexedSourceId: CancelSourceIndexingPathParams['indexedSourceId']
         data?: CancelSourceIndexingMutationRequest
+        headers?: CancelSourceIndexingHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -81,12 +83,16 @@ export function useCancelSourceIndexing<TContext>(
       agentId: CancelSourceIndexingPathParams['agentId']
       indexedSourceId: CancelSourceIndexingPathParams['indexedSourceId']
       data?: CancelSourceIndexingMutationRequest
+      headers?: CancelSourceIndexingHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ agentId, indexedSourceId, data }) => {
-        return cancelSourceIndexing({ agentId, indexedSourceId, data }, config)
+      mutationFn: async ({ agentId, indexedSourceId, data, headers }) => {
+        return cancelSourceIndexing(
+          { agentId, indexedSourceId, data, headers },
+          config,
+        )
       },
       mutationKey,
       ...mutationOptions,

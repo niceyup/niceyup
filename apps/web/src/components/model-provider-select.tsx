@@ -79,8 +79,10 @@ export function ModelProviderSelect({
   React.useEffect(() => {
     startTransition(async () => {
       const { data, error } = await sdk.listModelProviderSelectOptions({
+        headers: {
+          'x-organization-slug': organizationSlug,
+        },
         params: {
-          organizationSlug,
           providers,
           search: debouncedInputValue,
         },

@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { AgentNotFound } from '@/components/agent-not-found'
 import { Header } from '@/components/header'
 import { TabBar, type TabItem } from '@/components/tab-bar'
@@ -16,8 +16,10 @@ async function getAgent(params: {
   cacheTag('update-agent')
 
   const { data } = await sdk.getAgent({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     agentId: params.agentId,
-    params: { organizationSlug: params.organizationSlug },
   })
 
   return data?.agent || null
@@ -46,7 +48,7 @@ export default async function Layout({
     )
   }
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
   const tabs: TabItem[] = [
     {
@@ -60,7 +62,7 @@ export default async function Layout({
     },
   ]
 
-  if (isAdmin) {
+  if (membershipRole.isAdmin) {
     tabs.push(
       ...[
         {

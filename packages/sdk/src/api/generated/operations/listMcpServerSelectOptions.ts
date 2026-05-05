@@ -8,6 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   ListMcpServerSelectOptionsQueryResponse,
   ListMcpServerSelectOptionsQueryParams,
+  ListMcpServerSelectOptionsHeaderParams,
   ListMcpServerSelectOptions400,
   ListMcpServerSelectOptions401,
   ListMcpServerSelectOptions403,
@@ -25,7 +26,13 @@ function getListMcpServerSelectOptionsUrl() {
  * {@link /select-option/mcp-servers}
  */
 export async function listMcpServerSelectOptions(
-  { params }: { params?: ListMcpServerSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServerSelectOptionsQueryParams
+    headers?: ListMcpServerSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -46,6 +53,7 @@ export async function listMcpServerSelectOptions(
     url: getListMcpServerSelectOptionsUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

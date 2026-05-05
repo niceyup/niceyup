@@ -247,9 +247,11 @@ function ChatListItem() {
     updateItem(item.id, (prev) => ({ ...prev, title: value, loading: true }))
 
     await sdk.updateConversation({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       conversationId: item.id,
       data: {
-        organizationSlug: params.organizationSlug,
         agentId: params.agentId,
         title: value,
       },
@@ -403,9 +405,11 @@ function ChatListItemActionDelete({ label = 'Delete' }: { label?: string }) {
     }
 
     await sdk.deleteConversation({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       conversationId: item.id,
       data: {
-        organizationSlug: params.organizationSlug,
         agentId: params.agentId,
       },
     })

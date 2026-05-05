@@ -177,10 +177,11 @@ function VectorStoreActionDelete({
   const onRemove = async () => {
     startTransition(async () => {
       const { error } = await sdk.deleteVectorStore({
-        vectorStoreId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        vectorStoreId,
+        data: {},
       })
 
       if (error) {

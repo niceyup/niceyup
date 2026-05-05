@@ -10,6 +10,17 @@ export type UpdateAgentSystemConfigurationPathParams = {
   agentId: string
 }
 
+export type UpdateAgentSystemConfigurationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateAgentSystemConfiguration204Enum = {} as const
 
 export type UpdateAgentSystemConfiguration204Enum =
@@ -114,14 +125,6 @@ export type UpdateAgentSystemConfiguration500 = {
 
 export type UpdateAgentSystemConfigurationMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type object
    */
   auxiliaryLanguageModelSettings?: {
@@ -158,6 +161,7 @@ export type UpdateAgentSystemConfigurationMutation = {
   Response: UpdateAgentSystemConfiguration204
   Request: UpdateAgentSystemConfigurationMutationRequest
   PathParams: UpdateAgentSystemConfigurationPathParams
+  HeaderParams: UpdateAgentSystemConfigurationHeaderParams
   Errors:
     | UpdateAgentSystemConfiguration400
     | UpdateAgentSystemConfiguration401

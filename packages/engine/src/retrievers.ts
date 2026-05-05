@@ -119,16 +119,15 @@ export async function retrieveSources({
 //     }),
 //   })
 
-//   const handle = await tasks.triggerAndWait<typeof executeQueryDbTask>(
-//     'execute-query-db',
-//     {
+//   const { result } = await executeQueryDbTask
+//     .triggerAndWait({
 //       sourceId,
 //       query: generatedEnhancedQuery.output.query,
 //       tableNames: tables,
-//     },
-//   )
+//     })
+//     .unwrap()
 
-//   return handle.ok ? handle.output.result : ''
+//   return result || ''
 // }
 
 // export async function retrieveDatabaseSourceProperNouns({

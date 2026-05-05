@@ -11,6 +11,7 @@ import type {
 import type {
   ListVectorStoreSelectOptionsQueryResponse,
   ListVectorStoreSelectOptionsQueryParams,
+  ListVectorStoreSelectOptionsHeaderParams,
   ListVectorStoreSelectOptions400,
   ListVectorStoreSelectOptions401,
   ListVectorStoreSelectOptions403,
@@ -40,7 +41,13 @@ export type ListVectorStoreSelectOptionsSuspenseQueryKey = ReturnType<
 >
 
 export function listVectorStoreSelectOptionsSuspenseQueryOptions(
-  { params }: { params?: ListVectorStoreSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoreSelectOptionsQueryParams
+    headers?: ListVectorStoreSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listVectorStoreSelectOptionsSuspenseQueryKey(params)
@@ -60,7 +67,7 @@ export function listVectorStoreSelectOptionsSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listVectorStoreSelectOptions({ params }, config)
+      return listVectorStoreSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -73,7 +80,13 @@ export function useListVectorStoreSelectOptionsSuspense<
   TData = ListVectorStoreSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListVectorStoreSelectOptionsSuspenseQueryKey,
 >(
-  { params }: { params?: ListVectorStoreSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoreSelectOptionsQueryParams
+    headers?: ListVectorStoreSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -103,7 +116,10 @@ export function useListVectorStoreSelectOptionsSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listVectorStoreSelectOptionsSuspenseQueryOptions({ params }, config),
+      ...listVectorStoreSelectOptionsSuspenseQueryOptions(
+        { params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

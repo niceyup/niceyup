@@ -11,6 +11,7 @@ import type {
 import type {
   ListVectorStoresQueryResponse,
   ListVectorStoresQueryParams,
+  ListVectorStoresHeaderParams,
   ListVectorStores400,
   ListVectorStores401,
   ListVectorStores403,
@@ -36,7 +37,13 @@ export type ListVectorStoresQueryKey = ReturnType<
 >
 
 export function listVectorStoresQueryOptions(
-  { params }: { params?: ListVectorStoresQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoresQueryParams
+    headers?: ListVectorStoresHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listVectorStoresQueryKey(params)
@@ -56,7 +63,7 @@ export function listVectorStoresQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listVectorStores({ params }, config)
+      return listVectorStores({ params, headers }, config)
     },
   })
 }
@@ -70,7 +77,13 @@ export function useListVectorStores<
   TQueryData = ListVectorStoresQueryResponse,
   TQueryKey extends QueryKey = ListVectorStoresQueryKey,
 >(
-  { params }: { params?: ListVectorStoresQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListVectorStoresQueryParams
+    headers?: ListVectorStoresHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -99,7 +112,7 @@ export function useListVectorStores<
 
   const query = useQuery(
     {
-      ...listVectorStoresQueryOptions({ params }, config),
+      ...listVectorStoresQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

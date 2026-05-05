@@ -9,6 +9,7 @@ import type {
   CancelSourceIndexingMutationRequest,
   CancelSourceIndexingMutationResponse,
   CancelSourceIndexingPathParams,
+  CancelSourceIndexingHeaderParams,
   CancelSourceIndexing400,
   CancelSourceIndexing401,
   CancelSourceIndexing403,
@@ -36,10 +37,12 @@ export async function cancelSourceIndexing(
     agentId,
     indexedSourceId,
     data,
+    headers,
   }: {
     agentId: CancelSourceIndexingPathParams['agentId']
     indexedSourceId: CancelSourceIndexingPathParams['indexedSourceId']
     data?: CancelSourceIndexingMutationRequest
+    headers?: CancelSourceIndexingHeaderParams
   },
   config: Partial<RequestConfig<CancelSourceIndexingMutationRequest>> & {
     client?: typeof fetch
@@ -64,6 +67,7 @@ export async function cancelSourceIndexing(
     url: getCancelSourceIndexingUrl({ agentId, indexedSourceId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

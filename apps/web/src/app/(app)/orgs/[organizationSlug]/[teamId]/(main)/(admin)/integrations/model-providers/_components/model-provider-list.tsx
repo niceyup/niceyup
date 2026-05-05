@@ -177,10 +177,11 @@ function ModelProviderActionDelete({
   const onRemove = async () => {
     startTransition(async () => {
       const { error } = await sdk.deleteModelProvider({
-        modelProviderId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        modelProviderId,
+        data: {},
       })
 
       if (error) {

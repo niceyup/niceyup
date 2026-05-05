@@ -9,6 +9,7 @@ import type {
   UpdateAgentKnowledgeBaseMutationRequest,
   UpdateAgentKnowledgeBaseMutationResponse,
   UpdateAgentKnowledgeBasePathParams,
+  UpdateAgentKnowledgeBaseHeaderParams,
   UpdateAgentKnowledgeBase400,
   UpdateAgentKnowledgeBase401,
   UpdateAgentKnowledgeBase403,
@@ -31,9 +32,11 @@ export async function updateAgentKnowledgeBase(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: UpdateAgentKnowledgeBasePathParams['agentId']
     data?: UpdateAgentKnowledgeBaseMutationRequest
+    headers?: UpdateAgentKnowledgeBaseHeaderParams
   },
   config: Partial<RequestConfig<UpdateAgentKnowledgeBaseMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function updateAgentKnowledgeBase(
     url: getUpdateAgentKnowledgeBaseUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

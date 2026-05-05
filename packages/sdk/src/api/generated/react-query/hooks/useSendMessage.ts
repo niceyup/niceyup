@@ -12,6 +12,7 @@ import type {
   SendMessageMutationRequest,
   SendMessageMutationResponse,
   SendMessagePathParams,
+  SendMessageHeaderParams,
   SendMessage400,
   SendMessage401,
   SendMessage403,
@@ -47,6 +48,7 @@ export function useSendMessage<TContext>(
       {
         conversationId: SendMessagePathParams['conversationId']
         data: SendMessageMutationRequest
+        headers?: SendMessageHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -72,12 +74,13 @@ export function useSendMessage<TContext>(
     {
       conversationId: SendMessagePathParams['conversationId']
       data: SendMessageMutationRequest
+      headers?: SendMessageHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, data }) => {
-        return sendMessage({ conversationId, data }, config)
+      mutationFn: async ({ conversationId, data, headers }) => {
+        return sendMessage({ conversationId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

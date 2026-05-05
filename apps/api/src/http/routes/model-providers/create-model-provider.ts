@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   modelProviderSchema,
   modelProviderSettingsSchema,
@@ -20,9 +20,11 @@ export async function createModelProvider(app: FastifyTypedInstance) {
         tags: ['Model Providers'],
         description: 'Create a new model provider',
         operationId: 'createModelProvider',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string(),
           provider: modelProviderSchema,
           settings: modelProviderSettingsSchema.nullish(),
@@ -38,24 +40,15 @@ export async function createModelProvider(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const {
-        organizationId,
-        organizationSlug,
-        name,
-        provider,
-        settings,
-        credentials,
-      } = request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
+      const { name, provider, settings, credentials } = request.body
 
       const validatedData = validateModelProvider({
         provider,
@@ -68,7 +61,7 @@ export async function createModelProvider(app: FastifyTypedInstance) {
         .values({
           name,
           ...validatedData,
-          organizationId: context.organizationId,
+          organizationId: organization.id,
         })
         .returning({
           id: modelProviders.id,

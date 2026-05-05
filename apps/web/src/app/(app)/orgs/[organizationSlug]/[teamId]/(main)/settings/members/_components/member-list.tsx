@@ -7,7 +7,7 @@ import {
 } from '@/actions/organizations'
 import type { listTeams } from '@/actions/teams'
 import { authClient } from '@/lib/auth/client'
-import type { OrganizationTeamParams } from '@/lib/types'
+import type { Membership, OrganizationTeamParams } from '@/lib/types'
 import { getInitials } from '@/lib/utils'
 import {
   Avatar,
@@ -59,17 +59,13 @@ type Team = Awaited<ReturnType<typeof listTeams>>[number]
 
 export function MemberList({
   params,
-  userId,
-  isOwner,
-  isAdmin,
+  membership,
   isPremium,
   members,
   teams,
 }: {
   params: Params
-  userId: string
-  isOwner?: boolean
-  isAdmin?: boolean
+  membership: Membership
   isPremium?: boolean
   members?: OrganizationMember[]
   teams?: Team[]
@@ -88,7 +84,7 @@ export function MemberList({
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {isAdmin && (
+      {membership.isAdmin && (
         <InviteMemberDialog
           params={params}
           isPremium={isPremium}
@@ -113,7 +109,7 @@ export function MemberList({
           />
         </InputGroup>
 
-        {isAdmin && (
+        {membership.isAdmin && (
           <Button
             variant="outline"
             className="h-10"
@@ -135,7 +131,7 @@ export function MemberList({
               </EmptyDescription>
             </EmptyHeader>
 
-            {isAdmin && (
+            {membership.isAdmin && (
               <EmptyContent>
                 <Button onClick={() => setInviteMemberDialogOpen(true)}>
                   <PlusIcon />
@@ -187,13 +183,15 @@ export function MemberList({
                 </div>
 
                 <div className="flex items-center gap-1">
-                  {userId === member.id && <Badge variant="outline">You</Badge>}
+                  {membership.userId === member.id && (
+                    <Badge variant="outline">You</Badge>
+                  )}
                   <Badge variant="outline" className="capitalize">
                     {member.role}
                   </Badge>
                 </div>
 
-                {isAdmin && (
+                {membership.isAdmin && (
                   <div className="ml-auto flex items-center">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -203,7 +201,7 @@ export function MemberList({
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent>
-                        {!isOwner && isMemberOwner ? (
+                        {!membership.isOwner && isMemberOwner ? (
                           <DropdownMenuItem
                             variant="destructive"
                             disabled={true}
@@ -215,7 +213,7 @@ export function MemberList({
                           <MemberActionRemove
                             params={params}
                             memberId={member.memberId}
-                            isLeave={userId === member.id}
+                            isLeave={membership.userId === member.id}
                           />
                         )}
                       </DropdownMenuContent>

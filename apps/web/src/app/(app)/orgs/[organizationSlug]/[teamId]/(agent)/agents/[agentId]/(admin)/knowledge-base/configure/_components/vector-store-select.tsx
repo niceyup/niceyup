@@ -77,8 +77,10 @@ export function VectorStoreSelect({
   React.useEffect(() => {
     startTransition(async () => {
       const { data, error } = await sdk.listVectorStoreSelectOptions({
+        headers: {
+          'x-organization-slug': organizationSlug,
+        },
         params: {
-          organizationSlug,
           providers,
           search: debouncedInputValue,
         },

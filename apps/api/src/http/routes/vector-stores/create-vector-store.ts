@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   validateVectorStore,
   vectorStoreProviderSchema,
@@ -19,9 +19,11 @@ export async function createVectorStore(app: FastifyTypedInstance) {
         tags: ['Vector Stores'],
         description: 'Create a new vector store',
         operationId: 'createVectorStore',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string(),
           provider: vectorStoreProviderSchema,
           settings: z.record(z.string(), z.unknown()).nullish(),
@@ -37,24 +39,15 @@ export async function createVectorStore(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const {
-        organizationId,
-        organizationSlug,
-        name,
-        provider,
-        settings,
-        credentials,
-      } = request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
+      const { name, provider, settings, credentials } = request.body
 
       const validatedData = validateVectorStore({
         provider,
@@ -67,7 +60,7 @@ export async function createVectorStore(app: FastifyTypedInstance) {
         .values({
           name,
           ...validatedData,
-          organizationId: context.organizationId,
+          organizationId: organization.id,
         })
         .returning({
           id: vectorStores.id,

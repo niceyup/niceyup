@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { and, eq } from '@workspace/db/orm'
 import { agentSystemConfigurations, agents } from '@workspace/db/schema'
@@ -24,9 +24,11 @@ export async function createAgent(app: FastifyTypedInstance) {
         tags: ['Agents'],
         description: 'Create a new agent',
         operationId: 'createAgent',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string(),
           slug: z.string().min(3),
           logo: z.string().optional(),
@@ -43,25 +45,16 @@ export async function createAgent(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const {
-        organizationId,
-        organizationSlug,
-        name,
-        slug,
-        logo,
-        description,
-        tags,
-      } = request.body
+      const { name, slug, logo, description, tags } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
       const agentSlug = stripSpecialCharacters(slug)
 
       const [agentBySlug] = await db
@@ -71,7 +64,7 @@ export async function createAgent(app: FastifyTypedInstance) {
         .from(agents)
         .where(
           and(
-            eq(agents.organizationId, context.organizationId),
+            eq(agents.organizationId, organization.id),
             eq(agents.slug, agentSlug),
           ),
         )
@@ -93,7 +86,7 @@ export async function createAgent(app: FastifyTypedInstance) {
             logo,
             description,
             tags,
-            organizationId: context.organizationId,
+            organizationId: organization.id,
           })
           .returning({
             id: agents.id,

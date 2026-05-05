@@ -14,6 +14,17 @@ export type StopMessagePathParams = {
   messageId: string
 }
 
+export type StopMessageHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const stopMessage204Enum = {} as const
 
 export type StopMessage204Enum =
@@ -117,14 +128,6 @@ export type StopMessage500 = {
 
 export type StopMessageMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -136,6 +139,7 @@ export type StopMessageMutation = {
   Response: StopMessage204
   Request: StopMessageMutationRequest
   PathParams: StopMessagePathParams
+  HeaderParams: StopMessageHeaderParams
   Errors:
     | StopMessage400
     | StopMessage401

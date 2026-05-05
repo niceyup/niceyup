@@ -61,9 +61,11 @@ function IndexedSourceAlertIdle({
     startTransition(async () => {
       try {
         const { error } = await sdk.triggerSourceIndexing({
+          headers: {
+            'x-organization-slug': params.organizationSlug,
+          },
           agentId: params.agentId,
           data: {
-            organizationSlug: params.organizationSlug,
             status: 'idle',
           },
         })
@@ -118,9 +120,11 @@ function IndexedSourceAlertFailed({
     startTransition(async () => {
       try {
         const { error } = await sdk.triggerSourceIndexing({
+          headers: {
+            'x-organization-slug': params.organizationSlug,
+          },
           agentId: params.agentId,
           data: {
-            organizationSlug: params.organizationSlug,
             status: 'failed',
           },
         })
@@ -177,9 +181,11 @@ function IndexedSourceAlertStale({
     startTransition(async () => {
       try {
         const { error } = await sdk.triggerSourceIndexing({
+          headers: {
+            'x-organization-slug': params.organizationSlug,
+          },
           agentId: params.agentId,
           data: {
-            organizationSlug: params.organizationSlug,
             status: 'stale',
           },
         })

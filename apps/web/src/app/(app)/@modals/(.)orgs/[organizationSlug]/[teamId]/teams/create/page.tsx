@@ -18,9 +18,7 @@ export default async function Page({
 
   const membership = await getMembership({ organizationSlug })
 
-  const isAdmin = membership?.isAdmin
-
-  if (!isAdmin) {
+  if (!membership?.isAdmin) {
     return null
   }
 

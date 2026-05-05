@@ -11,6 +11,7 @@ import type {
 import type {
   ListConversationsQueryResponse,
   ListConversationsQueryParams,
+  ListConversationsHeaderParams,
   ListConversations400,
   ListConversations401,
   ListConversations403,
@@ -36,7 +37,13 @@ export type ListConversationsSuspenseQueryKey = ReturnType<
 >
 
 export function listConversationsSuspenseQueryOptions(
-  { params }: { params: ListConversationsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params: ListConversationsQueryParams
+    headers?: ListConversationsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listConversationsSuspenseQueryKey(params)
@@ -57,7 +64,7 @@ export function listConversationsSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listConversations({ params }, config)
+      return listConversations({ params, headers }, config)
     },
   })
 }
@@ -70,7 +77,13 @@ export function useListConversationsSuspense<
   TData = ListConversationsQueryResponse,
   TQueryKey extends QueryKey = ListConversationsSuspenseQueryKey,
 >(
-  { params }: { params: ListConversationsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params: ListConversationsQueryParams
+    headers?: ListConversationsHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -99,7 +112,7 @@ export function useListConversationsSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listConversationsSuspenseQueryOptions({ params }, config),
+      ...listConversationsSuspenseQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

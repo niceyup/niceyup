@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateConnectionHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -126,14 +137,6 @@ export type CreateConnectionMutationRequestAuthenticationEnum =
 
 export type CreateConnectionMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -164,6 +167,7 @@ export type CreateConnectionMutationResponse = CreateConnection201
 export type CreateConnectionMutation = {
   Response: CreateConnection201
   Request: CreateConnectionMutationRequest
+  HeaderParams: CreateConnectionHeaderParams
   Errors:
     | CreateConnection400
     | CreateConnection401

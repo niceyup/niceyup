@@ -15,15 +15,18 @@ export type ListMcpServersQueryParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   type?: ListMcpServersQueryParamsTypeEnum
+}
+
+export type ListMcpServersHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const mcpServersTypeEnum = {
@@ -157,6 +160,7 @@ export type ListMcpServersQueryResponse = ListMcpServers200
 export type ListMcpServersQuery = {
   Response: ListMcpServers200
   QueryParams: ListMcpServersQueryParams
+  HeaderParams: ListMcpServersHeaderParams
   Errors:
     | ListMcpServers400
     | ListMcpServers401

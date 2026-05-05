@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateModelProviderHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -114,14 +125,6 @@ export type CreateModelProviderMutationRequestProviderEnum =
 
 export type CreateModelProviderMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -160,6 +163,7 @@ export type CreateModelProviderMutationResponse = CreateModelProvider201
 export type CreateModelProviderMutation = {
   Response: CreateModelProvider201
   Request: CreateModelProviderMutationRequest
+  HeaderParams: CreateModelProviderHeaderParams
   Errors:
     | CreateModelProvider400
     | CreateModelProvider401

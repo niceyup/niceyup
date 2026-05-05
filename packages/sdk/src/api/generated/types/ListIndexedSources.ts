@@ -10,15 +10,15 @@ export type ListIndexedSourcesPathParams = {
   agentId: string
 }
 
-export type ListIndexedSourcesQueryParams = {
+export type ListIndexedSourcesHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const indexedSourcesStatusEnum = {
@@ -148,7 +148,7 @@ export type ListIndexedSourcesQueryResponse = ListIndexedSources200
 export type ListIndexedSourcesQuery = {
   Response: ListIndexedSources200
   PathParams: ListIndexedSourcesPathParams
-  QueryParams: ListIndexedSourcesQueryParams
+  HeaderParams: ListIndexedSourcesHeaderParams
   Errors:
     | ListIndexedSources400
     | ListIndexedSources401

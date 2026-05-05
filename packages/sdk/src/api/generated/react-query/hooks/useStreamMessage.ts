@@ -12,6 +12,7 @@ import type {
   StreamMessageQueryResponse,
   StreamMessagePathParams,
   StreamMessageQueryParams,
+  StreamMessageHeaderParams,
   StreamMessage400,
   StreamMessage401,
   StreamMessage403,
@@ -53,10 +54,12 @@ export function streamMessageQueryOptions(
     conversationId,
     messageId,
     params,
+    headers,
   }: {
     conversationId: StreamMessagePathParams['conversationId']
     messageId: StreamMessagePathParams['messageId']
     params: StreamMessageQueryParams
+    headers?: StreamMessageHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -78,7 +81,10 @@ export function streamMessageQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return streamMessage({ conversationId, messageId, params }, config)
+      return streamMessage(
+        { conversationId, messageId, params, headers },
+        config,
+      )
     },
   })
 }
@@ -96,10 +102,12 @@ export function useStreamMessage<
     conversationId,
     messageId,
     params,
+    headers,
   }: {
     conversationId: StreamMessagePathParams['conversationId']
     messageId: StreamMessagePathParams['messageId']
     params: StreamMessageQueryParams
+    headers?: StreamMessageHeaderParams
   },
   options: {
     query?: Partial<
@@ -132,7 +140,7 @@ export function useStreamMessage<
   const query = useQuery(
     {
       ...streamMessageQueryOptions(
-        { conversationId, messageId, params },
+        { conversationId, messageId, params, headers },
         config,
       ),
       queryKey,

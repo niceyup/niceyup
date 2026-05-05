@@ -1,8 +1,6 @@
 'use server'
 
-import { isOrganizationMemberAdmin } from '@/actions/membership'
-import { authenticatedUser } from '@/lib/auth/server'
-import { resolveOrganizationContext } from '@/lib/organization'
+import { getMembership } from '@/actions/membership'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { db } from '@workspace/db'
 import {
@@ -27,12 +25,18 @@ type ContextSourceExplorerNodeParams = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
 }
 
-async function checkAdminAccess(
-  context: { userId: string } & ContextSourceExplorerNodeParams,
+async function resolveSourceExplorerNodeContext(
+  context: ContextSourceExplorerNodeParams,
 ) {
-  const isAdmin = await isOrganizationMemberAdmin(context)
+  const membership = await getMembership({
+    organizationSlug: context.organizationSlug,
+  })
 
-  return isAdmin
+  if (!membership?.isAdmin) {
+    return null
+  }
+
+  return { membership }
 }
 
 type GetItemInSourceExplorerNodeParams = {
@@ -41,17 +45,9 @@ type GetItemInSourceExplorerNodeParams = {
 
 export async function getItemInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { itemId }: GetItemInSourceExplorerNodeParams,
+  params: GetItemInSourceExplorerNodeParams,
 ) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return null
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return null
@@ -66,8 +62,8 @@ export async function getItemInSourceExplorerNode(
     .where(
       and(
         isNotNull(sourceExplorerNodes.sourceId),
-        eq(sourceExplorerNodes.id, itemId),
-        eq(sourceExplorerNodes.organizationId, ctx.organizationId),
+        eq(sourceExplorerNodes.id, params.itemId),
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )
@@ -82,7 +78,7 @@ type ListFoldersInSourceExplorerNodeParams = {
 
 export async function listFoldersInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { folderId }: ListFoldersInSourceExplorerNodeParams,
+  params: ListFoldersInSourceExplorerNodeParams,
 ) {
   'use cache: private'
   cacheTag(
@@ -91,15 +87,7 @@ export async function listFoldersInSourceExplorerNode(
     'delete-source-folder',
   )
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return []
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return []
@@ -122,9 +110,9 @@ export async function listFoldersInSourceExplorerNode(
     .where(
       and(
         isNull(sourceExplorerNodes.sourceId),
-        eq(sourceExplorerNodes.organizationId, ctx.organizationId),
-        folderId
-          ? eq(sourceExplorerNodes.parentId, folderId)
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
+        params.folderId
+          ? eq(sourceExplorerNodes.parentId, params.folderId)
           : isNull(sourceExplorerNodes.parentId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
@@ -140,20 +128,12 @@ type ListFolderItemsInSourceExplorerNodeParams = {
 
 export async function listFolderItemsInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { folderId }: ListFolderItemsInSourceExplorerNodeParams,
+  params: ListFolderItemsInSourceExplorerNodeParams,
 ) {
   'use cache: private'
   cacheTag('create-source', 'delete-source')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return []
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return []
@@ -182,7 +162,6 @@ export async function listFolderItemsInSourceExplorerNode(
           END
         `.as('fileSize'),
       },
-
       fractionalIndex: sourceExplorerNodes.fractionalIndex,
     })
     .from(sourceExplorerNodes)
@@ -195,9 +174,9 @@ export async function listFolderItemsInSourceExplorerNode(
     .where(
       and(
         isNotNull(sourceExplorerNodes.sourceId),
-        eq(sourceExplorerNodes.organizationId, ctx.organizationId),
-        folderId
-          ? eq(sourceExplorerNodes.parentId, folderId)
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
+        params.folderId
+          ? eq(sourceExplorerNodes.parentId, params.folderId)
           : isNull(sourceExplorerNodes.parentId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
@@ -213,17 +192,9 @@ type ListSearchItemsInSourceExplorerNodeParams = {
 
 export async function listSearchItemsInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { search }: ListSearchItemsInSourceExplorerNodeParams,
+  params: ListSearchItemsInSourceExplorerNodeParams,
 ) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return []
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return []
@@ -249,8 +220,8 @@ export async function listSearchItemsInSourceExplorerNode(
     .leftJoin(sources, eq(sourceExplorerNodes.sourceId, sources.id))
     .where(
       and(
-        eq(sourceExplorerNodes.organizationId, ctx.organizationId),
-        sql<string>`COALESCE(${sources.name}, ${sourceExplorerNodes.name}) ILIKE ${`%${search}%`}`,
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
+        sql<string>`COALESCE(${sources.name}, ${sourceExplorerNodes.name}) ILIKE ${`%${params.search}%`}`,
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )
@@ -271,25 +242,17 @@ type GetParentsInSourceExplorerNodeParams =
 
 export async function getParentsInSourceExplorerNode(
   context: ContextSourceExplorerNodeParams,
-  { folderId, sourceId }: GetParentsInSourceExplorerNodeParams,
+  params: GetParentsInSourceExplorerNodeParams,
 ) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  if (!(await checkAdminAccess({ userId, ...context }))) {
-    return []
-  }
-
-  const ctx = await resolveOrganizationContext({ userId, ...context })
+  const ctx = await resolveSourceExplorerNodeContext(context)
 
   if (!ctx) {
     return []
   }
 
-  const itemTypeCondition = sourceId
-    ? sql`node.source_id = ${sourceId}`
-    : sql`node.id = ${folderId} AND node.source_id IS NULL`
+  const itemTypeCondition = params.sourceId
+    ? sql`node.source_id = ${params.sourceId}`
+    : sql`node.id = ${params.folderId} AND node.source_id IS NULL`
 
   const parents = await db.execute<{
     id: string
@@ -313,7 +276,7 @@ export async function getParentsInSourceExplorerNode(
       FROM ${sourceExplorerNodes} node
       LEFT JOIN ${sources} source ON node.source_id = source.id
       WHERE ${itemTypeCondition}
-        AND node.organization_id = ${ctx.organizationId}
+        AND node.organization_id = ${ctx.membership.organizationId}
       UNION ALL
       
       SELECT parent_node.id,

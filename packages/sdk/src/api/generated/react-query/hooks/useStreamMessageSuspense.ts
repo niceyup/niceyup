@@ -12,6 +12,7 @@ import type {
   StreamMessageQueryResponse,
   StreamMessagePathParams,
   StreamMessageQueryParams,
+  StreamMessageHeaderParams,
   StreamMessage400,
   StreamMessage401,
   StreamMessage403,
@@ -55,10 +56,12 @@ export function streamMessageSuspenseQueryOptions(
     conversationId,
     messageId,
     params,
+    headers,
   }: {
     conversationId: StreamMessagePathParams['conversationId']
     messageId: StreamMessagePathParams['messageId']
     params: StreamMessageQueryParams
+    headers?: StreamMessageHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -83,7 +86,10 @@ export function streamMessageSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return streamMessage({ conversationId, messageId, params }, config)
+      return streamMessage(
+        { conversationId, messageId, params, headers },
+        config,
+      )
     },
   })
 }
@@ -100,10 +106,12 @@ export function useStreamMessageSuspense<
     conversationId,
     messageId,
     params,
+    headers,
   }: {
     conversationId: StreamMessagePathParams['conversationId']
     messageId: StreamMessagePathParams['messageId']
     params: StreamMessageQueryParams
+    headers?: StreamMessageHeaderParams
   },
   options: {
     query?: Partial<
@@ -135,7 +143,7 @@ export function useStreamMessageSuspense<
   const query = useSuspenseQuery(
     {
       ...streamMessageSuspenseQueryOptions(
-        { conversationId, messageId, params },
+        { conversationId, messageId, params, headers },
         config,
       ),
       queryKey,

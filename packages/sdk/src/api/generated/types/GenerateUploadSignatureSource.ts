@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type GenerateUploadSignatureSourceHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -114,14 +125,6 @@ export type GenerateUploadSignatureSourceMutationRequestSourceTypeEnum =
 
 export type GenerateUploadSignatureSourceMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @default "file"
    * @type string | undefined
    */
@@ -143,6 +146,7 @@ export type GenerateUploadSignatureSourceMutationResponse =
 export type GenerateUploadSignatureSourceMutation = {
   Response: GenerateUploadSignatureSource200
   Request: GenerateUploadSignatureSourceMutationRequest
+  HeaderParams: GenerateUploadSignatureSourceHeaderParams
   Errors:
     | GenerateUploadSignatureSource400
     | GenerateUploadSignatureSource401

@@ -1,18 +1,16 @@
-import { polarPlugin } from '@workspace/billing/better-auth'
+import { apiKey } from '@better-auth/api-key'
+import { stripePlugin } from '@workspace/billing/better-auth'
 import { cache } from '@workspace/cache'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { users } from '@workspace/db/schema'
-import {
-  sendOrganizationInvitation,
-  sendPasswordResetEmail,
-  sendVerificationEmail,
-} from '@workspace/email'
+import { email } from '@workspace/email'
 import { generateId, stripSpecialCharacters } from '@workspace/utils'
 import { type BetterAuthOptions, betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { openAPI, organization } from 'better-auth/plugins'
 import { ac, roles } from './lib/access'
+import { apiKeyConfigs } from './lib/api-key'
 import { COOKIE_PREFIX } from './lib/constants'
 import { env } from './lib/env'
 import {
@@ -29,7 +27,7 @@ const config = {
   }),
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
-      await sendVerificationEmail({ user, url })
+      await email.sendVerificationEmail({ user, url })
     },
     sendOnSignUp: true,
     sendOnSignIn: true,
@@ -39,7 +37,7 @@ const config = {
     enabled: true,
     requireEmailVerification: true,
     sendResetPassword: async ({ user, url }) => {
-      await sendPasswordResetEmail({ user, url })
+      await email.sendPasswordResetEmail({ user, url })
     },
   },
   socialProviders: {
@@ -125,7 +123,7 @@ const config = {
           .where(eq(users.email, data.email))
           .limit(1)
 
-        await sendOrganizationInvitation({
+        await email.sendOrganizationInvitation({
           organization: data.organization,
           inviter: data.inviter.user,
           user: {
@@ -154,7 +152,19 @@ const config = {
         },
       },
     }),
-    polarPlugin(),
+    apiKey([
+      {
+        configId: apiKeyConfigs.user.configId,
+        defaultPrefix: apiKeyConfigs.user.defaultPrefix,
+        references: apiKeyConfigs.user.references, // Default - owned by users
+      },
+      {
+        configId: apiKeyConfigs.organization.configId,
+        defaultPrefix: apiKeyConfigs.organization.defaultPrefix,
+        references: apiKeyConfigs.organization.references, // Owned by organizations
+      },
+    ]),
+    stripePlugin(),
 
     // API Reference for Better Auth
     ...(env.APP_ENV === 'development' ? [openAPI({ path: '/docs' })] : []),

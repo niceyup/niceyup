@@ -10,7 +10,7 @@ import type {
 } from '../../../../client/fetch-react-query'
 import type {
   ListAgentsQueryResponse,
-  ListAgentsQueryParams,
+  ListAgentsHeaderParams,
   ListAgents400,
   ListAgents401,
   ListAgents403,
@@ -27,18 +27,17 @@ import type {
 import { listAgents } from '../operations/listAgents'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const listAgentsSuspenseQueryKey = (params?: ListAgentsQueryParams) =>
-  [{ url: '/agents' }, ...(params ? [params] : [])] as const
+export const listAgentsSuspenseQueryKey = () => [{ url: '/agents' }] as const
 
 export type ListAgentsSuspenseQueryKey = ReturnType<
   typeof listAgentsSuspenseQueryKey
 >
 
 export function listAgentsSuspenseQueryOptions(
-  { params }: { params?: ListAgentsQueryParams },
+  { headers }: { headers?: ListAgentsHeaderParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = listAgentsSuspenseQueryKey(params)
+  const queryKey = listAgentsSuspenseQueryKey()
   return queryOptions<
     ListAgentsQueryResponse,
     ResponseErrorConfig<
@@ -55,7 +54,7 @@ export function listAgentsSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listAgents({ params }, config)
+      return listAgents({ headers }, config)
     },
   })
 }
@@ -68,7 +67,7 @@ export function useListAgentsSuspense<
   TData = ListAgentsQueryResponse,
   TQueryKey extends QueryKey = ListAgentsSuspenseQueryKey,
 >(
-  { params }: { params?: ListAgentsQueryParams },
+  { headers }: { headers?: ListAgentsHeaderParams },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -92,11 +91,11 @@ export function useListAgentsSuspense<
     query: { client: queryClient, ...queryOptions } = {},
     client: config = {},
   } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listAgentsSuspenseQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? listAgentsSuspenseQueryKey()
 
   const query = useSuspenseQuery(
     {
-      ...listAgentsSuspenseQueryOptions({ params }, config),
+      ...listAgentsSuspenseQueryOptions({ headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

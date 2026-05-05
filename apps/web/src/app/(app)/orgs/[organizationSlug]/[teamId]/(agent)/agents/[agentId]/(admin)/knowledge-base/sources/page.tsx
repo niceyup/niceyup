@@ -1,4 +1,4 @@
-import { getAgent } from '@/actions/agents'
+import { getAgentDetailed } from '@/actions/agents'
 import { sdk } from '@/lib/sdk'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { Button } from '@workspace/ui/components/button'
@@ -23,8 +23,10 @@ async function getSourceIndexingStatus(params: {
   cacheTag('trigger-source-indexing')
 
   const { data } = await sdk.getSourceIndexingStatus({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     agentId: params.agentId,
-    params: { organizationSlug: params.organizationSlug },
   })
 
   return data?.count || null
@@ -37,7 +39,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  const agent = await getAgent(
+  const agentDetailed = await getAgentDetailed(
     { organizationSlug, agentId },
     {
       with: {
@@ -46,7 +48,11 @@ export default async function Page({
     },
   )
 
-  if (agent?.knowledgeBase?.status === 'reindexing') {
+  if (!agentDetailed) {
+    return null
+  }
+
+  if (agentDetailed.knowledgeBase?.status === 'reindexing') {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>
@@ -62,7 +68,7 @@ export default async function Page({
     )
   }
 
-  if (!agent?.knowledgeBase?.isConfigured) {
+  if (!agentDetailed.knowledgeBase?.isConfigured) {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>
@@ -92,11 +98,15 @@ export default async function Page({
   const [{ data: agentSourcesData }, { data: sourcesData }] = await Promise.all(
     [
       sdk.listIndexedSources({
+        headers: {
+          'x-organization-slug': organizationSlug,
+        },
         agentId,
-        params: { organizationSlug },
       }),
       sdk.listSources({
-        params: { organizationSlug },
+        headers: {
+          'x-organization-slug': organizationSlug,
+        },
       }),
     ],
   )

@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -29,12 +29,14 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
         tags: ['Agents'],
         description: 'Update an agent configuration',
         operationId: 'updateAgentConfiguration',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           languageModelSettings: modelSettingsSchema.nullish(),
           systemMessage: z.string().nullish(),
           promptMessages: z.array(promptMessageSchema).nullish(),
@@ -46,30 +48,27 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
       const {
-        organizationId,
-        organizationSlug,
         languageModelSettings,
         systemMessage,
         promptMessages,
         enableKnowledgeBaseTool,
       } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({
@@ -83,9 +82,10 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
       })
 
       if (languageModelSettings?.providerId) {
-        const modelProvider = await queries.context.getModelProvider(context, {
-          modelProviderId: languageModelSettings.providerId,
-        })
+        const modelProvider = await queries.ctx.getModelProvider(
+          { organizationId: organization.id },
+          { modelProviderId: languageModelSettings.providerId },
+        )
 
         if (!modelProvider) {
           throw new BadRequestError({
@@ -171,7 +171,7 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
               type: 'language-model',
               options: languageModelSettings.options,
               providerId: languageModelSettings.providerId,
-              organizationId: context.organizationId,
+              organizationId: organization.id,
             })
             .returning({
               id: modelSettings.id,

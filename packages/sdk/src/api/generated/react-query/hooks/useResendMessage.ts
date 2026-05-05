@@ -12,6 +12,7 @@ import type {
   ResendMessageMutationRequest,
   ResendMessageMutationResponse,
   ResendMessagePathParams,
+  ResendMessageHeaderParams,
   ResendMessage400,
   ResendMessage401,
   ResendMessage403,
@@ -52,6 +53,7 @@ export function useResendMessage<TContext>(
         conversationId: ResendMessagePathParams['conversationId']
         messageId: ResendMessagePathParams['messageId']
         data: ResendMessageMutationRequest
+        headers?: ResendMessageHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -78,12 +80,16 @@ export function useResendMessage<TContext>(
       conversationId: ResendMessagePathParams['conversationId']
       messageId: ResendMessagePathParams['messageId']
       data: ResendMessageMutationRequest
+      headers?: ResendMessageHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, messageId, data }) => {
-        return resendMessage({ conversationId, messageId, data }, config)
+      mutationFn: async ({ conversationId, messageId, data, headers }) => {
+        return resendMessage(
+          { conversationId, messageId, data, headers },
+          config,
+        )
       },
       mutationKey,
       ...mutationOptions,

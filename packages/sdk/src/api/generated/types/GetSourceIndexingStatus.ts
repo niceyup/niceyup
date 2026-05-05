@@ -10,15 +10,15 @@ export type GetSourceIndexingStatusPathParams = {
   agentId: string
 }
 
-export type GetSourceIndexingStatusQueryParams = {
+export type GetSourceIndexingStatusHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 /**
@@ -148,7 +148,7 @@ export type GetSourceIndexingStatusQueryResponse = GetSourceIndexingStatus200
 export type GetSourceIndexingStatusQuery = {
   Response: GetSourceIndexingStatus200
   PathParams: GetSourceIndexingStatusPathParams
-  QueryParams: GetSourceIndexingStatusQueryParams
+  HeaderParams: GetSourceIndexingStatusHeaderParams
   Errors:
     | GetSourceIndexingStatus400
     | GetSourceIndexingStatus401

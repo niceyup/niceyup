@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { loadSearchParams } from '@/app/(app)/orgs/[organizationSlug]/[teamId]/(main)/(admin)/sources/_lib/search-params'
 import type { OrganizationTeamParams } from '@/lib/types'
 import {
@@ -21,9 +21,9 @@ export default async function Page({
   const { organizationSlug } = await params
   const { folderId } = await loadSearchParams(searchParams)
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
-  if (!isAdmin) {
+  if (!membershipRole.isAdmin) {
     return null
   }
 

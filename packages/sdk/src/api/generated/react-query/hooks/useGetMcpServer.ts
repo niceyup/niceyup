@@ -11,7 +11,7 @@ import type {
 import type {
   GetMcpServerQueryResponse,
   GetMcpServerPathParams,
-  GetMcpServerQueryParams,
+  GetMcpServerHeaderParams,
   GetMcpServer400,
   GetMcpServer401,
   GetMcpServer403,
@@ -28,13 +28,11 @@ import type {
 import { getMcpServer } from '../operations/getMcpServer'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getMcpServerQueryKey = (
-  { mcpServerId }: { mcpServerId: GetMcpServerPathParams['mcpServerId'] },
-  params?: GetMcpServerQueryParams,
-) =>
+export const getMcpServerQueryKey = ({
+  mcpServerId,
+}: { mcpServerId: GetMcpServerPathParams['mcpServerId'] }) =>
   [
     { url: '/mcp-servers/:mcpServerId', params: { mcpServerId: mcpServerId } },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetMcpServerQueryKey = ReturnType<typeof getMcpServerQueryKey>
@@ -42,14 +40,14 @@ export type GetMcpServerQueryKey = ReturnType<typeof getMcpServerQueryKey>
 export function getMcpServerQueryOptions(
   {
     mcpServerId,
-    params,
+    headers,
   }: {
     mcpServerId: GetMcpServerPathParams['mcpServerId']
-    params?: GetMcpServerQueryParams
+    headers?: GetMcpServerHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getMcpServerQueryKey({ mcpServerId }, params)
+  const queryKey = getMcpServerQueryKey({ mcpServerId })
   return queryOptions<
     GetMcpServerQueryResponse,
     ResponseErrorConfig<
@@ -67,7 +65,7 @@ export function getMcpServerQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getMcpServer({ mcpServerId, params }, config)
+      return getMcpServer({ mcpServerId, headers }, config)
     },
   })
 }
@@ -83,10 +81,10 @@ export function useGetMcpServer<
 >(
   {
     mcpServerId,
-    params,
+    headers,
   }: {
     mcpServerId: GetMcpServerPathParams['mcpServerId']
-    params?: GetMcpServerQueryParams
+    headers?: GetMcpServerHeaderParams
   },
   options: {
     query?: Partial<
@@ -113,11 +111,11 @@ export function useGetMcpServer<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? getMcpServerQueryKey({ mcpServerId }, params)
+    queryOptions?.queryKey ?? getMcpServerQueryKey({ mcpServerId })
 
   const query = useQuery(
     {
-      ...getMcpServerQueryOptions({ mcpServerId, params }, config),
+      ...getMcpServerQueryOptions({ mcpServerId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

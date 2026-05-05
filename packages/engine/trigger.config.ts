@@ -1,4 +1,3 @@
-import { pythonExtension } from '@trigger.dev/python/extension'
 import { defineConfig } from '@trigger.dev/sdk'
 import { env } from './src/lib/env'
 
@@ -26,12 +25,6 @@ export default defineConfig({
       'word-extractor',
       'officeparser',
       'd3-dsv',
-    ],
-    extensions: [
-      pythonExtension({
-        devPythonBinaryPath: './python/.venv/bin/python',
-        scripts: ['./python/**/*.py'],
-      }),
     ],
   },
 })

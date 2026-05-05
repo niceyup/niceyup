@@ -5,12 +5,12 @@ import {
   wrapEmbeddingModel,
   wrapLanguageModel,
 } from '@workspace/ai'
+import { InvalidArgumentError } from '@workspace/core/errros'
 import type {
   EmbeddingModelSettings,
   LanguageModelSettings,
 } from '@workspace/core/models'
 import { queries } from '@workspace/db/queries'
-import { InvalidArgumentError } from '../erros'
 import { resolveModelProviderRegistry } from './resolve-model-provider'
 
 async function resolveLanguageModelSettingsOptions({
@@ -112,10 +112,13 @@ export async function resolveLanguageModelSettings(params: {
     options: modelSettings.options,
   })
 
+  const providerId = providerSettings.provider.startsWith('openai-compatible/')
+    ? 'openai-compatible'
+    : providerSettings.provider
+  const modelId = modelSettings.model
+
   const enhancedLanguageModel = wrapLanguageModel({
-    model: provider.languageModel(
-      `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
-    ),
+    model: provider.languageModel(`${providerId}/${modelId}`),
     middleware: [
       extractReasoningMiddleware({ tagName: 'think' }),
       defaultSettingsMiddleware({ settings: modelSettingsOptions }),
@@ -161,10 +164,13 @@ export async function resolveEmbeddingModelSettings(params: {
     options: modelSettings.options,
   })
 
+  const providerId = providerSettings.provider.startsWith('openai-compatible/')
+    ? 'openai-compatible'
+    : providerSettings.provider
+  const modelId = modelSettings.model
+
   const enhancedEmbeddingModel = wrapEmbeddingModel({
-    model: provider.embeddingModel(
-      `${providerSettings.provider as 'openai'}/${modelSettings.model}`,
-    ),
+    model: provider.embeddingModel(`${providerId}/${modelId}`),
     middleware: defaultEmbeddingSettingsMiddleware({
       settings: modelSettingsOptions,
     }),

@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   connectionAppSchema,
   connectionAuthenticationSchema,
@@ -22,9 +22,11 @@ export async function listConnectionSelectOptions(app: FastifyTypedInstance) {
         tags: ['Connections'],
         description: 'Get connections for select options',
         operationId: 'listConnectionSelectOptions',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           apps: connectionAppsSchema.optional(),
           search: z.string().max(100).default(''),
         }),
@@ -49,20 +51,19 @@ export async function listConnectionSelectOptions(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, apps, search } = request.query
+      const { apps, search } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const connections = await queries.context.listConnectionSelectOptions(
-        context,
+      const connections = await queries.ctx.listConnectionSelectOptions(
+        { organizationId: organization.id },
         { apps, search },
       )
 

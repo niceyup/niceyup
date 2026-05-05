@@ -11,7 +11,7 @@ import type {
 import type {
   GetConnectionQueryResponse,
   GetConnectionPathParams,
-  GetConnectionQueryParams,
+  GetConnectionHeaderParams,
   GetConnection400,
   GetConnection401,
   GetConnection403,
@@ -28,16 +28,14 @@ import type {
 import { getConnection } from '../operations/getConnection'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getConnectionSuspenseQueryKey = (
-  { connectionId }: { connectionId: GetConnectionPathParams['connectionId'] },
-  params?: GetConnectionQueryParams,
-) =>
+export const getConnectionSuspenseQueryKey = ({
+  connectionId,
+}: { connectionId: GetConnectionPathParams['connectionId'] }) =>
   [
     {
       url: '/connections/:connectionId',
       params: { connectionId: connectionId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetConnectionSuspenseQueryKey = ReturnType<
@@ -47,14 +45,14 @@ export type GetConnectionSuspenseQueryKey = ReturnType<
 export function getConnectionSuspenseQueryOptions(
   {
     connectionId,
-    params,
+    headers,
   }: {
     connectionId: GetConnectionPathParams['connectionId']
-    params?: GetConnectionQueryParams
+    headers?: GetConnectionHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getConnectionSuspenseQueryKey({ connectionId }, params)
+  const queryKey = getConnectionSuspenseQueryKey({ connectionId })
   return queryOptions<
     GetConnectionQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +70,7 @@ export function getConnectionSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getConnection({ connectionId, params }, config)
+      return getConnection({ connectionId, headers }, config)
     },
   })
 }
@@ -87,10 +85,10 @@ export function useGetConnectionSuspense<
 >(
   {
     connectionId,
-    params,
+    headers,
   }: {
     connectionId: GetConnectionPathParams['connectionId']
-    params?: GetConnectionQueryParams
+    headers?: GetConnectionHeaderParams
   },
   options: {
     query?: Partial<
@@ -116,12 +114,11 @@ export function useGetConnectionSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getConnectionSuspenseQueryKey({ connectionId }, params)
+    queryOptions?.queryKey ?? getConnectionSuspenseQueryKey({ connectionId })
 
   const query = useSuspenseQuery(
     {
-      ...getConnectionSuspenseQueryOptions({ connectionId, params }, config),
+      ...getConnectionSuspenseQueryOptions({ connectionId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

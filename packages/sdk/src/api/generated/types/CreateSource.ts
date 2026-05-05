@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateSourceHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -204,14 +215,6 @@ export type CreateSourceMutationRequest = (
     }
 ) & {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   type: CreateSourceMutationRequestTypeEnum
@@ -231,6 +234,7 @@ export type CreateSourceMutationResponse = CreateSource201
 export type CreateSourceMutation = {
   Response: CreateSource201
   Request: CreateSourceMutationRequest
+  HeaderParams: CreateSourceHeaderParams
   Errors:
     | CreateSource400
     | CreateSource401

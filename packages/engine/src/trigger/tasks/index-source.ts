@@ -1,4 +1,5 @@
 import { schemaTask } from '@trigger.dev/sdk'
+import { InvalidArgumentError, NiceyupError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { eq, sql } from '@workspace/db/orm'
 import {
@@ -16,7 +17,7 @@ import {
 import { storage } from '@workspace/storage'
 import { z } from 'zod'
 import { resolveEmbeddingModelSettings, resolveVectorStore } from '../../agents'
-import { InvalidArgumentError } from '../../erros'
+import { RetryableError } from '../../errors'
 import {
   ingestDatabaseSource,
   ingestFileSource,
@@ -76,6 +77,7 @@ export const indexSourceTask = schemaTask({
         status: knowledgeBases.status,
         vectorStoreId: knowledgeBases.vectorStoreId,
         embeddingModelSettingsId: knowledgeBases.embeddingModelSettingsId,
+        organizationId: knowledgeBases.organizationId,
       })
       .from(knowledgeBases)
       .where(eq(knowledgeBases.id, indexedSource.knowledgeBaseId))
@@ -342,7 +344,7 @@ export const indexSourceTask = schemaTask({
     }
   },
   catchError: async ({ payload, error }) => {
-    if (error instanceof InvalidArgumentError) {
+    if (!RetryableError.isInstance(error)) {
       return { skipRetrying: true }
     }
 
@@ -354,14 +356,15 @@ export const indexSourceTask = schemaTask({
       .where(eq(sourceOperations.indexedSourceId, payload.indexedSourceId))
   },
   onFailure: async ({ payload, error }) => {
+    const errorObject = NiceyupError.isInstance(error)
+      ? { code: error.code, message: error.message }
+      : { code: 'UNKNOWN_ERROR', message: 'Unknown error' }
+
     await db
       .update(sourceOperations)
       .set({
         status: 'failed',
-        error:
-          error instanceof InvalidArgumentError
-            ? { code: error.code, message: error.message }
-            : { code: 'UNKNOWN_ERROR', message: 'Unknown error' },
+        error: errorObject,
       })
       .where(eq(sourceOperations.indexedSourceId, payload.indexedSourceId))
   },

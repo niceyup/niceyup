@@ -12,6 +12,7 @@ import type {
   RegenerateMessageMutationRequest,
   RegenerateMessageMutationResponse,
   RegenerateMessagePathParams,
+  RegenerateMessageHeaderParams,
   RegenerateMessage400,
   RegenerateMessage401,
   RegenerateMessage403,
@@ -52,6 +53,7 @@ export function useRegenerateMessage<TContext>(
         conversationId: RegenerateMessagePathParams['conversationId']
         messageId: RegenerateMessagePathParams['messageId']
         data: RegenerateMessageMutationRequest
+        headers?: RegenerateMessageHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -79,12 +81,16 @@ export function useRegenerateMessage<TContext>(
       conversationId: RegenerateMessagePathParams['conversationId']
       messageId: RegenerateMessagePathParams['messageId']
       data: RegenerateMessageMutationRequest
+      headers?: RegenerateMessageHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, messageId, data }) => {
-        return regenerateMessage({ conversationId, messageId, data }, config)
+      mutationFn: async ({ conversationId, messageId, data, headers }) => {
+        return regenerateMessage(
+          { conversationId, messageId, data, headers },
+          config,
+        )
       },
       mutationKey,
       ...mutationOptions,

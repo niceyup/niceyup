@@ -8,9 +8,8 @@ export function templatePromptAnswer({
   return [
     {
       role: 'system' as const,
-      content: `You are a helpful assistant. Check your knowledge base before answering any questions.
-Only respond to questions using information from tool calls.
-if no relevant information is found in the tool calls, respond, "Sorry, I don't know."`,
+      content: `Check your knowledge base to understand the context of my question before answering.
+If the answer is not based on information from the knowledge base, explicitly state that you did not use that source.`,
     },
     {
       role: 'user' as const,

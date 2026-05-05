@@ -12,6 +12,7 @@ import type {
   UpdateConversationMutationRequest,
   UpdateConversationMutationResponse,
   UpdateConversationPathParams,
+  UpdateConversationHeaderParams,
   UpdateConversation400,
   UpdateConversation401,
   UpdateConversation403,
@@ -49,6 +50,7 @@ export function useUpdateConversation<TContext>(
       {
         conversationId: UpdateConversationPathParams['conversationId']
         data: UpdateConversationMutationRequest
+        headers?: UpdateConversationHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateConversation<TContext>(
     {
       conversationId: UpdateConversationPathParams['conversationId']
       data: UpdateConversationMutationRequest
+      headers?: UpdateConversationHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, data }) => {
-        return updateConversation({ conversationId, data }, config)
+      mutationFn: async ({ conversationId, data, headers }) => {
+        return updateConversation({ conversationId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

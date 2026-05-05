@@ -12,18 +12,21 @@ export type GetFilePathParams = {
 
 export type GetFileQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @default 300
    * @type number | undefined
    */
   expires?: number
+}
+
+export type GetFileHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const fileBucketEnum = {
@@ -182,6 +185,7 @@ export type GetFileQuery = {
   Response: GetFile200
   PathParams: GetFilePathParams
   QueryParams: GetFileQueryParams
+  HeaderParams: GetFileHeaderParams
   Errors:
     | GetFile400
     | GetFile401

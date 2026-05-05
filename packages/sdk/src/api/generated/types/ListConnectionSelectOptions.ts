@@ -14,14 +14,6 @@ export type ListConnectionSelectOptionsQueryParamsAppsEnum =
 
 export type ListConnectionSelectOptionsQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type array | undefined
    */
   apps?: ListConnectionSelectOptionsQueryParamsAppsEnum[]
@@ -31,6 +23,17 @@ export type ListConnectionSelectOptionsQueryParams = {
    * @type string | undefined
    */
   search?: string
+}
+
+export type ListConnectionSelectOptionsHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const connectionsAppEnum2 = {
@@ -190,6 +193,7 @@ export type ListConnectionSelectOptionsQueryResponse =
 export type ListConnectionSelectOptionsQuery = {
   Response: ListConnectionSelectOptions200
   QueryParams: ListConnectionSelectOptionsQueryParams
+  HeaderParams: ListConnectionSelectOptionsHeaderParams
   Errors:
     | ListConnectionSelectOptions400
     | ListConnectionSelectOptions401

@@ -11,6 +11,7 @@ import type {
 import type {
   CreateConversationMutationRequest,
   CreateConversationMutationResponse,
+  CreateConversationHeaderParams,
   CreateConversation400,
   CreateConversation401,
   CreateConversation403,
@@ -28,7 +29,13 @@ function getCreateConversationUrl() {
  * {@link /conversations}
  */
 export async function createConversation(
-  { data }: { data: CreateConversationMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: CreateConversationMutationRequest
+    headers?: CreateConversationHeaderParams
+  },
   config: Partial<RequestConfig<CreateConversationMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -52,6 +59,7 @@ export async function createConversation(
     url: getCreateConversationUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

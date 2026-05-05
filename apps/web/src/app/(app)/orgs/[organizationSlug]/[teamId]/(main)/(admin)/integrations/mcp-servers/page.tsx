@@ -10,8 +10,8 @@ async function listMcpServers(params: {
   cacheTag('create-mcp-server', 'update-mcp-server', 'delete-mcp-server')
 
   const { data } = await sdk.listMcpServers({
-    params: {
-      organizationSlug: params.organizationSlug,
+    headers: {
+      'x-organization-slug': params.organizationSlug,
     },
   })
 

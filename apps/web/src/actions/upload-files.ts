@@ -43,29 +43,35 @@ export async function generateUploadSignature(
   const { data, error } =
     params.scope === 'sources'
       ? await sdk.generateUploadSignatureSource({
+          headers: {
+            'x-organization-slug': params.params.organizationSlug,
+          },
           data: {
-            ...params.params,
             sourceType: params.sourceType,
             explorerNode: params.explorerNode,
           },
         })
       : params.scope === 'conversations'
         ? await sdk.generateUploadSignatureConversation({
+            headers: {
+              'x-organization-slug': params.params.organizationSlug,
+            },
             data: {
-              ...params.params,
               agentId: params.agentId,
               conversationId: params.conversationId,
             },
           })
         : await sdk.generateUploadSignature({
+            headers: {
+              'x-app-secret-key': env.APP_SECRET_KEY,
+              'x-organization-slug':
+                params.params?.organizationSlug ?? undefined,
+            },
             data: {
               accept: params.accept,
               maxFiles: params.maxFiles,
               maxSize: params.maxSize,
               expires: params.expires,
-            },
-            headers: {
-              'x-app-secret-key': env.APP_SECRET_KEY,
             },
           })
 

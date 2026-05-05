@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   modelProviderSchema,
   modelProviderSettingsSchema,
@@ -18,12 +18,12 @@ export async function getModelProvider(app: FastifyTypedInstance) {
         tags: ['Model Providers'],
         description: 'Get model provider details',
         operationId: 'getModelProvider',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           modelProviderId: z.string(),
-        }),
-        querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -41,23 +41,20 @@ export async function getModelProvider(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { modelProviderId } = request.params
 
-      const { organizationId, organizationSlug } = request.query
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const modelProvider = await queries.context.getModelProvider(context, {
-        modelProviderId,
-      })
+      const modelProvider = await queries.ctx.getModelProvider(
+        { organizationId: organization.id },
+        { modelProviderId },
+      )
 
       if (!modelProvider) {
         throw new BadRequestError({

@@ -11,6 +11,7 @@ import type {
 import type {
   ListConnectionSelectOptionsQueryResponse,
   ListConnectionSelectOptionsQueryParams,
+  ListConnectionSelectOptionsHeaderParams,
   ListConnectionSelectOptions400,
   ListConnectionSelectOptions401,
   ListConnectionSelectOptions403,
@@ -37,7 +38,13 @@ export type ListConnectionSelectOptionsQueryKey = ReturnType<
 >
 
 export function listConnectionSelectOptionsQueryOptions(
-  { params }: { params?: ListConnectionSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionSelectOptionsQueryParams
+    headers?: ListConnectionSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listConnectionSelectOptionsQueryKey(params)
@@ -57,7 +64,7 @@ export function listConnectionSelectOptionsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listConnectionSelectOptions({ params }, config)
+      return listConnectionSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -71,7 +78,13 @@ export function useListConnectionSelectOptions<
   TQueryData = ListConnectionSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListConnectionSelectOptionsQueryKey,
 >(
-  { params }: { params?: ListConnectionSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionSelectOptionsQueryParams
+    headers?: ListConnectionSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -101,7 +114,7 @@ export function useListConnectionSelectOptions<
 
   const query = useQuery(
     {
-      ...listConnectionSelectOptionsQueryOptions({ params }, config),
+      ...listConnectionSelectOptionsQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

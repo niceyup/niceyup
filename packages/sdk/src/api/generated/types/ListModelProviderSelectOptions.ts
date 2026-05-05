@@ -13,14 +13,6 @@ export type ListModelProviderSelectOptionsQueryParamsProvidersEnum =
 
 export type ListModelProviderSelectOptionsQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type array | undefined
    */
   providers?: (
@@ -33,6 +25,17 @@ export type ListModelProviderSelectOptionsQueryParams = {
    * @type string | undefined
    */
   search?: string
+}
+
+export type ListModelProviderSelectOptionsHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const modelProvidersProviderEnum2 = {
@@ -173,6 +176,7 @@ export type ListModelProviderSelectOptionsQueryResponse =
 export type ListModelProviderSelectOptionsQuery = {
   Response: ListModelProviderSelectOptions200
   QueryParams: ListModelProviderSelectOptionsQueryParams
+  HeaderParams: ListModelProviderSelectOptionsHeaderParams
   Errors:
     | ListModelProviderSelectOptions400
     | ListModelProviderSelectOptions401

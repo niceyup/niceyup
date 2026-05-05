@@ -1,13 +1,12 @@
 'use server'
 
-import { authenticatedUser } from '@/lib/auth/server'
-import { resolveOrganizationContext } from '@/lib/organization'
 import { resumableStreamContext } from '@/lib/resumable-stream'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { createStreamableValue } from '@workspace/ai/rsc'
 import type { AIMessage } from '@workspace/ai/types'
 import { queries } from '@workspace/db/queries'
 import { JsonLinesTransformStream } from '@workspace/realtime/stream'
+import { getMembership } from './membership'
 
 type ContextMessageParams = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
@@ -23,21 +22,22 @@ export async function getMessage(
   context: ContextMessageParams,
   { conversationId, messageId }: GetMessageParams,
 ) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const membership = await getMembership({
+    organizationSlug: context.organizationSlug,
+  })
 
-  const ctx = await resolveOrganizationContext({ userId, ...context })
-
-  if (!ctx) {
+  if (!membership) {
     return null
   }
 
-  const message = await queries.context.getMessage(ctx, {
-    agentId: context.agentId,
-    conversationId,
-    messageId,
-  })
+  const message = await queries.ctx.getMessage(
+    { userId: membership.userId, organizationId: membership.organizationId },
+    {
+      agentId: context.agentId,
+      conversationId,
+      messageId,
+    },
+  )
 
   return message
 }

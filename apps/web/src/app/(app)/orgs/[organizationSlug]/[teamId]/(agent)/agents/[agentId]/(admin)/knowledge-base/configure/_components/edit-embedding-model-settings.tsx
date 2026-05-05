@@ -133,9 +133,11 @@ export function EditEmbeddingModelSettingsForm({
     )
 
     const { error } = await sdk.updateAgentKnowledgeBase({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       agentId: params.agentId,
       data: {
-        organizationSlug: params.organizationSlug,
         embeddingModelSettings: {
           providerId,
           model: values.model,

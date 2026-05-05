@@ -11,7 +11,7 @@ import type {
 import type {
   GetSourceQueryResponse,
   GetSourcePathParams,
-  GetSourceQueryParams,
+  GetSourceHeaderParams,
   GetSource400,
   GetSource401,
   GetSource403,
@@ -28,14 +28,10 @@ import type {
 import { getSource } from '../operations/getSource'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getSourceSuspenseQueryKey = (
-  { sourceId }: { sourceId: GetSourcePathParams['sourceId'] },
-  params?: GetSourceQueryParams,
-) =>
-  [
-    { url: '/sources/:sourceId', params: { sourceId: sourceId } },
-    ...(params ? [params] : []),
-  ] as const
+export const getSourceSuspenseQueryKey = ({
+  sourceId,
+}: { sourceId: GetSourcePathParams['sourceId'] }) =>
+  [{ url: '/sources/:sourceId', params: { sourceId: sourceId } }] as const
 
 export type GetSourceSuspenseQueryKey = ReturnType<
   typeof getSourceSuspenseQueryKey
@@ -44,14 +40,14 @@ export type GetSourceSuspenseQueryKey = ReturnType<
 export function getSourceSuspenseQueryOptions(
   {
     sourceId,
-    params,
+    headers,
   }: {
     sourceId: GetSourcePathParams['sourceId']
-    params?: GetSourceQueryParams
+    headers?: GetSourceHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getSourceSuspenseQueryKey({ sourceId }, params)
+  const queryKey = getSourceSuspenseQueryKey({ sourceId })
   return queryOptions<
     GetSourceQueryResponse,
     ResponseErrorConfig<
@@ -69,7 +65,7 @@ export function getSourceSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getSource({ sourceId, params }, config)
+      return getSource({ sourceId, headers }, config)
     },
   })
 }
@@ -84,10 +80,10 @@ export function useGetSourceSuspense<
 >(
   {
     sourceId,
-    params,
+    headers,
   }: {
     sourceId: GetSourcePathParams['sourceId']
-    params?: GetSourceQueryParams
+    headers?: GetSourceHeaderParams
   },
   options: {
     query?: Partial<
@@ -113,11 +109,11 @@ export function useGetSourceSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? getSourceSuspenseQueryKey({ sourceId }, params)
+    queryOptions?.queryKey ?? getSourceSuspenseQueryKey({ sourceId })
 
   const query = useSuspenseQuery(
     {
-      ...getSourceSuspenseQueryOptions({ sourceId, params }, config),
+      ...getSourceSuspenseQueryOptions({ sourceId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

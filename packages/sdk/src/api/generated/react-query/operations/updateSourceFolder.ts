@@ -12,6 +12,7 @@ import type {
   UpdateSourceFolderMutationRequest,
   UpdateSourceFolderMutationResponse,
   UpdateSourceFolderPathParams,
+  UpdateSourceFolderHeaderParams,
   UpdateSourceFolder400,
   UpdateSourceFolder401,
   UpdateSourceFolder403,
@@ -34,9 +35,11 @@ export async function updateSourceFolder(
   {
     folderId,
     data,
+    headers,
   }: {
     folderId: UpdateSourceFolderPathParams['folderId']
     data: UpdateSourceFolderMutationRequest
+    headers?: UpdateSourceFolderHeaderParams
   },
   config: Partial<RequestConfig<UpdateSourceFolderMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function updateSourceFolder(
     url: getUpdateSourceFolderUrl({ folderId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

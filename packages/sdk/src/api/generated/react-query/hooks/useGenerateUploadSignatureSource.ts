@@ -11,6 +11,7 @@ import type {
 import type {
   GenerateUploadSignatureSourceMutationRequest,
   GenerateUploadSignatureSourceMutationResponse,
+  GenerateUploadSignatureSourceHeaderParams,
   GenerateUploadSignatureSource400,
   GenerateUploadSignatureSource401,
   GenerateUploadSignatureSource403,
@@ -45,7 +46,10 @@ export function useGenerateUploadSignatureSource<TContext>(
         | GenerateUploadSignatureSource429
         | GenerateUploadSignatureSource500
       >,
-      { data?: GenerateUploadSignatureSourceMutationRequest },
+      {
+        data?: GenerateUploadSignatureSourceMutationRequest
+        headers?: GenerateUploadSignatureSourceHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<
@@ -68,12 +72,15 @@ export function useGenerateUploadSignatureSource<TContext>(
       | GenerateUploadSignatureSource429
       | GenerateUploadSignatureSource500
     >,
-    { data?: GenerateUploadSignatureSourceMutationRequest },
+    {
+      data?: GenerateUploadSignatureSourceMutationRequest
+      headers?: GenerateUploadSignatureSourceHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return generateUploadSignatureSource({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return generateUploadSignatureSource({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

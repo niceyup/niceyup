@@ -2,6 +2,10 @@ import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
 import { env } from '@/lib/env'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import {
+  resolveAuthContext,
+  resolveOrganizationContext,
+} from '@workspace/auth/context'
 import { queries } from '@workspace/db/queries'
 import { storage } from '@workspace/storage'
 import { z } from 'zod'
@@ -16,12 +20,14 @@ export async function getFile(app: FastifyTypedInstance) {
         tags: ['Files'],
         description: 'Get a file',
         operationId: 'getFile',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           fileId: z.string(),
         }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           expires: z.number().optional().default(DEFAULT_EXPIRES),
         }),
         response: withDefaultErrorResponses({
@@ -43,31 +49,30 @@ export async function getFile(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { subject, user } = await resolveAuthContext(request.ctx)
+
+      let _organization = undefined
+
+      if (
+        subject === 'organization' ||
+        request.ctxParams.organizationId ||
+        request.ctxParams.organizationSlug
+      ) {
+        const { organization } = await resolveOrganizationContext(
+          request.ctx,
+          request.ctxParams,
+        )
+
+        _organization = organization
+      }
 
       const { fileId } = request.params
 
-      const { organizationId, organizationSlug, expires } = request.query
+      const { expires } = request.query
 
-      const orgId =
-        organizationId ||
-        (await queries.getOrganizationIdBySlug({ organizationSlug }))
-
-      const context = {
-        userId,
-        organizationId: orgId,
-        isAdmin: orgId
-          ? await queries.context.isOrganizationMemberAdmin({
-              userId,
-              organizationId: orgId,
-            })
-          : false,
-      }
-
-      const file = await queries.context.getFile(context, {
+      const file = await queries.getFile({
         fileId,
+        referenceId: _organization?.id ?? user?.id,
       })
 
       if (!file) {

@@ -4,9 +4,9 @@ import {
   createConversationExplorerNodeItem,
   getConversationExplorerNodeFolder,
 } from '@/http/functions/explorer-nodes/conversation-explorer-nodes'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { queries } from '@workspace/db/queries'
 import { conversations } from '@workspace/db/schema'
@@ -21,9 +21,11 @@ export async function createConversation(app: FastifyTypedInstance) {
         tags: ['Conversations'],
         description: 'Create a new conversation',
         operationId: 'createConversation',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           teamId: z.string().nullish(),
           agentId: z.string(),
           title: z.string().optional(),
@@ -49,38 +51,30 @@ export async function createConversation(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { teamId } = request.body
 
-      const {
-        organizationId,
-        organizationSlug,
-        teamId,
-        agentId,
-        title,
-        visibility,
-        explorerNode,
-      } = request.body
+      const { user, organization, team } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: { ...request.ctxParams, teamId },
+        },
+      )
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-        teamId,
-      })
+      const { agentId, title, visibility, explorerNode } = request.body
 
-      if (visibility === 'team' && !context.teamId) {
+      if (visibility === 'team' && !team) {
         throw new BadRequestError({
-          code: 'TEAM_ID_REQUIRED',
+          code: 'TEAM_REQUIRED',
           message:
             'Team is required when the conversation visibility is set to "team"',
         })
       }
 
-      const checkAccessToAgent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const checkAccessToAgent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!checkAccessToAgent) {
         throw new BadRequestError({
@@ -94,8 +88,8 @@ export async function createConversation(app: FastifyTypedInstance) {
           id: explorerNode.folderId,
           visibility,
           agentId,
-          ownerUserId: context.userId,
-          ownerTeamId: context.teamId,
+          ownerUserId: user.id,
+          ownerTeamId: team?.id,
         })
 
         if (!folderExplorerNode) {
@@ -113,8 +107,8 @@ export async function createConversation(app: FastifyTypedInstance) {
             .values({
               title,
               agentId,
-              teamId: visibility === 'team' ? context.teamId : null,
-              createdByUserId: context.userId,
+              teamId: visibility === 'team' ? team?.id : null,
+              createdByUserId: user.id,
             })
             .returning({
               id: conversations.id,
@@ -139,8 +133,8 @@ export async function createConversation(app: FastifyTypedInstance) {
                 visibility,
                 parentId: explorerNode.folderId,
                 conversationId: conversation.id,
-                ownerUserId: context.userId,
-                ownerTeamId: context.teamId,
+                ownerUserId: user.id,
+                ownerTeamId: team?.id,
               },
               tx,
             )
@@ -166,10 +160,10 @@ export async function createConversation(app: FastifyTypedInstance) {
         },
       })
 
-      if (visibility === 'team' && context.teamId) {
+      if (visibility === 'team' && team) {
         conversationPubSub.emitTeamConversations({
           agentId,
-          teamId: context.teamId,
+          teamId: team.id,
           view: 'list',
           data: {
             action: 'create',
@@ -184,7 +178,7 @@ export async function createConversation(app: FastifyTypedInstance) {
         if (itemExplorerNode) {
           conversationPubSub.emitTeamConversations({
             agentId,
-            teamId: context.teamId,
+            teamId: team.id,
             view: 'explorer',
             data: {
               action: 'create',

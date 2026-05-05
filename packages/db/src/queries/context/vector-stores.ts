@@ -5,7 +5,6 @@ import { vectorStores } from '../../schema'
 
 type ContextListVectorStoresParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListVectorStoresParams = {
@@ -16,10 +15,6 @@ export async function listVectorStores(
   context: ContextListVectorStoresParams,
   params: ListVectorStoresParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listVectorStores = await db
     .select({
       id: vectorStores.id,
@@ -41,9 +36,7 @@ export async function listVectorStores(
 }
 
 type ContextGetVectorStoreParams = {
-  userId: string
   organizationId: string
-  isAdmin: boolean
 }
 
 type GetVectorStoreParams = {
@@ -54,10 +47,6 @@ export async function getVectorStore(
   context: ContextGetVectorStoreParams,
   params: GetVectorStoreParams,
 ) {
-  if (!context.isAdmin) {
-    return null
-  }
-
   const [vectorStore] = await db
     .select({
       id: vectorStores.id,
@@ -80,7 +69,6 @@ export async function getVectorStore(
 
 type ContextListVectorStoreSelectOptionsParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListVectorStoreSelectOptionsParams = {
@@ -92,10 +80,6 @@ export async function listVectorStoreSelectOptions(
   context: ContextListVectorStoreSelectOptionsParams,
   params: ListVectorStoreSelectOptionsParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listVectorStores = await db
     .select({
       id: vectorStores.id,

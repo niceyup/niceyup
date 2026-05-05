@@ -17,8 +17,10 @@ export default async function Page({
   const { organizationSlug, modelProviderId } = await params
 
   const { data } = await sdk.getModelProvider({
+    headers: {
+      'x-organization-slug': organizationSlug,
+    },
     modelProviderId,
-    params: { organizationSlug },
   })
 
   if (!data) {

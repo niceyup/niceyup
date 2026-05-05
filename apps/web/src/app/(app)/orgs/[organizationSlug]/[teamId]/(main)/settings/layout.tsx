@@ -1,3 +1,4 @@
+import { getMembershipRole } from '@/actions/membership'
 import { Sidebar, type SidebarItem } from '@/components/sidebar'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { cn } from '@workspace/ui/lib/utils'
@@ -12,6 +13,8 @@ export default async function Layout({
 }>) {
   const { organizationSlug } = await params
 
+  const membershipRole = await getMembershipRole({ organizationSlug })
+
   const items: SidebarItem[] = [
     {
       label: 'General',
@@ -21,17 +24,28 @@ export default async function Layout({
       label: 'Members',
       href: `/orgs/${organizationSlug}/~/settings/members`,
     },
-    {
+  ]
+
+  if (membershipRole.isBilling) {
+    items.push({
+      label: 'Billing',
+      href: `/orgs/${organizationSlug}/~/settings/billing`,
+    })
+  }
+
+  if (membershipRole.isAdmin) {
+    items.push({
       label: 'Flags',
       href: `/orgs/${organizationSlug}/~/settings/flags`,
-    },
-    {
-      label: 'Documentation',
-      href: 'https://docs.niceyup.com/organizations',
-      target: '_blank',
-      icon: <SquareArrowOutUpRightIcon className="ml-auto" />,
-    },
-  ]
+    })
+  }
+
+  items.push({
+    label: 'Documentation',
+    href: 'https://docs.niceyup.com/organizations',
+    target: '_blank',
+    icon: <SquareArrowOutUpRightIcon className="ml-auto" />,
+  })
 
   return (
     <div className="flex size-full flex-1 flex-col">

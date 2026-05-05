@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateSourceFolderHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -111,14 +122,6 @@ export type CreateSourceFolder500 = {
 
 export type CreateSourceFolderMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -138,6 +141,7 @@ export type CreateSourceFolderMutationResponse = CreateSourceFolder201
 export type CreateSourceFolderMutation = {
   Response: CreateSourceFolder201
   Request: CreateSourceFolderMutationRequest
+  HeaderParams: CreateSourceFolderHeaderParams
   Errors:
     | CreateSourceFolder400
     | CreateSourceFolder401

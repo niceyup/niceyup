@@ -12,6 +12,7 @@ import type {
   ListMessagesQueryResponse,
   ListMessagesPathParams,
   ListMessagesQueryParams,
+  ListMessagesHeaderParams,
   ListMessages400,
   ListMessages401,
   ListMessages403,
@@ -34,9 +35,11 @@ export async function listMessages(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: ListMessagesPathParams['conversationId']
     params: ListMessagesQueryParams
+    headers?: ListMessagesHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -58,6 +61,7 @@ export async function listMessages(
     url: getListMessagesUrl({ conversationId }).toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

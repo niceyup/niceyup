@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { conversationVisibilitySchema } from '@workspace/core/conversations'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
@@ -14,9 +14,11 @@ export async function listConversations(app: FastifyTypedInstance) {
         tags: ['Conversations'],
         description: 'Get all conversations',
         operationId: 'listConversations',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           teamId: z.string().optional(),
           agentId: z.string(),
           visibility: conversationVisibilitySchema.default('private'),
@@ -40,24 +42,22 @@ export async function listConversations(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { teamId } = request.query
 
-      const { organizationId, organizationSlug, teamId, agentId, visibility } =
-        request.query
+      const { user, organization, team } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: { ...request.ctxParams, teamId },
+        },
+      )
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-        teamId,
-      })
+      const { agentId, visibility } = request.query
 
-      const conversations = await queries.context.listConversations(context, {
-        agentId,
-        visibility,
-      })
+      const conversations = await queries.ctx.listConversations(
+        { userId: user.id, organizationId: organization.id, teamId: team?.id },
+        { agentId, visibility },
+      )
 
       return { conversations }
     },

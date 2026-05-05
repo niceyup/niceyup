@@ -14,15 +14,18 @@ export type ListVectorStoresQueryParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   provider?: ListVectorStoresQueryParamsProviderEnum
+}
+
+export type ListVectorStoresHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const vectorStoresProviderEnum = {
@@ -157,6 +160,7 @@ export type ListVectorStoresQueryResponse = ListVectorStores200
 export type ListVectorStoresQuery = {
   Response: ListVectorStores200
   QueryParams: ListVectorStoresQueryParams
+  HeaderParams: ListVectorStoresHeaderParams
   Errors:
     | ListVectorStores400
     | ListVectorStores401

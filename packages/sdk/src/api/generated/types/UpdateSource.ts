@@ -10,6 +10,17 @@ export type UpdateSourcePathParams = {
   sourceId: string
 }
 
+export type UpdateSourceHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateSource204Enum = {} as const
 
 export type UpdateSource204Enum =
@@ -113,14 +124,6 @@ export type UpdateSource500 = {
 
 export type UpdateSourceMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -132,6 +135,7 @@ export type UpdateSourceMutation = {
   Response: UpdateSource204
   Request: UpdateSourceMutationRequest
   PathParams: UpdateSourcePathParams
+  HeaderParams: UpdateSourceHeaderParams
   Errors:
     | UpdateSource400
     | UpdateSource401

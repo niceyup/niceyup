@@ -10,7 +10,7 @@ import type {
 } from '../../../../client/fetch-react-query'
 import type {
   ListAgentsQueryResponse,
-  ListAgentsQueryParams,
+  ListAgentsHeaderParams,
   ListAgents400,
   ListAgents401,
   ListAgents403,
@@ -27,16 +27,15 @@ import type {
 import { listAgents } from '../operations/listAgents'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const listAgentsQueryKey = (params?: ListAgentsQueryParams) =>
-  [{ url: '/agents' }, ...(params ? [params] : [])] as const
+export const listAgentsQueryKey = () => [{ url: '/agents' }] as const
 
 export type ListAgentsQueryKey = ReturnType<typeof listAgentsQueryKey>
 
 export function listAgentsQueryOptions(
-  { params }: { params?: ListAgentsQueryParams },
+  { headers }: { headers?: ListAgentsHeaderParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = listAgentsQueryKey(params)
+  const queryKey = listAgentsQueryKey()
   return queryOptions<
     ListAgentsQueryResponse,
     ResponseErrorConfig<
@@ -53,7 +52,7 @@ export function listAgentsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listAgents({ params }, config)
+      return listAgents({ headers }, config)
     },
   })
 }
@@ -67,7 +66,7 @@ export function useListAgents<
   TQueryData = ListAgentsQueryResponse,
   TQueryKey extends QueryKey = ListAgentsQueryKey,
 >(
-  { params }: { params?: ListAgentsQueryParams },
+  { headers }: { headers?: ListAgentsHeaderParams },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -92,11 +91,11 @@ export function useListAgents<
     query: { client: queryClient, ...queryOptions } = {},
     client: config = {},
   } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listAgentsQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? listAgentsQueryKey()
 
   const query = useQuery(
     {
-      ...listAgentsQueryOptions({ params }, config),
+      ...listAgentsQueryOptions({ headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

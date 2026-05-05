@@ -12,6 +12,7 @@ import type {
   RegenerateMessageMutationRequest,
   RegenerateMessageMutationResponse,
   RegenerateMessagePathParams,
+  RegenerateMessageHeaderParams,
   RegenerateMessage400,
   RegenerateMessage401,
   RegenerateMessage403,
@@ -39,10 +40,12 @@ export async function regenerateMessage(
     conversationId,
     messageId,
     data,
+    headers,
   }: {
     conversationId: RegenerateMessagePathParams['conversationId']
     messageId: RegenerateMessagePathParams['messageId']
     data: RegenerateMessageMutationRequest
+    headers?: RegenerateMessageHeaderParams
   },
   config: Partial<RequestConfig<RegenerateMessageMutationRequest>> & {
     client?: typeof fetch
@@ -67,6 +70,7 @@ export async function regenerateMessage(
     url: getRegenerateMessageUrl({ conversationId, messageId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

@@ -8,6 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   CreateSourceMutationRequest,
   CreateSourceMutationResponse,
+  CreateSourceHeaderParams,
   CreateSource400,
   CreateSource401,
   CreateSource403,
@@ -25,7 +26,10 @@ function getCreateSourceUrl() {
  * {@link /sources}
  */
 export async function createSource(
-  { data }: { data?: CreateSourceMutationRequest },
+  {
+    data,
+    headers,
+  }: { data?: CreateSourceMutationRequest; headers?: CreateSourceHeaderParams },
   config: Partial<RequestConfig<CreateSourceMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -49,6 +53,7 @@ export async function createSource(
     url: getCreateSourceUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

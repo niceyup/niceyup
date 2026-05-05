@@ -12,6 +12,7 @@ import type {
   DeleteAgentMutationRequest,
   DeleteAgentMutationResponse,
   DeleteAgentPathParams,
+  DeleteAgentHeaderParams,
   DeleteAgent400,
   DeleteAgent401,
   DeleteAgent403,
@@ -34,9 +35,11 @@ export async function deleteAgent(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: DeleteAgentPathParams['agentId']
     data?: DeleteAgentMutationRequest
+    headers?: DeleteAgentHeaderParams
   },
   config: Partial<RequestConfig<DeleteAgentMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function deleteAgent(
     url: getDeleteAgentUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

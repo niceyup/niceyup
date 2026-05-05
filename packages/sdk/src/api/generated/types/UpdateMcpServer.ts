@@ -10,6 +10,17 @@ export type UpdateMcpServerPathParams = {
   mcpServerId: string
 }
 
+export type UpdateMcpServerHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateMcpServer204Enum = {} as const
 
 export type UpdateMcpServer204Enum =
@@ -123,14 +134,6 @@ export type UpdateMcpServerMutationRequest = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   name?: string
   /**
    * @type string | undefined
@@ -158,6 +161,7 @@ export type UpdateMcpServerMutation = {
   Response: UpdateMcpServer204
   Request: UpdateMcpServerMutationRequest
   PathParams: UpdateMcpServerPathParams
+  HeaderParams: UpdateMcpServerHeaderParams
   Errors:
     | UpdateMcpServer400
     | UpdateMcpServer401

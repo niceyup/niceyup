@@ -1,8 +1,9 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -19,12 +20,14 @@ export async function deleteSource(app: FastifyTypedInstance) {
         tags: ['Sources'],
         description: 'Delete a source',
         operationId: 'deleteSource',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           sourceId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           destroy: z.boolean().optional(),
         }),
         response: withDefaultErrorResponses({
@@ -33,23 +36,22 @@ export async function deleteSource(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { sourceId } = request.params
 
-      const { organizationId, organizationSlug, destroy } = request.body
+      const { destroy } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const source = await queries.context.getSource(context, {
-        sourceId,
-      })
+      const source = await queries.ctx.getSource(
+        { organizationId: organization.id },
+        { sourceId },
+      )
 
       if (!source) {
         throw new BadRequestError({
@@ -57,6 +59,10 @@ export async function deleteSource(app: FastifyTypedInstance) {
           message: 'Source not found or you don’t have access',
         })
       }
+
+      await billing.meters.processUsage.assertWithinLimit({
+        referenceId: organization.id,
+      })
 
       await db
         .update(sourceOperations)
@@ -70,11 +76,8 @@ export async function deleteSource(app: FastifyTypedInstance) {
         'delete-source',
         { sourceId, destroy },
         {
-          concurrencyKey: context.organizationId,
-          tags: [
-            `organization:${context.organizationId}`,
-            `source:${sourceId}`,
-          ],
+          concurrencyKey: organization.id,
+          tags: [`organization:${organization.id}`, `source:${sourceId}`],
         },
       )
 

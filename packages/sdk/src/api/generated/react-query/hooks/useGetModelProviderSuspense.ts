@@ -11,7 +11,7 @@ import type {
 import type {
   GetModelProviderQueryResponse,
   GetModelProviderPathParams,
-  GetModelProviderQueryParams,
+  GetModelProviderHeaderParams,
   GetModelProvider400,
   GetModelProvider401,
   GetModelProvider403,
@@ -28,18 +28,14 @@ import type {
 import { getModelProvider } from '../operations/getModelProvider'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getModelProviderSuspenseQueryKey = (
-  {
-    modelProviderId,
-  }: { modelProviderId: GetModelProviderPathParams['modelProviderId'] },
-  params?: GetModelProviderQueryParams,
-) =>
+export const getModelProviderSuspenseQueryKey = ({
+  modelProviderId,
+}: { modelProviderId: GetModelProviderPathParams['modelProviderId'] }) =>
   [
     {
       url: '/model-providers/:modelProviderId',
       params: { modelProviderId: modelProviderId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetModelProviderSuspenseQueryKey = ReturnType<
@@ -49,14 +45,14 @@ export type GetModelProviderSuspenseQueryKey = ReturnType<
 export function getModelProviderSuspenseQueryOptions(
   {
     modelProviderId,
-    params,
+    headers,
   }: {
     modelProviderId: GetModelProviderPathParams['modelProviderId']
-    params?: GetModelProviderQueryParams
+    headers?: GetModelProviderHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getModelProviderSuspenseQueryKey({ modelProviderId }, params)
+  const queryKey = getModelProviderSuspenseQueryKey({ modelProviderId })
   return queryOptions<
     GetModelProviderQueryResponse,
     ResponseErrorConfig<
@@ -74,7 +70,7 @@ export function getModelProviderSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getModelProvider({ modelProviderId, params }, config)
+      return getModelProvider({ modelProviderId, headers }, config)
     },
   })
 }
@@ -89,10 +85,10 @@ export function useGetModelProviderSuspense<
 >(
   {
     modelProviderId,
-    params,
+    headers,
   }: {
     modelProviderId: GetModelProviderPathParams['modelProviderId']
-    params?: GetModelProviderQueryParams
+    headers?: GetModelProviderHeaderParams
   },
   options: {
     query?: Partial<
@@ -119,12 +115,12 @@ export function useGetModelProviderSuspense<
   } = options ?? {}
   const queryKey =
     queryOptions?.queryKey ??
-    getModelProviderSuspenseQueryKey({ modelProviderId }, params)
+    getModelProviderSuspenseQueryKey({ modelProviderId })
 
   const query = useSuspenseQuery(
     {
       ...getModelProviderSuspenseQueryOptions(
-        { modelProviderId, params },
+        { modelProviderId, headers },
         config,
       ),
       queryKey,

@@ -7,7 +7,7 @@ import fetch from '../../../client/fetch'
 import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   ListSourcesQueryResponse,
-  ListSourcesQueryParams,
+  ListSourcesHeaderParams,
   ListSources400,
   ListSources401,
   ListSources403,
@@ -25,7 +25,7 @@ function getListSourcesUrl() {
  * {@link /sources}
  */
 export async function listSources(
-  { params }: { params?: ListSourcesQueryParams },
+  { headers }: { headers?: ListSourcesHeaderParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -44,8 +44,8 @@ export async function listSources(
   >({
     method: 'GET',
     url: getListSourcesUrl().toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

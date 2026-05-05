@@ -11,6 +11,7 @@ import type {
 import type {
   CreateSourceMutationRequest,
   CreateSourceMutationResponse,
+  CreateSourceHeaderParams,
   CreateSource400,
   CreateSource401,
   CreateSource403,
@@ -42,7 +43,10 @@ export function useCreateSource<TContext>(
         | CreateSource429
         | CreateSource500
       >,
-      { data?: CreateSourceMutationRequest },
+      {
+        data?: CreateSourceMutationRequest
+        headers?: CreateSourceHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateSourceMutationRequest>> & {
@@ -64,12 +68,12 @@ export function useCreateSource<TContext>(
       | CreateSource429
       | CreateSource500
     >,
-    { data?: CreateSourceMutationRequest },
+    { data?: CreateSourceMutationRequest; headers?: CreateSourceHeaderParams },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createSource({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createSource({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

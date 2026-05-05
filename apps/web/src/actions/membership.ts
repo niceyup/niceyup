@@ -1,32 +1,39 @@
 'use server'
 
 import { authenticatedUser } from '@/lib/auth/server'
-import type { OrganizationTeamParams } from '@/lib/types'
 import { queries } from '@workspace/db/queries'
 import { cache } from 'react'
 
-type GetMembershipParams = {
-  organizationSlug: OrganizationTeamParams['organizationSlug']
-}
+type GetMembershipParams =
+  | {
+      organizationSlug: string
+      organizationId?: never
+    }
+  | {
+      organizationSlug?: never
+      organizationId: string
+    }
 
 export const getMembership = cache(
-  async ({ organizationSlug }: GetMembershipParams) => {
-    const {
-      user: { id: userId },
-    } = await authenticatedUser()
+  async ({ organizationSlug, organizationId }: GetMembershipParams) => {
+    const { user } = await authenticatedUser()
 
-    const membership = await queries.context.getMembership({
-      userId,
-      organizationSlug,
+    const membership = await queries.ctx.getMembership({
+      userId: user.id,
+      ...(organizationSlug !== undefined
+        ? { organizationSlug }
+        : { organizationId }),
     })
 
     return membership
   },
 )
 
-type IsOrganizationMemberAdminParams = { userId?: string } & (
+type GetMembershipRoleParams = {
+  userId?: string
+} & (
   | {
-      organizationSlug: OrganizationTeamParams['organizationSlug']
+      organizationSlug: string
       organizationId?: never
     }
   | {
@@ -35,17 +42,27 @@ type IsOrganizationMemberAdminParams = { userId?: string } & (
     }
 )
 
-export const isOrganizationMemberAdmin = cache(
+export const getMembershipRole = cache(
   async ({
     userId,
     organizationSlug,
     organizationId,
-  }: IsOrganizationMemberAdminParams) => {
-    const isAdmin = await queries.context.isOrganizationMemberAdmin({
-      userId: userId || (await authenticatedUser()).user.id,
-      ...(organizationSlug ? { organizationSlug } : { organizationId }),
+  }: GetMembershipRoleParams) => {
+    let _userId = userId
+
+    if (!_userId) {
+      const { user } = await authenticatedUser()
+
+      _userId = user.id
+    }
+
+    const membershipRole = await queries.ctx.getMembershipRole({
+      userId: _userId,
+      ...(organizationSlug !== undefined
+        ? { organizationSlug }
+        : { organizationId }),
     })
 
-    return isAdmin
+    return membershipRole
   },
 )

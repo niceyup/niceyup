@@ -10,15 +10,15 @@ export type GetModelProviderPathParams = {
   modelProviderId: string
 }
 
-export type GetModelProviderQueryParams = {
+export type GetModelProviderHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const modelProviderProviderEnum = {
@@ -172,7 +172,7 @@ export type GetModelProviderQueryResponse = GetModelProvider200
 export type GetModelProviderQuery = {
   Response: GetModelProvider200
   PathParams: GetModelProviderPathParams
-  QueryParams: GetModelProviderQueryParams
+  HeaderParams: GetModelProviderHeaderParams
   Errors:
     | GetModelProvider400
     | GetModelProvider401

@@ -61,9 +61,11 @@ export function EditVectorStoreForm({
     const vectorStoreId = values.vectorStore?.id ?? null
 
     const { error } = await sdk.updateAgentKnowledgeBase({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       agentId: params.agentId,
       data: {
-        organizationSlug: params.organizationSlug,
         vectorStoreId,
       },
     })

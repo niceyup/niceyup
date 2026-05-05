@@ -9,6 +9,7 @@ import type {
   CancelSourceMutationRequest,
   CancelSourceMutationResponse,
   CancelSourcePathParams,
+  CancelSourceHeaderParams,
   CancelSource400,
   CancelSource401,
   CancelSource403,
@@ -31,9 +32,11 @@ export async function cancelSource(
   {
     sourceId,
     data,
+    headers,
   }: {
     sourceId: CancelSourcePathParams['sourceId']
     data?: CancelSourceMutationRequest
+    headers?: CancelSourceHeaderParams
   },
   config: Partial<RequestConfig<CancelSourceMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function cancelSource(
     url: getCancelSourceUrl({ sourceId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

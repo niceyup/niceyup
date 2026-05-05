@@ -4,7 +4,10 @@ import { generateSignatureForUpload } from '@/http/functions/upload-file-to-stor
 import { authenticate } from '@/http/middlewares/authenticate'
 import { env } from '@/lib/env'
 import type { FastifyTypedInstance } from '@/types/fastify'
-import { queries } from '@workspace/db/queries'
+import {
+  resolveAuthContext,
+  resolveOrganizationContext,
+} from '@workspace/auth/context'
 import { z } from 'zod'
 
 const DEFAULT_ACCEPT = '*'
@@ -22,10 +25,10 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
         operationId: 'generateUploadSignature',
         headers: z.object({
           'x-app-secret-key': z.string(),
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           accept: z.string().default(DEFAULT_ACCEPT),
           maxFiles: z.number().positive().default(DEFAULT_MAX_FILES),
           maxSize: z.number().positive().default(DEFAULT_MAX_SIZE),
@@ -50,22 +53,25 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
         })
       }
 
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user } = await resolveAuthContext(request.ctx, {
+        subject: 'user',
+      })
 
-      const {
-        organizationId,
-        organizationSlug,
-        accept,
-        maxFiles,
-        maxSize,
-        expires,
-      } = request.body
+      let _organization = undefined
 
-      const orgId =
-        organizationId ||
-        (await queries.getOrganizationIdBySlug({ organizationSlug }))
+      if (
+        request.ctxParams.organizationId ||
+        request.ctxParams.organizationSlug
+      ) {
+        const { organization } = await resolveOrganizationContext(
+          request.ctx,
+          request.ctxParams,
+        )
+
+        _organization = organization
+      }
+
+      const { accept, maxFiles, maxSize, expires } = request.body
 
       const signature = generateSignatureForUpload({
         key: 'public',
@@ -74,9 +80,9 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
             bucket: 'default',
             scope: 'public',
             metadata: {
-              sentByUserId: userId,
+              ...(_organization ? { sentByUserId: user.id } : {}),
             },
-            organizationId: orgId,
+            referenceId: _organization ? _organization.id : user.id,
           },
           accept,
           maxFiles,

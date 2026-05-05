@@ -1,3 +1,4 @@
+import { InvalidArgumentError } from '@workspace/core/errros'
 import type {
   VectorStore,
   VectorStoreConfig,
@@ -16,7 +17,10 @@ export function createVectorStoreRegistry(
   const vectorStore = registry[config.provider]
 
   if (!vectorStore) {
-    throw new Error(`Unsupported vector store provider: ${config.provider}`)
+    throw new InvalidArgumentError({
+      code: 'UNSUPPORTED_VECTOR_STORE_PROVIDER',
+      message: `Unsupported vector store provider: ${config.provider}`,
+    })
   }
 
   return vectorStore

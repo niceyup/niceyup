@@ -8,7 +8,7 @@ import type { RequestConfig, ResponseErrorConfig } from '../../../client/fetch'
 import type {
   GetMcpServerQueryResponse,
   GetMcpServerPathParams,
-  GetMcpServerQueryParams,
+  GetMcpServerHeaderParams,
   GetMcpServer400,
   GetMcpServer401,
   GetMcpServer403,
@@ -30,10 +30,10 @@ function getGetMcpServerUrl({
 export async function getMcpServer(
   {
     mcpServerId,
-    params,
+    headers,
   }: {
     mcpServerId: GetMcpServerPathParams['mcpServerId']
-    params?: GetMcpServerQueryParams
+    headers?: GetMcpServerHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -53,8 +53,8 @@ export async function getMcpServer(
   >({
     method: 'GET',
     url: getGetMcpServerUrl({ mcpServerId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

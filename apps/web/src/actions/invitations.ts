@@ -3,18 +3,17 @@
 import { authenticatedUser } from '@/lib/auth/server'
 import { queries } from '@workspace/db/queries'
 import { cacheTag } from 'next/cache'
+import { getMembership } from './membership'
 
 type GetInvitationParams = {
   invitationId: string
 }
 
 export async function getInvitation({ invitationId }: GetInvitationParams) {
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const { user } = await authenticatedUser()
 
-  const invitation = await queries.context.getInvitation(
-    { userId },
+  const invitation = await queries.ctx.getInvitation(
+    { userId: user.id },
     { invitationId },
   )
 
@@ -31,13 +30,16 @@ export async function listPendingInvitations({
   'use cache: private'
   cacheTag('invite-member', 'cancel-invitation')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
-
-  const pendingInvitations = await queries.context.listPendingInvitations({
-    userId,
+  const membership = await getMembership({
     organizationSlug,
+  })
+
+  if (!membership?.isAdmin) {
+    return []
+  }
+
+  const pendingInvitations = await queries.ctx.listPendingInvitations({
+    organizationId: membership.organizationId,
   })
 
   return pendingInvitations

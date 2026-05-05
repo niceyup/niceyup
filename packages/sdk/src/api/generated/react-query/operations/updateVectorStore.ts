@@ -12,6 +12,7 @@ import type {
   UpdateVectorStoreMutationRequest,
   UpdateVectorStoreMutationResponse,
   UpdateVectorStorePathParams,
+  UpdateVectorStoreHeaderParams,
   UpdateVectorStore400,
   UpdateVectorStore401,
   UpdateVectorStore403,
@@ -34,9 +35,11 @@ export async function updateVectorStore(
   {
     vectorStoreId,
     data,
+    headers,
   }: {
     vectorStoreId: UpdateVectorStorePathParams['vectorStoreId']
     data?: UpdateVectorStoreMutationRequest
+    headers?: UpdateVectorStoreHeaderParams
   },
   config: Partial<RequestConfig<UpdateVectorStoreMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function updateVectorStore(
     url: getUpdateVectorStoreUrl({ vectorStoreId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

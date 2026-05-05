@@ -756,9 +756,11 @@ function SourceExplorerItemTriggerButton({
       if (status === 'index-idle') {
         try {
           const { error } = await sdk.triggerSourceIndexing({
+            headers: {
+              'x-organization-slug': params.organizationSlug,
+            },
             agentId: params.agentId,
             data: {
-              organizationSlug: params.organizationSlug,
               status: 'idle',
               sources: [sourceId],
             },
@@ -776,9 +778,11 @@ function SourceExplorerItemTriggerButton({
       } else if (status === 'index-stale') {
         try {
           const { error } = await sdk.triggerSourceIndexing({
+            headers: {
+              'x-organization-slug': params.organizationSlug,
+            },
             agentId: params.agentId,
             data: {
-              organizationSlug: params.organizationSlug,
               status: 'stale',
               sources: [sourceId],
             },
@@ -796,9 +800,11 @@ function SourceExplorerItemTriggerButton({
       } else {
         try {
           const { error } = await sdk.triggerSourceIndexing({
+            headers: {
+              'x-organization-slug': params.organizationSlug,
+            },
             agentId: params.agentId,
             data: {
-              organizationSlug: params.organizationSlug,
               status: 'failed',
               sources: [sourceId],
             },

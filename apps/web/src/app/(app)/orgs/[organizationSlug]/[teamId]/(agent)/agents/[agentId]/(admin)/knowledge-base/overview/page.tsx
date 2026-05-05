@@ -1,4 +1,4 @@
-import { getAgent } from '@/actions/agents'
+import { getAgentDetailed } from '@/actions/agents'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import {
   Alert,
@@ -23,7 +23,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  const agent = await getAgent(
+  const agentDetailed = await getAgentDetailed(
     { organizationSlug, agentId },
     {
       with: {
@@ -33,11 +33,11 @@ export default async function Page({
     },
   )
 
-  if (!agent) {
+  if (!agentDetailed) {
     return null
   }
 
-  if (!agent?.knowledgeBase?.isConfigured) {
+  if (!agentDetailed.knowledgeBase?.isConfigured) {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>
@@ -64,7 +64,7 @@ export default async function Page({
     )
   }
 
-  if (!agent.configuration?.enableKnowledgeBaseTool) {
+  if (!agentDetailed.configuration?.enableKnowledgeBaseTool) {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>
@@ -93,7 +93,7 @@ export default async function Page({
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {agent.knowledgeBase?.status === 'reindexing' && (
+      {agentDetailed.knowledgeBase.status === 'reindexing' && (
         <Alert>
           <InfoIcon />
           <AlertTitle>Reindexing Knowledge Base</AlertTitle>

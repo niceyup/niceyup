@@ -12,6 +12,7 @@ import type {
   DeleteModelProviderMutationRequest,
   DeleteModelProviderMutationResponse,
   DeleteModelProviderPathParams,
+  DeleteModelProviderHeaderParams,
   DeleteModelProvider400,
   DeleteModelProvider401,
   DeleteModelProvider403,
@@ -34,9 +35,11 @@ export async function deleteModelProvider(
   {
     modelProviderId,
     data,
+    headers,
   }: {
     modelProviderId: DeleteModelProviderPathParams['modelProviderId']
     data?: DeleteModelProviderMutationRequest
+    headers?: DeleteModelProviderHeaderParams
   },
   config: Partial<RequestConfig<DeleteModelProviderMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function deleteModelProvider(
     url: getDeleteModelProviderUrl({ modelProviderId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

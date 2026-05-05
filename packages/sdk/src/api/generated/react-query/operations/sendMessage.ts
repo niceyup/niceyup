@@ -12,6 +12,7 @@ import type {
   SendMessageMutationRequest,
   SendMessageMutationResponse,
   SendMessagePathParams,
+  SendMessageHeaderParams,
   SendMessage400,
   SendMessage401,
   SendMessage403,
@@ -34,9 +35,11 @@ export async function sendMessage(
   {
     conversationId,
     data,
+    headers,
   }: {
     conversationId: SendMessagePathParams['conversationId']
     data: SendMessageMutationRequest
+    headers?: SendMessageHeaderParams
   },
   config: Partial<RequestConfig<SendMessageMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function sendMessage(
     url: getSendMessageUrl({ conversationId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

@@ -1,11 +1,9 @@
 'use server'
 
-import { authenticatedUser } from '@/lib/auth/server'
-import { resolveOrganizationContext } from '@/lib/organization'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { queries } from '@workspace/db/queries'
 import { cacheTag } from 'next/cache'
-import { isOrganizationMemberAdmin } from './membership'
+import { getMembership } from './membership'
 
 type GetTeamParams = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
@@ -16,19 +14,21 @@ export async function getTeam({ organizationSlug, teamId }: GetTeamParams) {
   'use cache: private'
   cacheTag('update-team', 'delete-team')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const membership = await getMembership({
+    organizationSlug,
+  })
 
-  const ctx = await resolveOrganizationContext({ userId, organizationSlug })
-
-  if (!ctx) {
+  if (!membership) {
     return null
   }
 
-  const isAdmin = await isOrganizationMemberAdmin(ctx)
-
-  const team = await queries.context.getTeam({ ...ctx, isAdmin }, { teamId })
+  const team = await queries.ctx.getTeam(
+    {
+      userId: membership.isAdmin ? undefined : membership.userId,
+      organizationId: membership.organizationId,
+    },
+    { teamId },
+  )
 
   return team
 }
@@ -41,19 +41,18 @@ export async function listTeams({ organizationSlug }: ListTeamsParams) {
   'use cache: private'
   cacheTag('create-team')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const membership = await getMembership({
+    organizationSlug,
+  })
 
-  const ctx = await resolveOrganizationContext({ userId, organizationSlug })
-
-  if (!ctx) {
+  if (!membership) {
     return []
   }
 
-  const isAdmin = await isOrganizationMemberAdmin(ctx)
-
-  const teams = await queries.context.listTeams({ ...ctx, isAdmin })
+  const teams = await queries.ctx.listTeams({
+    userId: membership.isAdmin ? undefined : membership.userId,
+    organizationId: membership.organizationId,
+  })
 
   return teams
 }
@@ -70,20 +69,19 @@ export async function listTeamMembers({
   'use cache: private'
   cacheTag('add-team-member', 'remove-team-member')
 
-  const {
-    user: { id: userId },
-  } = await authenticatedUser()
+  const membership = await getMembership({
+    organizationSlug,
+  })
 
-  const ctx = await resolveOrganizationContext({ userId, organizationSlug })
-
-  if (!ctx) {
+  if (!membership) {
     return []
   }
 
-  const isAdmin = await isOrganizationMemberAdmin(ctx)
-
-  const teamMembers = await queries.context.listTeamMembers(
-    { ...ctx, isAdmin },
+  const teamMembers = await queries.ctx.listTeamMembers(
+    {
+      userId: membership.isAdmin ? undefined : membership.userId,
+      organizationId: membership.organizationId,
+    },
     { teamId },
   )
 

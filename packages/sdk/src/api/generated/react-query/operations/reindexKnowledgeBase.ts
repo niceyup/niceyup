@@ -12,6 +12,7 @@ import type {
   ReindexKnowledgeBaseMutationRequest,
   ReindexKnowledgeBaseMutationResponse,
   ReindexKnowledgeBasePathParams,
+  ReindexKnowledgeBaseHeaderParams,
   ReindexKnowledgeBase400,
   ReindexKnowledgeBase401,
   ReindexKnowledgeBase403,
@@ -34,9 +35,11 @@ export async function reindexKnowledgeBase(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: ReindexKnowledgeBasePathParams['agentId']
     data?: ReindexKnowledgeBaseMutationRequest
+    headers?: ReindexKnowledgeBaseHeaderParams
   },
   config: Partial<RequestConfig<ReindexKnowledgeBaseMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function reindexKnowledgeBase(
     url: getReindexKnowledgeBaseUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

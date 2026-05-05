@@ -1,6 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthContext } from '@workspace/auth/context'
 import { z } from 'zod'
 
 export async function getProfile(app: FastifyTypedInstance) {
@@ -19,8 +20,6 @@ export async function getProfile(app: FastifyTypedInstance) {
                 name: z.string(),
                 email: z.string(),
                 emailVerified: z.boolean(),
-                createdAt: z.date(),
-                updatedAt: z.date(),
                 image: z.string().nullish(),
               }),
             })
@@ -29,7 +28,9 @@ export async function getProfile(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const { user } = request.authSession
+      const { user } = await resolveAuthContext(request.ctx, {
+        subject: 'user',
+      })
 
       return { user }
     },

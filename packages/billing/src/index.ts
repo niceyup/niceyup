@@ -1,7 +1,9 @@
-import { Polar } from '@polar-sh/sdk'
-import { env } from './lib/env'
+import { meters } from './meters'
+import { stripeClient } from './stripe-client'
+import { subscriptions } from './subscriptions'
 
-export const billing = new Polar({
-  accessToken: env.POLAR_ACCESS_TOKEN,
-  server: env.POLAR_ENVIRONMENT,
-})
+export const billing = {
+  subscriptions,
+  meters,
+  stripe: stripeClient,
+}

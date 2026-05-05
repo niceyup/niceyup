@@ -12,17 +12,20 @@ export type GetConversationConfigurationPathParams = {
 
 export type GetConversationConfigurationQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
+}
+
+export type GetConversationConfigurationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const languageModelSettingsTypeEnum2 = {
@@ -246,6 +249,7 @@ export type GetConversationConfigurationQuery = {
   Response: GetConversationConfiguration200
   PathParams: GetConversationConfigurationPathParams
   QueryParams: GetConversationConfigurationQueryParams
+  HeaderParams: GetConversationConfigurationHeaderParams
   Errors:
     | GetConversationConfiguration400
     | GetConversationConfiguration401

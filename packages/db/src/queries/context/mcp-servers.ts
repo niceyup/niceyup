@@ -5,7 +5,6 @@ import { connections, mcpServers } from '../../schema'
 
 type ContextListMcpServersParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListMcpServersParams = {
@@ -16,10 +15,6 @@ export async function listMcpServers(
   context: ContextListMcpServersParams,
   params: ListMcpServersParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listMcpServers = await db
     .select({
       id: mcpServers.id,
@@ -40,9 +35,7 @@ export async function listMcpServers(
 }
 
 type ContextGetMcpServerParams = {
-  userId: string
   organizationId: string
-  isAdmin: boolean
 }
 
 type GetMcpServerParams = {
@@ -53,10 +46,6 @@ export async function getMcpServer(
   context: ContextGetMcpServerParams,
   params: GetMcpServerParams,
 ) {
-  if (!context.isAdmin) {
-    return null
-  }
-
   const [mcpServer] = await db
     .select({
       id: mcpServers.id,
@@ -86,7 +75,6 @@ export async function getMcpServer(
 
 type ContextListMcpServerSelectOptionsParams = {
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListMcpServerSelectOptionsParams = {
@@ -97,10 +85,6 @@ export async function listMcpServerSelectOptions(
   context: ContextListMcpServerSelectOptionsParams,
   params: ListMcpServerSelectOptionsParams,
 ) {
-  if (!context.isAdmin) {
-    return []
-  }
-
   const listMcpServers = await db
     .select({
       id: mcpServers.id,

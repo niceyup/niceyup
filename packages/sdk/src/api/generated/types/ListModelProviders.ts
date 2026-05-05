@@ -12,15 +12,18 @@ export type ListModelProvidersQueryParamsProviderEnum =
   (typeof listModelProvidersQueryParamsProviderEnum)[keyof typeof listModelProvidersQueryParamsProviderEnum]
 
 export type ListModelProvidersQueryParams = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
   provider?: ListModelProvidersQueryParamsProviderEnum | string
+}
+
+export type ListModelProvidersHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const modelProvidersProviderEnum = {
@@ -168,6 +171,7 @@ export type ListModelProvidersQueryResponse = ListModelProviders200
 export type ListModelProvidersQuery = {
   Response: ListModelProviders200
   QueryParams: ListModelProvidersQueryParams
+  HeaderParams: ListModelProvidersHeaderParams
   Errors:
     | ListModelProviders400
     | ListModelProviders401

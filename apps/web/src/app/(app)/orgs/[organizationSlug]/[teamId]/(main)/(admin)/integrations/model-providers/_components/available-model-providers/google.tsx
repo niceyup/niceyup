@@ -68,9 +68,11 @@ export function GoogleModelProvider({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (params.modelProviderId && initialData) {
       const { error } = await sdk.updateModelProvider({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         modelProviderId: params.modelProviderId,
         data: {
-          organizationSlug: params.organizationSlug,
           provider: 'google',
           name: values.name,
           credentials: {
@@ -87,8 +89,10 @@ export function GoogleModelProvider({
       await updateTag('update-model-provider')
     } else {
       const { error } = await sdk.createModelProvider({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         data: {
-          organizationSlug: params.organizationSlug,
           provider: 'google',
           name: values.name,
           credentials: {

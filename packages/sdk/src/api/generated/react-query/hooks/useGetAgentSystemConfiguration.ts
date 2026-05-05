@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentSystemConfigurationQueryResponse,
   GetAgentSystemConfigurationPathParams,
-  GetAgentSystemConfigurationQueryParams,
+  GetAgentSystemConfigurationHeaderParams,
   GetAgentSystemConfiguration400,
   GetAgentSystemConfiguration401,
   GetAgentSystemConfiguration403,
@@ -28,16 +28,14 @@ import type {
 import { getAgentSystemConfiguration } from '../operations/getAgentSystemConfiguration'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getAgentSystemConfigurationQueryKey = (
-  { agentId }: { agentId: GetAgentSystemConfigurationPathParams['agentId'] },
-  params?: GetAgentSystemConfigurationQueryParams,
-) =>
+export const getAgentSystemConfigurationQueryKey = ({
+  agentId,
+}: { agentId: GetAgentSystemConfigurationPathParams['agentId'] }) =>
   [
     {
       url: '/agents/:agentId/system-configuration',
       params: { agentId: agentId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetAgentSystemConfigurationQueryKey = ReturnType<
@@ -47,14 +45,14 @@ export type GetAgentSystemConfigurationQueryKey = ReturnType<
 export function getAgentSystemConfigurationQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentSystemConfigurationPathParams['agentId']
-    params?: GetAgentSystemConfigurationQueryParams
+    headers?: GetAgentSystemConfigurationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getAgentSystemConfigurationQueryKey({ agentId }, params)
+  const queryKey = getAgentSystemConfigurationQueryKey({ agentId })
   return queryOptions<
     GetAgentSystemConfigurationQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +70,7 @@ export function getAgentSystemConfigurationQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getAgentSystemConfiguration({ agentId, params }, config)
+      return getAgentSystemConfiguration({ agentId, headers }, config)
     },
   })
 }
@@ -88,10 +86,10 @@ export function useGetAgentSystemConfiguration<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentSystemConfigurationPathParams['agentId']
-    params?: GetAgentSystemConfigurationQueryParams
+    headers?: GetAgentSystemConfigurationHeaderParams
   },
   options: {
     query?: Partial<
@@ -118,12 +116,11 @@ export function useGetAgentSystemConfiguration<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getAgentSystemConfigurationQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? getAgentSystemConfigurationQueryKey({ agentId })
 
   const query = useQuery(
     {
-      ...getAgentSystemConfigurationQueryOptions({ agentId, params }, config),
+      ...getAgentSystemConfigurationQueryOptions({ agentId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

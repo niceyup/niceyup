@@ -11,6 +11,7 @@ import type {
 import type {
   ListConnectionsQueryResponse,
   ListConnectionsQueryParams,
+  ListConnectionsHeaderParams,
   ListConnections400,
   ListConnections401,
   ListConnections403,
@@ -33,7 +34,13 @@ export const listConnectionsQueryKey = (params?: ListConnectionsQueryParams) =>
 export type ListConnectionsQueryKey = ReturnType<typeof listConnectionsQueryKey>
 
 export function listConnectionsQueryOptions(
-  { params }: { params?: ListConnectionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionsQueryParams
+    headers?: ListConnectionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listConnectionsQueryKey(params)
@@ -53,7 +60,7 @@ export function listConnectionsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listConnections({ params }, config)
+      return listConnections({ params, headers }, config)
     },
   })
 }
@@ -67,7 +74,13 @@ export function useListConnections<
   TQueryData = ListConnectionsQueryResponse,
   TQueryKey extends QueryKey = ListConnectionsQueryKey,
 >(
-  { params }: { params?: ListConnectionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionsQueryParams
+    headers?: ListConnectionsHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -96,7 +109,7 @@ export function useListConnections<
 
   const query = useQuery(
     {
-      ...listConnectionsQueryOptions({ params }, config),
+      ...listConnectionsQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

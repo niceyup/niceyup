@@ -12,14 +12,6 @@ export type ListVectorStoreSelectOptionsQueryParamsProvidersEnum =
 
 export type ListVectorStoreSelectOptionsQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type array | undefined
    */
   providers?: ListVectorStoreSelectOptionsQueryParamsProvidersEnum[]
@@ -29,6 +21,17 @@ export type ListVectorStoreSelectOptionsQueryParams = {
    * @type string | undefined
    */
   search?: string
+}
+
+export type ListVectorStoreSelectOptionsHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const vectorStoresProviderEnum2 = {
@@ -171,6 +174,7 @@ export type ListVectorStoreSelectOptionsQueryResponse =
 export type ListVectorStoreSelectOptionsQuery = {
   Response: ListVectorStoreSelectOptions200
   QueryParams: ListVectorStoreSelectOptionsQueryParams
+  HeaderParams: ListVectorStoreSelectOptionsHeaderParams
   Errors:
     | ListVectorStoreSelectOptions400
     | ListVectorStoreSelectOptions401

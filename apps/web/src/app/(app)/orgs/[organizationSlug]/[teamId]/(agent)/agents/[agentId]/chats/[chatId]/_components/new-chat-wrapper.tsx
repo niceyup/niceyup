@@ -1,4 +1,4 @@
-import { sdk } from '@/lib/sdk'
+// import { getAgentSummary } from '@/actions/agents'
 import type {
   AgentParams,
   ChatParams,
@@ -10,19 +10,16 @@ import { NewChat } from './new-chat'
 type Params = OrganizationTeamParams & AgentParams & ChatParams
 
 export async function NewChatWrapper({ params }: { params: Params }) {
-  const { data } = await sdk.getAgentSystemConfiguration({
-    agentId: params.agentId,
-    params: {
-      organizationSlug: params.organizationSlug,
-    },
-  })
+  // const agentSummary = await getAgentSummary({
+  //   agentId: params.agentId,
+  // })
 
   // Fix: key is used to force a re-render
   return (
     <NewChat
       key={generateId()}
       params={params}
-      suggestions={data?.agent?.systemConfiguration?.suggestions}
+      // suggestions={agentSummary?.systemConfiguration?.suggestions}
     />
   )
 }

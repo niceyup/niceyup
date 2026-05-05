@@ -1,7 +1,6 @@
 import * as agents from './agents'
 import * as connections from './connections'
 import * as conversations from './conversations'
-import * as files from './files'
 import * as invitations from './invitations'
 import * as mcpServers from './mcp-servers'
 import * as messages from './messages'
@@ -24,5 +23,4 @@ export const contextQueries = {
   ...conversations,
   ...messages,
   ...sources,
-  ...files,
 }

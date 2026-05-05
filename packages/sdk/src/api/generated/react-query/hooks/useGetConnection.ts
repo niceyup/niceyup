@@ -11,7 +11,7 @@ import type {
 import type {
   GetConnectionQueryResponse,
   GetConnectionPathParams,
-  GetConnectionQueryParams,
+  GetConnectionHeaderParams,
   GetConnection400,
   GetConnection401,
   GetConnection403,
@@ -28,16 +28,14 @@ import type {
 import { getConnection } from '../operations/getConnection'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getConnectionQueryKey = (
-  { connectionId }: { connectionId: GetConnectionPathParams['connectionId'] },
-  params?: GetConnectionQueryParams,
-) =>
+export const getConnectionQueryKey = ({
+  connectionId,
+}: { connectionId: GetConnectionPathParams['connectionId'] }) =>
   [
     {
       url: '/connections/:connectionId',
       params: { connectionId: connectionId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetConnectionQueryKey = ReturnType<typeof getConnectionQueryKey>
@@ -45,14 +43,14 @@ export type GetConnectionQueryKey = ReturnType<typeof getConnectionQueryKey>
 export function getConnectionQueryOptions(
   {
     connectionId,
-    params,
+    headers,
   }: {
     connectionId: GetConnectionPathParams['connectionId']
-    params?: GetConnectionQueryParams
+    headers?: GetConnectionHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getConnectionQueryKey({ connectionId }, params)
+  const queryKey = getConnectionQueryKey({ connectionId })
   return queryOptions<
     GetConnectionQueryResponse,
     ResponseErrorConfig<
@@ -70,7 +68,7 @@ export function getConnectionQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getConnection({ connectionId, params }, config)
+      return getConnection({ connectionId, headers }, config)
     },
   })
 }
@@ -86,10 +84,10 @@ export function useGetConnection<
 >(
   {
     connectionId,
-    params,
+    headers,
   }: {
     connectionId: GetConnectionPathParams['connectionId']
-    params?: GetConnectionQueryParams
+    headers?: GetConnectionHeaderParams
   },
   options: {
     query?: Partial<
@@ -116,11 +114,11 @@ export function useGetConnection<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? getConnectionQueryKey({ connectionId }, params)
+    queryOptions?.queryKey ?? getConnectionQueryKey({ connectionId })
 
   const query = useQuery(
     {
-      ...getConnectionQueryOptions({ connectionId, params }, config),
+      ...getConnectionQueryOptions({ connectionId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

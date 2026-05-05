@@ -8,6 +8,14 @@ export type GenerateUploadSignatureHeaderParams = {
    * @type string
    */
   'x-app-secret-key': string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 /**
@@ -112,14 +120,6 @@ export type GenerateUploadSignature500 = {
 }
 
 export type GenerateUploadSignatureMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
   /**
    * @default "*"
    * @type string | undefined

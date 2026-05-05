@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -17,12 +17,14 @@ export async function updateSource(app: FastifyTypedInstance) {
         tags: ['Sources'],
         description: 'Update a source',
         operationId: 'updateSource',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           sourceId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string(),
         }),
         response: withDefaultErrorResponses({
@@ -31,21 +33,22 @@ export async function updateSource(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { sourceId } = request.params
 
-      const { organizationId, organizationSlug, name } = request.body
+      const { name } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const source = await queries.context.getSource(context, { sourceId })
+      const source = await queries.ctx.getSource(
+        { organizationId: organization.id },
+        { sourceId },
+      )
 
       if (!source) {
         throw new BadRequestError({

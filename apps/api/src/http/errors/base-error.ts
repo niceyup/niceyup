@@ -1,24 +1,41 @@
+import { NiceyupError } from '@workspace/core/errros'
+
+const name = 'NICEYUP_BaseError'
+const marker = `niceyup.error.${name}`
+const symbol = Symbol.for(marker)
+
 export type BaseErrorParams = {
+  name?: string
   status?: number
   code?: string
   message?: string
+  cause?: unknown
 }
 
-export class BaseError extends Error {
-  readonly status: number
-  readonly code: string
+export class BaseError extends NiceyupError {
+  private readonly [symbol] = true
 
-  constructor({ status, code, message }: BaseErrorParams = {}) {
-    super(message || 'Internal server error')
-    this.status = status || 500
-    this.code = code || 'INTERNAL_SERVER_ERROR'
+  readonly status: number
+
+  constructor({
+    name: errorName = name,
+    status = 500,
+    code = 'INTERNAL_SERVER_ERROR',
+    message = 'Internal server error',
+    cause,
+  }: BaseErrorParams = {}) {
+    super({ name: errorName, code, message, cause })
+    this.status = status
+  }
+
+  static isInstance(error: unknown): error is BaseError {
+    return NiceyupError.hasMarker(error, marker)
   }
 
   toJSON() {
     return {
+      ...super.toJSON(),
       status: this.status,
-      code: this.code,
-      message: this.message,
     }
   }
 }

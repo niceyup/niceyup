@@ -12,6 +12,7 @@ import type {
   RespondToToolApprovalMutationRequest,
   RespondToToolApprovalMutationResponse,
   RespondToToolApprovalPathParams,
+  RespondToToolApprovalHeaderParams,
   RespondToToolApproval400,
   RespondToToolApproval401,
   RespondToToolApproval403,
@@ -54,6 +55,7 @@ export function useRespondToToolApproval<TContext>(
         conversationId: RespondToToolApprovalPathParams['conversationId']
         messageId: RespondToToolApprovalPathParams['messageId']
         data: RespondToToolApprovalMutationRequest
+        headers?: RespondToToolApprovalHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -81,13 +83,14 @@ export function useRespondToToolApproval<TContext>(
       conversationId: RespondToToolApprovalPathParams['conversationId']
       messageId: RespondToToolApprovalPathParams['messageId']
       data: RespondToToolApprovalMutationRequest
+      headers?: RespondToToolApprovalHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ conversationId, messageId, data }) => {
+      mutationFn: async ({ conversationId, messageId, data, headers }) => {
         return respondToToolApproval(
-          { conversationId, messageId, data },
+          { conversationId, messageId, data, headers },
           config,
         )
       },

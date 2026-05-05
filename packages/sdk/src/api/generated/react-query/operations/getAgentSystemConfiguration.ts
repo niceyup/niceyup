@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentSystemConfigurationQueryResponse,
   GetAgentSystemConfigurationPathParams,
-  GetAgentSystemConfigurationQueryParams,
+  GetAgentSystemConfigurationHeaderParams,
   GetAgentSystemConfiguration400,
   GetAgentSystemConfiguration401,
   GetAgentSystemConfiguration403,
@@ -33,10 +33,10 @@ function getGetAgentSystemConfigurationUrl({
 export async function getAgentSystemConfiguration(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentSystemConfigurationPathParams['agentId']
-    params?: GetAgentSystemConfigurationQueryParams
+    headers?: GetAgentSystemConfigurationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -56,8 +56,8 @@ export async function getAgentSystemConfiguration(
   >({
     method: 'GET',
     url: getGetAgentSystemConfigurationUrl({ agentId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

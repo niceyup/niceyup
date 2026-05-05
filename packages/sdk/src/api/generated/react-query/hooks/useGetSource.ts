@@ -11,7 +11,7 @@ import type {
 import type {
   GetSourceQueryResponse,
   GetSourcePathParams,
-  GetSourceQueryParams,
+  GetSourceHeaderParams,
   GetSource400,
   GetSource401,
   GetSource403,
@@ -28,28 +28,24 @@ import type {
 import { getSource } from '../operations/getSource'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getSourceQueryKey = (
-  { sourceId }: { sourceId: GetSourcePathParams['sourceId'] },
-  params?: GetSourceQueryParams,
-) =>
-  [
-    { url: '/sources/:sourceId', params: { sourceId: sourceId } },
-    ...(params ? [params] : []),
-  ] as const
+export const getSourceQueryKey = ({
+  sourceId,
+}: { sourceId: GetSourcePathParams['sourceId'] }) =>
+  [{ url: '/sources/:sourceId', params: { sourceId: sourceId } }] as const
 
 export type GetSourceQueryKey = ReturnType<typeof getSourceQueryKey>
 
 export function getSourceQueryOptions(
   {
     sourceId,
-    params,
+    headers,
   }: {
     sourceId: GetSourcePathParams['sourceId']
-    params?: GetSourceQueryParams
+    headers?: GetSourceHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getSourceQueryKey({ sourceId }, params)
+  const queryKey = getSourceQueryKey({ sourceId })
   return queryOptions<
     GetSourceQueryResponse,
     ResponseErrorConfig<
@@ -67,7 +63,7 @@ export function getSourceQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getSource({ sourceId, params }, config)
+      return getSource({ sourceId, headers }, config)
     },
   })
 }
@@ -83,10 +79,10 @@ export function useGetSource<
 >(
   {
     sourceId,
-    params,
+    headers,
   }: {
     sourceId: GetSourcePathParams['sourceId']
-    params?: GetSourceQueryParams
+    headers?: GetSourceHeaderParams
   },
   options: {
     query?: Partial<
@@ -112,12 +108,11 @@ export function useGetSource<
     query: { client: queryClient, ...queryOptions } = {},
     client: config = {},
   } = options ?? {}
-  const queryKey =
-    queryOptions?.queryKey ?? getSourceQueryKey({ sourceId }, params)
+  const queryKey = queryOptions?.queryKey ?? getSourceQueryKey({ sourceId })
 
   const query = useQuery(
     {
-      ...getSourceQueryOptions({ sourceId, params }, config),
+      ...getSourceQueryOptions({ sourceId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

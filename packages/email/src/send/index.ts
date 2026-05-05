@@ -1,3 +1,9 @@
-export * from './reset-password'
-export * from './verification-email'
-export * from './organization-invitation'
+import { sendOrganizationInvitation } from './organization-invitation'
+import { sendPasswordResetEmail } from './reset-password'
+import { sendVerificationEmail } from './verification-email'
+
+export const sendEmail = {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+  sendOrganizationInvitation,
+}

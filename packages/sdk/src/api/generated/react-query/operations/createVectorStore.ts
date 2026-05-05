@@ -11,6 +11,7 @@ import type {
 import type {
   CreateVectorStoreMutationRequest,
   CreateVectorStoreMutationResponse,
+  CreateVectorStoreHeaderParams,
   CreateVectorStore400,
   CreateVectorStore401,
   CreateVectorStore403,
@@ -28,7 +29,13 @@ function getCreateVectorStoreUrl() {
  * {@link /vector-stores}
  */
 export async function createVectorStore(
-  { data }: { data: CreateVectorStoreMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data: CreateVectorStoreMutationRequest
+    headers?: CreateVectorStoreHeaderParams
+  },
   config: Partial<RequestConfig<CreateVectorStoreMutationRequest>> & {
     client?: typeof fetch
   } = {},
@@ -52,6 +59,7 @@ export async function createVectorStore(
     url: getCreateVectorStoreUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

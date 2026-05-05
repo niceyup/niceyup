@@ -11,6 +11,7 @@ import type {
 import type {
   GenerateUploadSignatureSourceMutationRequest,
   GenerateUploadSignatureSourceMutationResponse,
+  GenerateUploadSignatureSourceHeaderParams,
   GenerateUploadSignatureSource400,
   GenerateUploadSignatureSource401,
   GenerateUploadSignatureSource403,
@@ -28,7 +29,13 @@ function getGenerateUploadSignatureSourceUrl() {
  * {@link /sources/files/signature}
  */
 export async function generateUploadSignatureSource(
-  { data }: { data?: GenerateUploadSignatureSourceMutationRequest },
+  {
+    data,
+    headers,
+  }: {
+    data?: GenerateUploadSignatureSourceMutationRequest
+    headers?: GenerateUploadSignatureSourceHeaderParams
+  },
   config: Partial<
     RequestConfig<GenerateUploadSignatureSourceMutationRequest>
   > & { client?: typeof fetch } = {},
@@ -52,6 +59,7 @@ export async function generateUploadSignatureSource(
     url: getGenerateUploadSignatureSourceUrl().toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

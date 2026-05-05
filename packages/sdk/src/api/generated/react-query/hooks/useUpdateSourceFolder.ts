@@ -12,6 +12,7 @@ import type {
   UpdateSourceFolderMutationRequest,
   UpdateSourceFolderMutationResponse,
   UpdateSourceFolderPathParams,
+  UpdateSourceFolderHeaderParams,
   UpdateSourceFolder400,
   UpdateSourceFolder401,
   UpdateSourceFolder403,
@@ -49,6 +50,7 @@ export function useUpdateSourceFolder<TContext>(
       {
         folderId: UpdateSourceFolderPathParams['folderId']
         data: UpdateSourceFolderMutationRequest
+        headers?: UpdateSourceFolderHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateSourceFolder<TContext>(
     {
       folderId: UpdateSourceFolderPathParams['folderId']
       data: UpdateSourceFolderMutationRequest
+      headers?: UpdateSourceFolderHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ folderId, data }) => {
-        return updateSourceFolder({ folderId, data }, config)
+      mutationFn: async ({ folderId, data, headers }) => {
+        return updateSourceFolder({ folderId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

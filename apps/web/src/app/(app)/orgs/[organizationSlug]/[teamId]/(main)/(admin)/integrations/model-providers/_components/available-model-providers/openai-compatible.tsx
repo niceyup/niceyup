@@ -140,9 +140,11 @@ export function OpenAICompatibleModelProvider({
 
     if (params.modelProviderId && initialData) {
       const { error } = await sdk.updateModelProvider({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         modelProviderId: params.modelProviderId,
         data: {
-          organizationSlug: params.organizationSlug,
           provider,
           name: values.name,
           settings,
@@ -160,8 +162,10 @@ export function OpenAICompatibleModelProvider({
       await updateTag('update-model-provider')
     } else {
       const { error } = await sdk.createModelProvider({
+        headers: {
+          'x-organization-slug': params.organizationSlug,
+        },
         data: {
-          organizationSlug: params.organizationSlug,
           provider,
           name: values.name,
           settings,

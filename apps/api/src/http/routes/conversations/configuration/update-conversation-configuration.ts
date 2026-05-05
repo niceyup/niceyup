@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -31,12 +31,14 @@ export async function updateConversationConfiguration(
         tags: ['Conversations'],
         description: 'Update a conversation configuration',
         operationId: 'updateConversationConfiguration',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           conversationId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           agentId: z.string(),
           languageModelSettings: modelSettingsSchema.nullish(),
           systemMessage: z.string().nullish(),
@@ -49,15 +51,18 @@ export async function updateConversationConfiguration(
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { conversationId } = request.params
 
       const {
-        organizationId,
-        organizationSlug,
         agentId,
         languageModelSettings,
         systemMessage,
@@ -65,16 +70,10 @@ export async function updateConversationConfiguration(
         enableKnowledgeBaseTool,
       } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const conversation = await queries.context.getConversation(context, {
-        agentId,
-        conversationId,
-      })
+      const conversation = await queries.ctx.getConversation(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId },
+      )
 
       if (!conversation) {
         throw new BadRequestError({
@@ -88,9 +87,10 @@ export async function updateConversationConfiguration(
       })
 
       if (languageModelSettings) {
-        const modelProvider = await queries.context.getModelProvider(context, {
-          modelProviderId: languageModelSettings.providerId,
-        })
+        const modelProvider = await queries.ctx.getModelProvider(
+          { organizationId: organization.id },
+          { modelProviderId: languageModelSettings.providerId },
+        )
 
         if (!modelProvider) {
           throw new BadRequestError({
@@ -184,7 +184,7 @@ export async function updateConversationConfiguration(
               type: 'language-model',
               options: languageModelSettings.options,
               providerId: languageModelSettings.providerId,
-              organizationId: context.organizationId,
+              organizationId: organization.id,
             })
             .returning({
               id: modelSettings.id,

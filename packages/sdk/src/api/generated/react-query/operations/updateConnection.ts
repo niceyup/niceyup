@@ -12,6 +12,7 @@ import type {
   UpdateConnectionMutationRequest,
   UpdateConnectionMutationResponse,
   UpdateConnectionPathParams,
+  UpdateConnectionHeaderParams,
   UpdateConnection400,
   UpdateConnection401,
   UpdateConnection403,
@@ -34,9 +35,11 @@ export async function updateConnection(
   {
     connectionId,
     data,
+    headers,
   }: {
     connectionId: UpdateConnectionPathParams['connectionId']
     data?: UpdateConnectionMutationRequest
+    headers?: UpdateConnectionHeaderParams
   },
   config: Partial<RequestConfig<UpdateConnectionMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function updateConnection(
     url: getUpdateConnectionUrl({ connectionId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

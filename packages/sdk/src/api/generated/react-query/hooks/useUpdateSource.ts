@@ -12,6 +12,7 @@ import type {
   UpdateSourceMutationRequest,
   UpdateSourceMutationResponse,
   UpdateSourcePathParams,
+  UpdateSourceHeaderParams,
   UpdateSource400,
   UpdateSource401,
   UpdateSource403,
@@ -47,6 +48,7 @@ export function useUpdateSource<TContext>(
       {
         sourceId: UpdateSourcePathParams['sourceId']
         data: UpdateSourceMutationRequest
+        headers?: UpdateSourceHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -72,12 +74,13 @@ export function useUpdateSource<TContext>(
     {
       sourceId: UpdateSourcePathParams['sourceId']
       data: UpdateSourceMutationRequest
+      headers?: UpdateSourceHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ sourceId, data }) => {
-        return updateSource({ sourceId, data }, config)
+      mutationFn: async ({ sourceId, data, headers }) => {
+        return updateSource({ sourceId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { connectionAppSchema } from '@workspace/core/connections'
 import { mcpServerTypeSchema } from '@workspace/core/mcp-servers'
 import { queries } from '@workspace/db/queries'
@@ -16,12 +16,12 @@ export async function getMcpServer(app: FastifyTypedInstance) {
         tags: ['MCP Servers'],
         description: 'Get MCP server details',
         operationId: 'getMcpServer',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           mcpServerId: z.string(),
-        }),
-        querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
         }),
         response: withDefaultErrorResponses({
           200: z
@@ -46,23 +46,20 @@ export async function getMcpServer(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { mcpServerId } = request.params
 
-      const { organizationId, organizationSlug } = request.query
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const mcpServer = await queries.context.getMcpServer(context, {
-        mcpServerId,
-      })
+      const mcpServer = await queries.ctx.getMcpServer(
+        { organizationId: organization.id },
+        { mcpServerId },
+      )
 
       if (!mcpServer) {
         throw new BadRequestError({

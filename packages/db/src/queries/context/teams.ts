@@ -1,17 +1,10 @@
-import { and, asc, eq, sql } from 'drizzle-orm'
+import { and, asc, count, eq, sql } from 'drizzle-orm'
 import { db } from '../../db'
-import {
-  members,
-  organizations,
-  teamMembers,
-  teams,
-  users,
-} from '../../schema/auth'
+import { members, teamMembers, teams, users } from '../../schema/auth'
 
 type ContextGetTeamParams = {
-  userId: string
+  userId?: string | null
   organizationId: string
-  isAdmin: boolean
 }
 
 type GetTeamParams = {
@@ -30,14 +23,13 @@ export async function getTeam(
     })
     .from(teams)
 
-  if (context.isAdmin) {
+  if (context.userId) {
     const [team] = await selectQuery
-      .innerJoin(members, eq(teams.organizationId, members.organizationId))
+      .innerJoin(teamMembers, eq(teams.id, teamMembers.teamId))
       .where(
         and(
-          eq(teams.id, params.teamId),
           eq(teams.organizationId, context.organizationId),
-          eq(members.userId, context.userId),
+          eq(teamMembers.userId, context.userId),
         ),
       )
       .limit(1)
@@ -46,13 +38,10 @@ export async function getTeam(
   }
 
   const [team] = await selectQuery
-    .innerJoin(organizations, eq(teams.organizationId, organizations.id))
-    .innerJoin(teamMembers, eq(teams.id, teamMembers.teamId))
     .where(
       and(
         eq(teams.id, params.teamId),
         eq(teams.organizationId, context.organizationId),
-        eq(teamMembers.userId, context.userId),
       ),
     )
     .limit(1)
@@ -61,31 +50,43 @@ export async function getTeam(
 }
 
 type ContextListTeamsParams = {
-  userId: string
+  userId?: string | null
   organizationId: string
-  isAdmin: boolean
 }
 
 export async function listTeams(context: ContextListTeamsParams) {
+  const teamMembersCountSubQuery = db
+    .select({
+      teamId: teamMembers.teamId,
+      teamMembersCount: count().as('team_members_count'),
+    })
+    .from(teamMembers)
+    .groupBy(teamMembers.teamId)
+    .as('team_members_count')
+
   const selectQuery = db
     .select({
       id: teams.id,
       name: teams.name,
       memberCount:
-        sql<number>`(SELECT COUNT(*) FROM ${teamMembers} WHERE ${teamMembers.teamId} = ${teams.id})`.as(
+        sql<number>`CAST(COALESCE(${teamMembersCountSubQuery.teamMembersCount}, 0) AS integer)`.as(
           'memberCount',
         ),
       organizationId: teams.organizationId,
     })
     .from(teams)
+    .leftJoin(
+      teamMembersCountSubQuery,
+      eq(teams.id, teamMembersCountSubQuery.teamId),
+    )
 
-  if (context.isAdmin) {
+  if (context.userId) {
     const listTeams = await selectQuery
-      .innerJoin(members, eq(teams.organizationId, members.organizationId))
+      .innerJoin(teamMembers, eq(teams.id, teamMembers.teamId))
       .where(
         and(
           eq(teams.organizationId, context.organizationId),
-          eq(members.userId, context.userId),
+          eq(teamMembers.userId, context.userId),
         ),
       )
       .orderBy(asc(teams.createdAt))
@@ -94,23 +95,15 @@ export async function listTeams(context: ContextListTeamsParams) {
   }
 
   const listTeams = await selectQuery
-    .innerJoin(organizations, eq(teams.organizationId, organizations.id))
-    .innerJoin(teamMembers, eq(teams.id, teamMembers.teamId))
-    .where(
-      and(
-        eq(teams.organizationId, context.organizationId),
-        eq(teamMembers.userId, context.userId),
-      ),
-    )
+    .where(eq(teams.organizationId, context.organizationId))
     .orderBy(asc(teams.createdAt))
 
   return listTeams
 }
 
 type ContextListTeamMembersParams = {
-  userId: string
+  userId?: string | null
   organizationId: string
-  isAdmin: boolean
 }
 
 type ListTeamMembersParams = {
@@ -121,7 +114,9 @@ export async function listTeamMembers(
   context: ContextListTeamMembersParams,
   params: ListTeamMembersParams,
 ) {
-  const checkAccessToTeam = await getTeam(context, params)
+  const checkAccessToTeam = await getTeam(context, {
+    teamId: params.teamId,
+  })
 
   if (!checkAccessToTeam) {
     return []

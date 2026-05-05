@@ -12,6 +12,7 @@ import type {
   StopMessageMutationRequest,
   StopMessageMutationResponse,
   StopMessagePathParams,
+  StopMessageHeaderParams,
   StopMessage400,
   StopMessage401,
   StopMessage403,
@@ -39,10 +40,12 @@ export async function stopMessage(
     conversationId,
     messageId,
     data,
+    headers,
   }: {
     conversationId: StopMessagePathParams['conversationId']
     messageId: StopMessagePathParams['messageId']
     data: StopMessageMutationRequest
+    headers?: StopMessageHeaderParams
   },
   config: Partial<RequestConfig<StopMessageMutationRequest>> & {
     client?: typeof fetch
@@ -67,6 +70,7 @@ export async function stopMessage(
     url: getStopMessageUrl({ conversationId, messageId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

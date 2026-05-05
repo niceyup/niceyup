@@ -11,6 +11,7 @@ import type {
 import type {
   CreateMcpServerMutationRequest,
   CreateMcpServerMutationResponse,
+  CreateMcpServerHeaderParams,
   CreateMcpServer400,
   CreateMcpServer401,
   CreateMcpServer403,
@@ -45,7 +46,10 @@ export function useCreateMcpServer<TContext>(
         | CreateMcpServer429
         | CreateMcpServer500
       >,
-      { data: CreateMcpServerMutationRequest },
+      {
+        data: CreateMcpServerMutationRequest
+        headers?: CreateMcpServerHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateMcpServerMutationRequest>> & {
@@ -68,12 +72,15 @@ export function useCreateMcpServer<TContext>(
       | CreateMcpServer429
       | CreateMcpServer500
     >,
-    { data: CreateMcpServerMutationRequest },
+    {
+      data: CreateMcpServerMutationRequest
+      headers?: CreateMcpServerHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createMcpServer({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createMcpServer({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

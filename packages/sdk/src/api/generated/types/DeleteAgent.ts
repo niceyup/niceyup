@@ -10,6 +10,17 @@ export type DeleteAgentPathParams = {
   agentId: string
 }
 
+export type DeleteAgentHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteAgent204Enum = {} as const
 
 export type DeleteAgent204Enum =
@@ -111,16 +122,7 @@ export type DeleteAgent500 = {
   message: string
 }
 
-export type DeleteAgentMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type DeleteAgentMutationRequest = object
 
 export type DeleteAgentMutationResponse = DeleteAgent204
 
@@ -128,6 +130,7 @@ export type DeleteAgentMutation = {
   Response: DeleteAgent204
   Request: DeleteAgentMutationRequest
   PathParams: DeleteAgentPathParams
+  HeaderParams: DeleteAgentHeaderParams
   Errors:
     | DeleteAgent400
     | DeleteAgent401

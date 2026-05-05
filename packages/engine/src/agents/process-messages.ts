@@ -10,7 +10,7 @@ import type {
   AIMessagePart,
   AIMessageRole,
 } from '@workspace/ai/types'
-import { InvalidArgumentError } from '@workspace/engine'
+import { InvalidArgumentError } from '@workspace/core/errros'
 
 async function validateAndConvertToModelMessages(messages: unknown) {
   const validatedMessages = await validateUIMessages({ messages })

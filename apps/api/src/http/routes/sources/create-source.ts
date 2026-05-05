@@ -4,9 +4,10 @@ import {
   createSourceExplorerNodeItem,
   getSourceExplorerNodeFolder,
 } from '@/http/functions/explorer-nodes/source-explorer-nodes'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import {
@@ -60,22 +61,19 @@ export async function createSource(app: FastifyTypedInstance) {
         tags: ['Sources'],
         description: 'Create a new source',
         operationId: 'createSource',
-        body: z
-          .object({
-            organizationId: z.string().optional(),
-            organizationSlug: z.string().optional(),
-          })
-          .and(
-            sourceTypeSchema.and(
-              z.object({
-                explorerNode: z
-                  .object({
-                    folderId: z.string().nullish(),
-                  })
-                  .optional(),
-              }),
-            ),
-          ),
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
+        body: sourceTypeSchema.and(
+          z.object({
+            explorerNode: z
+              .object({
+                folderId: z.string().nullish(),
+              })
+              .optional(),
+          }),
+        ),
         response: withDefaultErrorResponses({
           201: z
             .object({
@@ -89,23 +87,20 @@ export async function createSource(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, type, name, explorerNode } =
-        request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
+      const { type, name, explorerNode } = request.body
 
       if (explorerNode?.folderId && explorerNode.folderId !== 'root') {
         const folderExplorerNode = await getSourceExplorerNodeFolder({
           id: explorerNode.folderId,
-          organizationId: context.organizationId,
+          organizationId: organization.id,
         })
 
         if (!folderExplorerNode) {
@@ -116,13 +111,17 @@ export async function createSource(app: FastifyTypedInstance) {
         }
       }
 
+      await billing.meters.processUsage.assertWithinLimit({
+        referenceId: organization.id,
+      })
+
       const { source, itemExplorerNode } = await db.transaction(async (tx) => {
         const [source] = await tx
           .insert(sources)
           .values({
             name,
             type,
-            organizationId: context.organizationId,
+            organizationId: organization.id,
           })
           .returning({
             id: sources.id,
@@ -222,7 +221,7 @@ export async function createSource(app: FastifyTypedInstance) {
           {
             parentId: explorerNode?.folderId,
             sourceId: source.id,
-            organizationId: context.organizationId,
+            organizationId: organization.id,
           },
           tx,
         )
@@ -247,11 +246,8 @@ export async function createSource(app: FastifyTypedInstance) {
         'ingest-source',
         { sourceId: source.id },
         {
-          concurrencyKey: context.organizationId,
-          tags: [
-            `organization:${context.organizationId}`,
-            `source:${source.id}`,
-          ],
+          concurrencyKey: organization.id,
+          tags: [`organization:${organization.id}`, `source:${source.id}`],
         },
       )
 

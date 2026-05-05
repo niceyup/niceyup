@@ -1,6 +1,5 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { streamAgentResponse } from '@/http/functions/stream-agent-response'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
@@ -11,6 +10,7 @@ import {
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
 import type { AIMessageMetadata } from '@workspace/ai/types'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { and, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -53,13 +53,15 @@ export async function resendMessage(app: FastifyTypedInstance) {
         tags: ['Messages'],
         description: 'Resend user message',
         operationId: 'resendMessage',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           conversationId: z.string(),
           messageId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           agentId: z.string(),
           message: z.object({
             parts: z.array(promptMessagePartSchema).nonempty(),
@@ -83,32 +85,24 @@ export async function resendMessage(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: request.ctxParams,
+        },
+      )
 
       const { conversationId, messageId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        agentId,
-        message: newMessage,
-        temporaryMessageId,
-      } = request.body
-
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
+      const { agentId, message: newMessage, temporaryMessageId } = request.body
 
       const streamId = generateId()
 
-      const conversation = await queries.context.getConversation(context, {
-        agentId,
-        conversationId,
-      })
+      const conversation = await queries.ctx.getConversation(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId },
+      )
 
       if (!conversation) {
         throw new BadRequestError({
@@ -149,7 +143,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
               role: 'user',
               parts: newMessage.parts,
               metadata: newMessage.metadata as AIMessageMetadata,
-              authorId: userId,
+              authorId: user.id,
               parentId: message.parentId,
             })
             .returning({
@@ -178,7 +172,7 @@ export async function resendMessage(app: FastifyTypedInstance) {
               parts: [],
               metadata: {
                 streamId,
-                authorId: userId,
+                authorId: user.id,
               },
               parentId: userMessage.id,
             })

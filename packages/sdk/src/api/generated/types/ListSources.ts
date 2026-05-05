@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-export type ListSourcesQueryParams = {
+export type ListSourcesHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const sourcesTypeEnum = {
@@ -156,7 +156,7 @@ export type ListSourcesQueryResponse = ListSources200
 
 export type ListSourcesQuery = {
   Response: ListSources200
-  QueryParams: ListSourcesQueryParams
+  HeaderParams: ListSourcesHeaderParams
   Errors:
     | ListSources400
     | ListSources401

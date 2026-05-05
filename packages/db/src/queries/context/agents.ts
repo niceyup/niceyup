@@ -1,14 +1,13 @@
 import { and, asc, eq } from 'drizzle-orm'
 import { db } from '../../db'
-import { agents, members, organizations } from '../../schema'
+import { agents } from '../../schema'
 
 type ContextListAgentsParams = {
-  userId: string
   organizationId: string
 }
 
 export async function listAgents(context: ContextListAgentsParams) {
-  const selectQuery = db
+  const listAgents = await db
     .select({
       id: agents.id,
       name: agents.name,
@@ -18,23 +17,13 @@ export async function listAgents(context: ContextListAgentsParams) {
       tags: agents.tags,
     })
     .from(agents)
-
-  const listAgents = await selectQuery
-    .innerJoin(organizations, eq(agents.organizationId, organizations.id))
-    .innerJoin(members, eq(organizations.id, members.organizationId))
-    .where(
-      and(
-        eq(agents.organizationId, context.organizationId),
-        eq(members.userId, context.userId),
-      ),
-    )
+    .where(eq(agents.organizationId, context.organizationId))
     .orderBy(asc(agents.createdAt))
 
   return listAgents
 }
 
 type ContextGetAgentParams = {
-  userId: string
   organizationId: string
 }
 
@@ -46,7 +35,7 @@ export async function getAgent(
   context: ContextGetAgentParams,
   params: GetAgentParams,
 ) {
-  const selectQuery = db
+  const [agent] = await db
     .select({
       id: agents.id,
       name: agents.name,
@@ -56,15 +45,10 @@ export async function getAgent(
       tags: agents.tags,
     })
     .from(agents)
-
-  const [agent] = await selectQuery
-    .innerJoin(organizations, eq(agents.organizationId, organizations.id))
-    .innerJoin(members, eq(organizations.id, members.organizationId))
     .where(
       and(
         eq(agents.id, params.agentId),
         eq(agents.organizationId, context.organizationId),
-        eq(members.userId, context.userId),
       ),
     )
     .limit(1)

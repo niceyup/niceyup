@@ -13,8 +13,10 @@ export async function EditMcpServerWrapper({
   params: Params
 }) {
   const { data } = await sdk.getMcpServer({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     mcpServerId: params.mcpServerId,
-    params: { organizationSlug: params.organizationSlug },
   })
 
   if (!data) {

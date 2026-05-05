@@ -25,10 +25,11 @@ export function ReindexKnowledgeBaseForm({
   const onSubmit = async () => {
     startTransition(async () => {
       const { error } = await sdk.reindexKnowledgeBase({
-        agentId: params.agentId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        agentId: params.agentId,
+        data: {},
       })
 
       if (error) {

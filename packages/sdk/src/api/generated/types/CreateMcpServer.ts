@@ -3,6 +3,17 @@
  * Do not edit manually.
  */
 
+export type CreateMcpServerHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 /**
  * @description Success
  */
@@ -114,14 +125,6 @@ export type CreateMcpServerMutationRequestTypeEnum =
 
 export type CreateMcpServerMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -151,6 +154,7 @@ export type CreateMcpServerMutationResponse = CreateMcpServer201
 export type CreateMcpServerMutation = {
   Response: CreateMcpServer201
   Request: CreateMcpServerMutationRequest
+  HeaderParams: CreateMcpServerHeaderParams
   Errors:
     | CreateMcpServer400
     | CreateMcpServer401

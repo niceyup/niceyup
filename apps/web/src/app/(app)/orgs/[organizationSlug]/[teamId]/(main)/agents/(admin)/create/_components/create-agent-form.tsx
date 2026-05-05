@@ -60,8 +60,10 @@ export function CreateAgentForm({
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const { data, error } = await sdk.createAgent({
+      headers: {
+        'x-organization-slug': organizationSlug,
+      },
       data: {
-        organizationSlug,
         name: values.name,
         slug: values.slug,
         description: values.description,

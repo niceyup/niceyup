@@ -10,15 +10,15 @@ export type GetVectorStorePathParams = {
   vectorStoreId: string
 }
 
-export type GetVectorStoreQueryParams = {
+export type GetVectorStoreHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const vectorStoreProviderEnum = {
@@ -159,7 +159,7 @@ export type GetVectorStoreQueryResponse = GetVectorStore200
 export type GetVectorStoreQuery = {
   Response: GetVectorStore200
   PathParams: GetVectorStorePathParams
-  QueryParams: GetVectorStoreQueryParams
+  HeaderParams: GetVectorStoreHeaderParams
   Errors:
     | GetVectorStore400
     | GetVectorStore401

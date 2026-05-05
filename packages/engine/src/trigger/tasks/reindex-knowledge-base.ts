@@ -1,4 +1,5 @@
 import { schemaTask } from '@trigger.dev/sdk'
+import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { and, eq, gt, isNull, sql } from '@workspace/db/orm'
 import {
@@ -8,7 +9,7 @@ import {
 } from '@workspace/db/schema'
 import { z } from 'zod'
 import { resolveEmbeddingModelSettings, resolveVectorStore } from '../../agents'
-import { InvalidArgumentError } from '../../erros'
+import { RetryableError } from '../../errors'
 import { indexSourceTask } from './index-source'
 import { knowledgeBaseQueue } from './queue'
 
@@ -22,7 +23,7 @@ export const reindexKnowledgeBaseTask = schemaTask({
   schema: z.object({
     knowledgeBaseId: z.string(),
   }),
-  run: async (payload, { signal }) => {
+  run: async (payload, { ctx, signal }) => {
     const [knowledgeBase] = await db
       .select({
         id: knowledgeBases.id,
@@ -134,6 +135,10 @@ export const reindexKnowledgeBaseTask = schemaTask({
         }
       }
 
+      await billing.meters.processUsage.assertWithinLimit({
+        referenceId: knowledgeBase.organizationId,
+      })
+
       const indexedSourcesToIndex = await db
         .select({
           id: indexedSources.id,
@@ -176,11 +181,7 @@ export const reindexKnowledgeBaseTask = schemaTask({
           payload: { indexedSourceId: id, reindexing: true },
           options: {
             concurrencyKey: payload.knowledgeBaseId,
-            tags: [
-              `organization:${knowledgeBase.organizationId}`,
-              `knowledge-base:${payload.knowledgeBaseId}`,
-              `indexed-source:${id}`,
-            ],
+            tags: [...ctx.run.tags, `indexed-source:${id}`],
           },
         })),
       )
@@ -192,7 +193,7 @@ export const reindexKnowledgeBaseTask = schemaTask({
     }
   },
   catchError: async ({ error }) => {
-    if (error instanceof InvalidArgumentError) {
+    if (!RetryableError.isInstance(error)) {
       return { skipRetrying: true }
     }
   },

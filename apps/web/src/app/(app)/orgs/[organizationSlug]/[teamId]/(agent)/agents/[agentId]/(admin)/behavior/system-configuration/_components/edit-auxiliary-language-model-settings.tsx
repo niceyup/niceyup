@@ -135,9 +135,11 @@ export function EditAuxiliaryLanguageModelSettingsForm({
     )
 
     const { error } = await sdk.updateAgentSystemConfiguration({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       agentId: params.agentId,
       data: {
-        organizationSlug: params.organizationSlug,
         auxiliaryLanguageModelSettings: {
           providerId,
           model: values.model,

@@ -10,6 +10,17 @@ export type UpdateAgentPathParams = {
   agentId: string
 }
 
+export type UpdateAgentHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateAgent204Enum = {} as const
 
 export type UpdateAgent204Enum =
@@ -115,14 +126,6 @@ export type UpdateAgentMutationRequest = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   name?: string
   /**
    * @minLength 3
@@ -149,6 +152,7 @@ export type UpdateAgentMutation = {
   Response: UpdateAgent204
   Request: UpdateAgentMutationRequest
   PathParams: UpdateAgentPathParams
+  HeaderParams: UpdateAgentHeaderParams
   Errors:
     | UpdateAgent400
     | UpdateAgent401

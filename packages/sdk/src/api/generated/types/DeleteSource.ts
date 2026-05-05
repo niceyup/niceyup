@@ -10,6 +10,17 @@ export type DeleteSourcePathParams = {
   sourceId: string
 }
 
+export type DeleteSourceHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteSource204Enum = {} as const
 
 export type DeleteSource204Enum =
@@ -113,14 +124,6 @@ export type DeleteSource500 = {
 
 export type DeleteSourceMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type boolean | undefined
    */
   destroy?: boolean
@@ -132,6 +135,7 @@ export type DeleteSourceMutation = {
   Response: DeleteSource204
   Request: DeleteSourceMutationRequest
   PathParams: DeleteSourcePathParams
+  HeaderParams: DeleteSourceHeaderParams
   Errors:
     | DeleteSource400
     | DeleteSource401

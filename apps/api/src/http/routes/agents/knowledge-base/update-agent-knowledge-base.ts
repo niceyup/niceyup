@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { and, eq, or } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -29,12 +29,14 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
         tags: ['Agent Knowledge Bases'],
         description: 'Update an agent knowledge base',
         operationId: 'updateAgentKnowledgeBase',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           vectorStoreId: z.string().nullish(),
           embeddingModelSettings: modelSettingsSchema.nullish(),
           topK: z.number().positive().nullish(),
@@ -45,29 +47,22 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        vectorStoreId,
-        embeddingModelSettings,
-        topK,
-      } = request.body
+      const { vectorStoreId, embeddingModelSettings, topK } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({
@@ -118,9 +113,10 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
       }
 
       if (vectorStoreId) {
-        const vectorStore = await queries.context.getVectorStore(context, {
-          vectorStoreId,
-        })
+        const vectorStore = await queries.ctx.getVectorStore(
+          { organizationId: organization.id },
+          { vectorStoreId },
+        )
 
         if (!vectorStore) {
           throw new BadRequestError({
@@ -131,9 +127,10 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
       }
 
       if (embeddingModelSettings?.providerId) {
-        const modelProvider = await queries.context.getModelProvider(context, {
-          modelProviderId: embeddingModelSettings.providerId,
-        })
+        const modelProvider = await queries.ctx.getModelProvider(
+          { organizationId: organization.id },
+          { modelProviderId: embeddingModelSettings.providerId },
+        )
 
         if (!modelProvider) {
           throw new BadRequestError({
@@ -161,7 +158,7 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
             .insert(knowledgeBases)
             .values({
               agentId,
-              organizationId: context.organizationId,
+              organizationId: organization.id,
             })
             .returning({
               embeddingModelSettingsId: knowledgeBases.embeddingModelSettingsId,
@@ -227,7 +224,7 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
               type: 'embedding-model',
               options: embeddingModelSettings.options,
               providerId: embeddingModelSettings.providerId,
-              organizationId: context.organizationId,
+              organizationId: organization.id,
             })
             .returning({
               id: modelSettings.id,

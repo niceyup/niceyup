@@ -12,6 +12,7 @@ import type {
   UpdateSourceMutationRequest,
   UpdateSourceMutationResponse,
   UpdateSourcePathParams,
+  UpdateSourceHeaderParams,
   UpdateSource400,
   UpdateSource401,
   UpdateSource403,
@@ -34,9 +35,11 @@ export async function updateSource(
   {
     sourceId,
     data,
+    headers,
   }: {
     sourceId: UpdateSourcePathParams['sourceId']
     data: UpdateSourceMutationRequest
+    headers?: UpdateSourceHeaderParams
   },
   config: Partial<RequestConfig<UpdateSourceMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function updateSource(
     url: getUpdateSourceUrl({ sourceId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

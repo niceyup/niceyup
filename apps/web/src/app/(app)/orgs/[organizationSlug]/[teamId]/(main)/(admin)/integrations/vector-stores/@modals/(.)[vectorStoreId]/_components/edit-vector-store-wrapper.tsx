@@ -13,8 +13,10 @@ export async function EditVectorStoreWrapper({
   params: Params
 }) {
   const { data } = await sdk.getVectorStore({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     vectorStoreId: params.vectorStoreId,
-    params: { organizationSlug: params.organizationSlug },
   })
 
   if (!data) {

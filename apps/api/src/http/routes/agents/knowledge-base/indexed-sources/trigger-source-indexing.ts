@@ -1,8 +1,9 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { billing } from '@workspace/billing'
 import type {
   SourceOperationStatus,
   SourceOperationType,
@@ -44,12 +45,14 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
         tags: ['Agent Knowledge Bases'],
         description: 'Trigger source indexing',
         operationId: 'triggerSourceIndexing',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           status: z.enum(['all', 'idle', 'stale', 'failed']).default('all'),
           sources: z
             .array(z.string())
@@ -65,26 +68,22 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        status,
-        sources: sourceIds,
-      } = request.body
+      const { status, sources: sourceIds } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, { agentId })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({
@@ -160,14 +159,9 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
                   ? eq(sourceOperations.status, 'failed')
                   : undefined,
               ),
-              eq(sources.organizationId, context.organizationId),
+              eq(sources.organizationId, organization.id),
             ),
           )
-
-      const ctx = {
-        organizationId: context.organizationId,
-        knowledgeBaseId: agentKnowledgeBase.id,
-      }
 
       if (sourceIds?.length) {
         const listSources = await sourcesSelectQuery({ sourceIds })
@@ -185,7 +179,13 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
           })
         }
 
-        await manageIndexedSources(ctx, { listSources })
+        await manageIndexedSources(
+          {
+            organizationId: organization.id,
+            knowledgeBaseId: agentKnowledgeBase.id,
+          },
+          { listSources },
+        )
       } else {
         let cursorSourceId: string | undefined
 
@@ -200,7 +200,13 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
 
           cursorSourceId = listSources[listSources.length - 1]?.id
 
-          await manageIndexedSources(ctx, { listSources })
+          await manageIndexedSources(
+            {
+              organizationId: organization.id,
+              knowledgeBaseId: agentKnowledgeBase.id,
+            },
+            { listSources },
+          )
         }
       }
 
@@ -218,6 +224,10 @@ async function manageIndexedSources(
     listSources: SourceRow[]
   },
 ) {
+  await billing.meters.processUsage.assertWithinLimit({
+    referenceId: context.organizationId,
+  })
+
   const { addedIndexedSources, removedIndexedSources } = await db.transaction(
     async (tx) => {
       const indexedSourcesWithoutOperation: { id: string }[] = [] // create source operations

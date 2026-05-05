@@ -11,6 +11,7 @@ import type {
 import type {
   ListMcpServerSelectOptionsQueryResponse,
   ListMcpServerSelectOptionsQueryParams,
+  ListMcpServerSelectOptionsHeaderParams,
   ListMcpServerSelectOptions400,
   ListMcpServerSelectOptions401,
   ListMcpServerSelectOptions403,
@@ -37,7 +38,13 @@ export type ListMcpServerSelectOptionsQueryKey = ReturnType<
 >
 
 export function listMcpServerSelectOptionsQueryOptions(
-  { params }: { params?: ListMcpServerSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServerSelectOptionsQueryParams
+    headers?: ListMcpServerSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listMcpServerSelectOptionsQueryKey(params)
@@ -57,7 +64,7 @@ export function listMcpServerSelectOptionsQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listMcpServerSelectOptions({ params }, config)
+      return listMcpServerSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -71,7 +78,13 @@ export function useListMcpServerSelectOptions<
   TQueryData = ListMcpServerSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListMcpServerSelectOptionsQueryKey,
 >(
-  { params }: { params?: ListMcpServerSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServerSelectOptionsQueryParams
+    headers?: ListMcpServerSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -101,7 +114,7 @@ export function useListMcpServerSelectOptions<
 
   const query = useQuery(
     {
-      ...listMcpServerSelectOptionsQueryOptions({ params }, config),
+      ...listMcpServerSelectOptionsQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

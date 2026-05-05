@@ -1,18 +1,57 @@
-import { env as baseEnv, createEnv, z } from '@workspace/env'
+import { env as databaseEnv } from '@workspace/db/env'
+import { createEnv, z } from '@workspace/env'
 
 export const env = createEnv({
-  extends: [baseEnv],
+  extends: [databaseEnv],
   server: {
-    POLAR_ENVIRONMENT: z.enum(['sandbox', 'production']),
-    POLAR_ACCESS_TOKEN: z.string(),
-    POLAR_WEBHOOK_SECRET: z.string(),
-    POLAR_STANDARD_PLAN_PRODUCT_ID: z.string(),
+    STRIPE_SECRET_KEY: z.string(),
+    STRIPE_WEBHOOK_SECRET: z.string(),
+
+    STRIPE_AI_USAGE_METER_ID: z.string(),
+    STRIPE_PROCESS_USAGE_METER_ID: z.string(),
+
+    // STRIPE_PLUS_PLAN_PRICE_ID: z.string(),
+    // STRIPE_PLUS_PLAN_AI_USAGE_PRICE_ID: z.string(),
+
+    STRIPE_HOBBY_PLAN_PRICE_ID: z.string(),
+    STRIPE_HOBBY_PLAN_AI_USAGE_PRICE_ID: z.string(),
+    STRIPE_HOBBY_PLAN_PROCESS_USAGE_PRICE_ID: z.string(),
+
+    STRIPE_STANDARD_PLAN_PRICE_ID: z.string(),
+    STRIPE_STANDARD_PLAN_AI_USAGE_PRICE_ID: z.string(),
+    STRIPE_STANDARD_PLAN_PROCESS_USAGE_PRICE_ID: z.string(),
+
+    STRIPE_ADVANCED_PLAN_PRICE_ID: z.string(),
+    STRIPE_ADVANCED_PLAN_AI_USAGE_PRICE_ID: z.string(),
+    STRIPE_ADVANCED_PLAN_PROCESS_USAGE_PRICE_ID: z.string(),
   },
   runtimeEnv: {
-    POLAR_ENVIRONMENT: process.env.POLAR_ENVIRONMENT,
-    POLAR_ACCESS_TOKEN: process.env.POLAR_ACCESS_TOKEN,
-    POLAR_WEBHOOK_SECRET: process.env.POLAR_WEBHOOK_SECRET,
-    POLAR_STANDARD_PLAN_PRODUCT_ID: process.env.POLAR_STANDARD_PLAN_PRODUCT_ID,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+
+    STRIPE_AI_USAGE_METER_ID: process.env.STRIPE_AI_USAGE_METER_ID,
+    STRIPE_PROCESS_USAGE_METER_ID: process.env.STRIPE_PROCESS_USAGE_METER_ID,
+
+    // STRIPE_PLUS_PLAN_PRICE_ID: process.env.STRIPE_PLUS_PLAN_PRICE_ID,
+    // STRIPE_PLUS_PLAN_AI_USAGE_PRICE_ID: process.env.STRIPE_PLUS_PLAN_AI_USAGE_PRICE_ID,
+
+    STRIPE_HOBBY_PLAN_PRICE_ID: process.env.STRIPE_HOBBY_PLAN_PRICE_ID,
+    STRIPE_HOBBY_PLAN_AI_USAGE_PRICE_ID:
+      process.env.STRIPE_HOBBY_PLAN_AI_USAGE_PRICE_ID,
+    STRIPE_HOBBY_PLAN_PROCESS_USAGE_PRICE_ID:
+      process.env.STRIPE_HOBBY_PLAN_PROCESS_USAGE_PRICE_ID,
+
+    STRIPE_STANDARD_PLAN_PRICE_ID: process.env.STRIPE_STANDARD_PLAN_PRICE_ID,
+    STRIPE_STANDARD_PLAN_AI_USAGE_PRICE_ID:
+      process.env.STRIPE_STANDARD_PLAN_AI_USAGE_PRICE_ID,
+    STRIPE_STANDARD_PLAN_PROCESS_USAGE_PRICE_ID:
+      process.env.STRIPE_STANDARD_PLAN_PROCESS_USAGE_PRICE_ID,
+
+    STRIPE_ADVANCED_PLAN_PRICE_ID: process.env.STRIPE_ADVANCED_PLAN_PRICE_ID,
+    STRIPE_ADVANCED_PLAN_AI_USAGE_PRICE_ID:
+      process.env.STRIPE_ADVANCED_PLAN_AI_USAGE_PRICE_ID,
+    STRIPE_ADVANCED_PLAN_PROCESS_USAGE_PRICE_ID:
+      process.env.STRIPE_ADVANCED_PLAN_PROCESS_USAGE_PRICE_ID,
   },
   emptyStringAsUndefined: true,
   skipValidation: !!process.env.CI,

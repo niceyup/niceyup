@@ -11,6 +11,7 @@ import type {
 import type {
   ListModelProviderSelectOptionsQueryResponse,
   ListModelProviderSelectOptionsQueryParams,
+  ListModelProviderSelectOptionsHeaderParams,
   ListModelProviderSelectOptions400,
   ListModelProviderSelectOptions401,
   ListModelProviderSelectOptions403,
@@ -28,7 +29,13 @@ function getListModelProviderSelectOptionsUrl() {
  * {@link /select-option/model-providers}
  */
 export async function listModelProviderSelectOptions(
-  { params }: { params?: ListModelProviderSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProviderSelectOptionsQueryParams
+    headers?: ListModelProviderSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listModelProviderSelectOptions(
     url: getListModelProviderSelectOptionsUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

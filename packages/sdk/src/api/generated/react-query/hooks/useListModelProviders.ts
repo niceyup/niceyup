@@ -11,6 +11,7 @@ import type {
 import type {
   ListModelProvidersQueryResponse,
   ListModelProvidersQueryParams,
+  ListModelProvidersHeaderParams,
   ListModelProviders400,
   ListModelProviders401,
   ListModelProviders403,
@@ -36,7 +37,13 @@ export type ListModelProvidersQueryKey = ReturnType<
 >
 
 export function listModelProvidersQueryOptions(
-  { params }: { params?: ListModelProvidersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProvidersQueryParams
+    headers?: ListModelProvidersHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listModelProvidersQueryKey(params)
@@ -56,7 +63,7 @@ export function listModelProvidersQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listModelProviders({ params }, config)
+      return listModelProviders({ params, headers }, config)
     },
   })
 }
@@ -70,7 +77,13 @@ export function useListModelProviders<
   TQueryData = ListModelProvidersQueryResponse,
   TQueryKey extends QueryKey = ListModelProvidersQueryKey,
 >(
-  { params }: { params?: ListModelProvidersQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListModelProvidersQueryParams
+    headers?: ListModelProvidersHeaderParams
+  },
   options: {
     query?: Partial<
       QueryObserverOptions<
@@ -99,7 +112,7 @@ export function useListModelProviders<
 
   const query = useQuery(
     {
-      ...listModelProvidersQueryOptions({ params }, config),
+      ...listModelProvidersQueryOptions({ params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { getOrganization, getOrganizationTeam } from '@/actions/organizations'
 import { Header } from '@/components/header'
 import { OrganizationNotFound } from '@/components/organization-not-found'
@@ -61,9 +61,9 @@ export default async function Layout({
     },
   ]
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
-  if (isAdmin) {
+  if (membershipRole.isAdmin) {
     tabs.push(
       ...[
         {

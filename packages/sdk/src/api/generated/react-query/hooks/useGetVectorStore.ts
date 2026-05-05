@@ -11,7 +11,7 @@ import type {
 import type {
   GetVectorStoreQueryResponse,
   GetVectorStorePathParams,
-  GetVectorStoreQueryParams,
+  GetVectorStoreHeaderParams,
   GetVectorStore400,
   GetVectorStore401,
   GetVectorStore403,
@@ -28,18 +28,14 @@ import type {
 import { getVectorStore } from '../operations/getVectorStore'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getVectorStoreQueryKey = (
-  {
-    vectorStoreId,
-  }: { vectorStoreId: GetVectorStorePathParams['vectorStoreId'] },
-  params?: GetVectorStoreQueryParams,
-) =>
+export const getVectorStoreQueryKey = ({
+  vectorStoreId,
+}: { vectorStoreId: GetVectorStorePathParams['vectorStoreId'] }) =>
   [
     {
       url: '/vector-stores/:vectorStoreId',
       params: { vectorStoreId: vectorStoreId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetVectorStoreQueryKey = ReturnType<typeof getVectorStoreQueryKey>
@@ -47,14 +43,14 @@ export type GetVectorStoreQueryKey = ReturnType<typeof getVectorStoreQueryKey>
 export function getVectorStoreQueryOptions(
   {
     vectorStoreId,
-    params,
+    headers,
   }: {
     vectorStoreId: GetVectorStorePathParams['vectorStoreId']
-    params?: GetVectorStoreQueryParams
+    headers?: GetVectorStoreHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getVectorStoreQueryKey({ vectorStoreId }, params)
+  const queryKey = getVectorStoreQueryKey({ vectorStoreId })
   return queryOptions<
     GetVectorStoreQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +68,7 @@ export function getVectorStoreQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getVectorStore({ vectorStoreId, params }, config)
+      return getVectorStore({ vectorStoreId, headers }, config)
     },
   })
 }
@@ -88,10 +84,10 @@ export function useGetVectorStore<
 >(
   {
     vectorStoreId,
-    params,
+    headers,
   }: {
     vectorStoreId: GetVectorStorePathParams['vectorStoreId']
-    params?: GetVectorStoreQueryParams
+    headers?: GetVectorStoreHeaderParams
   },
   options: {
     query?: Partial<
@@ -118,11 +114,11 @@ export function useGetVectorStore<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ?? getVectorStoreQueryKey({ vectorStoreId }, params)
+    queryOptions?.queryKey ?? getVectorStoreQueryKey({ vectorStoreId })
 
   const query = useQuery(
     {
-      ...getVectorStoreQueryOptions({ vectorStoreId, params }, config),
+      ...getVectorStoreQueryOptions({ vectorStoreId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

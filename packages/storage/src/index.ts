@@ -10,7 +10,5 @@ export const storage = {
   delete: del,
   deleteDirectory,
   signedUrl,
-  s3Client,
+  s3: s3Client,
 }
-
-export * from './s3-client'

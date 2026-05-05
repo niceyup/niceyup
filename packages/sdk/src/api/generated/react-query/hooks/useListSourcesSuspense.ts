@@ -10,7 +10,7 @@ import type {
 } from '../../../../client/fetch-react-query'
 import type {
   ListSourcesQueryResponse,
-  ListSourcesQueryParams,
+  ListSourcesHeaderParams,
   ListSources400,
   ListSources401,
   ListSources403,
@@ -27,18 +27,17 @@ import type {
 import { listSources } from '../operations/listSources'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const listSourcesSuspenseQueryKey = (params?: ListSourcesQueryParams) =>
-  [{ url: '/sources' }, ...(params ? [params] : [])] as const
+export const listSourcesSuspenseQueryKey = () => [{ url: '/sources' }] as const
 
 export type ListSourcesSuspenseQueryKey = ReturnType<
   typeof listSourcesSuspenseQueryKey
 >
 
 export function listSourcesSuspenseQueryOptions(
-  { params }: { params?: ListSourcesQueryParams },
+  { headers }: { headers?: ListSourcesHeaderParams },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = listSourcesSuspenseQueryKey(params)
+  const queryKey = listSourcesSuspenseQueryKey()
   return queryOptions<
     ListSourcesQueryResponse,
     ResponseErrorConfig<
@@ -55,7 +54,7 @@ export function listSourcesSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listSources({ params }, config)
+      return listSources({ headers }, config)
     },
   })
 }
@@ -68,7 +67,7 @@ export function useListSourcesSuspense<
   TData = ListSourcesQueryResponse,
   TQueryKey extends QueryKey = ListSourcesSuspenseQueryKey,
 >(
-  { params }: { params?: ListSourcesQueryParams },
+  { headers }: { headers?: ListSourcesHeaderParams },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -92,11 +91,11 @@ export function useListSourcesSuspense<
     query: { client: queryClient, ...queryOptions } = {},
     client: config = {},
   } = options ?? {}
-  const queryKey = queryOptions?.queryKey ?? listSourcesSuspenseQueryKey(params)
+  const queryKey = queryOptions?.queryKey ?? listSourcesSuspenseQueryKey()
 
   const query = useSuspenseQuery(
     {
-      ...listSourcesSuspenseQueryOptions({ params }, config),
+      ...listSourcesSuspenseQueryOptions({ headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

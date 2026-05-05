@@ -9,6 +9,11 @@ import { storage } from '@workspace/storage'
 import { generateId } from '@workspace/utils'
 import jwt from 'jsonwebtoken'
 
+const BucketScope = {
+  default: ['public', 'conversations'],
+  engine: ['sources'],
+}
+
 export type FileBucket = 'default' | 'engine'
 
 export type FileScope = 'public' | 'conversations' | 'sources'
@@ -25,12 +30,7 @@ export type FileBucketScope =
 
 export type FileData = FileBucketScope & {
   metadata?: FileMetadata
-  organizationId?: string | null
-}
-
-const BucketScope = {
-  default: ['public', 'conversations'],
-  engine: ['sources'],
+  referenceId: string
 }
 
 type FileUploadPayload<T> = T & {

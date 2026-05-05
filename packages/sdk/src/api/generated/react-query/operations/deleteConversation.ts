@@ -12,6 +12,7 @@ import type {
   DeleteConversationMutationRequest,
   DeleteConversationMutationResponse,
   DeleteConversationPathParams,
+  DeleteConversationHeaderParams,
   DeleteConversation400,
   DeleteConversation401,
   DeleteConversation403,
@@ -34,9 +35,11 @@ export async function deleteConversation(
   {
     conversationId,
     data,
+    headers,
   }: {
     conversationId: DeleteConversationPathParams['conversationId']
     data: DeleteConversationMutationRequest
+    headers?: DeleteConversationHeaderParams
   },
   config: Partial<RequestConfig<DeleteConversationMutationRequest>> & {
     client?: typeof fetch
@@ -61,6 +64,7 @@ export async function deleteConversation(
     url: getDeleteConversationUrl({ conversationId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

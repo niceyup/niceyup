@@ -55,8 +55,10 @@ async function listConversations(
   cacheTag('create-chat', 'delete-chat')
 
   const { data } = await sdk.listConversations({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     params: {
-      organizationSlug: params.organizationSlug,
       teamId: params.teamId,
       agentId: params.agentId,
       visibility,

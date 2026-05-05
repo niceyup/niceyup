@@ -10,15 +10,15 @@ export type GetMcpServerPathParams = {
   mcpServerId: string
 }
 
-export type GetMcpServerQueryParams = {
+export type GetMcpServerHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const mcpServerTypeEnum = {
@@ -184,7 +184,7 @@ export type GetMcpServerQueryResponse = GetMcpServer200
 export type GetMcpServerQuery = {
   Response: GetMcpServer200
   PathParams: GetMcpServerPathParams
-  QueryParams: GetMcpServerQueryParams
+  HeaderParams: GetMcpServerHeaderParams
   Errors:
     | GetMcpServer400
     | GetMcpServer401

@@ -14,8 +14,8 @@ async function listModelProviders(params: {
   )
 
   const { data } = await sdk.listModelProviders({
-    params: {
-      organizationSlug: params.organizationSlug,
+    headers: {
+      'x-organization-slug': params.organizationSlug,
     },
   })
 

@@ -1,8 +1,19 @@
 'use client'
 
+import { updateTag } from '@/actions/cache'
+import type { listTeams } from '@/actions/teams'
 import { authClient } from '@/lib/auth/client'
+import type { OrganizationTeamParams } from '@/lib/types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@workspace/ui/components/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandSeparator,
+} from '@workspace/ui/components/command'
 import {
   Dialog,
   DialogClose,
@@ -22,18 +33,6 @@ import {
   FormMessage,
   useFormField,
 } from '@workspace/ui/components/form'
-
-import { updateTag } from '@/actions/cache'
-import type { listTeams } from '@/actions/teams'
-import type { OrganizationTeamParams } from '@/lib/types'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandSeparator,
-} from '@workspace/ui/components/command'
 import {
   InputGroup,
   InputGroupAddon,

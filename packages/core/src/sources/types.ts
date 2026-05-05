@@ -5,6 +5,8 @@ import type {
   databaseSourceQueryExampleSchema,
   databaseSourceTableMetadataSchema,
   indexedSourceStatusSchema,
+  sourceExplorerNodeFlagSchema,
+  sourceExplorerNodeTypeSchema,
   sourceOperationStatusSchema,
   sourceOperationTypeSchema,
   sourceStatusSchema,
@@ -36,3 +38,13 @@ export type DatabaseSourceQueryExample = z.infer<
 export type SourceOperationType = z.infer<typeof sourceOperationTypeSchema>
 
 export type SourceOperationStatus = z.infer<typeof sourceOperationStatusSchema>
+
+// Source Explorer Nodes
+
+export type SourceExplorerNodeType = z.infer<
+  typeof sourceExplorerNodeTypeSchema
+>
+
+export type SourceExplorerNodeFlag = z.infer<
+  typeof sourceExplorerNodeFlagSchema
+>

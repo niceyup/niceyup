@@ -1,7 +1,7 @@
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   connectionAppSchema,
   connectionAuthenticationSchema,
@@ -17,9 +17,11 @@ export async function listConnections(app: FastifyTypedInstance) {
         tags: ['Connections'],
         description: 'Get all connections',
         operationId: 'listConnections',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           app: connectionAppSchema.optional(),
         }),
         response: withDefaultErrorResponses({
@@ -40,21 +42,20 @@ export async function listConnections(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
-      const { organizationId, organizationSlug, app } = request.query
+      const { app } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const connections = await queries.context.listConnections(context, {
-        app,
-      })
+      const connections = await queries.ctx.listConnections(
+        { organizationId: organization.id },
+        { app },
+      )
 
       return { connections }
     },

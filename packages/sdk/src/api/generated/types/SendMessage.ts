@@ -10,6 +10,17 @@ export type SendMessagePathParams = {
   conversationId: string
 }
 
+export type SendMessageHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const userMessageStatusEnum = {
   queued: 'queued',
   processing: 'processing',
@@ -2183,14 +2194,6 @@ export type SendMessageMutationRequestVisibilityEnum =
 
 export type SendMessageMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   teamId?: string | null
@@ -2270,6 +2273,7 @@ export type SendMessageMutation = {
   Response: SendMessage200
   Request: SendMessageMutationRequest
   PathParams: SendMessagePathParams
+  HeaderParams: SendMessageHeaderParams
   Errors:
     | SendMessage400
     | SendMessage401

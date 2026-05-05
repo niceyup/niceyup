@@ -12,6 +12,7 @@ import type {
   UpdateAgentSystemConfigurationMutationRequest,
   UpdateAgentSystemConfigurationMutationResponse,
   UpdateAgentSystemConfigurationPathParams,
+  UpdateAgentSystemConfigurationHeaderParams,
   UpdateAgentSystemConfiguration400,
   UpdateAgentSystemConfiguration401,
   UpdateAgentSystemConfiguration403,
@@ -34,9 +35,11 @@ export async function updateAgentSystemConfiguration(
   {
     agentId,
     data,
+    headers,
   }: {
     agentId: UpdateAgentSystemConfigurationPathParams['agentId']
     data?: UpdateAgentSystemConfigurationMutationRequest
+    headers?: UpdateAgentSystemConfigurationHeaderParams
   },
   config: Partial<
     RequestConfig<UpdateAgentSystemConfigurationMutationRequest>
@@ -61,6 +64,7 @@ export async function updateAgentSystemConfiguration(
     url: getUpdateAgentSystemConfigurationUrl({ agentId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

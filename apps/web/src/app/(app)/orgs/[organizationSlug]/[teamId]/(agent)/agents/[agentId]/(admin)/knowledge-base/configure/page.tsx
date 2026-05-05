@@ -1,4 +1,4 @@
-import { getAgent } from '@/actions/agents'
+import { getAgentDetailed } from '@/actions/agents'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import {
   Alert,
@@ -19,7 +19,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, agentId } = await params
 
-  const agent = await getAgent(
+  const agentDetailed = await getAgentDetailed(
     { organizationSlug, agentId },
     {
       with: {
@@ -29,13 +29,13 @@ export default async function Page({
     },
   )
 
-  if (!agent) {
+  if (!agentDetailed) {
     return null
   }
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {agent.knowledgeBase?.status === 'reindexing' && (
+      {agentDetailed.knowledgeBase?.status === 'reindexing' && (
         <Alert>
           <InfoIcon />
           <AlertTitle>Reindexing Knowledge Base</AlertTitle>
@@ -48,16 +48,18 @@ export default async function Page({
 
       <EditEnableKnowledgeBaseToolForm
         params={{ organizationSlug, agentId }}
-        enableKnowledgeBaseTool={agent.configuration?.enableKnowledgeBaseTool}
+        enableKnowledgeBaseTool={
+          agentDetailed.configuration?.enableKnowledgeBaseTool
+        }
       />
 
       <EditVectorStoreForm
         params={{ organizationSlug, agentId }}
         vectorStore={
-          agent.knowledgeBase?.vectorStore
+          agentDetailed.knowledgeBase?.vectorStore
             ? {
-                id: agent.knowledgeBase.vectorStore.id,
-                value: agent.knowledgeBase.vectorStore,
+                id: agentDetailed.knowledgeBase.vectorStore.id,
+                value: agentDetailed.knowledgeBase.vectorStore,
               }
             : null
         }
@@ -66,15 +68,17 @@ export default async function Page({
       <EditEmbeddingModelSettingsForm
         params={{ organizationSlug, agentId }}
         embeddingModelSettings={
-          agent.knowledgeBase?.embeddingModelSettings
+          agentDetailed.knowledgeBase?.embeddingModelSettings
             ? {
-                ...agent.knowledgeBase.embeddingModelSettings,
-                provider: agent.knowledgeBase.embeddingModelSettings.provider
+                ...agentDetailed.knowledgeBase.embeddingModelSettings,
+                provider: agentDetailed.knowledgeBase.embeddingModelSettings
+                  .provider
                   ? {
-                      id: agent.knowledgeBase.embeddingModelSettings.provider
-                        .id,
+                      id: agentDetailed.knowledgeBase.embeddingModelSettings
+                        .provider.id,
                       value:
-                        agent.knowledgeBase.embeddingModelSettings.provider,
+                        agentDetailed.knowledgeBase.embeddingModelSettings
+                          .provider,
                     }
                   : null,
               }
@@ -84,14 +88,14 @@ export default async function Page({
 
       <EditTopKForm
         params={{ organizationSlug, agentId }}
-        topK={agent.knowledgeBase?.topK}
+        topK={agentDetailed.knowledgeBase?.topK}
       />
 
       <ReindexKnowledgeBaseForm
         params={{ organizationSlug, agentId }}
         disabled={
-          !agent.knowledgeBase?.isConfigured ||
-          agent.knowledgeBase?.status === 'reindexing'
+          !agentDetailed.knowledgeBase?.isConfigured ||
+          agentDetailed.knowledgeBase.status === 'reindexing'
         }
       />
     </div>

@@ -1,5 +1,6 @@
 import { schemaTask } from '@trigger.dev/sdk'
 import { mockEmbeddingModel } from '@workspace/ai/mocks'
+import { NiceyupError } from '@workspace/core/errros'
 import type { IndexedSourceStatus } from '@workspace/core/sources'
 import { db } from '@workspace/db'
 import { and, eq, isNotNull, sql } from '@workspace/db/orm'
@@ -16,7 +17,7 @@ import {
 import { storage } from '@workspace/storage'
 import { z } from 'zod'
 import { resolveVectorStore } from '../../agents'
-import { InvalidArgumentError } from '../../erros'
+import { RetryableError } from '../../errors'
 import { env } from '../../lib/env'
 import { sourceQueue } from './queue'
 
@@ -107,6 +108,13 @@ export const deleteSourceTask = schemaTask({
           }
         }
         break
+    }
+
+    if (payload.destroy && fileToDelete) {
+      await storage.delete({
+        bucket: env.S3_ENGINE_BUCKET,
+        key: fileToDelete.filePath,
+      })
     }
 
     const completedIndexedSourcesToDelete = await db.transaction(async (tx) => {
@@ -209,29 +217,13 @@ export const deleteSourceTask = schemaTask({
       }
     }
 
-    if (payload.destroy) {
-      await Promise.all([
-        fileToDelete &&
-          storage.delete({
-            bucket: env.S3_ENGINE_BUCKET,
-            key: fileToDelete.filePath,
-          }),
-
-        source.type === 'database' &&
-          storage.deleteDirectory({
-            bucket: env.S3_ENGINE_BUCKET,
-            path: `/sources/${payload.sourceId}/`,
-          }),
-      ])
-    }
-
     return {
       status: 'completed',
       message: 'Job completed successfully',
     }
   },
   catchError: async ({ payload, error }) => {
-    if (error instanceof InvalidArgumentError) {
+    if (!RetryableError.isInstance(error)) {
       return { skipRetrying: true }
     }
 
@@ -243,14 +235,15 @@ export const deleteSourceTask = schemaTask({
       .where(eq(sourceOperations.sourceId, payload.sourceId))
   },
   onFailure: async ({ payload, error }) => {
+    const errorObject = NiceyupError.isInstance(error)
+      ? { code: error.code, message: error.message }
+      : { code: 'UNKNOWN_ERROR', message: 'Unknown error' }
+
     await db
       .update(sourceOperations)
       .set({
         status: 'failed',
-        error:
-          error instanceof InvalidArgumentError
-            ? { code: error.code, message: error.message }
-            : { code: 'UNKNOWN_ERROR', message: 'Unknown error' },
+        error: errorObject,
       })
       .where(eq(sourceOperations.sourceId, payload.sourceId))
   },

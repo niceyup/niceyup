@@ -11,7 +11,7 @@ import type {
 import type {
   GetSourceIndexingStatusQueryResponse,
   GetSourceIndexingStatusPathParams,
-  GetSourceIndexingStatusQueryParams,
+  GetSourceIndexingStatusHeaderParams,
   GetSourceIndexingStatus400,
   GetSourceIndexingStatus401,
   GetSourceIndexingStatus403,
@@ -28,16 +28,14 @@ import type {
 import { getSourceIndexingStatus } from '../operations/getSourceIndexingStatus'
 import { queryOptions, useQuery } from '@tanstack/react-query'
 
-export const getSourceIndexingStatusQueryKey = (
-  { agentId }: { agentId: GetSourceIndexingStatusPathParams['agentId'] },
-  params?: GetSourceIndexingStatusQueryParams,
-) =>
+export const getSourceIndexingStatusQueryKey = ({
+  agentId,
+}: { agentId: GetSourceIndexingStatusPathParams['agentId'] }) =>
   [
     {
       url: '/agents/:agentId/knowledge-base/indexed-sources/status',
       params: { agentId: agentId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetSourceIndexingStatusQueryKey = ReturnType<
@@ -47,14 +45,14 @@ export type GetSourceIndexingStatusQueryKey = ReturnType<
 export function getSourceIndexingStatusQueryOptions(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetSourceIndexingStatusPathParams['agentId']
-    params?: GetSourceIndexingStatusQueryParams
+    headers?: GetSourceIndexingStatusHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getSourceIndexingStatusQueryKey({ agentId }, params)
+  const queryKey = getSourceIndexingStatusQueryKey({ agentId })
   return queryOptions<
     GetSourceIndexingStatusQueryResponse,
     ResponseErrorConfig<
@@ -72,7 +70,7 @@ export function getSourceIndexingStatusQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getSourceIndexingStatus({ agentId, params }, config)
+      return getSourceIndexingStatus({ agentId, headers }, config)
     },
   })
 }
@@ -88,10 +86,10 @@ export function useGetSourceIndexingStatus<
 >(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetSourceIndexingStatusPathParams['agentId']
-    params?: GetSourceIndexingStatusQueryParams
+    headers?: GetSourceIndexingStatusHeaderParams
   },
   options: {
     query?: Partial<
@@ -118,12 +116,11 @@ export function useGetSourceIndexingStatus<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getSourceIndexingStatusQueryKey({ agentId }, params)
+    queryOptions?.queryKey ?? getSourceIndexingStatusQueryKey({ agentId })
 
   const query = useQuery(
     {
-      ...getSourceIndexingStatusQueryOptions({ agentId, params }, config),
+      ...getSourceIndexingStatusQueryOptions({ agentId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

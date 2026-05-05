@@ -17,8 +17,6 @@ export type FileScope = 'public' | 'conversations' | 'sources'
 
 export type FileMetadata = {
   sentByUserId?: string
-  // agentIds?: string[]
-  // conversationIds?: string[]
   sourceId?: string
 }
 

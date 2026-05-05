@@ -11,6 +11,7 @@ import type {
 import type {
   ListMcpServerSelectOptionsQueryResponse,
   ListMcpServerSelectOptionsQueryParams,
+  ListMcpServerSelectOptionsHeaderParams,
   ListMcpServerSelectOptions400,
   ListMcpServerSelectOptions401,
   ListMcpServerSelectOptions403,
@@ -37,7 +38,13 @@ export type ListMcpServerSelectOptionsSuspenseQueryKey = ReturnType<
 >
 
 export function listMcpServerSelectOptionsSuspenseQueryOptions(
-  { params }: { params?: ListMcpServerSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServerSelectOptionsQueryParams
+    headers?: ListMcpServerSelectOptionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = listMcpServerSelectOptionsSuspenseQueryKey(params)
@@ -57,7 +64,7 @@ export function listMcpServerSelectOptionsSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listMcpServerSelectOptions({ params }, config)
+      return listMcpServerSelectOptions({ params, headers }, config)
     },
   })
 }
@@ -70,7 +77,13 @@ export function useListMcpServerSelectOptionsSuspense<
   TData = ListMcpServerSelectOptionsQueryResponse,
   TQueryKey extends QueryKey = ListMcpServerSelectOptionsSuspenseQueryKey,
 >(
-  { params }: { params?: ListMcpServerSelectOptionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListMcpServerSelectOptionsQueryParams
+    headers?: ListMcpServerSelectOptionsHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -99,7 +112,10 @@ export function useListMcpServerSelectOptionsSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listMcpServerSelectOptionsSuspenseQueryOptions({ params }, config),
+      ...listMcpServerSelectOptionsSuspenseQueryOptions(
+        { params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

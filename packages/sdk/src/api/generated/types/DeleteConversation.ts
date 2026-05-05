@@ -10,6 +10,17 @@ export type DeleteConversationPathParams = {
   conversationId: string
 }
 
+export type DeleteConversationHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteConversation204Enum = {} as const
 
 export type DeleteConversation204Enum =
@@ -113,14 +124,6 @@ export type DeleteConversation500 = {
 
 export type DeleteConversationMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -136,6 +139,7 @@ export type DeleteConversationMutation = {
   Response: DeleteConversation204
   Request: DeleteConversationMutationRequest
   PathParams: DeleteConversationPathParams
+  HeaderParams: DeleteConversationHeaderParams
   Errors:
     | DeleteConversation400
     | DeleteConversation401

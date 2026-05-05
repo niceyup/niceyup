@@ -1,6 +1,5 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import {
@@ -9,6 +8,7 @@ import {
   aiMessageRoleSchema,
   aiMessageStatusSchema,
 } from '@workspace/ai/schemas'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { and, desc, eq, isNull } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -34,12 +34,14 @@ export async function listMessages(app: FastifyTypedInstance) {
         tags: ['Messages'],
         description: 'Get all messages from a conversation',
         operationId: 'listMessages',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           conversationId: z.string(),
         }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           agentId: z.string(),
           targetMessageId: z.string().optional(),
           parents: z.coerce.boolean().optional(),
@@ -54,24 +56,22 @@ export async function listMessages(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: request.ctxParams,
+        },
+      )
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, agentId } = request.query
+      const { agentId } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const conversation = await queries.context.getConversation(context, {
-        agentId,
-        conversationId,
-      })
+      const conversation = await queries.ctx.getConversation(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId },
+      )
 
       if (!conversation) {
         throw new BadRequestError({

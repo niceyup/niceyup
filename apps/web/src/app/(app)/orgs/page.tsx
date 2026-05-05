@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation'
 export default async function Page() {
   const {
     session: { activeOrganizationId, activeTeamId },
-    user: { id: userId },
+    user,
   } = await authenticatedUser()
 
   if (activeOrganizationId) {
@@ -21,7 +21,9 @@ export default async function Page() {
     }
   }
 
-  const organization = await queries.context.getFirstOrganization({ userId })
+  const organization = await queries.ctx.getFirstOrganization({
+    userId: user.id,
+  })
 
   if (organization?.slug) {
     return redirect(`/orgs/${organization.slug}/~/overview`)

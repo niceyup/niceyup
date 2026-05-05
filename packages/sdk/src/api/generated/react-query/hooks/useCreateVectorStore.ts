@@ -11,6 +11,7 @@ import type {
 import type {
   CreateVectorStoreMutationRequest,
   CreateVectorStoreMutationResponse,
+  CreateVectorStoreHeaderParams,
   CreateVectorStore400,
   CreateVectorStore401,
   CreateVectorStore403,
@@ -45,7 +46,10 @@ export function useCreateVectorStore<TContext>(
         | CreateVectorStore429
         | CreateVectorStore500
       >,
-      { data: CreateVectorStoreMutationRequest },
+      {
+        data: CreateVectorStoreMutationRequest
+        headers?: CreateVectorStoreHeaderParams
+      },
       TContext
     > & { client?: QueryClient }
     client?: Partial<RequestConfig<CreateVectorStoreMutationRequest>> & {
@@ -68,12 +72,15 @@ export function useCreateVectorStore<TContext>(
       | CreateVectorStore429
       | CreateVectorStore500
     >,
-    { data: CreateVectorStoreMutationRequest },
+    {
+      data: CreateVectorStoreMutationRequest
+      headers?: CreateVectorStoreHeaderParams
+    },
     TContext
   >(
     {
-      mutationFn: async ({ data }) => {
-        return createVectorStore({ data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return createVectorStore({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

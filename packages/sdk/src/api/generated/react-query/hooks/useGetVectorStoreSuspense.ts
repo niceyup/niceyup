@@ -11,7 +11,7 @@ import type {
 import type {
   GetVectorStoreQueryResponse,
   GetVectorStorePathParams,
-  GetVectorStoreQueryParams,
+  GetVectorStoreHeaderParams,
   GetVectorStore400,
   GetVectorStore401,
   GetVectorStore403,
@@ -28,18 +28,14 @@ import type {
 import { getVectorStore } from '../operations/getVectorStore'
 import { queryOptions, useSuspenseQuery } from '@tanstack/react-query'
 
-export const getVectorStoreSuspenseQueryKey = (
-  {
-    vectorStoreId,
-  }: { vectorStoreId: GetVectorStorePathParams['vectorStoreId'] },
-  params?: GetVectorStoreQueryParams,
-) =>
+export const getVectorStoreSuspenseQueryKey = ({
+  vectorStoreId,
+}: { vectorStoreId: GetVectorStorePathParams['vectorStoreId'] }) =>
   [
     {
       url: '/vector-stores/:vectorStoreId',
       params: { vectorStoreId: vectorStoreId },
     },
-    ...(params ? [params] : []),
   ] as const
 
 export type GetVectorStoreSuspenseQueryKey = ReturnType<
@@ -49,14 +45,14 @@ export type GetVectorStoreSuspenseQueryKey = ReturnType<
 export function getVectorStoreSuspenseQueryOptions(
   {
     vectorStoreId,
-    params,
+    headers,
   }: {
     vectorStoreId: GetVectorStorePathParams['vectorStoreId']
-    params?: GetVectorStoreQueryParams
+    headers?: GetVectorStoreHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
-  const queryKey = getVectorStoreSuspenseQueryKey({ vectorStoreId }, params)
+  const queryKey = getVectorStoreSuspenseQueryKey({ vectorStoreId })
   return queryOptions<
     GetVectorStoreQueryResponse,
     ResponseErrorConfig<
@@ -74,7 +70,7 @@ export function getVectorStoreSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getVectorStore({ vectorStoreId, params }, config)
+      return getVectorStore({ vectorStoreId, headers }, config)
     },
   })
 }
@@ -89,10 +85,10 @@ export function useGetVectorStoreSuspense<
 >(
   {
     vectorStoreId,
-    params,
+    headers,
   }: {
     vectorStoreId: GetVectorStorePathParams['vectorStoreId']
-    params?: GetVectorStoreQueryParams
+    headers?: GetVectorStoreHeaderParams
   },
   options: {
     query?: Partial<
@@ -118,12 +114,11 @@ export function useGetVectorStoreSuspense<
     client: config = {},
   } = options ?? {}
   const queryKey =
-    queryOptions?.queryKey ??
-    getVectorStoreSuspenseQueryKey({ vectorStoreId }, params)
+    queryOptions?.queryKey ?? getVectorStoreSuspenseQueryKey({ vectorStoreId })
 
   const query = useSuspenseQuery(
     {
-      ...getVectorStoreSuspenseQueryOptions({ vectorStoreId, params }, config),
+      ...getVectorStoreSuspenseQueryOptions({ vectorStoreId, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

@@ -12,6 +12,7 @@ import type {
   GetFileQueryResponse,
   GetFilePathParams,
   GetFileQueryParams,
+  GetFileHeaderParams,
   GetFile400,
   GetFile401,
   GetFile403,
@@ -32,7 +33,12 @@ export async function getFile(
   {
     fileId,
     params,
-  }: { fileId: GetFilePathParams['fileId']; params?: GetFileQueryParams },
+    headers,
+  }: {
+    fileId: GetFilePathParams['fileId']
+    params?: GetFileQueryParams
+    headers?: GetFileHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -53,6 +59,7 @@ export async function getFile(
     url: getGetFileUrl({ fileId }).toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

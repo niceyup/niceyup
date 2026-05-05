@@ -12,6 +12,7 @@ import type {
   ListMessagesQueryResponse,
   ListMessagesPathParams,
   ListMessagesQueryParams,
+  ListMessagesHeaderParams,
   ListMessages400,
   ListMessages401,
   ListMessages403,
@@ -50,9 +51,11 @@ export function listMessagesSuspenseQueryOptions(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: ListMessagesPathParams['conversationId']
     params: ListMessagesQueryParams
+    headers?: ListMessagesHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -74,7 +77,7 @@ export function listMessagesSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return listMessages({ conversationId, params }, config)
+      return listMessages({ conversationId, params, headers }, config)
     },
   })
 }
@@ -90,9 +93,11 @@ export function useListMessagesSuspense<
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: ListMessagesPathParams['conversationId']
     params: ListMessagesQueryParams
+    headers?: ListMessagesHeaderParams
   },
   options: {
     query?: Partial<
@@ -123,7 +128,10 @@ export function useListMessagesSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...listMessagesSuspenseQueryOptions({ conversationId, params }, config),
+      ...listMessagesSuspenseQueryOptions(
+        { conversationId, params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

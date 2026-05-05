@@ -12,6 +12,7 @@ import type {
   DeleteVectorStoreMutationRequest,
   DeleteVectorStoreMutationResponse,
   DeleteVectorStorePathParams,
+  DeleteVectorStoreHeaderParams,
   DeleteVectorStore400,
   DeleteVectorStore401,
   DeleteVectorStore403,
@@ -49,6 +50,7 @@ export function useDeleteVectorStore<TContext>(
       {
         vectorStoreId: DeleteVectorStorePathParams['vectorStoreId']
         data?: DeleteVectorStoreMutationRequest
+        headers?: DeleteVectorStoreHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useDeleteVectorStore<TContext>(
     {
       vectorStoreId: DeleteVectorStorePathParams['vectorStoreId']
       data?: DeleteVectorStoreMutationRequest
+      headers?: DeleteVectorStoreHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ vectorStoreId, data }) => {
-        return deleteVectorStore({ vectorStoreId, data }, config)
+      mutationFn: async ({ vectorStoreId, data, headers }) => {
+        return deleteVectorStore({ vectorStoreId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

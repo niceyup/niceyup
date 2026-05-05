@@ -12,6 +12,7 @@ import type {
   UpdateVectorStoreMutationRequest,
   UpdateVectorStoreMutationResponse,
   UpdateVectorStorePathParams,
+  UpdateVectorStoreHeaderParams,
   UpdateVectorStore400,
   UpdateVectorStore401,
   UpdateVectorStore403,
@@ -49,6 +50,7 @@ export function useUpdateVectorStore<TContext>(
       {
         vectorStoreId: UpdateVectorStorePathParams['vectorStoreId']
         data?: UpdateVectorStoreMutationRequest
+        headers?: UpdateVectorStoreHeaderParams
       },
       TContext
     > & { client?: QueryClient }
@@ -75,12 +77,13 @@ export function useUpdateVectorStore<TContext>(
     {
       vectorStoreId: UpdateVectorStorePathParams['vectorStoreId']
       data?: UpdateVectorStoreMutationRequest
+      headers?: UpdateVectorStoreHeaderParams
     },
     TContext
   >(
     {
-      mutationFn: async ({ vectorStoreId, data }) => {
-        return updateVectorStore({ vectorStoreId, data }, config)
+      mutationFn: async ({ vectorStoreId, data, headers }) => {
+        return updateVectorStore({ vectorStoreId, data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

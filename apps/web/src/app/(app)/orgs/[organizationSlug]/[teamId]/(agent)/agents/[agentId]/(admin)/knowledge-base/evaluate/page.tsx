@@ -1,4 +1,4 @@
-import { getAgent } from '@/actions/agents'
+import { getAgentDetailed } from '@/actions/agents'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -18,7 +18,7 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId, agentId } = await params
 
-  const agent = await getAgent(
+  const agentDetailed = await getAgentDetailed(
     { organizationSlug, agentId },
     {
       with: {
@@ -27,7 +27,11 @@ export default async function Page({
     },
   )
 
-  if (agent?.knowledgeBase?.status === 'reindexing') {
+  if (!agentDetailed) {
+    return null
+  }
+
+  if (agentDetailed.knowledgeBase?.status === 'reindexing') {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>
@@ -43,7 +47,7 @@ export default async function Page({
     )
   }
 
-  if (!agent?.knowledgeBase?.isConfigured) {
+  if (!agentDetailed.knowledgeBase?.isConfigured) {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>

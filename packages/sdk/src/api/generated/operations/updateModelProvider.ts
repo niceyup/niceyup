@@ -9,6 +9,7 @@ import type {
   UpdateModelProviderMutationRequest,
   UpdateModelProviderMutationResponse,
   UpdateModelProviderPathParams,
+  UpdateModelProviderHeaderParams,
   UpdateModelProvider400,
   UpdateModelProvider401,
   UpdateModelProvider403,
@@ -31,9 +32,11 @@ export async function updateModelProvider(
   {
     modelProviderId,
     data,
+    headers,
   }: {
     modelProviderId: UpdateModelProviderPathParams['modelProviderId']
     data?: UpdateModelProviderMutationRequest
+    headers?: UpdateModelProviderHeaderParams
   },
   config: Partial<RequestConfig<UpdateModelProviderMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function updateModelProvider(
     url: getUpdateModelProviderUrl({ modelProviderId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

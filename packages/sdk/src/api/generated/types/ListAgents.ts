@@ -3,15 +3,15 @@
  * Do not edit manually.
  */
 
-export type ListAgentsQueryParams = {
+export type ListAgentsHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 /**
@@ -144,7 +144,7 @@ export type ListAgentsQueryResponse = ListAgents200
 
 export type ListAgentsQuery = {
   Response: ListAgents200
-  QueryParams: ListAgentsQueryParams
+  HeaderParams: ListAgentsHeaderParams
   Errors:
     | ListAgents400
     | ListAgents401

@@ -12,6 +12,7 @@ import type {
   GetConversationQueryResponse,
   GetConversationPathParams,
   GetConversationQueryParams,
+  GetConversationHeaderParams,
   GetConversation400,
   GetConversation401,
   GetConversation403,
@@ -34,9 +35,11 @@ export async function getConversation(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationPathParams['conversationId']
     params: GetConversationQueryParams
+    headers?: GetConversationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -58,6 +61,7 @@ export async function getConversation(
     url: getGetConversationUrl({ conversationId }).toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

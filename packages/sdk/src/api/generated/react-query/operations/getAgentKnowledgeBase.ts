@@ -11,7 +11,7 @@ import type {
 import type {
   GetAgentKnowledgeBaseQueryResponse,
   GetAgentKnowledgeBasePathParams,
-  GetAgentKnowledgeBaseQueryParams,
+  GetAgentKnowledgeBaseHeaderParams,
   GetAgentKnowledgeBase400,
   GetAgentKnowledgeBase401,
   GetAgentKnowledgeBase403,
@@ -33,10 +33,10 @@ function getGetAgentKnowledgeBaseUrl({
 export async function getAgentKnowledgeBase(
   {
     agentId,
-    params,
+    headers,
   }: {
     agentId: GetAgentKnowledgeBasePathParams['agentId']
-    params?: GetAgentKnowledgeBaseQueryParams
+    headers?: GetAgentKnowledgeBaseHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -56,8 +56,8 @@ export async function getAgentKnowledgeBase(
   >({
     method: 'GET',
     url: getGetAgentKnowledgeBaseUrl({ agentId }).toString(),
-    params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

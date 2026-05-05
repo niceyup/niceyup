@@ -11,6 +11,7 @@ import type {
 import type {
   ListConnectionsQueryResponse,
   ListConnectionsQueryParams,
+  ListConnectionsHeaderParams,
   ListConnections400,
   ListConnections401,
   ListConnections403,
@@ -28,7 +29,13 @@ function getListConnectionsUrl() {
  * {@link /connections}
  */
 export async function listConnections(
-  { params }: { params?: ListConnectionsQueryParams },
+  {
+    params,
+    headers,
+  }: {
+    params?: ListConnectionsQueryParams
+    headers?: ListConnectionsHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const { client: request = fetch, ...requestConfig } = config
@@ -49,6 +56,7 @@ export async function listConnections(
     url: getListConnectionsUrl().toString(),
     params,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res.data
 }

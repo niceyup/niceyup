@@ -9,6 +9,7 @@ import type {
   DeleteSourceFolderMutationRequest,
   DeleteSourceFolderMutationResponse,
   DeleteSourceFolderPathParams,
+  DeleteSourceFolderHeaderParams,
   DeleteSourceFolder400,
   DeleteSourceFolder401,
   DeleteSourceFolder403,
@@ -31,9 +32,11 @@ export async function deleteSourceFolder(
   {
     folderId,
     data,
+    headers,
   }: {
     folderId: DeleteSourceFolderPathParams['folderId']
     data?: DeleteSourceFolderMutationRequest
+    headers?: DeleteSourceFolderHeaderParams
   },
   config: Partial<RequestConfig<DeleteSourceFolderMutationRequest>> & {
     client?: typeof fetch
@@ -58,6 +61,7 @@ export async function deleteSourceFolder(
     url: getDeleteSourceFolderUrl({ folderId }).toString(),
     data: requestData,
     ...requestConfig,
+    headers: { ...headers, ...requestConfig.headers },
   })
   return res
 }

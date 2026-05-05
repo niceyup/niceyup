@@ -1,8 +1,9 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { and, eq, inArray } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -29,12 +30,14 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
         tags: ['Agent Knowledge Bases'],
         description: 'Update indexed sources',
         operationId: 'updateIndexedSources',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           add: z
             .array(z.string())
             .max(BATCH_SIZE)
@@ -50,26 +53,22 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        add: addSourceIds,
-        remove: removeSourceIds,
-      } = request.body
+      const { add: addSourceIds, remove: removeSourceIds } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, { agentId })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({
@@ -123,13 +122,13 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
         sourcesSelectQuery().where(
           and(
             inArray(sources.id, addSourceIds),
-            eq(sources.organizationId, context.organizationId),
+            eq(sources.organizationId, organization.id),
           ),
         ),
         sourcesSelectQuery().where(
           and(
             inArray(sources.id, removeSourceIds),
-            eq(sources.organizationId, context.organizationId),
+            eq(sources.organizationId, organization.id),
           ),
         ),
       ])
@@ -158,17 +157,18 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
         })
       }
 
-      const ctx = {
-        organizationId: context.organizationId,
-        knowledgeBaseId: agentKnowledgeBase.id,
-      }
-
-      await manageIndexedSources(ctx, {
-        addSourceIds,
-        removeSourceIds,
-        sourcesToAdd,
-        sourcesToRemove,
-      })
+      await manageIndexedSources(
+        {
+          organizationId: organization.id,
+          knowledgeBaseId: agentKnowledgeBase.id,
+        },
+        {
+          addSourceIds,
+          removeSourceIds,
+          sourcesToAdd,
+          sourcesToRemove,
+        },
+      )
 
       return reply.status(204).send()
     },
@@ -187,6 +187,10 @@ async function manageIndexedSources(
     sourcesToRemove: SourceRow[]
   },
 ) {
+  await billing.meters.processUsage.assertWithinLimit({
+    referenceId: context.organizationId,
+  })
+
   const { addedIndexedSources, removedIndexedSources } = await db.transaction(
     async (tx) => {
       const addedIndexedSources: { id: string }[] = []

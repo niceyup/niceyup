@@ -12,6 +12,7 @@ import type {
   GetConversationQueryResponse,
   GetConversationPathParams,
   GetConversationQueryParams,
+  GetConversationHeaderParams,
   GetConversation400,
   GetConversation401,
   GetConversation403,
@@ -48,9 +49,11 @@ export function getConversationQueryOptions(
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationPathParams['conversationId']
     params: GetConversationQueryParams
+    headers?: GetConversationHeaderParams
   },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
@@ -72,7 +75,7 @@ export function getConversationQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getConversation({ conversationId, params }, config)
+      return getConversation({ conversationId, params, headers }, config)
     },
   })
 }
@@ -89,9 +92,11 @@ export function useGetConversation<
   {
     conversationId,
     params,
+    headers,
   }: {
     conversationId: GetConversationPathParams['conversationId']
     params: GetConversationQueryParams
+    headers?: GetConversationHeaderParams
   },
   options: {
     query?: Partial<
@@ -123,7 +128,10 @@ export function useGetConversation<
 
   const query = useQuery(
     {
-      ...getConversationQueryOptions({ conversationId, params }, config),
+      ...getConversationQueryOptions(
+        { conversationId, params, headers },
+        config,
+      ),
       queryKey,
       ...queryOptions,
     } as unknown as QueryObserverOptions,

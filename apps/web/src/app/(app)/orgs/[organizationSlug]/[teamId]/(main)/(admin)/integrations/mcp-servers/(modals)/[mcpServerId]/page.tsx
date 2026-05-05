@@ -17,8 +17,10 @@ export default async function Page({
   const { organizationSlug, mcpServerId } = await params
 
   const { data } = await sdk.getMcpServer({
+    headers: {
+      'x-organization-slug': organizationSlug,
+    },
     mcpServerId,
-    params: { organizationSlug },
   })
 
   if (!data) {

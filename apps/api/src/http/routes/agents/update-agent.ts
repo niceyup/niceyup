@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { db } from '@workspace/db'
 import { and, eq, ne } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -18,12 +18,14 @@ export async function updateAgent(app: FastifyTypedInstance) {
         tags: ['Agents'],
         description: 'Update an agent',
         operationId: 'updateAgent',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           agentId: z.string(),
         }),
         body: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           name: z.string().optional(),
           slug: z.string().min(3).optional(),
           logo: z.string().nullish(),
@@ -36,31 +38,22 @@ export async function updateAgent(app: FastifyTypedInstance) {
       },
     },
     async (request, reply) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { agentId } = request.params
 
-      const {
-        organizationId,
-        organizationSlug,
-        name,
-        slug,
-        logo,
-        description,
-        tags,
-      } = request.body
+      const { name, slug, logo, description, tags } = request.body
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const agent = await queries.context.getAgent(context, {
-        agentId,
-      })
+      const agent = await queries.ctx.getAgent(
+        { organizationId: organization.id },
+        { agentId },
+      )
 
       if (!agent) {
         throw new BadRequestError({
@@ -80,7 +73,7 @@ export async function updateAgent(app: FastifyTypedInstance) {
           .where(
             and(
               ne(agents.id, agentId),
-              eq(agents.organizationId, context.organizationId),
+              eq(agents.organizationId, organization.id),
               eq(agents.slug, agentSlug),
             ),
           )

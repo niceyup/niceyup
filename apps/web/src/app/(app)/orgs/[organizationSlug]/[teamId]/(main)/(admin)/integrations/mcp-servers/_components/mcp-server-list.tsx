@@ -175,10 +175,11 @@ function McpServerActionDelete({
   const onRemove = async () => {
     startTransition(async () => {
       const { error } = await sdk.deleteMcpServer({
-        mcpServerId,
-        data: {
-          organizationSlug: params.organizationSlug,
+        headers: {
+          'x-organization-slug': params.organizationSlug,
         },
+        mcpServerId,
+        data: {},
       })
 
       if (error) {

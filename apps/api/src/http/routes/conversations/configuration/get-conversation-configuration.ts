@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import {
   modelProviderSchema,
   modelProviderSettingsSchema,
@@ -40,12 +40,14 @@ export async function getConversationConfiguration(app: FastifyTypedInstance) {
         tags: ['Conversations'],
         description: 'Get conversation configuration',
         operationId: 'getConversationConfiguration',
+        headers: z.object({
+          'x-organization-id': z.string().optional(),
+          'x-organization-slug': z.string().optional(),
+        }),
         params: z.object({
           conversationId: z.string(),
         }),
         querystring: z.object({
-          organizationId: z.string().optional(),
-          organizationSlug: z.string().optional(),
           agentId: z.string(),
         }),
         response: withDefaultErrorResponses({
@@ -68,24 +70,23 @@ export async function getConversationConfiguration(app: FastifyTypedInstance) {
       },
     },
     async (request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          membership: { role: 'admin' },
+          params: request.ctxParams,
+        },
+      )
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, agentId } = request.query
+      const { agentId } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const conversation = await queries.context.getConversation(context, {
-        agentId,
-        conversationId,
-      })
+      const conversation = await queries.ctx.getConversation(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId },
+      )
 
       if (!conversation) {
         throw new BadRequestError({

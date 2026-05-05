@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import { listTeams } from '@/actions/teams'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { Button } from '@workspace/ui/components/button'
@@ -20,7 +20,7 @@ export default async function Page({
 }>) {
   const { organizationSlug } = await params
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
   const teams = await listTeams({ organizationSlug })
 
@@ -37,7 +37,7 @@ export default async function Page({
             </div>
           </div>
 
-          {isAdmin && (
+          {membershipRole.isAdmin && (
             <div className="flex items-center gap-4">
               <Button asChild>
                 <Link href={`/orgs/${organizationSlug}/~/teams/create`}>
@@ -61,7 +61,7 @@ export default async function Page({
                 </EmptyDescription>
               </EmptyHeader>
 
-              {isAdmin && (
+              {membershipRole.isAdmin && (
                 <EmptyContent>
                   <Button asChild>
                     <Link href={`/orgs/${organizationSlug}/~/teams/create`}>

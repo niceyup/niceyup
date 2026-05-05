@@ -99,9 +99,11 @@ export function EditAgentLogoForm({
     }
 
     const { error } = await sdk.updateAgent({
+      headers: {
+        'x-organization-slug': params.organizationSlug,
+      },
       agentId: params.agentId,
       data: {
-        organizationSlug: params.organizationSlug,
         logo: url,
       },
     })

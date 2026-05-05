@@ -105,9 +105,11 @@ function SourceManagerContent({
     startTransition(async () => {
       try {
         const { error } = await sdk.updateIndexedSources({
+          headers: {
+            'x-organization-slug': params.organizationSlug,
+          },
           agentId: params.agentId,
           data: {
-            organizationSlug: params.organizationSlug,
             add: addSourceIds,
             remove: removeSourceIds,
           },

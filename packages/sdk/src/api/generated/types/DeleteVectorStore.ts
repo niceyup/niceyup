@@ -10,6 +10,17 @@ export type DeleteVectorStorePathParams = {
   vectorStoreId: string
 }
 
+export type DeleteVectorStoreHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteVectorStore204Enum = {} as const
 
 export type DeleteVectorStore204Enum =
@@ -111,16 +122,7 @@ export type DeleteVectorStore500 = {
   message: string
 }
 
-export type DeleteVectorStoreMutationRequest = {
-  /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-}
+export type DeleteVectorStoreMutationRequest = object
 
 export type DeleteVectorStoreMutationResponse = DeleteVectorStore204
 
@@ -128,6 +130,7 @@ export type DeleteVectorStoreMutation = {
   Response: DeleteVectorStore204
   Request: DeleteVectorStoreMutationRequest
   PathParams: DeleteVectorStorePathParams
+  HeaderParams: DeleteVectorStoreHeaderParams
   Errors:
     | DeleteVectorStore400
     | DeleteVectorStore401

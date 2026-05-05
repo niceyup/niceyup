@@ -10,6 +10,17 @@ export type DeleteSourceFolderPathParams = {
   folderId: string
 }
 
+export type DeleteSourceFolderHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const deleteSourceFolder204Enum = {} as const
 
 export type DeleteSourceFolder204Enum =
@@ -113,14 +124,6 @@ export type DeleteSourceFolder500 = {
 
 export type DeleteSourceFolderMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type boolean | undefined
    */
   destroy?: boolean
@@ -132,6 +135,7 @@ export type DeleteSourceFolderMutation = {
   Response: DeleteSourceFolder204
   Request: DeleteSourceFolderMutationRequest
   PathParams: DeleteSourceFolderPathParams
+  HeaderParams: DeleteSourceFolderHeaderParams
   Errors:
     | DeleteSourceFolder400
     | DeleteSourceFolder401

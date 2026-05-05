@@ -12,6 +12,7 @@ import type {
   GetFileQueryResponse,
   GetFilePathParams,
   GetFileQueryParams,
+  GetFileHeaderParams,
   GetFile400,
   GetFile401,
   GetFile403,
@@ -43,7 +44,12 @@ export function getFileSuspenseQueryOptions(
   {
     fileId,
     params,
-  }: { fileId: GetFilePathParams['fileId']; params?: GetFileQueryParams },
+    headers,
+  }: {
+    fileId: GetFilePathParams['fileId']
+    params?: GetFileQueryParams
+    headers?: GetFileHeaderParams
+  },
   config: Partial<RequestConfig> & { client?: typeof fetch } = {},
 ) {
   const queryKey = getFileSuspenseQueryKey({ fileId }, params)
@@ -64,7 +70,7 @@ export function getFileSuspenseQueryOptions(
     queryKey,
     queryFn: async ({ signal }) => {
       config.signal = signal
-      return getFile({ fileId, params }, config)
+      return getFile({ fileId, params, headers }, config)
     },
   })
 }
@@ -80,7 +86,12 @@ export function useGetFileSuspense<
   {
     fileId,
     params,
-  }: { fileId: GetFilePathParams['fileId']; params?: GetFileQueryParams },
+    headers,
+  }: {
+    fileId: GetFilePathParams['fileId']
+    params?: GetFileQueryParams
+    headers?: GetFileHeaderParams
+  },
   options: {
     query?: Partial<
       UseSuspenseQueryOptions<
@@ -109,7 +120,7 @@ export function useGetFileSuspense<
 
   const query = useSuspenseQuery(
     {
-      ...getFileSuspenseQueryOptions({ fileId, params }, config),
+      ...getFileSuspenseQueryOptions({ fileId, params, headers }, config),
       queryKey,
       ...queryOptions,
     } as unknown as UseSuspenseQueryOptions,

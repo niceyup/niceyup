@@ -13,8 +13,10 @@ export async function EditModelProviderWrapper({
   params: Params
 }) {
   const { data } = await sdk.getModelProvider({
+    headers: {
+      'x-organization-slug': params.organizationSlug,
+    },
     modelProviderId: params.modelProviderId,
-    params: { organizationSlug: params.organizationSlug },
   })
 
   if (!data) {

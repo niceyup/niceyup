@@ -10,15 +10,15 @@ export type GetConnectionPathParams = {
   connectionId: string
 }
 
-export type GetConnectionQueryParams = {
+export type GetConnectionHeaderParams = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
+  'x-organization-id'?: string
   /**
    * @type string | undefined
    */
-  organizationSlug?: string
+  'x-organization-slug'?: string
 }
 
 export const connectionAppEnum = {
@@ -176,7 +176,7 @@ export type GetConnectionQueryResponse = GetConnection200
 export type GetConnectionQuery = {
   Response: GetConnection200
   PathParams: GetConnectionPathParams
-  QueryParams: GetConnectionQueryParams
+  HeaderParams: GetConnectionHeaderParams
   Errors:
     | GetConnection400
     | GetConnection401

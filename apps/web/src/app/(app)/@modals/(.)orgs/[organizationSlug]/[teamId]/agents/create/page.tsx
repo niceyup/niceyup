@@ -1,4 +1,4 @@
-import { isOrganizationMemberAdmin } from '@/actions/membership'
+import { getMembershipRole } from '@/actions/membership'
 import type { OrganizationTeamParams } from '@/lib/types'
 import {
   Dialog,
@@ -16,9 +16,9 @@ export default async function Page({
 }>) {
   const { organizationSlug, teamId } = await params
 
-  const isAdmin = await isOrganizationMemberAdmin({ organizationSlug })
+  const membershipRole = await getMembershipRole({ organizationSlug })
 
-  if (!isAdmin) {
+  if (!membershipRole.isAdmin) {
     return null
   }
 

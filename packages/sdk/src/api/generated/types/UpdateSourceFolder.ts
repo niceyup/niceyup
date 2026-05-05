@@ -10,6 +10,17 @@ export type UpdateSourceFolderPathParams = {
   folderId: string
 }
 
+export type UpdateSourceFolderHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateSourceFolder204Enum = {} as const
 
 export type UpdateSourceFolder204Enum =
@@ -113,14 +124,6 @@ export type UpdateSourceFolder500 = {
 
 export type UpdateSourceFolderMutationRequest = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   name: string
@@ -132,6 +135,7 @@ export type UpdateSourceFolderMutation = {
   Response: UpdateSourceFolder204
   Request: UpdateSourceFolderMutationRequest
   PathParams: UpdateSourceFolderPathParams
+  HeaderParams: UpdateSourceFolderHeaderParams
   Errors:
     | UpdateSourceFolder400
     | UpdateSourceFolder401

@@ -1,8 +1,8 @@
 import { BadRequestError } from '@/http/errors/bad-request-error'
 import { withDefaultErrorResponses } from '@/http/errors/default-error-responses'
-import { resolveMembershipContext } from '@/http/functions/membership'
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
+import { resolveAuthOrganizationContext } from '@workspace/auth/context'
 import { queries } from '@workspace/db/queries'
 import { conversationPubSub } from '@workspace/realtime/pubsub'
 import { z } from 'zod'
@@ -30,24 +30,24 @@ export async function realtimeMessages(app: FastifyTypedInstance) {
       },
     },
     async (socket, request) => {
-      const {
-        user: { id: userId },
-      } = request.authSession
+      const { organizationId, organizationSlug } = request.query
+
+      const { user, organization } = await resolveAuthOrganizationContext(
+        request.ctx,
+        {
+          auth: { subject: 'user' },
+          params: { organizationId, organizationSlug },
+        },
+      )
 
       const { conversationId } = request.params
 
-      const { organizationId, organizationSlug, agentId } = request.query
+      const { agentId } = request.query
 
-      const { context } = await resolveMembershipContext({
-        userId,
-        organizationId,
-        organizationSlug,
-      })
-
-      const conversation = await queries.context.getConversation(context, {
-        agentId,
-        conversationId,
-      })
+      const conversation = await queries.ctx.getConversation(
+        { userId: user.id, organizationId: organization.id },
+        { agentId, conversationId },
+      )
 
       if (!conversation) {
         throw new BadRequestError({

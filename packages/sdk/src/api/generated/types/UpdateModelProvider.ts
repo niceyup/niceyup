@@ -10,6 +10,17 @@ export type UpdateModelProviderPathParams = {
   modelProviderId: string
 }
 
+export type UpdateModelProviderHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
+}
+
 export const updateModelProvider204Enum = {} as const
 
 export type UpdateModelProvider204Enum =
@@ -123,14 +134,6 @@ export type UpdateModelProviderMutationRequest = {
   /**
    * @type string | undefined
    */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
-   * @type string | undefined
-   */
   name?: string
   provider?: UpdateModelProviderMutationRequestProviderEnum | string
   /**
@@ -168,6 +171,7 @@ export type UpdateModelProviderMutation = {
   Response: UpdateModelProvider204
   Request: UpdateModelProviderMutationRequest
   PathParams: UpdateModelProviderPathParams
+  HeaderParams: UpdateModelProviderHeaderParams
   Errors:
     | UpdateModelProvider400
     | UpdateModelProvider401

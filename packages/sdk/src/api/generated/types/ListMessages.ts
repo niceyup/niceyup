@@ -12,14 +12,6 @@ export type ListMessagesPathParams = {
 
 export type ListMessagesQueryParams = {
   /**
-   * @type string | undefined
-   */
-  organizationId?: string
-  /**
-   * @type string | undefined
-   */
-  organizationSlug?: string
-  /**
    * @type string
    */
   agentId: string
@@ -31,6 +23,17 @@ export type ListMessagesQueryParams = {
    * @type boolean | undefined
    */
   parents?: boolean
+}
+
+export type ListMessagesHeaderParams = {
+  /**
+   * @type string | undefined
+   */
+  'x-organization-id'?: string
+  /**
+   * @type string | undefined
+   */
+  'x-organization-slug'?: string
 }
 
 export const messagesStatusEnum = {
@@ -1150,6 +1153,7 @@ export type ListMessagesQuery = {
   Response: ListMessages200
   PathParams: ListMessagesPathParams
   QueryParams: ListMessagesQueryParams
+  HeaderParams: ListMessagesHeaderParams
   Errors:
     | ListMessages400
     | ListMessages401
