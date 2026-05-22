@@ -4,17 +4,19 @@ import { dirname } from 'node:path'
 import type { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { GetObjectCommand } from '@aws-sdk/client-s3'
+import type { Bucket } from '../lib/types'
+import { resolveBucket } from '../lib/utils'
 import { s3Client } from '../s3-client'
 
 type DownloadParams = {
-  bucket: string
+  bucket: Bucket
   key: string
   destinationPath: string
 }
 
 export async function download(params: DownloadParams) {
   const command = new GetObjectCommand({
-    Bucket: params.bucket,
+    Bucket: resolveBucket(params.bucket),
     Key: params.key,
   })
 

@@ -7,6 +7,7 @@ import type {
   indexedSourceStatusSchema,
   sourceExplorerNodeFlagSchema,
   sourceExplorerNodeTypeSchema,
+  sourceFileTypeSchema,
   sourceOperationStatusSchema,
   sourceOperationTypeSchema,
   sourceStatusSchema,
@@ -18,6 +19,8 @@ export type SourceType = z.infer<typeof sourceTypeSchema>
 export type SourceStatus = z.infer<typeof sourceStatusSchema>
 
 export type IndexedSourceStatus = z.infer<typeof indexedSourceStatusSchema>
+
+export type SourceFileType = z.infer<typeof sourceFileTypeSchema>
 
 export type DatabaseSourceDialect = z.infer<typeof databaseSourceDialectSchema>
 

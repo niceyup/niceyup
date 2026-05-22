@@ -35,12 +35,12 @@ export default async function Layout({
   }
 
   if (organization) {
-    if (team && team.id !== (activeTeamId || null)) {
+    if (team && team.id !== activeTeamId) {
       await setActiveOrganizationTeam({
         organizationId: organization.id,
         teamId: team.id,
       })
-    } else if (organization.id !== (activeOrganizationId || null)) {
+    } else if (organization.id !== activeOrganizationId) {
       await setActiveOrganizationTeam({
         organizationId: organization.id,
       })

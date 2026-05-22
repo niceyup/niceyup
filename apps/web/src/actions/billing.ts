@@ -1,5 +1,7 @@
 'use server'
 
+import type { Plan } from '@/lib/billing'
+import { env } from '@/lib/env'
 import type { OrganizationTeamParams } from '@/lib/types'
 import { auth } from '@workspace/auth'
 import { queries } from '@workspace/db/queries'
@@ -58,13 +60,8 @@ type ContextGetBillingPortalUrlParams = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
 }
 
-type GetBillingPortalUrlParams = {
-  returnUrl?: string
-}
-
 export async function getBillingPortalUrl(
   context: ContextGetBillingPortalUrlParams,
-  params: GetBillingPortalUrlParams = {},
 ) {
   const orgId = await queries.getOrganizationIdBySlug({
     organizationSlug: context.organizationSlug,
@@ -74,15 +71,55 @@ export async function getBillingPortalUrl(
     return null
   }
 
-  const portal = await auth.api.createBillingPortal({
+  try {
+    const portal = await auth.api.createBillingPortal({
+      body: {
+        locale: 'auto',
+        referenceId: orgId,
+        customerType: 'organization',
+        returnUrl: `${env.NEXT_PUBLIC_WEB_URL}/orgs/${context.organizationSlug}/~/settings/billing`,
+      },
+      headers: await headers(),
+    })
+
+    return portal.url
+  } catch {
+    return null
+  }
+}
+
+type ContextUpgradeSubscriptionParams = {
+  organizationSlug: OrganizationTeamParams['organizationSlug']
+}
+
+type UpgradeSubscriptionParams = {
+  plan: Plan
+}
+
+export async function upgradeSubscription(
+  context: ContextUpgradeSubscriptionParams,
+  params: UpgradeSubscriptionParams,
+) {
+  const orgId = await queries.getOrganizationIdBySlug({
+    organizationSlug: context.organizationSlug,
+  })
+
+  if (!orgId) {
+    return null
+  }
+
+  const { url } = await auth.api.upgradeSubscription({
     body: {
-      locale: 'auto',
+      plan: params.plan,
       referenceId: orgId,
       customerType: 'organization',
-      returnUrl: params.returnUrl,
+      locale: 'auto',
+      successUrl: `${env.NEXT_PUBLIC_WEB_URL}/orgs/${context.organizationSlug}/billing/success`,
+      cancelUrl: `${env.NEXT_PUBLIC_WEB_URL}/orgs/${context.organizationSlug}/billing/plans`,
+      returnUrl: `${env.NEXT_PUBLIC_WEB_URL}/orgs/${context.organizationSlug}/~/settings/billing`,
     },
     headers: await headers(),
   })
 
-  return portal.url
+  return url
 }

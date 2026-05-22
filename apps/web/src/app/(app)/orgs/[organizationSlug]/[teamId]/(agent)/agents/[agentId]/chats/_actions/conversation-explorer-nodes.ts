@@ -6,6 +6,7 @@ import type {
   ConversationVisibility,
   OrganizationTeamParams,
 } from '@/lib/types'
+import type { ConversationExplorerNodeType } from '@workspace/core/conversations'
 import { db } from '@workspace/db'
 import { and, eq, inArray, isNull, notInArray, sql } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -99,8 +100,9 @@ export async function getItemInConversationExplorerNode(
           ELSE ${conversationExplorerNodes.name}
         END
       `.as('name'),
-      conversationId: conversationExplorerNodes.conversationId,
+      type: conversationExplorerNodes.type,
       fractionalIndex: conversationExplorerNodes.fractionalIndex,
+      conversationId: conversationExplorerNodes.conversationId,
       children: sql<string[]>`
         (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
          FROM ${conversationExplorerNodes} child_node
@@ -149,50 +151,6 @@ export async function getChildrenWithDataInConversationExplorerNode(
       ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
       : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
-  if (params.itemId === 'root') {
-    const childrenWithData = await db
-      .select({
-        id: conversationExplorerNodes.id,
-        data: {
-          id: conversationExplorerNodes.id,
-          name: sql<string>`
-            CASE
-              WHEN ${conversationExplorerNodes.conversationId} IS NOT NULL
-              THEN COALESCE(${conversations.title}, ${conversationExplorerNodes.name})
-              ELSE ${conversationExplorerNodes.name}
-            END
-          `.as('name'),
-          conversationId: conversationExplorerNodes.conversationId,
-          fractionalIndex: conversationExplorerNodes.fractionalIndex,
-          children: sql<string[]>`
-            (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
-             FROM ${conversationExplorerNodes} child_node
-             WHERE child_node.parent_id = ${conversationExplorerNodes.id}
-             AND child_node.deleted_at IS NULL)
-          `.as('children'),
-        },
-      })
-      .from(conversationExplorerNodes)
-      .leftJoin(
-        conversations,
-        eq(conversationExplorerNodes.conversationId, conversations.id),
-      )
-      .where(
-        and(
-          eq(conversationExplorerNodes.visibility, ctx.visibility),
-          eq(conversationExplorerNodes.agentId, ctx.agent.id),
-          ownerTypeCondition,
-          isNull(conversationExplorerNodes.parentId),
-          isNull(conversationExplorerNodes.deletedAt),
-        ),
-      )
-      .orderBy(
-        sql`${conversationExplorerNodes.fractionalIndex} COLLATE "C" ASC`,
-      )
-
-    return childrenWithData || []
-  }
-
   const childrenWithData = await db
     .select({
       id: conversationExplorerNodes.id,
@@ -205,8 +163,9 @@ export async function getChildrenWithDataInConversationExplorerNode(
             ELSE ${conversationExplorerNodes.name}
           END
         `.as('name'),
-        conversationId: conversationExplorerNodes.conversationId,
+        type: conversationExplorerNodes.type,
         fractionalIndex: conversationExplorerNodes.fractionalIndex,
+        conversationId: conversationExplorerNodes.conversationId,
         children: sql<string[]>`
           (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
            FROM ${conversationExplorerNodes} child_node
@@ -222,10 +181,12 @@ export async function getChildrenWithDataInConversationExplorerNode(
     )
     .where(
       and(
+        params.itemId === 'root'
+          ? isNull(conversationExplorerNodes.parentId)
+          : eq(conversationExplorerNodes.parentId, params.itemId),
         eq(conversationExplorerNodes.visibility, ctx.visibility),
         eq(conversationExplorerNodes.agentId, ctx.agent.id),
         ownerTypeCondition,
-        eq(conversationExplorerNodes.parentId, params.itemId),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -238,11 +199,13 @@ type GetParentsInConversationExplorerNodeParams = {
   visibility: ConversationVisibility
 } & (
   | {
-      itemId: string
+      type: 'folder'
+      folderId: string
       conversationId?: never
     }
   | {
-      itemId?: never
+      type: 'conversation'
+      folderId?: never
       conversationId: string
     }
 )
@@ -259,9 +222,10 @@ export async function getParentsInConversationExplorerNode(
     return []
   }
 
-  const itemTypeCondition = params.conversationId
-    ? sql`node.conversation_id = ${params.conversationId}`
-    : sql`node.id = ${params.itemId}`
+  const itemTypeCondition =
+    params.type === 'conversation'
+      ? sql`node.type = 'conversation' AND node.conversation_id = ${params.conversationId}`
+      : sql`node.id = ${params.folderId} AND node.type = 'folder'`
 
   const ownerTypeCondition =
     ctx.visibility === 'team'
@@ -271,9 +235,10 @@ export async function getParentsInConversationExplorerNode(
   const parents = await db.execute<{
     id: string
     name: string
-    parent_id: string | null
-    conversation_id: string | null
-    deleted_at: string | null
+    type: ConversationExplorerNodeType
+    parentId: string | null
+    conversationId: string | null
+    deletedAt: string | null
     level: number
   }>(sql`
     WITH RECURSIVE explorer_nodes AS (
@@ -283,6 +248,7 @@ export async function getParentsInConversationExplorerNode(
                THEN COALESCE(conversation.title, node.name)
                ELSE node.name
              END AS name,
+             node.type,
              node.parent_id,
              node.conversation_id,
              node.deleted_at,
@@ -297,6 +263,7 @@ export async function getParentsInConversationExplorerNode(
       
       SELECT parent_node.id,
              parent_node.name,
+             parent_node.type,
              parent_node.parent_id,
              parent_node.conversation_id,
              parent_node.deleted_at,
@@ -306,9 +273,10 @@ export async function getParentsInConversationExplorerNode(
     )
     SELECT id,
            name,
-           parent_id,
-           conversation_id,
-           deleted_at,
+           type,
+           parent_id AS "parentId",
+           conversation_id AS "conversationId",
+           deleted_at AS "deletedAt",
            level
     FROM explorer_nodes
     ORDER BY level DESC
@@ -322,11 +290,13 @@ type UpdateNameOfItemInConversationExplorerNodeParams = {
   name: string
 } & (
   | {
-      itemId: string
+      type: 'folder'
+      folderId: string
       conversationId?: never
     }
   | {
-      itemId?: never
+      type: 'conversation'
+      folderId?: never
       conversationId: string
     }
 )
@@ -343,7 +313,7 @@ export async function updateNameOfItemInConversationExplorerNode(
     return
   }
 
-  if (params.conversationId !== undefined) {
+  if (params.type === 'conversation') {
     const ownerTypeCondition =
       ctx.visibility === 'team'
         ? eq(conversations.teamId, ctx.team.id)
@@ -356,6 +326,7 @@ export async function updateNameOfItemInConversationExplorerNode(
       })
       .where(
         and(
+          eq(conversationExplorerNodes.type, 'conversation'),
           eq(conversations.id, params.conversationId),
           eq(conversations.agentId, ctx.agent.id),
           ownerTypeCondition,
@@ -378,10 +349,11 @@ export async function updateNameOfItemInConversationExplorerNode(
     })
     .where(
       and(
+        eq(conversationExplorerNodes.id, params.folderId),
+        eq(conversationExplorerNodes.type, 'folder'),
         eq(conversationExplorerNodes.visibility, ctx.visibility),
         eq(conversationExplorerNodes.agentId, ctx.agent.id),
         ownerTypeCondition,
-        eq(conversationExplorerNodes.id, params.itemId),
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -411,6 +383,30 @@ export async function updateParentIdOfItemsInConversationExplorerNode(
       ? eq(conversationExplorerNodes.ownerTeamId, ctx.team.id)
       : eq(conversationExplorerNodes.ownerUserId, ctx.membership.userId)
 
+  const [parent] = params.parentId
+    ? await db
+        .select({
+          id: conversationExplorerNodes.id,
+          type: conversationExplorerNodes.type,
+        })
+        .from(conversationExplorerNodes)
+        .where(
+          and(
+            eq(conversationExplorerNodes.id, params.parentId),
+            eq(conversationExplorerNodes.type, 'folder'),
+            eq(conversationExplorerNodes.visibility, ctx.visibility),
+            eq(conversationExplorerNodes.agentId, ctx.agent.id),
+            ownerTypeCondition,
+            isNull(conversationExplorerNodes.deletedAt),
+          ),
+        )
+        .limit(1)
+    : []
+
+  if (params.parentId && !parent) {
+    return
+  }
+
   const siblings = await db
     .select({
       fractionalIndex: conversationExplorerNodes.fractionalIndex,
@@ -418,13 +414,13 @@ export async function updateParentIdOfItemsInConversationExplorerNode(
     .from(conversationExplorerNodes)
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, ctx.visibility),
-        eq(conversationExplorerNodes.agentId, ctx.agent.id),
-        ownerTypeCondition,
         !params.parentId || params.parentId === 'root'
           ? isNull(conversationExplorerNodes.parentId)
           : eq(conversationExplorerNodes.parentId, params.parentId),
         notInArray(conversationExplorerNodes.id, params.itemIds),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
+        ownerTypeCondition,
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -453,10 +449,10 @@ export async function updateParentIdOfItemsInConversationExplorerNode(
             })
             .where(
               and(
+                eq(conversationExplorerNodes.id, itemId),
                 eq(conversationExplorerNodes.visibility, ctx.visibility),
                 eq(conversationExplorerNodes.agentId, ctx.agent.id),
                 ownerTypeCondition,
-                eq(conversationExplorerNodes.id, itemId),
                 isNull(conversationExplorerNodes.deletedAt),
               ),
             ),
@@ -495,12 +491,12 @@ export async function createFolderInConversationExplorerNode(
     .from(conversationExplorerNodes)
     .where(
       and(
-        eq(conversationExplorerNodes.visibility, ctx.visibility),
-        eq(conversationExplorerNodes.agentId, ctx.agent.id),
-        explorerOwnerTypeCondition,
         !params.parentId || params.parentId === 'root'
           ? isNull(conversationExplorerNodes.parentId)
           : eq(conversationExplorerNodes.parentId, params.parentId),
+        eq(conversationExplorerNodes.visibility, ctx.visibility),
+        eq(conversationExplorerNodes.agentId, ctx.agent.id),
+        explorerOwnerTypeCondition,
         isNull(conversationExplorerNodes.deletedAt),
       ),
     )
@@ -520,12 +516,13 @@ export async function createFolderInConversationExplorerNode(
   const [newFolder] = await db
     .insert(conversationExplorerNodes)
     .values({
+      name: params.name,
+      type: 'folder',
+      parentId: params.parentId === 'root' ? null : params.parentId,
+      fractionalIndex,
       visibility: ctx.visibility,
       agentId: ctx.agent.id,
       ...ownerTypeCondition,
-      parentId: params.parentId === 'root' ? null : params.parentId,
-      fractionalIndex,
-      name: params.name,
     })
     .returning({
       id: conversationExplorerNodes.id,
@@ -559,7 +556,7 @@ export async function deleteItemInConversationExplorerNode(
   if (ctx.visibility === 'shared') {
     await db.transaction(async (tx) => {
       const deletedConversations = await tx.execute<{
-        conversation_id: string
+        conversationId: string
       }>(sql`
       WITH RECURSIVE explorer_nodes AS (
         SELECT id, conversation_id
@@ -595,11 +592,11 @@ export async function deleteItemInConversationExplorerNode(
         )
         RETURNING conversation_id
       )
-      SELECT conversation_id FROM deleted_conversations
+      SELECT conversation_id AS "conversationId" FROM deleted_conversations
     `)
 
       const leaveConversationIds: string[] = deletedConversations.rows
-        .map(({ conversation_id }) => conversation_id)
+        .map(({ conversationId }) => conversationId)
         .filter(Boolean)
 
       if (leaveConversationIds.length) {
@@ -615,7 +612,7 @@ export async function deleteItemInConversationExplorerNode(
     })
   } else {
     await db.transaction(async (tx) => {
-      const deletedItems = await tx.execute<{ conversation_id: string }>(sql`
+      const deletedItems = await tx.execute<{ conversationId: string }>(sql`
         WITH RECURSIVE explorer_nodes AS (
           SELECT id
           FROM ${conversationExplorerNodes}
@@ -638,11 +635,11 @@ export async function deleteItemInConversationExplorerNode(
           SELECT 1 FROM explorer_nodes
           WHERE explorer_nodes.id = ${conversationExplorerNodes}.id
         )
-        RETURNING conversation_id
+        RETURNING conversation_id AS "conversationId"
       `)
 
       const deletedConversationIds: string[] = deletedItems.rows
-        .map(({ conversation_id }) => conversation_id)
+        .map(({ conversationId }) => conversationId)
         .filter(Boolean)
 
       if (deletedConversationIds.length) {
@@ -686,19 +683,21 @@ export async function getItemsDeletedInConversationExplorerNode(
   const deletedItems = await db.execute<{
     id: string
     name: string | null
-    conversation_id: string | null
-    parent_id: string | null
-    deleted_at: Date
+    type: ConversationExplorerNodeType
+    conversationId: string | null
+    parentId: string | null
+    deletedAt: Date
   }>(sql`
-    SELECT DISTINCT ON (deleted_at)
+    SELECT DISTINCT ON (node.deleted_at)
       node.id,
       CASE
         WHEN node.conversation_id IS NOT NULL THEN COALESCE(conversation.title, node.name)
         ELSE node.name
       END as name,
-      node.conversation_id,
-      node.parent_id,
-      node.deleted_at
+      node.type,
+      node.conversation_id AS "conversationId",
+      node.parent_id AS "parentId",
+      node.deleted_at AS "deletedAt"
     FROM ${conversationExplorerNodes} node
     LEFT JOIN ${conversations} conversation ON node.conversation_id = conversation.id
     WHERE node.agent_id = ${ctx.agent.id}

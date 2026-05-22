@@ -40,7 +40,6 @@ export type Membership = {
   isOwner?: boolean
   isBilling?: boolean
   isAdmin?: boolean
-  isMember?: boolean
 }
 
 export type Agent = {

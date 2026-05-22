@@ -159,7 +159,7 @@ export function MemberList({
       {!!filteredMembers?.length && (
         <div className="flex w-full flex-col divide-y divide-border rounded-lg border bg-background">
           {filteredMembers?.map((member) => {
-            const isMemberOwner = member.role === 'owner'
+            const isOwner = member.role === 'owner'
 
             return (
               <div
@@ -201,7 +201,7 @@ export function MemberList({
                       </DropdownMenuTrigger>
 
                       <DropdownMenuContent>
-                        {!membership.isOwner && isMemberOwner ? (
+                        {!membership.isOwner && isOwner ? (
                           <DropdownMenuItem
                             variant="destructive"
                             disabled={true}

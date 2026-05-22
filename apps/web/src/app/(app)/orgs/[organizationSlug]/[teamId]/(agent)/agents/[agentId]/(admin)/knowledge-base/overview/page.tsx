@@ -1,10 +1,5 @@
 import { getAgentDetailed } from '@/actions/agents'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@workspace/ui/components/alert'
 import { Button } from '@workspace/ui/components/button'
 import {
   Empty,
@@ -13,8 +8,9 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@workspace/ui/components/empty'
-import { InfoIcon, Settings2Icon, UnplugIcon } from 'lucide-react'
+import { Settings2Icon, UnplugIcon } from 'lucide-react'
 import Link from 'next/link'
+import { KnowledgeBaseAlertReindexing } from '../_components/knowledge-base-alert'
 
 export default async function Page({
   params,
@@ -94,14 +90,7 @@ export default async function Page({
   return (
     <div className="flex w-full flex-col gap-4">
       {agentDetailed.knowledgeBase.status === 'reindexing' && (
-        <Alert>
-          <InfoIcon />
-          <AlertTitle>Reindexing Knowledge Base</AlertTitle>
-          <AlertDescription>
-            The knowledge base is currently being reindexed. Some settings are
-            temporarily disabled until the process is complete.
-          </AlertDescription>
-        </Alert>
+        <KnowledgeBaseAlertReindexing params={{ organizationSlug, agentId }} />
       )}
 
       <div className="rounded-lg border bg-background p-4">

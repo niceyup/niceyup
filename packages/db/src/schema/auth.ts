@@ -199,6 +199,7 @@ export const apikeys = pgTable(
 export const subscriptions = pgTable('subscriptions', {
   ...id,
   plan: text('plan').notNull(),
+  currency: text('currency').notNull().default('usd'),
   referenceId: text('reference_id').notNull(),
   stripeCustomerId: text('stripe_customer_id'),
   stripeSubscriptionId: text('stripe_subscription_id'),

@@ -43,8 +43,10 @@ export type { GetModelProviderSuspenseQueryKey } from './useGetModelProviderSusp
 export type { GetProfileQueryKey } from './useGetProfile'
 export type { GetProfileSuspenseQueryKey } from './useGetProfileSuspense'
 export type { GetSourceQueryKey } from './useGetSource'
-export type { GetSourceIndexingStatusQueryKey } from './useGetSourceIndexingStatus'
-export type { GetSourceIndexingStatusSuspenseQueryKey } from './useGetSourceIndexingStatusSuspense'
+export type { GetSourceIndexingQueryKey } from './useGetSourceIndexing'
+export type { GetSourceIndexingSummaryQueryKey } from './useGetSourceIndexingSummary'
+export type { GetSourceIndexingSummarySuspenseQueryKey } from './useGetSourceIndexingSummarySuspense'
+export type { GetSourceIndexingSuspenseQueryKey } from './useGetSourceIndexingSuspense'
 export type { GetSourceSuspenseQueryKey } from './useGetSourceSuspense'
 export type { GetVectorStoreQueryKey } from './useGetVectorStore'
 export type { GetVectorStoreSuspenseQueryKey } from './useGetVectorStoreSuspense'
@@ -85,6 +87,7 @@ export type { StopMessageMutationKey } from './useStopMessage'
 export type { StreamMessageQueryKey } from './useStreamMessage'
 export type { StreamMessageSuspenseQueryKey } from './useStreamMessageSuspense'
 export type { TriggerSourceIndexingMutationKey } from './useTriggerSourceIndexing'
+export type { TriggerSourceIngestionMutationKey } from './useTriggerSourceIngestion'
 export type { UpdateAgentMutationKey } from './useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './useUpdateAgentConfiguration'
 export type { UpdateAgentKnowledgeBaseMutationKey } from './useUpdateAgentKnowledgeBase'
@@ -286,15 +289,25 @@ export {
   useGetSource,
 } from './useGetSource'
 export {
-  getSourceIndexingStatusQueryKey,
-  getSourceIndexingStatusQueryOptions,
-  useGetSourceIndexingStatus,
-} from './useGetSourceIndexingStatus'
+  getSourceIndexingQueryKey,
+  getSourceIndexingQueryOptions,
+  useGetSourceIndexing,
+} from './useGetSourceIndexing'
 export {
-  getSourceIndexingStatusSuspenseQueryKey,
-  getSourceIndexingStatusSuspenseQueryOptions,
-  useGetSourceIndexingStatusSuspense,
-} from './useGetSourceIndexingStatusSuspense'
+  getSourceIndexingSummaryQueryKey,
+  getSourceIndexingSummaryQueryOptions,
+  useGetSourceIndexingSummary,
+} from './useGetSourceIndexingSummary'
+export {
+  getSourceIndexingSummarySuspenseQueryKey,
+  getSourceIndexingSummarySuspenseQueryOptions,
+  useGetSourceIndexingSummarySuspense,
+} from './useGetSourceIndexingSummarySuspense'
+export {
+  getSourceIndexingSuspenseQueryKey,
+  getSourceIndexingSuspenseQueryOptions,
+  useGetSourceIndexingSuspense,
+} from './useGetSourceIndexingSuspense'
 export {
   getSourceSuspenseQueryKey,
   getSourceSuspenseQueryOptions,
@@ -475,6 +488,10 @@ export {
   triggerSourceIndexingMutationKey,
   useTriggerSourceIndexing,
 } from './useTriggerSourceIndexing'
+export {
+  triggerSourceIngestionMutationKey,
+  useTriggerSourceIngestion,
+} from './useTriggerSourceIngestion'
 export { updateAgentMutationKey, useUpdateAgent } from './useUpdateAgent'
 export {
   updateAgentConfigurationMutationKey,

@@ -1,9 +1,11 @@
 import type { Readable } from 'node:stream'
 import { Upload } from '@aws-sdk/lib-storage'
+import type { Bucket } from '../lib/types'
+import { resolveBucket } from '../lib/utils'
 import { s3Client } from '../s3-client'
 
 type UploadParams = {
-  bucket: string
+  bucket: Bucket
   key: string
   body: string | Uint8Array | Buffer | Readable
   contentType: string
@@ -15,7 +17,7 @@ export async function upload(params: UploadParams) {
   const upload = new Upload({
     client: s3Client,
     params: {
-      Bucket: params.bucket,
+      Bucket: resolveBucket(params.bucket),
       Key: params.key,
       Body: params.body,
       ContentType: params.contentType,

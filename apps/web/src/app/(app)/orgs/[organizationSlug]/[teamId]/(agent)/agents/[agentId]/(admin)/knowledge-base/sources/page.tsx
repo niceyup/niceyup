@@ -15,21 +15,21 @@ import Link from 'next/link'
 import { IndexedSourceAlert } from './_components/indexed-source-alert'
 import { SourceManagerWithPreview } from './_components/source-manager-with-preview'
 
-async function getSourceIndexingStatus(params: {
+async function getSourceIndexingSummary(params: {
   organizationSlug: string
   agentId: string
 }) {
   'use cache: private'
   cacheTag('trigger-source-indexing')
 
-  const { data } = await sdk.getSourceIndexingStatus({
+  const { data } = await sdk.getSourceIndexingSummary({
     headers: {
       'x-organization-slug': params.organizationSlug,
     },
     agentId: params.agentId,
   })
 
-  return data?.count || null
+  return data?.summary || null
 }
 
 export default async function Page({
@@ -135,7 +135,7 @@ export default async function Page({
     )
   }
 
-  const count = await getSourceIndexingStatus({
+  const summary = await getSourceIndexingSummary({
     organizationSlug,
     agentId,
   })
@@ -144,7 +144,7 @@ export default async function Page({
     <div className="flex w-full flex-col gap-4">
       <IndexedSourceAlert
         params={{ organizationSlug, agentId }}
-        count={count}
+        summary={summary}
       />
 
       <SourceManagerWithPreview

@@ -73,6 +73,8 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
 
       const { accept, maxFiles, maxSize, expires } = request.body
 
+      const referenceId = _organization ? _organization.id : user.id
+
       const signature = generateSignatureForUpload({
         key: 'public',
         payload: {
@@ -82,7 +84,7 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
             metadata: {
               ...(_organization ? { sentByUserId: user.id } : {}),
             },
-            referenceId: _organization ? _organization.id : user.id,
+            referenceId,
           },
           accept,
           maxFiles,

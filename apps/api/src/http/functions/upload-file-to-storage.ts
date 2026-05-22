@@ -139,18 +139,13 @@ export async function uploadFileToStorage(params: UploadFileToStorageParams) {
     })
   }
 
-  const s3Bucket =
-    params.data.bucket === 'engine'
-      ? env.S3_ENGINE_BUCKET
-      : env.S3_DEFAULT_BUCKET
-
   const uniqueFileName = `${Date.now().toString()}-${generateId()}`
   const fileExtension = extname(params.file.filename)
 
   const filePath = `${params.data.scope}/${uniqueFileName}${fileExtension}`
 
   const { fileSize } = await storage.upload({
-    bucket: s3Bucket,
+    bucket: params.data.bucket,
     key: filePath,
     body: params.file.file,
     contentType: params.file.mimetype,
@@ -166,7 +161,7 @@ export async function uploadFileToStorage(params: UploadFileToStorageParams) {
 
   if (!createdFile) {
     // Delete the file from S3 if it was not created
-    await storage.delete({ bucket: s3Bucket, key: filePath })
+    await storage.delete({ bucket: params.data.bucket, key: filePath })
 
     throw new BadRequestError({
       code: 'FILE_NOT_CREATED',

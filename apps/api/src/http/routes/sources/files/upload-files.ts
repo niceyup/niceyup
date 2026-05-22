@@ -12,16 +12,10 @@ import {
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { billing } from '@workspace/billing'
 import { NiceyupError } from '@workspace/core/errros'
+import type { SourceFileType } from '@workspace/core/sources'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
-import {
-  databaseSources,
-  fileSources,
-  sourceOperations,
-  sources,
-} from '@workspace/db/schema'
-import type { IngestSourceTask } from '@workspace/engine/tasks/ingest-source'
-import { tasks } from '@workspace/engine/trigger'
+import { databaseSources, fileSources, sources } from '@workspace/db/schema'
 import { z } from 'zod'
 
 export async function uploadFilesSource(app: FastifyTypedInstance) {
@@ -76,9 +70,11 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
     async (request) => {
       const { 'x-upload-signature': signature } = request.headers
 
-      const { data, sourceType, explorerNode } = verifySignatureForUpload<{
-        sourceType: 'file' | 'database'
-        explorerNode: { folderId?: string | null }
+      const { data, fileType, explorerNode } = verifySignatureForUpload<{
+        fileType: SourceFileType
+        explorerNode: {
+          folderId?: string | null
+        }
       }>({ key: 'sources', signature })
 
       const files = request.files({
@@ -102,7 +98,11 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
         }
       }
 
-      await billing.meters.processUsage.assertWithinLimit({
+      await billing.limits.storageUsage.throwIfExceeded({
+        referenceId: data.referenceId,
+      })
+
+      await billing.limits.computeUsage.throwIfExceeded({
         referenceId: data.referenceId,
       })
 
@@ -120,7 +120,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           const validatedFile = await validatedFileForUpload({
             file,
             accept:
-              sourceType === 'database'
+              fileType === 'database'
                 ? 'application/x-sqlite3'
                 : 'application/pdf, text/plain',
           })
@@ -131,7 +131,8 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                 .insert(sources)
                 .values({
                   name: validatedFile.filename,
-                  type: sourceType,
+                  type: fileType === 'database' ? 'database' : 'file',
+                  status: fileType === 'unstructured' ? 'completed' : 'draft',
                   organizationId: data.referenceId,
                 })
                 .returning({
@@ -161,7 +162,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                 })
               }
 
-              if (sourceType === 'database') {
+              if (fileType === 'database') {
                 const [databaseSource] = await tx
                   .insert(databaseSources)
                   .values({
@@ -214,7 +215,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                 })
               }
 
-              if (sourceType === 'database') {
+              if (fileType === 'database') {
                 await tx
                   .update(databaseSources)
                   .set({
@@ -229,12 +230,6 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
                   })
                   .where(eq(fileSources.sourceId, source.id))
               }
-
-              await tx.insert(sourceOperations).values({
-                sourceId: source.id,
-                type: 'ingest' as const,
-                status: 'queued' as const,
-              })
 
               return { source, itemExplorerNode, uploadedFile }
             })
@@ -268,26 +263,6 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           code: 'FILES_NOT_UPLOADED',
           message: 'Files not uploaded',
         })
-      }
-
-      const successfulFiles = uploadedFiles.filter(
-        (file) => file.status === 'success',
-      )
-
-      if (successfulFiles.length) {
-        await tasks.batchTrigger<IngestSourceTask>(
-          'ingest-source',
-          successfulFiles.map(({ source }) => ({
-            payload: { sourceId: source.sourceId },
-            options: {
-              concurrencyKey: data.referenceId,
-              tags: [
-                `organization:${data.referenceId}`,
-                `source:${source.sourceId}`,
-              ],
-            },
-          })),
-        )
       }
 
       return { files: uploadedFiles }

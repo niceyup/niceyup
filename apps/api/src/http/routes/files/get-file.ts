@@ -86,7 +86,7 @@ export async function getFile(app: FastifyTypedInstance) {
 
       if (file.bucket === 'engine') {
         url = await storage.signedUrl({
-          bucket: env.S3_ENGINE_BUCKET,
+          bucket: file.bucket,
           key: file.filePath,
           expires,
         })

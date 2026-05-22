@@ -43,8 +43,10 @@ export type { GetModelProviderSuspenseQueryKey } from './react-query/hooks/useGe
 export type { GetProfileQueryKey } from './react-query/hooks/useGetProfile'
 export type { GetProfileSuspenseQueryKey } from './react-query/hooks/useGetProfileSuspense'
 export type { GetSourceQueryKey } from './react-query/hooks/useGetSource'
-export type { GetSourceIndexingStatusQueryKey } from './react-query/hooks/useGetSourceIndexingStatus'
-export type { GetSourceIndexingStatusSuspenseQueryKey } from './react-query/hooks/useGetSourceIndexingStatusSuspense'
+export type { GetSourceIndexingQueryKey } from './react-query/hooks/useGetSourceIndexing'
+export type { GetSourceIndexingSummaryQueryKey } from './react-query/hooks/useGetSourceIndexingSummary'
+export type { GetSourceIndexingSummarySuspenseQueryKey } from './react-query/hooks/useGetSourceIndexingSummarySuspense'
+export type { GetSourceIndexingSuspenseQueryKey } from './react-query/hooks/useGetSourceIndexingSuspense'
 export type { GetSourceSuspenseQueryKey } from './react-query/hooks/useGetSourceSuspense'
 export type { GetVectorStoreQueryKey } from './react-query/hooks/useGetVectorStore'
 export type { GetVectorStoreSuspenseQueryKey } from './react-query/hooks/useGetVectorStoreSuspense'
@@ -85,6 +87,7 @@ export type { StopMessageMutationKey } from './react-query/hooks/useStopMessage'
 export type { StreamMessageQueryKey } from './react-query/hooks/useStreamMessage'
 export type { StreamMessageSuspenseQueryKey } from './react-query/hooks/useStreamMessageSuspense'
 export type { TriggerSourceIndexingMutationKey } from './react-query/hooks/useTriggerSourceIndexing'
+export type { TriggerSourceIngestionMutationKey } from './react-query/hooks/useTriggerSourceIngestion'
 export type { UpdateAgentMutationKey } from './react-query/hooks/useUpdateAgent'
 export type { UpdateAgentConfigurationMutationKey } from './react-query/hooks/useUpdateAgentConfiguration'
 export type { UpdateAgentKnowledgeBaseMutationKey } from './react-query/hooks/useUpdateAgentKnowledgeBase'
@@ -416,7 +419,7 @@ export type {
   GenerateUploadSignatureSource404,
   GenerateUploadSignatureSource429,
   GenerateUploadSignatureSource500,
-  GenerateUploadSignatureSourceMutationRequestSourceTypeEnum,
+  GenerateUploadSignatureSourceMutationRequestFileTypeEnum,
   GenerateUploadSignatureSourceMutationRequest,
   GenerateUploadSignatureSourceMutationResponse,
   GenerateUploadSignatureSourceMutation,
@@ -601,18 +604,32 @@ export type {
   GetSourceQuery,
 } from './types/GetSource'
 export type {
-  GetSourceIndexingStatusPathParams,
-  GetSourceIndexingStatusHeaderParams,
-  GetSourceIndexingStatus200,
-  GetSourceIndexingStatus400,
-  GetSourceIndexingStatus401,
-  GetSourceIndexingStatus403,
-  GetSourceIndexingStatus404,
-  GetSourceIndexingStatus429,
-  GetSourceIndexingStatus500,
-  GetSourceIndexingStatusQueryResponse,
-  GetSourceIndexingStatusQuery,
-} from './types/GetSourceIndexingStatus'
+  GetSourceIndexingPathParams,
+  GetSourceIndexingHeaderParams,
+  IndexedSourceStatusEnum,
+  GetSourceIndexing200,
+  GetSourceIndexing400,
+  GetSourceIndexing401,
+  GetSourceIndexing403,
+  GetSourceIndexing404,
+  GetSourceIndexing429,
+  GetSourceIndexing500,
+  GetSourceIndexingQueryResponse,
+  GetSourceIndexingQuery,
+} from './types/GetSourceIndexing'
+export type {
+  GetSourceIndexingSummaryPathParams,
+  GetSourceIndexingSummaryHeaderParams,
+  GetSourceIndexingSummary200,
+  GetSourceIndexingSummary400,
+  GetSourceIndexingSummary401,
+  GetSourceIndexingSummary403,
+  GetSourceIndexingSummary404,
+  GetSourceIndexingSummary429,
+  GetSourceIndexingSummary500,
+  GetSourceIndexingSummaryQueryResponse,
+  GetSourceIndexingSummaryQuery,
+} from './types/GetSourceIndexingSummary'
 export type {
   GetVectorStorePathParams,
   GetVectorStoreHeaderParams,
@@ -1209,6 +1226,21 @@ export type {
   TriggerSourceIndexingMutation,
 } from './types/TriggerSourceIndexing'
 export type {
+  TriggerSourceIngestionHeaderParams,
+  TriggerSourceIngestion204Enum,
+  TriggerSourceIngestion204,
+  TriggerSourceIngestion400,
+  TriggerSourceIngestion401,
+  TriggerSourceIngestion403,
+  TriggerSourceIngestion404,
+  TriggerSourceIngestion429,
+  TriggerSourceIngestion500,
+  TriggerSourceIngestionMutationRequestStatusEnum,
+  TriggerSourceIngestionMutationRequest,
+  TriggerSourceIngestionMutationResponse,
+  TriggerSourceIngestionMutation,
+} from './types/TriggerSourceIngestion'
+export type {
   UpdateAgentPathParams,
   UpdateAgentHeaderParams,
   UpdateAgent204Enum,
@@ -1487,7 +1519,8 @@ export { getMcpServer } from './operations/getMcpServer'
 export { getModelProvider } from './operations/getModelProvider'
 export { getProfile } from './operations/getProfile'
 export { getSource } from './operations/getSource'
-export { getSourceIndexingStatus } from './operations/getSourceIndexingStatus'
+export { getSourceIndexing } from './operations/getSourceIndexing'
+export { getSourceIndexingSummary } from './operations/getSourceIndexingSummary'
 export { getVectorStore } from './operations/getVectorStore'
 export { health } from './operations/health'
 export { listAgents } from './operations/listAgents'
@@ -1511,6 +1544,7 @@ export { sendMessage } from './operations/sendMessage'
 export { stopMessage } from './operations/stopMessage'
 export { streamMessage } from './operations/streamMessage'
 export { triggerSourceIndexing } from './operations/triggerSourceIndexing'
+export { triggerSourceIngestion } from './operations/triggerSourceIngestion'
 export { updateAgent } from './operations/updateAgent'
 export { updateAgentConfiguration } from './operations/updateAgentConfiguration'
 export { updateAgentKnowledgeBase } from './operations/updateAgentKnowledgeBase'
@@ -1731,15 +1765,25 @@ export {
   useGetSource,
 } from './react-query/hooks/useGetSource'
 export {
-  getSourceIndexingStatusQueryKey,
-  getSourceIndexingStatusQueryOptions,
-  useGetSourceIndexingStatus,
-} from './react-query/hooks/useGetSourceIndexingStatus'
+  getSourceIndexingQueryKey,
+  getSourceIndexingQueryOptions,
+  useGetSourceIndexing,
+} from './react-query/hooks/useGetSourceIndexing'
 export {
-  getSourceIndexingStatusSuspenseQueryKey,
-  getSourceIndexingStatusSuspenseQueryOptions,
-  useGetSourceIndexingStatusSuspense,
-} from './react-query/hooks/useGetSourceIndexingStatusSuspense'
+  getSourceIndexingSummaryQueryKey,
+  getSourceIndexingSummaryQueryOptions,
+  useGetSourceIndexingSummary,
+} from './react-query/hooks/useGetSourceIndexingSummary'
+export {
+  getSourceIndexingSummarySuspenseQueryKey,
+  getSourceIndexingSummarySuspenseQueryOptions,
+  useGetSourceIndexingSummarySuspense,
+} from './react-query/hooks/useGetSourceIndexingSummarySuspense'
+export {
+  getSourceIndexingSuspenseQueryKey,
+  getSourceIndexingSuspenseQueryOptions,
+  useGetSourceIndexingSuspense,
+} from './react-query/hooks/useGetSourceIndexingSuspense'
 export {
   getSourceSuspenseQueryKey,
   getSourceSuspenseQueryOptions,
@@ -1934,6 +1978,10 @@ export {
   useTriggerSourceIndexing,
 } from './react-query/hooks/useTriggerSourceIndexing'
 export {
+  triggerSourceIngestionMutationKey,
+  useTriggerSourceIngestion,
+} from './react-query/hooks/useTriggerSourceIngestion'
+export {
   updateAgentMutationKey,
   useUpdateAgent,
 } from './react-query/hooks/useUpdateAgent'
@@ -2023,7 +2071,7 @@ export { deleteModelProvider204Enum } from './types/DeleteModelProvider'
 export { deleteSource204Enum } from './types/DeleteSource'
 export { deleteSourceFolder204Enum } from './types/DeleteSourceFolder'
 export { deleteVectorStore204Enum } from './types/DeleteVectorStore'
-export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './types/GenerateUploadSignatureSource'
+export { generateUploadSignatureSourceMutationRequestFileTypeEnum } from './types/GenerateUploadSignatureSource'
 export {
   languageModelSettingsTypeEnum,
   providerProviderEnum2,
@@ -2053,6 +2101,7 @@ export { fileBucketEnum, fileScopeEnum } from './types/GetFile'
 export { mcpServerTypeEnum, connectionAppEnum2 } from './types/GetMcpServer'
 export { modelProviderProviderEnum } from './types/GetModelProvider'
 export { sourceTypeEnum, sourceStatusEnum } from './types/GetSource'
+export { indexedSourceStatusEnum } from './types/GetSourceIndexing'
 export { vectorStoreProviderEnum } from './types/GetVectorStore'
 export {
   listConnectionsQueryParamsAppEnum,
@@ -2371,6 +2420,10 @@ export {
   triggerSourceIndexing204Enum,
   triggerSourceIndexingMutationRequestStatusEnum,
 } from './types/TriggerSourceIndexing'
+export {
+  triggerSourceIngestion204Enum,
+  triggerSourceIngestionMutationRequestStatusEnum,
+} from './types/TriggerSourceIngestion'
 export { updateAgent204Enum } from './types/UpdateAgent'
 export {
   updateAgentConfiguration204Enum,

@@ -21,7 +21,9 @@ export const unindexSourceTask = schemaTask({
   schema: z.object({
     indexedSourceId: z.string(),
   }),
-  run: async (payload) => {
+  run: async (payload, { ctx }) => {
+    const isRetrying = ctx.attempt.number > 1
+
     const [indexedSource] = await db
       .select({
         id: indexedSources.id,
@@ -42,11 +44,18 @@ export const unindexSourceTask = schemaTask({
       .where(eq(indexedSources.id, payload.indexedSourceId))
       .limit(1)
 
-    const isQueued =
-      indexedSource?.operation?.type === 'index-delete' &&
-      indexedSource?.operation?.status === 'queued'
+    if (!indexedSource) {
+      throw new InvalidArgumentError({
+        code: 'INDEXED_SOURCE_NOT_FOUND',
+        message: 'Indexed source not found',
+      })
+    }
 
-    if (!isQueued) {
+    const isQueued =
+      indexedSource.operation?.type === 'index-delete' &&
+      indexedSource.operation.status === 'queued'
+
+    if (!isQueued && !isRetrying) {
       return {
         status: 'skipped',
         message: 'Job skipped because the status is no longer queued',

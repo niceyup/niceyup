@@ -23,11 +23,11 @@ export function createSchemaDDL(tablesMetadata: DatabaseSourceTableMetadata[]) {
     for (const column of table.columns) {
       let referenceLine = ''
 
-      if (column.foreign_table && column.foreign_column) {
-        referenceLine = ` REFERENCES "${column.foreign_table}" ("${column.foreign_column}")`
+      if (column.foreignTable && column.foreignColumn) {
+        referenceLine = ` REFERENCES "${column.foreignTable}" ("${column.foreignColumn}")`
       }
 
-      columnsLine.push(`  "${column.name}" ${column.data_type}${referenceLine}`)
+      columnsLine.push(`  "${column.name}" ${column.dataType}${referenceLine}`)
     }
 
     tableLine += `${columnsLine.join(',\n')}\n)\n`

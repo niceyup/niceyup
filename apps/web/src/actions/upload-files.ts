@@ -33,7 +33,7 @@ export type GenerateUploadSignatureParams =
       params: {
         organizationSlug: string
       }
-      sourceType?: 'file' | 'database'
+      fileType?: 'unstructured' | 'database'
       explorerNode?: { folderId?: string | null }
     })
 
@@ -47,7 +47,7 @@ export async function generateUploadSignature(
             'x-organization-slug': params.params.organizationSlug,
           },
           data: {
-            sourceType: params.sourceType,
+            fileType: params.fileType,
             explorerNode: params.explorerNode,
           },
         })

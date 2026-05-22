@@ -1,5 +1,5 @@
 import { schemaTask } from '@trigger.dev/sdk'
-import { NiceyupError } from '@workspace/core/errros'
+import { InvalidArgumentError, NiceyupError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { eq, sql } from '@workspace/db/orm'
 import { sourceOperations, sources } from '@workspace/db/schema'
@@ -15,7 +15,9 @@ export const ingestSourceTask = schemaTask({
   schema: z.object({
     sourceId: z.string(),
   }),
-  run: async (payload) => {
+  run: async (payload, { ctx }) => {
+    const isRetrying = ctx.attempt.number > 1
+
     const [source] = await db
       .select({
         id: sources.id,
@@ -32,24 +34,34 @@ export const ingestSourceTask = schemaTask({
       .where(eq(sources.id, payload.sourceId))
       .limit(1)
 
-    const isQueued =
-      source?.operation?.type === 'ingest' &&
-      source?.operation?.status === 'queued'
+    if (!source) {
+      throw new InvalidArgumentError({
+        code: 'SOURCE_NOT_FOUND',
+        message: 'Source not found',
+      })
+    }
 
-    if (!isQueued) {
+    const isQueued =
+      source.operation?.type === 'ingest' &&
+      source.operation.status === 'queued'
+
+    if (!isQueued && !isRetrying) {
       return {
         status: 'skipped',
         message: 'Job skipped because the status is no longer queued',
       }
     }
 
-    // TODO: implement logic to check if the source is ready
-    // if (source.status !== 'ready') {
-    //   throw new InvalidArgumentError({
-    //     code: 'SOURCE_NOT_READY',
-    //     message: 'Source is not ready',
-    //   })
-    // }
+    const isReadyOrCompleted =
+      source.status === 'ready' || source.status === 'completed'
+
+    if (!isReadyOrCompleted) {
+      return {
+        status: 'skipped',
+        message:
+          'Job skipped because the status is no longer ready or completed',
+      }
+    }
 
     await db
       .update(sourceOperations)
@@ -59,7 +71,21 @@ export const ingestSourceTask = schemaTask({
       })
       .where(eq(sourceOperations.sourceId, payload.sourceId))
 
-    // TODO: implement logic to create ingestion source
+    // TODO: Implement ingestion for other source types
+
+    switch (source.type) {
+      case 'text':
+      case 'question-answer':
+      case 'file':
+        break
+
+      default:
+        throw new InvalidArgumentError({
+          code: 'SOURCE_TYPE_NOT_SUPPORTED',
+          message: 'Source type not supported',
+        })
+    }
+
     await db
       .update(sources)
       .set({

@@ -17,6 +17,7 @@ import {
   selectionFeature,
 } from '@headless-tree/core'
 import { AssistiveTreeDescription, useTree } from '@headless-tree/react'
+import type { ConversationExplorerNodeType } from '@workspace/core/conversations'
 import { useChatsRealtime } from '@workspace/realtime/hooks'
 import { Button } from '@workspace/ui/components/button'
 import {
@@ -62,19 +63,20 @@ type Params = OrganizationTeamParams & AgentParams
 
 type Item = {
   name?: string
-  conversationId?: string | null
+  type?: ConversationExplorerNodeType | null
   fractionalIndex?: string | null
-  folder?: boolean
+  conversationId?: string | null
+  children?: string[]
   loading?: boolean
   disabled?: boolean
   unknown?: boolean
-  children?: string[]
 }
 
 function toItemData(item: Item) {
-  const folder = !item.conversationId
-
-  return { ...item, folder, children: folder ? item.children : undefined }
+  return {
+    ...item,
+    children: item.type === 'folder' ? item.children : undefined,
+  }
 }
 
 declare module '@headless-tree/core' {
@@ -87,7 +89,7 @@ declare module '@headless-tree/core' {
 const chatExplorerFeature: FeatureImplementation<Item> = {
   key: 'chat-explorer',
   itemInstance: {
-    isChat: ({ item }) => item.getItemData().conversationId,
+    isChat: ({ item }) => item.getItemData().type === 'conversation',
   },
 }
 
@@ -105,7 +107,11 @@ type ChatExplorerContextType = {
   setLoadingItemData: React.Dispatch<React.SetStateAction<string[]>>
   setLoadingItemChildrens: React.Dispatch<React.SetStateAction<string[]>>
   setFocusedSelectedItem: (itemId: string) => void
-  onClickItem?: (item: { id: string; conversationId?: string | null }) => void
+  onClickItem?: (item: {
+    id: string
+    type?: ConversationExplorerNodeType | null
+    conversationId?: string | null
+  }) => void
 }
 
 const ChatExplorerContext = React.createContext<
@@ -135,7 +141,11 @@ export function ChatExplorerProvider({
   params: Params
   visibility: ConversationVisibility
   initialItems?: { id: string; data: Item }[]
-  onClickItem?: (item: { id: string; conversationId?: string | null }) => void
+  onClickItem?: (item: {
+    id: string
+    type?: ConversationExplorerNodeType | null
+    conversationId?: string | null
+  }) => void
   onSelectedFolderPath?: (
     folderPath: { id: string; name?: string; parentId?: string }[],
   ) => Promise<void> | void
@@ -189,7 +199,7 @@ export function ChatExplorerProvider({
     setLoadingItemData,
     setLoadingItemChildrens,
     getItemName: (item) => item.getItemData().name || '',
-    isItemFolder: (item) => Boolean(item.getItemData().folder),
+    isItemFolder: (item) => item.getItemData().type === 'folder',
     createLoadingItemData: () => ({
       id: 'loading',
       loading: true,
@@ -245,6 +255,7 @@ export function ChatExplorerProvider({
         // onDropItems?.(
         //   items.map((item) => ({
         //     id: item.getId(),
+        //     type: item.getItemData().type,
         //     conversationId: item.getItemData().conversationId,
         //   })),
         //   { id: target.item.getId(), insertionIndex },
@@ -252,7 +263,7 @@ export function ChatExplorerProvider({
       ])
     },
     onRename: async (item, value) => {
-      const { conversationId } = item.getItemData()
+      const { type, conversationId } = item.getItemData()
 
       setLoadingItemData((prev) => [...prev, item.getId()])
 
@@ -260,12 +271,14 @@ export function ChatExplorerProvider({
       await updateNameOfItemInConversationExplorerNode(params, {
         visibility,
         name: value,
-        ...(conversationId ? { conversationId } : { itemId: item.getId() }),
+        ...(type === 'conversation' && conversationId
+          ? { type, conversationId }
+          : { type: 'folder', folderId: item.getId() }),
       })
 
       await Promise.all([
         item.invalidateItemData(true),
-        // onRenameItem?.({ id: item.getId(), conversationId }, value),
+        // onRenameItem?.({ id: item.getId(), type, conversationId }, value),
       ])
     },
     features: [
@@ -464,15 +477,15 @@ function ChatExplorerItem() {
       className="group relative"
       onClick={(e) => {
         if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
-          const { conversationId } = item.getItemData()
+          const { type, conversationId } = item.getItemData()
 
-          if (conversationId) {
+          if (type === 'conversation' && conversationId) {
             router.push(
               `/orgs/${params.organizationSlug}/${params.teamId}/agents/${params.agentId}/chats/${conversationId}`,
             )
           }
 
-          onClickItem?.({ id: item.getId(), conversationId })
+          onClickItem?.({ id: item.getId(), type, conversationId })
         }
       }}
     >

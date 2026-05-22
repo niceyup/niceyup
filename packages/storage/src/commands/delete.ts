@@ -3,21 +3,26 @@ import {
   DeleteObjectsCommand,
   paginateListObjectsV2,
 } from '@aws-sdk/client-s3'
+import type { Bucket } from '../lib/types'
+import { resolveBucket } from '../lib/utils'
 import { s3Client } from '../s3-client'
 
 type DeleteParams = {
-  bucket: string
+  bucket: Bucket
   key: string
 }
 
 export async function del(params: DeleteParams) {
   await s3Client.send(
-    new DeleteObjectCommand({ Bucket: params.bucket, Key: params.key }),
+    new DeleteObjectCommand({
+      Bucket: resolveBucket(params.bucket),
+      Key: params.key,
+    }),
   )
 }
 
 type DeleteDirectoryParams = {
-  bucket: string
+  bucket: Bucket
   path: `/${string}/`
 }
 
@@ -28,7 +33,7 @@ export async function deleteDirectory(params: DeleteDirectoryParams) {
 
   const paginator = paginateListObjectsV2(
     { client: s3Client },
-    { Bucket: params.bucket, Prefix: prefix },
+    { Bucket: resolveBucket(params.bucket), Prefix: prefix },
   )
 
   for await (const page of paginator) {
@@ -40,7 +45,7 @@ export async function deleteDirectory(params: DeleteDirectoryParams) {
 
     await s3Client.send(
       new DeleteObjectsCommand({
-        Bucket: params.bucket,
+        Bucket: resolveBucket(params.bucket),
         Delete: { Objects: objects.map(({ Key }) => ({ Key })) },
       }),
     )

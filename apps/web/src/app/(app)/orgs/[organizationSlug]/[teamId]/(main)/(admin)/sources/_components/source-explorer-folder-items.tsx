@@ -165,9 +165,9 @@ function SourceExplorerItemTableRow({
             {item.name || 'Untitled'}
           </span>
 
-          {item.sourceType && (
+          {item.flag && (
             <Badge variant="secondary" className="text-[11px]">
-              {item.sourceType}
+              {item.flag}
             </Badge>
           )}
         </TableCell>

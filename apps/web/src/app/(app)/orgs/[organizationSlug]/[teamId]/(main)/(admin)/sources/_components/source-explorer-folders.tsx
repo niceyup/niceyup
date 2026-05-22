@@ -88,9 +88,9 @@ function SourceExplorerFolder({
           {folder.name || 'Unnamed folder'}
         </span>
 
-        {folder.sourceType && (
+        {folder.flag && (
           <Badge variant="secondary" className="text-[11px]">
-            {folder.sourceType}
+            {folder.flag}
           </Badge>
         )}
 

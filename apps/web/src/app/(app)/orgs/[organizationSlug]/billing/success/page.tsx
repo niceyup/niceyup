@@ -14,7 +14,7 @@ export default async function Page({
 
   return (
     <>
-      <Header selectedOrganizationLabel="Onboarding" />
+      <Header organizationSlug={organizationSlug} withoutTeam />
 
       <main className="relative flex flex-1 flex-col bg-background">
         <div className="flex flex-1 flex-col gap-4 p-4">

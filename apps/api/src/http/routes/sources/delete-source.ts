@@ -60,17 +60,35 @@ export async function deleteSource(app: FastifyTypedInstance) {
         })
       }
 
-      await billing.meters.processUsage.assertWithinLimit({
+      await billing.limits.computeUsage.throwIfExceeded({
         referenceId: organization.id,
       })
 
-      await db
-        .update(sourceOperations)
-        .set({
-          type: 'ingest-delete' as const,
-          status: 'queued' as const,
-        })
-        .where(eq(sourceOperations.sourceId, sourceId))
+      await db.transaction(async (tx) => {
+        const [sourceOperation] = await tx
+          .select({
+            id: sourceOperations.id,
+          })
+          .from(sourceOperations)
+          .where(eq(sourceOperations.sourceId, sourceId))
+          .limit(1)
+
+        if (sourceOperation) {
+          await tx
+            .update(sourceOperations)
+            .set({
+              type: 'ingest-delete' as const,
+              status: 'queued' as const,
+            })
+            .where(eq(sourceOperations.sourceId, sourceId))
+        } else {
+          await tx.insert(sourceOperations).values({
+            sourceId,
+            type: 'ingest-delete' as const,
+            status: 'queued' as const,
+          })
+        }
+      })
 
       await tasks.trigger<DeleteSourceTask>(
         'delete-source',

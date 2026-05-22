@@ -25,8 +25,8 @@ export async function getSourceExplorerNodeFolder(
     .where(
       and(
         eq(sourceExplorerNodes.id, params.id),
+        eq(sourceExplorerNodes.type, 'folder'),
         eq(sourceExplorerNodes.organizationId, params.organizationId),
-        isNull(sourceExplorerNodes.sourceId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )
@@ -74,6 +74,7 @@ export async function createSourceExplorerNodeItem(
   const [explorerNode] = await (tx ?? db)
     .insert(sourceExplorerNodes)
     .values({
+      type: 'source',
       sourceId: params.sourceId,
       parentId:
         !params.parentId || params.parentId === 'root' ? null : params.parentId,
@@ -128,6 +129,7 @@ export async function createSourceExplorerNodeFolder(
     .insert(sourceExplorerNodes)
     .values({
       name: params.name,
+      type: 'folder',
       parentId:
         !params.parentId || params.parentId === 'root' ? null : params.parentId,
       fractionalIndex,

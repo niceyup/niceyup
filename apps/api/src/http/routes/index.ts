@@ -8,7 +8,8 @@ import { getAgent } from './agents/get-agent'
 import { cancelKnowledgeBaseReindexing } from './agents/knowledge-base/cancel-knowledge-base-reindexing'
 import { getAgentKnowledgeBase } from './agents/knowledge-base/get-agent-knowledge-base'
 import { cancelSourceIndexing } from './agents/knowledge-base/indexed-sources/cancel-source-indexing'
-import { getSourceIndexingStatus } from './agents/knowledge-base/indexed-sources/get-source-indexing-status'
+import { getSourceIndexing } from './agents/knowledge-base/indexed-sources/get-source-indexing'
+import { getSourceIndexingSummary } from './agents/knowledge-base/indexed-sources/get-source-indexing-summary'
 import { listIndexedSources } from './agents/knowledge-base/indexed-sources/list-indexed-sources'
 import { triggerSourceIndexing } from './agents/knowledge-base/indexed-sources/trigger-source-indexing'
 import { updateIndexedSources } from './agents/knowledge-base/indexed-sources/update-indexed-sources'
@@ -70,7 +71,9 @@ import { generateUploadSignatureSource } from './sources/files/generate-upload-s
 import { uploadFilesSource } from './sources/files/upload-files'
 import { getSource } from './sources/get-source'
 import { listSources } from './sources/list-sources'
+import { triggerSourceIngestion } from './sources/trigger-source-ingestion'
 import { updateSource } from './sources/update-source'
+import { updateSourceConfiguration } from './sources/update-source-configuration'
 import { updateSourceFolder } from './sources/update-source-folder'
 import { createVectorStore } from './vector-stores/create-vector-store'
 import { deleteVectorStore } from './vector-stores/delete-vector-store'
@@ -164,7 +167,8 @@ export async function routes(app: FastifyTypedInstance) {
   // Indexed Sources
   app.register(listIndexedSources)
   app.register(updateIndexedSources)
-  app.register(getSourceIndexingStatus)
+  app.register(getSourceIndexing)
+  app.register(getSourceIndexingSummary)
   app.register(triggerSourceIndexing)
   app.register(cancelSourceIndexing)
 
@@ -173,10 +177,12 @@ export async function routes(app: FastifyTypedInstance) {
   app.register(getSource)
   app.register(createSource)
   app.register(updateSource)
+  app.register(updateSourceConfiguration)
   app.register(deleteSource)
   app.register(createSourceFolder)
   app.register(updateSourceFolder)
   app.register(deleteSourceFolder)
+  app.register(triggerSourceIngestion)
   app.register(cancelSource)
 
   // Files

@@ -2,15 +2,9 @@
 
 import { getMembership } from '@/actions/membership'
 import type { OrganizationTeamParams } from '@/lib/types'
+import type { SourceExplorerNodeType } from '@workspace/core/sources'
 import { db } from '@workspace/db'
-import {
-  aliasedTable,
-  and,
-  eq,
-  isNotNull,
-  isNull,
-  sql,
-} from '@workspace/db/orm'
+import { aliasedTable, and, eq, isNull, sql } from '@workspace/db/orm'
 import {
   databaseSources,
   fileSources,
@@ -61,8 +55,8 @@ export async function getItemInSourceExplorerNode(
     .from(sourceExplorerNodes)
     .where(
       and(
-        isNotNull(sourceExplorerNodes.sourceId),
         eq(sourceExplorerNodes.id, params.itemId),
+        eq(sourceExplorerNodes.type, 'source'),
         eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
@@ -97,8 +91,10 @@ export async function listFoldersInSourceExplorerNode(
     .select({
       id: sourceExplorerNodes.id,
       name: sourceExplorerNodes.name,
-      sourceType: sourceExplorerNodes.sourceType,
+      type: sourceExplorerNodes.type,
       fractionalIndex: sourceExplorerNodes.fractionalIndex,
+      flag: sourceExplorerNodes.flag,
+      readOnly: sourceExplorerNodes.readOnly,
       children: sql<string[]>`
             (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
              FROM ${sourceExplorerNodes} child_node
@@ -109,11 +105,11 @@ export async function listFoldersInSourceExplorerNode(
     .from(sourceExplorerNodes)
     .where(
       and(
-        isNull(sourceExplorerNodes.sourceId),
-        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
+        eq(sourceExplorerNodes.type, 'folder'),
         params.folderId
           ? eq(sourceExplorerNodes.parentId, params.folderId)
           : isNull(sourceExplorerNodes.parentId),
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )
@@ -147,8 +143,11 @@ export async function listFolderItemsInSourceExplorerNode(
       name: sql<string>`COALESCE(${sources.name}, ${sourceExplorerNodes.name})`.as(
         'name',
       ),
+      type: sourceExplorerNodes.type,
+      fractionalIndex: sourceExplorerNodes.fractionalIndex,
+      flag: sourceExplorerNodes.flag,
+      readOnly: sourceExplorerNodes.readOnly,
       sourceId: sql<string>`${sourceExplorerNodes.sourceId}`.as('sourceId'),
-      sourceType: sourceExplorerNodes.sourceType,
       source: {
         type: sources.type,
         status: sources.status,
@@ -162,7 +161,6 @@ export async function listFolderItemsInSourceExplorerNode(
           END
         `.as('fileSize'),
       },
-      fractionalIndex: sourceExplorerNodes.fractionalIndex,
     })
     .from(sourceExplorerNodes)
     .leftJoin(sources, eq(sources.id, sourceExplorerNodes.sourceId))
@@ -173,11 +171,11 @@ export async function listFolderItemsInSourceExplorerNode(
     .leftJoin(filesDatabase, eq(filesDatabase.id, databaseSources.fileId))
     .where(
       and(
-        isNotNull(sourceExplorerNodes.sourceId),
-        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
+        eq(sourceExplorerNodes.type, 'source'),
         params.folderId
           ? eq(sourceExplorerNodes.parentId, params.folderId)
           : isNull(sourceExplorerNodes.parentId),
+        eq(sourceExplorerNodes.organizationId, ctx.membership.organizationId),
         isNull(sourceExplorerNodes.deletedAt),
       ),
     )
@@ -206,9 +204,11 @@ export async function listSearchItemsInSourceExplorerNode(
       name: sql<string>`COALESCE(${sources.name}, ${sourceExplorerNodes.name})`.as(
         'name',
       ),
-      sourceId: sourceExplorerNodes.sourceId,
-      sourceType: sourceExplorerNodes.sourceType,
+      type: sourceExplorerNodes.type,
       fractionalIndex: sourceExplorerNodes.fractionalIndex,
+      flag: sourceExplorerNodes.flag,
+      readOnly: sourceExplorerNodes.readOnly,
+      sourceId: sourceExplorerNodes.sourceId,
       children: sql<string[]>`
             (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
              FROM ${sourceExplorerNodes} child_node
@@ -232,10 +232,12 @@ export async function listSearchItemsInSourceExplorerNode(
 
 type GetParentsInSourceExplorerNodeParams =
   | {
+      type: 'folder'
       folderId: string
       sourceId?: never
     }
   | {
+      type: 'source'
       folderId?: never
       sourceId: string
     }
@@ -250,16 +252,18 @@ export async function getParentsInSourceExplorerNode(
     return []
   }
 
-  const itemTypeCondition = params.sourceId
-    ? sql`node.source_id = ${params.sourceId}`
-    : sql`node.id = ${params.folderId} AND node.source_id IS NULL`
+  const itemTypeCondition =
+    params.type === 'source'
+      ? sql`node.type = 'source' AND node.source_id = ${params.sourceId}`
+      : sql`node.id = ${params.folderId} AND node.type = 'folder'`
 
   const parents = await db.execute<{
     id: string
     name: string
-    parent_id: string | null
-    source_id: string | null
-    deleted_at: string | null
+    type: SourceExplorerNodeType
+    parentId: string | null
+    sourceId: string | null
+    deletedAt: string | null
     level: number
   }>(sql`
     WITH RECURSIVE explorer_nodes AS (
@@ -269,6 +273,7 @@ export async function getParentsInSourceExplorerNode(
                THEN COALESCE(source.name, node.name)
                ELSE node.name
              END AS name,
+             node.type,
              node.parent_id,
              node.source_id,
              node.deleted_at,
@@ -281,6 +286,7 @@ export async function getParentsInSourceExplorerNode(
       
       SELECT parent_node.id,
              parent_node.name,
+             parent_node.type,
              parent_node.parent_id,
              parent_node.source_id,
              parent_node.deleted_at,
@@ -290,9 +296,10 @@ export async function getParentsInSourceExplorerNode(
     )
     SELECT id,
            name,
-           parent_id,
-           source_id,
-           deleted_at,
+           type,
+           parent_id AS "parentId",
+           source_id AS "sourceId",
+           deleted_at AS "deletedAt",
            level
     FROM explorer_nodes
     ORDER BY level DESC

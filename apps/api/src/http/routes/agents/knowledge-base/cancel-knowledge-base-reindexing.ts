@@ -3,7 +3,10 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { db } from '@workspace/db'
+import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
+import { knowledgeBases } from '@workspace/db/schema'
 import { resolveAgentKnowledgeBase } from '@workspace/engine/agents'
 import { runs } from '@workspace/engine/trigger'
 import { z } from 'zod'
@@ -77,6 +80,13 @@ export async function cancelKnowledgeBaseReindexing(app: FastifyTypedInstance) {
 
       if (run) {
         await runs.cancel(run.id)
+      } else {
+        await db
+          .update(knowledgeBases)
+          .set({
+            status: 'ready',
+          })
+          .where(eq(knowledgeBases.id, agentKnowledgeBase.id))
       }
 
       return reply.status(204).send()

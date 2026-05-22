@@ -12,6 +12,8 @@ export const sourceStatusSchema = z.enum(['draft', 'ready', 'completed'])
 
 export const indexedSourceStatusSchema = z.enum(['idle', 'completed'])
 
+export const sourceFileTypeSchema = z.enum(['unstructured', 'database'])
+
 export const databaseSourceDialectSchema = z.enum([
   'postgresql',
   'mysql',
@@ -26,9 +28,9 @@ export const databaseSourceColumnMetadataSchema = z.object({
       properNoun: z.boolean().optional(),
     })
     .optional(),
-  data_type: z.string(),
-  foreign_table: z.string().optional(),
-  foreign_column: z.string().optional(),
+  dataType: z.string(),
+  foreignTable: z.string().optional(),
+  foreignColumn: z.string().optional(),
 })
 
 export const databaseSourceTableMetadataSchema = z.object({

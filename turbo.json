@@ -3,30 +3,16 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env"
-      ],
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "start": {
       "cache": false,
-      "dependsOn": [
-        "build"
-      ]
+      "dependsOn": ["build"]
     },
     "dev": {
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env"
-      ],
+      "inputs": ["$TURBO_DEFAULT$", ".env"],
       "persistent": true,
       "cache": false
     },
@@ -34,9 +20,7 @@
       "cache": false
     },
     "lint": {
-      "dependsOn": [
-        "^lint"
-      ]
+      "dependsOn": ["^lint"]
     },
     "format": {}
   },
@@ -46,10 +30,16 @@
     "API_URL",
     "WEB_URL",
     "STORAGE_URL",
+    "NEXT_PUBLIC_API_URL",
+    "NEXT_PUBLIC_WEB_URL",
+    "NEXT_PUBLIC_WEBSOCKET_URL",
+    "NEXT_PUBLIC_STORAGE_URL",
+    "NEXT_CONFIG_OUTPUT",
     "ENCRYPTION_KEY",
+    "UPLOAD_SECRET",
+    "BETTER_AUTH_SECRET",
     "DATABASE_URL",
     "REDIS_URL",
-    "UPLOAD_SECRET",
     "S3_DEFAULT_BUCKET",
     "S3_ENGINE_BUCKET",
     "S3_REGION",
@@ -57,33 +47,28 @@
     "S3_ACCOUNT_ID",
     "S3_ACCESS_KEY",
     "S3_SECRET_KEY",
+    "GITHUB_CLIENT_ID",
+    "GITHUB_CLIENT_SECRET",
     "TRIGGER_API_URL",
     "TRIGGER_PROJECT_REF",
     "TRIGGER_SECRET_KEY",
-    "BETTER_AUTH_SECRET",
-    "GITHUB_CLIENT_ID",
-    "GITHUB_CLIENT_SECRET",
-    "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "STRIPE_AI_USAGE_METER_ID",
-    "STRIPE_PROCESS_USAGE_METER_ID",
-    "STRIPE_HOBBY_PLAN_PRICE_ID",
-    "STRIPE_HOBBY_PLAN_AI_USAGE_PRICE_ID",
-    "STRIPE_HOBBY_PLAN_PROCESS_USAGE_PRICE_ID",
-    "STRIPE_STANDARD_PLAN_PRICE_ID",
-    "STRIPE_STANDARD_PLAN_AI_USAGE_PRICE_ID",
-    "STRIPE_STANDARD_PLAN_PROCESS_USAGE_PRICE_ID",
-    "STRIPE_ADVANCED_PLAN_PRICE_ID",
-    "STRIPE_ADVANCED_PLAN_AI_USAGE_PRICE_ID",
-    "STRIPE_ADVANCED_PLAN_PROCESS_USAGE_PRICE_ID",
     "RESEND_API_KEY",
     "RESEND_FROM_EMAIL",
     "NOVU_SECRET_KEY",
-    "NEXT_PUBLIC_API_URL",
-    "NEXT_PUBLIC_WEB_URL",
-    "NEXT_PUBLIC_WEBSOCKET_URL",
-    "NEXT_PUBLIC_STORAGE_URL",
-    "NEXT_CONFIG_OUTPUT"
+    "STRIPE_SECRET_KEY",
+    "STRIPE_WEBHOOK_SECRET",
+    "STRIPE_HOBBY_PLAN_PRICE_ID",
+    "STRIPE_HOBBY_PLAN_AI_USAGE_PRICE_ID",
+    "STRIPE_HOBBY_PLAN_COMPUTE_USAGE_PRICE_ID",
+    "STRIPE_STANDARD_PLAN_PRICE_ID",
+    "STRIPE_STANDARD_PLAN_AI_USAGE_PRICE_ID",
+    "STRIPE_STANDARD_PLAN_COMPUTE_USAGE_PRICE_ID",
+    "STRIPE_ADVANCED_PLAN_PRICE_ID",
+    "STRIPE_ADVANCED_PLAN_AI_USAGE_PRICE_ID",
+    "STRIPE_ADVANCED_PLAN_COMPUTE_USAGE_PRICE_ID",
+    "STRIPE_AI_USAGE_METER_ID",
+    "STRIPE_COMPUTE_USAGE_METER_ID",
+    "CURRENCY_API_KEY"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",

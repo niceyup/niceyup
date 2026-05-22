@@ -16,12 +16,6 @@ import { z } from 'zod'
 
 const BATCH_SIZE = 100
 
-type SourceRow = {
-  id: string
-  indexedSourceId: string | null
-  sourceOperationId: string | null
-}
-
 export async function updateIndexedSources(app: FastifyTypedInstance) {
   app.register(authenticate).patch(
     '/agents/:agentId/knowledge-base/indexed-sources',
@@ -41,11 +35,11 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
           add: z
             .array(z.string())
             .max(BATCH_SIZE)
-            .describe('Source IDs to add'),
+            .describe('Source identifiers to add'),
           remove: z
             .array(z.string())
             .max(BATCH_SIZE)
-            .describe('Source IDs to remove'),
+            .describe('Source identifiers to remove'),
         }),
         response: withDefaultErrorResponses({
           204: z.null().describe('Success'),
@@ -153,7 +147,7 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
 
         throw new BadRequestError({
           code: 'SOURCE_NOT_FOUND',
-          message: `The following source IDs were not found or you don’t have access to them: [${sourceIdsNotFound.join(', ')}]`,
+          message: `The following source identifiers were not found or you don’t have access to them: [${sourceIdsNotFound.join(', ')}]`,
         })
       }
 
@@ -175,6 +169,12 @@ export async function updateIndexedSources(app: FastifyTypedInstance) {
   )
 }
 
+type SourceData = {
+  id: string
+  indexedSourceId: string | null
+  sourceOperationId: string | null
+}
+
 async function manageIndexedSources(
   context: {
     organizationId: string
@@ -183,11 +183,11 @@ async function manageIndexedSources(
   params: {
     addSourceIds: string[]
     removeSourceIds: string[]
-    sourcesToAdd: SourceRow[]
-    sourcesToRemove: SourceRow[]
+    sourcesToAdd: SourceData[]
+    sourcesToRemove: SourceData[]
   },
 ) {
-  await billing.meters.processUsage.assertWithinLimit({
+  await billing.limits.computeUsage.throwIfExceeded({
     referenceId: context.organizationId,
   })
 

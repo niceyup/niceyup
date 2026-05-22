@@ -76,13 +76,17 @@ export async function sendMessage(app: FastifyTypedInstance) {
           visibility: z
             .enum(['private', 'team'])
             .default('private')
-            .describe('Used only when conversation is created'),
+            .describe(
+              'Only applicable during conversation creation for authentication type "user"',
+            ),
           explorerNode: z
             .object({
               folderId: z.string().nullish(),
             })
             .optional()
-            .describe('Used only when conversation is created'),
+            .describe(
+              'Only applicable during conversation creation for authentication type "user"',
+            ),
           temporaryMessageId: z
             .string()
             .optional()
@@ -101,7 +105,9 @@ export async function sendMessage(app: FastifyTypedInstance) {
                   itemId: z.string(),
                 })
                 .optional()
-                .describe('Return only when the conversation is created'),
+                .describe(
+                  'Returned only when a new conversation is created for authentication type "user"',
+                ),
             })
             .describe('Success'),
         }),
@@ -377,8 +383,6 @@ export async function sendMessage(app: FastifyTypedInstance) {
       }
 
       if (newConversation) {
-        console.log('newConversation', newConversation)
-
         updateConversationTitle({
           conversationId: newConversation.id,
           agentId,

@@ -115,20 +115,20 @@ export type GenerateUploadSignatureSource500 = {
   message: string
 }
 
-export const generateUploadSignatureSourceMutationRequestSourceTypeEnum = {
-  file: 'file',
+export const generateUploadSignatureSourceMutationRequestFileTypeEnum = {
+  unstructured: 'unstructured',
   database: 'database',
 } as const
 
-export type GenerateUploadSignatureSourceMutationRequestSourceTypeEnum =
-  (typeof generateUploadSignatureSourceMutationRequestSourceTypeEnum)[keyof typeof generateUploadSignatureSourceMutationRequestSourceTypeEnum]
+export type GenerateUploadSignatureSourceMutationRequestFileTypeEnum =
+  (typeof generateUploadSignatureSourceMutationRequestFileTypeEnum)[keyof typeof generateUploadSignatureSourceMutationRequestFileTypeEnum]
 
 export type GenerateUploadSignatureSourceMutationRequest = {
   /**
-   * @default "file"
+   * @default "unstructured"
    * @type string | undefined
    */
-  sourceType?: GenerateUploadSignatureSourceMutationRequestSourceTypeEnum
+  fileType?: GenerateUploadSignatureSourceMutationRequestFileTypeEnum
   /**
    * @type object | undefined
    */

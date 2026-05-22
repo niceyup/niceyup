@@ -1,9 +1,9 @@
 'use client'
 
-import { SourceView } from '@/app/(app)/orgs/[organizationSlug]/[teamId]/(main)/(admin)/sources/_components/source-view'
 import type { AgentParams, OrganizationTeamParams } from '@/lib/types'
 import * as React from 'react'
 import { SourceManager } from './source-manager'
+import { SourceView } from './source-view'
 
 type Params = {
   organizationSlug: OrganizationTeamParams['organizationSlug']
@@ -17,9 +17,11 @@ export function SourceManagerWithPreview({
   params: Params
   sourceIds?: string[]
 }) {
-  const [selectedSourceId, setSelectedSourceId] = React.useState<string | null>(
-    null,
-  )
+  const [selectedSource, setSelectedSource] = React.useState<{
+    sourceId?: string
+    indexedSourceId?: string | null
+  } | null>(null)
+
   const [open, setOpen] = React.useState(false)
 
   return (
@@ -27,18 +29,19 @@ export function SourceManagerWithPreview({
       <SourceManager
         params={params}
         sourceIds={sourceIds}
-        onSelectSource={(sourceId) => {
+        onSelectSource={({ sourceId, indexedSourceId }) => {
           if (sourceId) {
-            setSelectedSourceId(sourceId)
+            setSelectedSource({ sourceId, indexedSourceId })
             setOpen(true)
           }
         }}
       />
 
-      {selectedSourceId && (
+      {selectedSource?.sourceId && (
         <SourceView
           params={params}
-          sourceId={selectedSourceId}
+          sourceId={selectedSource.sourceId}
+          indexedSourceId={selectedSource.indexedSourceId}
           open={open}
           onOpenChange={setOpen}
         />

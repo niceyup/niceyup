@@ -1,6 +1,11 @@
-import type { DatabaseSourceTableMetadata } from '@workspace/core/sources'
+import { type LanguageModel, generateText } from '@workspace/ai'
+import type {
+  DatabaseSourceQueryExample,
+  DatabaseSourceTableMetadata,
+} from '@workspace/core/sources'
 import type { VectorStore } from '@workspace/vector-store'
 import { filesLoader } from './loaders'
+import { experimental_templatePromptSummarizeDatabaseSource } from './prompts'
 import { documentSplitter } from './splitters'
 
 export async function ingestTextSource({
@@ -137,53 +142,53 @@ export async function ingestDatabaseSource({
   })
 }
 
-// export async function ingestDatabaseSourceTablesMetadata({
-//   vectorStore,
-//   sourceId,
-//   tablesMetadata,
-// }: {
-//   vectorStore: VectorStore
-//   sourceId: string
-//   tablesMetadata: DatabaseSourceTableMetadata[]
-// }) {
-//   const documents = []
+export async function ingestDatabaseSourceTablesMetadata({
+  vectorStore,
+  sourceId,
+  tablesMetadata,
+}: {
+  vectorStore: VectorStore
+  sourceId: string
+  tablesMetadata: DatabaseSourceTableMetadata[]
+}) {
+  const documents = []
 
-//   for (const table of tablesMetadata) {
-//     let content = `Table: "${table.name}"\n`
+  for (const table of tablesMetadata) {
+    let content = `Table: "${table.name}"\n`
 
-//     if (table.meta?.description) {
-//       content += `Description: ${table.meta.description}\n`
-//     }
+    if (table.meta?.description) {
+      content += `Description: ${table.meta.description}\n`
+    }
 
-//     content += 'Columns:\n'
+    content += 'Columns:\n'
 
-//     for (const column of table.columns) {
-//       content += `-\n"${column.name}"`
+    for (const column of table.columns) {
+      content += `-\n"${column.name}"`
 
-//       if (column.foreign_table && column.foreign_column) {
-//         content += ` relations "${column.foreign_table}"."${column.foreign_column}"`
-//       }
+      if (column.foreignTable && column.foreignColumn) {
+        content += ` relations "${column.foreignTable}"."${column.foreignColumn}"`
+      }
 
-//       if (column.meta?.description) {
-//         content += `\nDescription: ${column.meta.description}`
-//       }
+      if (column.meta?.description) {
+        content += `\nDescription: ${column.meta.description}`
+      }
 
-//       content += '\n'
-//     }
+      content += '\n'
+    }
 
-//     documents.push({
-//       content,
-//       metadata: { tableMetadata: table },
-//     })
-//   }
+    documents.push({
+      content,
+      metadata: { tableMetadata: table },
+    })
+  }
 
-//   await vectorStore.upsert({
-//     collection: 'database-source-tables-metadata',
-//     sourceId,
-//     sourceType: 'database',
-//     data: documents,
-//   })
-// }
+  await vectorStore.upsert({
+    collection: 'database-source-tables-metadata',
+    sourceId,
+    sourceType: 'database',
+    data: documents,
+  })
+}
 
 // export async function ingestDatabaseSourceProperNouns({
 //   vectorStore,
@@ -200,7 +205,7 @@ export async function ingestDatabaseSource({
 
 //   for (const table of properNouns) {
 //     for (const column of table.columns) {
-//       for (const properNoun of column.proper_nouns) {
+//       for (const properNoun of column.properNouns) {
 //         documents.push({
 //           content: properNoun,
 //           metadata: { key: `"${table.name}"."${column.name}"` },
@@ -217,84 +222,84 @@ export async function ingestDatabaseSource({
 //   })
 // }
 
-// export async function ingestDatabaseSourceQueryExamples({
-//   vectorStore,
-//   sourceId,
-//   queryExamples,
-// }: {
-//   vectorStore: VectorStore
-//   sourceId: string
-//   queryExamples: DatabaseSourceQueryExample[]
-// }) {
-//   const documents = []
+export async function ingestDatabaseSourceQueryExamples({
+  vectorStore,
+  sourceId,
+  queryExamples,
+}: {
+  vectorStore: VectorStore
+  sourceId: string
+  queryExamples: DatabaseSourceQueryExample[]
+}) {
+  const documents = []
 
-//   if (queryExamples) {
-//     for (const queryExample of queryExamples) {
-//       const content = `Input: \`${queryExample.input}\`\nQuery: \`${queryExample.query}\``
+  if (queryExamples) {
+    for (const queryExample of queryExamples) {
+      const content = `Input: \`${queryExample.input}\`\nQuery: \`${queryExample.query}\``
 
-//       documents.push({ content })
-//     }
-//   }
+      documents.push({ content })
+    }
+  }
 
-//   await vectorStore.upsert({
-//     collection: 'database-source-query-examples',
-//     sourceId,
-//     sourceType: 'database',
-//     data: documents,
-//   })
-// }
+  await vectorStore.upsert({
+    collection: 'database-source-query-examples',
+    sourceId,
+    sourceType: 'database',
+    data: documents,
+  })
+}
 
-// /**
-//  * Experimental. Do not use this function in production. Use {@link ingestDatabaseSource} instead.
-//  */
-// export async function experimental_ingestDatabaseSource({
-//   vectorStore,
-//   languageModel,
-//   sourceId,
-//   tablesMetadata,
-// }: {
-//   vectorStore: VectorStore
-//   languageModel: LanguageModel
-//   sourceId: string
-//   tablesMetadata: DatabaseSourceTableMetadata[]
-// }) {
-//   const tablesContent = []
+/**
+ * Experimental. Do not use this function in production. Use {@link ingestDatabaseSource} instead.
+ */
+export async function experimental_ingestDatabaseSource({
+  vectorStore,
+  languageModel,
+  sourceId,
+  tablesMetadata,
+}: {
+  vectorStore: VectorStore
+  languageModel: LanguageModel
+  sourceId: string
+  tablesMetadata: DatabaseSourceTableMetadata[]
+}) {
+  const tablesContent = []
 
-//   for (const table of tablesMetadata) {
-//     let content = table.name
+  for (const table of tablesMetadata) {
+    let content = table.name
 
-//     if (table.meta?.description) {
-//       content += `\n${table.meta.description}`
-//     }
+    if (table.meta?.description) {
+      content += `\n${table.meta.description}`
+    }
 
-//     content += '\n'
+    content += '\n'
 
-//     for (const column of table.columns) {
-//       content += `-\n${column.name}`
+    for (const column of table.columns) {
+      content += `-\n${column.name}`
 
-//       if (column.meta?.description) {
-//         content += `\n${column.meta.description}`
-//       }
+      if (column.meta?.description) {
+        content += `\n${column.meta.description}`
+      }
 
-//       content += '\n'
-//     }
+      content += '\n'
+    }
 
-//     tablesContent.push(content)
-//   }
+    tablesContent.push(content)
+  }
 
-//   const generatedContent = await generateText({
-//     model: languageModel,
-//     messages: experimental_templatePromptSummarizeDatabaseSource({
-//       content: tablesContent.join('\n-\n'),
-//     }),
-//   })
+  const generatedContent = await generateText({
+    model: languageModel,
+    messages: experimental_templatePromptSummarizeDatabaseSource({
+      content: tablesContent.join('\n-\n'),
+    }),
+  })
 
-//   const document = { content: generatedContent.text }
+  const document = { content: generatedContent.text }
 
-//   await vectorStore.upsert({
-//     collection: 'sources',
-//     sourceId,
-//     sourceType: 'database',
-//     data: document,
-//   })
-// }
+  await vectorStore.upsert({
+    collection: 'sources',
+    sourceId,
+    sourceType: 'database',
+    data: document,
+  })
+}

@@ -23,7 +23,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./better-auth": "./src/lib/better-auth.ts",
-    "./plans": "./src/lib/plans.ts",
+    "./currency": "./src/lib/currency.ts",
+    "./constants": "./src/lib/constants.ts",
     "./env": "./src/lib/env.ts"
   }
 }

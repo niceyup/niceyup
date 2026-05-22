@@ -11,6 +11,7 @@ import type {
 import { db } from '@workspace/db'
 import {
   and,
+  asc,
   eq,
   gt,
   inArray,
@@ -28,14 +29,6 @@ import { tasks } from '@workspace/engine/trigger'
 import { z } from 'zod'
 
 const BATCH_SIZE = 100
-
-type SourceRow = {
-  id: string
-  indexedSourceId: string
-  sourceOperationId: string | null
-  sourceOperationType: SourceOperationType | null
-  sourceOperationStatus: SourceOperationStatus | null
-}
 
 export async function triggerSourceIndexing(app: FastifyTypedInstance) {
   app.register(authenticate).post(
@@ -59,7 +52,7 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
             .max(BATCH_SIZE)
             .optional()
             .describe(
-              'Source IDs to trigger indexing. If none are provided or the array is empty, all sources will be triggered',
+              'Source identifiers to trigger indexing for. If omitted or empty, indexing will be triggered for all sources.',
             ),
         }),
         response: withDefaultErrorResponses({
@@ -175,7 +168,7 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
         if (sourceIdsNotFound?.length) {
           throw new BadRequestError({
             code: 'SOURCE_NOT_FOUND',
-            message: `The following source IDs were not found or you don’t have access to them: [${sourceIdsNotFound.join(', ')}]`,
+            message: `The following source identifiers were not found or you don’t have access to them: [${sourceIdsNotFound.join(', ')}]`,
           })
         }
 
@@ -191,7 +184,7 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
 
         while (true) {
           const listSources = await sourcesSelectQuery({ cursorSourceId })
-            .orderBy(sources.id)
+            .orderBy(asc(sources.id))
             .limit(BATCH_SIZE)
 
           if (!listSources.length) {
@@ -215,16 +208,24 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
   )
 }
 
+type SourceData = {
+  id: string
+  indexedSourceId: string
+  sourceOperationId: string | null
+  sourceOperationType: SourceOperationType | null
+  sourceOperationStatus: SourceOperationStatus | null
+}
+
 async function manageIndexedSources(
   context: {
     organizationId: string
     knowledgeBaseId: string
   },
   params: {
-    listSources: SourceRow[]
+    listSources: SourceData[]
   },
 ) {
-  await billing.meters.processUsage.assertWithinLimit({
+  await billing.limits.computeUsage.throwIfExceeded({
     referenceId: context.organizationId,
   })
 

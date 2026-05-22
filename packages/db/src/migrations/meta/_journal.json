@@ -421,6 +421,34 @@
       "when": 1777941206460,
       "tag": "0059_dapper_roxanne_simpson",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1778433962253,
+      "tag": "0060_smooth_changeling",
+      "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "7",
+      "when": 1778508306438,
+      "tag": "0061_lazy_warhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1779218390454,
+      "tag": "0062_chilly_celestials",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "7",
+      "when": 1779218417571,
+      "tag": "0063_premium_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }

@@ -103,9 +103,9 @@ function SourceExplorerSearchItem({
           {item.name || (isFolder ? 'Unnamed folder' : 'Untitled')}
         </span>
 
-        {item.sourceType && (
+        {item.flag && (
           <Badge variant="secondary" className="text-[11px]">
-            {item.sourceType}
+            {item.flag}
           </Badge>
         )}
 

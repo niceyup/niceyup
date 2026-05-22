@@ -19,9 +19,11 @@ export async function Header({
   teamId,
   activeAgent,
   selectedOrganizationLabel,
+  withoutTeam,
 }: Partial<OrganizationTeamParams> & {
   activeAgent?: Agent
   selectedOrganizationLabel?: string
+  withoutTeam?: boolean
 }) {
   const {
     session: { activeOrganizationId, activeTeamId },
@@ -74,6 +76,7 @@ export async function Header({
             activeTeam={activeTeam}
             organizations={organizations}
             teams={teams}
+            withoutTeam={withoutTeam}
           />
 
           {activeAgent && (

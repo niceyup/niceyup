@@ -2068,7 +2068,7 @@ export type SendMessage200 = {
     temporaryId?: string
   }
   /**
-   * @description Return only when the conversation is created
+   * @description Returned only when a new conversation is created for authentication type \"user\"
    * @type object | undefined
    */
   explorerNode?: {
@@ -2245,13 +2245,13 @@ export type SendMessageMutationRequest = {
     metadata?: any
   }
   /**
-   * @description Used only when conversation is created
+   * @description Only applicable during conversation creation for authentication type \"user\"
    * @default "private"
    * @type string | undefined
    */
   visibility?: SendMessageMutationRequestVisibilityEnum
   /**
-   * @description Used only when conversation is created
+   * @description Only applicable during conversation creation for authentication type \"user\"
    * @type object | undefined
    */
   explorerNode?: {

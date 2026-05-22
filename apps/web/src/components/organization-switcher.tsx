@@ -8,7 +8,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@workspace/ui/components/avatar'
-import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -33,12 +32,14 @@ export function OrganizationSwitcher({
   activeTeam,
   organizations,
   teams,
+  withoutTeam,
 }: {
   selectedOrganizationLabel?: string
   activeOrganization?: Organization
   activeTeam?: Team
   organizations?: Organization[]
   teams?: Team[]
+  withoutTeam?: boolean
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -78,9 +79,9 @@ export function OrganizationSwitcher({
                   <AvatarFallback className="rounded-sm" />
                 </Avatar>
                 <span className="truncate">{activeOrganization.name}</span>
-                <Badge variant="outline" className="rounded-sm">
+                {/* <Badge variant="outline" className="rounded-sm">
                   Standard
-                </Badge>
+                </Badge> */}
               </>
             ) : (
               <span className="text-muted-foreground">Select organization</span>
@@ -130,7 +131,7 @@ export function OrganizationSwitcher({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {activeOrganization && (
+      {activeOrganization && !withoutTeam && (
         <>
           <SlashIcon className="-rotate-[24deg] size-3 text-border" />
 

@@ -1,6 +1,6 @@
 import { schemaTask } from '@trigger.dev/sdk'
 import { mockEmbeddingModel } from '@workspace/ai/mocks'
-import { NiceyupError } from '@workspace/core/errros'
+import { InvalidArgumentError, NiceyupError } from '@workspace/core/errros'
 import type { IndexedSourceStatus } from '@workspace/core/sources'
 import { db } from '@workspace/db'
 import { and, eq, isNotNull, sql } from '@workspace/db/orm'
@@ -18,7 +18,6 @@ import { storage } from '@workspace/storage'
 import { z } from 'zod'
 import { resolveVectorStore } from '../../agents'
 import { RetryableError } from '../../errors'
-import { env } from '../../lib/env'
 import { sourceQueue } from './queue'
 
 export type DeleteSourceTask = typeof deleteSourceTask
@@ -30,7 +29,9 @@ export const deleteSourceTask = schemaTask({
     sourceId: z.string(),
     destroy: z.boolean().optional(),
   }),
-  run: async (payload) => {
+  run: async (payload, { ctx }) => {
+    const isRetrying = ctx.attempt.number > 1
+
     const [source] = await db
       .select({
         id: sources.id,
@@ -47,11 +48,18 @@ export const deleteSourceTask = schemaTask({
       .where(eq(sources.id, payload.sourceId))
       .limit(1)
 
-    const isQueued =
-      source?.operation?.type === 'ingest-delete' &&
-      source?.operation?.status === 'queued'
+    if (!source) {
+      throw new InvalidArgumentError({
+        code: 'SOURCE_NOT_FOUND',
+        message: 'Source not found',
+      })
+    }
 
-    if (!isQueued) {
+    const isQueued =
+      source.operation?.type === 'ingest-delete' &&
+      source.operation.status === 'queued'
+
+    if (!isQueued && !isRetrying) {
       return {
         status: 'skipped',
         message: 'Job skipped because the status is no longer queued',
@@ -112,7 +120,7 @@ export const deleteSourceTask = schemaTask({
 
     if (payload.destroy && fileToDelete) {
       await storage.delete({
-        bucket: env.S3_ENGINE_BUCKET,
+        bucket: fileToDelete.bucket,
         key: fileToDelete.filePath,
       })
     }

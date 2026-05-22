@@ -1,5 +1,10 @@
 import type { ApiKey } from '@better-auth/api-key'
-import { AuthError } from '@workspace/core/errros'
+import { billing } from '@workspace/billing'
+import {
+  ALLOWED_PLANS,
+  type OrganizationPlan,
+} from '@workspace/billing/constants'
+import { AuthError, BillingError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { and, eq } from '@workspace/db/orm'
 import {
@@ -10,6 +15,7 @@ import {
   users,
 } from '@workspace/db/schema'
 import type { auth } from '../auth'
+import { ALLOWED_ROLES, type Role } from './constants'
 
 ////////////////////////////////////////////////////
 // Internal Context
@@ -457,15 +463,6 @@ export async function resolveTeamContext(
 // Membership Context
 ////////////////////////////////////////////////////
 
-const ROLES = {
-  owner: ['owner', 'billing', 'admin', 'member'],
-  billing: ['billing', 'admin', 'member'],
-  admin: ['admin', 'member'],
-  member: ['member'],
-}
-
-type Role = 'owner' | 'billing' | 'admin' | 'member'
-
 type ResolveMembershipContextParams = {
   role?: Role
 }
@@ -500,12 +497,6 @@ export async function resolveMembershipContext(
     }
   }
 
-  const roles = params.role
-    ? Array.isArray(params.role)
-      ? params.role
-      : [params.role]
-    : null
-
   const [membership] = await db
     .select({
       id: members.id,
@@ -529,15 +520,15 @@ export async function resolveMembershipContext(
     })
   }
 
-  if (roles) {
-    const allowedRoles = ROLES[membership.role as Role]
+  const allowedRoles = (
+    params.role ? ALLOWED_ROLES[params.role] : Object.keys(ALLOWED_ROLES)
+  ) as string[]
 
-    if (!allowedRoles.includes(membership.role)) {
-      throw new AuthError({
-        code: 'MEMBERSHIP_ROLE_NOT_ALLOWED',
-        message: 'Membership role not allowed',
-      })
-    }
+  if (!allowedRoles.includes(membership.role)) {
+    throw new AuthError({
+      code: 'MEMBERSHIP_ROLE_NOT_ALLOWED',
+      message: 'Membership role not allowed',
+    })
   }
 
   context.membership = membership
@@ -547,6 +538,76 @@ export async function resolveMembershipContext(
     organization: context.organization,
     membership: context.membership,
   }
+}
+
+////////////////////////////////////////////////////
+// Subscription Context
+////////////////////////////////////////////////////
+
+export type WithSubscriptionContext = {
+  subscription?: Subscription
+}
+
+type Subscription = Awaited<
+  ReturnType<typeof billing.subscriptions.getActiveSubscription>
+>
+
+type Reference = 'user' | 'organization'
+
+type ResolveSubscriptionContextParams<REFERENCE extends Reference = Reference> =
+  {
+    reference: REFERENCE
+    plan?: keyof (typeof ALLOWED_PLANS)[REFERENCE]
+  }
+
+export async function resolveSubscriptionContext<REFERENCE extends Reference>(
+  context: Context<WithSubscriptionContext>,
+  params: ResolveSubscriptionContextParams<REFERENCE>,
+): Promise<{
+  subscription: Subscription
+}> {
+  const referenceId =
+    params.reference === 'organization'
+      ? context.organization?.id
+      : context.user?.id
+
+  if (!referenceId) {
+    throw new BillingError({
+      code: 'REFERENCE_ID_REQUIRED',
+      message: 'Reference ID is required',
+    })
+  }
+
+  if (context.subscription) {
+    if (referenceId !== context.subscription.referenceId) {
+      throw new BillingError({
+        code: 'SUBSCRIPTION_REFERENCE_ID_MISMATCH',
+        message: 'Subscription reference ID mismatch',
+      })
+    }
+
+    return { subscription: context.subscription }
+  }
+
+  const activeSubscription = await billing.subscriptions.getActiveSubscription({
+    referenceId,
+  })
+
+  const allowedPlans = (
+    params.plan
+      ? ALLOWED_PLANS[params.reference][params.plan]
+      : Object.keys(ALLOWED_PLANS[params.reference])
+  ) as string[]
+
+  if (!allowedPlans.includes(activeSubscription.plan)) {
+    throw new BillingError({
+      code: 'SUBSCRIPTION_PLAN_NOT_ALLOWED',
+      message: 'Subscription plan not allowed',
+      plan: activeSubscription.plan,
+    })
+  }
+
+  return { subscription: activeSubscription }
 }
 
 ////////////////////////////////////////////////////
@@ -563,6 +624,9 @@ export type ResolveAuthOrganizationContextParams<
   membership?: {
     role?: Role
   }
+  subscription?: {
+    plan?: OrganizationPlan
+  }
   params?: {
     organizationId?: string | null
     organizationSlug?: string | null
@@ -577,6 +641,7 @@ export type ResolveAuthOrganizationContextResult = {
     organization: Organization
     team: Team | null
     membership: Membership
+    subscription: Subscription
   }
   organization: {
     subject: 'organization'
@@ -584,16 +649,17 @@ export type ResolveAuthOrganizationContextResult = {
     organization: Organization
     team: Team | null
     membership: null
+    subscription: Subscription
   }
 }
 
 export async function resolveAuthOrganizationContext<SUBJECT extends Subject>(
-  context: Context<WithAuthContext>,
+  context: Context<WithAuthContext & WithSubscriptionContext>,
   params?: ResolveAuthOrganizationContextParams<SUBJECT>,
 ): Promise<ResolveAuthOrganizationContextResult[SUBJECT]>
 
 export async function resolveAuthOrganizationContext(
-  context: Context<WithAuthContext>,
+  context: Context<WithAuthContext & WithSubscriptionContext>,
   params: ResolveAuthOrganizationContextParams = {},
 ): Promise<ResolveAuthOrganizationContextResult[Subject]> {
   const { subject, user } = await resolveAuthContext(context, {
@@ -610,6 +676,11 @@ export async function resolveAuthOrganizationContext(
     teamId: params.params?.teamId,
   })
 
+  const { subscription } = await resolveSubscriptionContext(context, {
+    reference: 'organization',
+    plan: params.subscription?.plan,
+  })
+
   if (subject === 'user') {
     const { membership } = await resolveMembershipContext(context, {
       role: params.membership?.role,
@@ -617,18 +688,20 @@ export async function resolveAuthOrganizationContext(
 
     return {
       subject: 'user',
-      user: user,
-      organization: organization,
-      team: team,
-      membership: membership,
+      user,
+      organization,
+      team,
+      membership,
+      subscription,
     }
   }
 
   return {
     subject: 'organization',
     user: null,
-    organization: organization,
+    organization,
     team: null,
     membership: null,
+    subscription,
   }
 }

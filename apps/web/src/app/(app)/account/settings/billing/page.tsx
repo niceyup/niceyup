@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { ManageBillingCard } from './_components/manage-billing-card'
 import { PlanUpgradeButton } from './_components/plan-upgrade-button'
 
-export async function getActiveSubscription() {
+async function getActiveSubscription() {
   return null
 }
 

@@ -1,7 +1,8 @@
 import { schemaTask } from '@trigger.dev/sdk'
 import { billing } from '@workspace/billing'
+import { InvalidArgumentError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
-import { and, eq, gt, isNull, sql } from '@workspace/db/orm'
+import { and, asc, eq, gt, isNull, sql } from '@workspace/db/orm'
 import {
   indexedSources,
   knowledgeBases,
@@ -24,6 +25,8 @@ export const reindexKnowledgeBaseTask = schemaTask({
     knowledgeBaseId: z.string(),
   }),
   run: async (payload, { ctx, signal }) => {
+    const isRetrying = ctx.attempt.number > 1
+
     const [knowledgeBase] = await db
       .select({
         id: knowledgeBases.id,
@@ -36,9 +39,16 @@ export const reindexKnowledgeBaseTask = schemaTask({
       .where(eq(knowledgeBases.id, payload.knowledgeBaseId))
       .limit(1)
 
-    const isReindexing = knowledgeBase?.status === 'reindexing'
+    if (!knowledgeBase) {
+      throw new InvalidArgumentError({
+        code: 'KNOWLEDGE_BASE_NOT_FOUND',
+        message: 'Knowledge base not found',
+      })
+    }
 
-    if (!isReindexing) {
+    const isReindexing = knowledgeBase.status === 'reindexing'
+
+    if (!isReindexing && !isRetrying) {
       return {
         status: 'skipped',
         message: 'Job skipped because the status is no longer reindexing',
@@ -135,7 +145,7 @@ export const reindexKnowledgeBaseTask = schemaTask({
         }
       }
 
-      await billing.meters.processUsage.assertWithinLimit({
+      await billing.limits.computeUsage.throwIfExceeded({
         referenceId: knowledgeBase.organizationId,
       })
 
@@ -158,7 +168,7 @@ export const reindexKnowledgeBaseTask = schemaTask({
             eq(indexedSources.knowledgeBaseId, payload.knowledgeBaseId),
           ),
         )
-        .orderBy(indexedSources.id)
+        .orderBy(asc(indexedSources.id))
         .limit(BATCH_SIZE)
 
       if (!indexedSourcesToIndex.length) {

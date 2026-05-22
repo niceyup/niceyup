@@ -17,6 +17,8 @@ import {
 import { useTree } from '@headless-tree/react'
 import type {
   IndexedSourceStatus,
+  SourceExplorerNodeFlag,
+  SourceExplorerNodeType,
   SourceOperationStatus,
   SourceOperationType,
   SourceStatus,
@@ -77,8 +79,11 @@ type Params = {
 
 type Item = {
   name?: string
+  type?: SourceExplorerNodeType | null
+  fractionalIndex?: string | null
+  flag?: SourceExplorerNodeFlag | null
+  readOnly?: boolean
   sourceId?: string | null
-  sourceType?: string | null
   source?:
     | {
         type: SourceType | null
@@ -90,24 +95,24 @@ type Item = {
     | undefined
   indexedSource?:
     | {
+        id: string | null
         status: IndexedSourceStatus | null
         indexedAt: Date | null
         operationType: SourceOperationType | null
         operationStatus: SourceOperationStatus | null
       }
     | undefined
-  fractionalIndex?: string | null
-  folder?: boolean
+  children?: string[]
   loading?: boolean
   disabled?: boolean
   unknown?: boolean
-  children?: string[]
 }
 
 function toItemData(item: Item) {
-  const folder = !item.sourceId
-
-  return { ...item, folder, children: folder ? item.children : undefined }
+  return {
+    ...item,
+    children: item.type === 'folder' ? item.children : undefined,
+  }
 }
 
 declare module '@headless-tree/core' {
@@ -120,7 +125,7 @@ declare module '@headless-tree/core' {
 const sourceExplorerFeature: FeatureImplementation<Item> = {
   key: 'source-explorer',
   itemInstance: {
-    isSource: ({ item }) => item.getItemData().sourceId,
+    isSource: ({ item }) => item.getItemData().type === 'source',
   },
 }
 
@@ -140,7 +145,12 @@ type SourceExplorerContextType = {
   setSearchValue: React.Dispatch<React.SetStateAction<string>>
   filteredItems: string[]
   setFilteredItems: React.Dispatch<React.SetStateAction<string[]>>
-  onClickItem?: (item: { id: string; sourceId?: string | null }) => void
+  onClickItem?: (item: {
+    id: string
+    type?: SourceExplorerNodeType | null
+    sourceId?: string | null
+    indexedSourceId?: string | null
+  }) => void
 }
 
 const SourceExplorerContext = React.createContext<
@@ -171,7 +181,12 @@ export function SourceExplorerProvider({
   initialSourceIds?: string[]
   onLoadedRootItems?: () => void
   initialItems?: { id: string; data: Item }[]
-  onClickItem?: (item: { id: string; sourceId?: string | null }) => void
+  onClickItem?: (item: {
+    id: string
+    type?: SourceExplorerNodeType | null
+    sourceId?: string | null
+    indexedSourceId?: string | null
+  }) => void
   children: React.ReactNode
 }) {
   const indent = 20
@@ -209,7 +224,7 @@ export function SourceExplorerProvider({
     setExpandedItems,
     setCheckedItems,
     getItemName: (item) => item.getItemData().name || '',
-    isItemFolder: (item) => Boolean(item.getItemData().folder),
+    isItemFolder: (item) => item.getItemData().type === 'folder',
     createLoadingItemData: () => ({
       id: 'loading',
       loading: true,
@@ -656,9 +671,14 @@ function SourceExplorerItem() {
       className="before:-inset-y-0.5 before:-z-10 relative before:absolute before:inset-x-0 before:bg-background"
       onClick={(e) => {
         if (!e.shiftKey && !e.ctrlKey && !e.metaKey) {
-          const { sourceId } = item.getItemData()
+          const { type, sourceId, indexedSource } = item.getItemData()
 
-          onClickItem?.({ id: item.getId(), sourceId })
+          onClickItem?.({
+            id: item.getId(),
+            type,
+            sourceId,
+            indexedSourceId: indexedSource?.id,
+          })
         }
       }}
     >
@@ -700,9 +720,9 @@ function SourceExplorerItemLabel() {
           </span>
         )}
       </p>
-      {item.getItemData().sourceType && (
+      {item.getItemData().flag && (
         <Badge variant="secondary" className="text-[11px] capitalize">
-          {item.getItemData().sourceType}
+          {item.getItemData().flag}
         </Badge>
       )}
     </span>

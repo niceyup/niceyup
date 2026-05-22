@@ -124,12 +124,12 @@ export type UpdateIndexedSources500 = {
 
 export type UpdateIndexedSourcesMutationRequest = {
   /**
-   * @description Source IDs to add
+   * @description Source identifiers to add
    * @type array
    */
   add: string[]
   /**
-   * @description Source IDs to remove
+   * @description Source identifiers to remove
    * @type array
    */
   remove: string[]

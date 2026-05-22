@@ -3,6 +3,8 @@ import { generateSignatureForUpload } from '@/http/functions/upload-file-to-stor
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { billing } from '@workspace/billing'
+import { sourceFileTypeSchema } from '@workspace/core/sources'
 import { z } from 'zod'
 
 export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
@@ -18,7 +20,7 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
           'x-organization-slug': z.string().optional(),
         }),
         body: z.object({
-          sourceType: z.enum(['file', 'database']).default('file'),
+          fileType: sourceFileTypeSchema.default('unstructured'),
           explorerNode: z
             .object({
               folderId: z.string().nullish(),
@@ -43,7 +45,15 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
         },
       )
 
-      const { sourceType, explorerNode } = request.body
+      const { fileType, explorerNode } = request.body
+
+      await billing.limits.storageUsage.throwIfExceeded({
+        referenceId: organization.id,
+      })
+
+      await billing.limits.computeUsage.throwIfExceeded({
+        referenceId: organization.id,
+      })
 
       const signature = generateSignatureForUpload({
         key: 'sources',
@@ -57,7 +67,7 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
             },
             referenceId: organization.id,
           },
-          sourceType,
+          fileType,
           explorerNode,
         },
         expires: 24 * 60 * 60, // 24 hours

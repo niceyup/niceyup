@@ -66,6 +66,31 @@ export type GetSource200 = {
      */
     status: SourceStatusEnum
   }
+  /**
+   * @type object
+   */
+  summary: {
+    /**
+     * @type boolean
+     */
+    draft: boolean
+    /**
+     * @type boolean
+     */
+    ready: boolean
+    /**
+     * @type boolean
+     */
+    processing: boolean
+    /**
+     * @type boolean
+     */
+    completed: boolean
+    /**
+     * @type boolean
+     */
+    failed: boolean
+  }
 }
 
 /**

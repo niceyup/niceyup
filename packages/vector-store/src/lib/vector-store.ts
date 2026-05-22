@@ -1,5 +1,8 @@
 import type { EmbeddingModel } from '@workspace/ai'
-import type { SourceType } from '@workspace/core/sources'
+import type {
+  DatabaseSourceTableMetadata,
+  SourceType,
+} from '@workspace/core/sources'
 import type { VectorStoreSchemas } from '@workspace/core/vector-stores'
 import type {
   Collection,
@@ -42,24 +45,24 @@ export abstract class VectorStore {
 // Upsert Types
 // ================================
 
-// type DatabaseSourceTablesMetadataDocument = {
-//   content: string
-//   metadata: {
-//     tableMetadata: DatabaseSourceTableMetadata
-//   }
-// }
+type DatabaseSourceTablesMetadataDocument = {
+  content: string
+  metadata: {
+    tableMetadata: DatabaseSourceTableMetadata
+  }
+}
 
-// type DatabaseSourceProperNounsDocument = {
-//   content: string
-//   metadata: {
-//     key: string
-//   }
-// }
+type DatabaseSourceProperNounsDocument = {
+  content: string
+  metadata: {
+    key: string
+  }
+}
 
-// type DatabaseSourceQueryExamplesDocument = {
-//   content: string
-//   metadata?: never
-// }
+type DatabaseSourceQueryExamplesDocument = {
+  content: string
+  metadata?: never
+}
 
 type SourcesCollectionUpsertParams = {
   collection: 'sources'
@@ -68,31 +71,32 @@ type SourcesCollectionUpsertParams = {
   data: SingleOrMultiple<SourcesDocument>
 }
 
-// type DatabaseSourceTablesMetadataCollectionUpsertParams = {
-//   collection: 'database-source-tables-metadata'
-//   sourceId: string
-//   sourceType: 'database'
-//   data: SingleOrMultiple<DatabaseSourceTablesMetadataDocument>
-// }
+type DatabaseSourceTablesMetadataCollectionUpsertParams = {
+  collection: 'database-source-tables-metadata'
+  sourceId: string
+  sourceType: 'database'
+  data: SingleOrMultiple<DatabaseSourceTablesMetadataDocument>
+}
 
-// type DatabaseSourceProperNounsCollectionUpsertParams = {
-//   collection: 'database-source-proper-nouns'
-//   sourceId: string
-//   sourceType: 'database'
-//   data: SingleOrMultiple<DatabaseSourceProperNounsDocument>
-// }
+type DatabaseSourceProperNounsCollectionUpsertParams = {
+  collection: 'database-source-proper-nouns'
+  sourceId: string
+  sourceType: 'database'
+  data: SingleOrMultiple<DatabaseSourceProperNounsDocument>
+}
 
-// type DatabaseSourceQueryExamplesCollectionUpsertParams = {
-//   collection: 'database-source-query-examples'
-//   sourceId: string
-//   sourceType: 'database'
-//   data: SingleOrMultiple<DatabaseSourceQueryExamplesDocument>
-// }
+type DatabaseSourceQueryExamplesCollectionUpsertParams = {
+  collection: 'database-source-query-examples'
+  sourceId: string
+  sourceType: 'database'
+  data: SingleOrMultiple<DatabaseSourceQueryExamplesDocument>
+}
 
-export type UpsertParams = SourcesCollectionUpsertParams
-// | DatabaseSourceTablesMetadataCollectionUpsertParams
-// | DatabaseSourceProperNounsCollectionUpsertParams
-// | DatabaseSourceQueryExamplesCollectionUpsertParams
+export type UpsertParams =
+  | SourcesCollectionUpsertParams
+  | DatabaseSourceTablesMetadataCollectionUpsertParams
+  | DatabaseSourceProperNounsCollectionUpsertParams
+  | DatabaseSourceQueryExamplesCollectionUpsertParams
 
 // ================================
 // Query Types
@@ -115,32 +119,32 @@ type SourcesCollectionQueryResult = {
   data: SourcesDocument
 }
 
-// type DatabaseSourceTablesMetadataCollectionQueryResult = {
-//   collection: 'database-source-tables-metadata'
-//   sourceId: string
-//   sourceType: 'database'
-//   data: DatabaseSourceTablesMetadataDocument
-// }
+type DatabaseSourceTablesMetadataCollectionQueryResult = {
+  collection: 'database-source-tables-metadata'
+  sourceId: string
+  sourceType: 'database'
+  data: DatabaseSourceTablesMetadataDocument
+}
 
-// type DatabaseSourceProperNounsCollectionQueryResult = {
-//   collection: 'database-source-proper-nouns'
-//   sourceId: string
-//   sourceType: 'database'
-//   data: DatabaseSourceProperNounsDocument
-// }
+type DatabaseSourceProperNounsCollectionQueryResult = {
+  collection: 'database-source-proper-nouns'
+  sourceId: string
+  sourceType: 'database'
+  data: DatabaseSourceProperNounsDocument
+}
 
-// type DatabaseSourceQueryExamplesCollectionQueryResult = {
-//   collection: 'database-source-query-examples'
-//   sourceId: string
-//   sourceType: 'database'
-//   data: DatabaseSourceQueryExamplesDocument
-// }
+type DatabaseSourceQueryExamplesCollectionQueryResult = {
+  collection: 'database-source-query-examples'
+  sourceId: string
+  sourceType: 'database'
+  data: DatabaseSourceQueryExamplesDocument
+}
 
 type QueryResultMap = {
   sources: SourcesCollectionQueryResult
-  // 'database-source-tables-metadata': DatabaseSourceTablesMetadataCollectionQueryResult
-  // 'database-source-proper-nouns': DatabaseSourceProperNounsCollectionQueryResult
-  // 'database-source-query-examples': DatabaseSourceQueryExamplesCollectionQueryResult
+  'database-source-tables-metadata': DatabaseSourceTablesMetadataCollectionQueryResult
+  'database-source-proper-nouns': DatabaseSourceProperNounsCollectionQueryResult
+  'database-source-query-examples': DatabaseSourceQueryExamplesCollectionQueryResult
 }
 
 export type QueryResult<COLLECTION extends Collection> =

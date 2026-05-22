@@ -78,7 +78,7 @@ export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
         })
       }
 
-      await billing.meters.processUsage.assertWithinLimit({
+      await billing.limits.computeUsage.throwIfExceeded({
         referenceId: organization.id,
       })
 

@@ -51,8 +51,8 @@ export async function updateSourceFolder(app: FastifyTypedInstance) {
         .from(sourceExplorerNodes)
         .where(
           and(
-            isNull(sourceExplorerNodes.sourceId),
             eq(sourceExplorerNodes.id, folderId),
+            eq(sourceExplorerNodes.type, 'folder'),
             eq(sourceExplorerNodes.organizationId, organization.id),
             isNull(sourceExplorerNodes.deletedAt),
           ),

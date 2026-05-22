@@ -313,7 +313,7 @@ export type {
   GenerateUploadSignatureSource404,
   GenerateUploadSignatureSource429,
   GenerateUploadSignatureSource500,
-  GenerateUploadSignatureSourceMutationRequestSourceTypeEnum,
+  GenerateUploadSignatureSourceMutationRequestFileTypeEnum,
   GenerateUploadSignatureSourceMutationRequest,
   GenerateUploadSignatureSourceMutationResponse,
   GenerateUploadSignatureSourceMutation,
@@ -498,18 +498,32 @@ export type {
   GetSourceQuery,
 } from './GetSource'
 export type {
-  GetSourceIndexingStatusPathParams,
-  GetSourceIndexingStatusHeaderParams,
-  GetSourceIndexingStatus200,
-  GetSourceIndexingStatus400,
-  GetSourceIndexingStatus401,
-  GetSourceIndexingStatus403,
-  GetSourceIndexingStatus404,
-  GetSourceIndexingStatus429,
-  GetSourceIndexingStatus500,
-  GetSourceIndexingStatusQueryResponse,
-  GetSourceIndexingStatusQuery,
-} from './GetSourceIndexingStatus'
+  GetSourceIndexingPathParams,
+  GetSourceIndexingHeaderParams,
+  IndexedSourceStatusEnum,
+  GetSourceIndexing200,
+  GetSourceIndexing400,
+  GetSourceIndexing401,
+  GetSourceIndexing403,
+  GetSourceIndexing404,
+  GetSourceIndexing429,
+  GetSourceIndexing500,
+  GetSourceIndexingQueryResponse,
+  GetSourceIndexingQuery,
+} from './GetSourceIndexing'
+export type {
+  GetSourceIndexingSummaryPathParams,
+  GetSourceIndexingSummaryHeaderParams,
+  GetSourceIndexingSummary200,
+  GetSourceIndexingSummary400,
+  GetSourceIndexingSummary401,
+  GetSourceIndexingSummary403,
+  GetSourceIndexingSummary404,
+  GetSourceIndexingSummary429,
+  GetSourceIndexingSummary500,
+  GetSourceIndexingSummaryQueryResponse,
+  GetSourceIndexingSummaryQuery,
+} from './GetSourceIndexingSummary'
 export type {
   GetVectorStorePathParams,
   GetVectorStoreHeaderParams,
@@ -1106,6 +1120,21 @@ export type {
   TriggerSourceIndexingMutation,
 } from './TriggerSourceIndexing'
 export type {
+  TriggerSourceIngestionHeaderParams,
+  TriggerSourceIngestion204Enum,
+  TriggerSourceIngestion204,
+  TriggerSourceIngestion400,
+  TriggerSourceIngestion401,
+  TriggerSourceIngestion403,
+  TriggerSourceIngestion404,
+  TriggerSourceIngestion429,
+  TriggerSourceIngestion500,
+  TriggerSourceIngestionMutationRequestStatusEnum,
+  TriggerSourceIngestionMutationRequest,
+  TriggerSourceIngestionMutationResponse,
+  TriggerSourceIngestionMutation,
+} from './TriggerSourceIngestion'
+export type {
   UpdateAgentPathParams,
   UpdateAgentHeaderParams,
   UpdateAgent204Enum,
@@ -1376,7 +1405,7 @@ export { deleteModelProvider204Enum } from './DeleteModelProvider'
 export { deleteSource204Enum } from './DeleteSource'
 export { deleteSourceFolder204Enum } from './DeleteSourceFolder'
 export { deleteVectorStore204Enum } from './DeleteVectorStore'
-export { generateUploadSignatureSourceMutationRequestSourceTypeEnum } from './GenerateUploadSignatureSource'
+export { generateUploadSignatureSourceMutationRequestFileTypeEnum } from './GenerateUploadSignatureSource'
 export {
   languageModelSettingsTypeEnum,
   providerProviderEnum2,
@@ -1406,6 +1435,7 @@ export { fileBucketEnum, fileScopeEnum } from './GetFile'
 export { mcpServerTypeEnum, connectionAppEnum2 } from './GetMcpServer'
 export { modelProviderProviderEnum } from './GetModelProvider'
 export { sourceTypeEnum, sourceStatusEnum } from './GetSource'
+export { indexedSourceStatusEnum } from './GetSourceIndexing'
 export { vectorStoreProviderEnum } from './GetVectorStore'
 export {
   listConnectionsQueryParamsAppEnum,
@@ -1724,6 +1754,10 @@ export {
   triggerSourceIndexing204Enum,
   triggerSourceIndexingMutationRequestStatusEnum,
 } from './TriggerSourceIndexing'
+export {
+  triggerSourceIngestion204Enum,
+  triggerSourceIngestionMutationRequestStatusEnum,
+} from './TriggerSourceIngestion'
 export { updateAgent204Enum } from './UpdateAgent'
 export {
   updateAgentConfiguration204Enum,

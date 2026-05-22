@@ -22,27 +22,33 @@ type Params = {
 
 export function IndexedSourceAlert({
   params,
-  count,
+  summary,
 }: {
   params: Params
-  count?: {
+  summary?: {
     idle: number
     stale: number
     failed: number
   } | null
 }) {
-  if (count?.idle) {
-    return <IndexedSourceAlertIdle params={params} idleCount={count.idle} />
+  if (!summary) {
+    return null
   }
 
-  if (count?.failed) {
+  if (summary.idle) {
+    return <IndexedSourceAlertIdle params={params} idleCount={summary.idle} />
+  }
+
+  if (summary.failed) {
     return (
-      <IndexedSourceAlertFailed params={params} failedCount={count.failed} />
+      <IndexedSourceAlertFailed params={params} failedCount={summary.failed} />
     )
   }
 
-  if (count?.stale) {
-    return <IndexedSourceAlertStale params={params} staleCount={count.stale} />
+  if (summary.stale) {
+    return (
+      <IndexedSourceAlertStale params={params} staleCount={summary.stale} />
+    )
   }
 
   return null

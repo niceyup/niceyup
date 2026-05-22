@@ -70,8 +70,11 @@ export async function getItemInSourceExplorerNode(
             ELSE ${sourceExplorerNodes.name}
           END
         `.as('name'),
+      type: sourceExplorerNodes.type,
+      fractionalIndex: sourceExplorerNodes.fractionalIndex,
+      flag: sourceExplorerNodes.flag,
+      readOnly: sourceExplorerNodes.readOnly,
       sourceId: sourceExplorerNodes.sourceId,
-      sourceType: sourceExplorerNodes.sourceType,
       source: {
         type: sources.type,
         status: sources.status,
@@ -80,12 +83,12 @@ export async function getItemInSourceExplorerNode(
         operationStatus: sourceOperations.status,
       },
       indexedSource: {
+        id: indexedSources.id,
         status: indexedSources.status,
         indexedAt: indexedSources.indexedAt,
         operationType: indexedSourceOperations.type,
         operationStatus: indexedSourceOperations.status,
       },
-      fractionalIndex: sourceExplorerNodes.fractionalIndex,
       children: sql<string[]>`
           (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
            FROM ${sourceExplorerNodes} child_node
@@ -149,8 +152,11 @@ export async function getChildrenWithDataInSourceExplorerNode(
               ELSE ${sourceExplorerNodes.name}
             END
           `.as('name'),
+      type: sourceExplorerNodes.type,
+      fractionalIndex: sourceExplorerNodes.fractionalIndex,
+      flag: sourceExplorerNodes.flag,
+      readOnly: sourceExplorerNodes.readOnly,
       sourceId: sourceExplorerNodes.sourceId,
-      sourceType: sourceExplorerNodes.sourceType,
       source: {
         type: sources.type,
         status: sources.status,
@@ -159,12 +165,12 @@ export async function getChildrenWithDataInSourceExplorerNode(
         operationStatus: sourceOperations.status,
       },
       indexedSource: {
+        id: indexedSources.id,
         status: indexedSources.status,
         indexedAt: indexedSources.indexedAt,
         operationType: indexedSourceOperations.type,
         operationStatus: indexedSourceOperations.status,
       },
-      fractionalIndex: sourceExplorerNodes.fractionalIndex,
       children: sql<string[]>`
             (SELECT COALESCE(ARRAY_AGG(id), '{}'::text[])
              FROM ${sourceExplorerNodes} child_node

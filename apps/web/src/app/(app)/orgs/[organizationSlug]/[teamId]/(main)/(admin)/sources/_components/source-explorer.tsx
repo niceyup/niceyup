@@ -28,7 +28,7 @@ export async function SourceExplorer({
   >
 }) {
   const parents = folderId
-    ? await getParentsInSourceExplorerNode(params, { folderId })
+    ? await getParentsInSourceExplorerNode(params, { type: 'folder', folderId })
     : []
 
   const itemPath = [

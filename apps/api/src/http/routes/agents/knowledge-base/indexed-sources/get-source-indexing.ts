@@ -3,6 +3,7 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
+import { indexedSourceStatusSchema } from '@workspace/core/sources'
 import { db } from '@workspace/db'
 import { and, count, eq, isNotNull, isNull, lt, or } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -10,30 +11,36 @@ import { indexedSources, sourceOperations, sources } from '@workspace/db/schema'
 import { resolveAgentKnowledgeBase } from '@workspace/engine/agents'
 import { z } from 'zod'
 
-export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
+export async function getSourceIndexing(app: FastifyTypedInstance) {
   app.register(authenticate).get(
-    '/agents/:agentId/knowledge-base/indexed-sources/status',
+    '/agents/:agentId/knowledge-base/indexed-sources/:indexedSourceId',
     {
       schema: {
         tags: ['Agent Knowledge Bases'],
-        description: 'Get indexed sources status',
-        operationId: 'getSourceIndexingStatus',
+        description: 'Get indexed source',
+        operationId: 'getSourceIndexing',
         headers: z.object({
           'x-organization-id': z.string().optional(),
           'x-organization-slug': z.string().optional(),
         }),
         params: z.object({
           agentId: z.string(),
+          indexedSourceId: z.string(),
         }),
         response: withDefaultErrorResponses({
           200: z
             .object({
-              count: z.object({
-                idle: z.number(),
-                processing: z.number(),
-                completed: z.number(),
-                stale: z.number(),
-                failed: z.number(),
+              indexedSource: z.object({
+                id: z.string(),
+                sourceId: z.string(),
+                status: indexedSourceStatusSchema,
+              }),
+              summary: z.object({
+                idle: z.boolean(),
+                processing: z.boolean(),
+                completed: z.boolean(),
+                stale: z.boolean(),
+                failed: z.boolean(),
               }),
             })
             .describe('Success'),
@@ -49,7 +56,7 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
         },
       )
 
-      const { agentId } = request.params
+      const { agentId, indexedSourceId } = request.params
 
       const agent = await queries.ctx.getAgent(
         { organizationId: organization.id },
@@ -84,13 +91,24 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
         })
       }
 
-      const {
-        idleCount,
-        processingCount,
-        completedCount,
-        staleCount,
-        failedCount,
-      } = await db.transaction(async (tx) => {
+      const [indexedSource] = await db
+        .select({
+          id: indexedSources.id,
+          sourceId: indexedSources.sourceId,
+          status: indexedSources.status,
+        })
+        .from(indexedSources)
+        .where(eq(indexedSources.id, indexedSourceId))
+        .limit(1)
+
+      if (!indexedSource) {
+        throw new BadRequestError({
+          code: 'INDEXED_SOURCE_NOT_FOUND',
+          message: 'Indexed source not found',
+        })
+      }
+
+      const summary = await db.transaction(async (tx) => {
         const [idleCount] = await tx
           .select({ count: count() })
           .from(indexedSources)
@@ -100,7 +118,7 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
           )
           .where(
             and(
-              eq(indexedSources.knowledgeBaseId, agentKnowledgeBase.id),
+              eq(indexedSources.id, indexedSourceId),
               eq(indexedSources.status, 'idle'),
               isNull(sourceOperations.indexedSourceId),
             ),
@@ -115,7 +133,7 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
           )
           .where(
             and(
-              eq(indexedSources.knowledgeBaseId, agentKnowledgeBase.id),
+              eq(indexedSources.id, indexedSourceId),
               or(
                 eq(sourceOperations.status, 'queued'),
                 eq(sourceOperations.status, 'processing'),
@@ -128,7 +146,7 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
           .from(indexedSources)
           .where(
             and(
-              eq(indexedSources.knowledgeBaseId, agentKnowledgeBase.id),
+              eq(indexedSources.id, indexedSourceId),
               eq(indexedSources.status, 'completed'),
             ),
           )
@@ -139,7 +157,7 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
           .innerJoin(sources, eq(indexedSources.sourceId, sources.id))
           .where(
             and(
-              eq(indexedSources.knowledgeBaseId, agentKnowledgeBase.id),
+              eq(indexedSources.id, indexedSourceId),
               eq(indexedSources.status, 'completed'),
               isNotNull(indexedSources.indexedAt),
               lt(indexedSources.indexedAt, sources.contentUpdatedAt),
@@ -155,29 +173,21 @@ export async function getSourceIndexingStatus(app: FastifyTypedInstance) {
           )
           .where(
             and(
-              eq(indexedSources.knowledgeBaseId, agentKnowledgeBase.id),
+              eq(indexedSources.id, indexedSourceId),
               eq(sourceOperations.status, 'failed'),
             ),
           )
 
         return {
-          idleCount: idleCount?.count || 0,
-          processingCount: processingCount?.count || 0,
-          completedCount: completedCount?.count || 0,
-          staleCount: staleCount?.count || 0,
-          failedCount: failedCount?.count || 0,
+          idle: Boolean(idleCount?.count),
+          processing: Boolean(processingCount?.count),
+          completed: Boolean(completedCount?.count),
+          stale: Boolean(staleCount?.count),
+          failed: Boolean(failedCount?.count),
         }
       })
 
-      return {
-        count: {
-          idle: idleCount,
-          processing: processingCount,
-          completed: completedCount,
-          stale: staleCount,
-          failed: failedCount,
-        },
-      }
+      return { indexedSource, summary }
     },
   )
 }

@@ -25,7 +25,13 @@ export function SourceManager({
 }: {
   params: Params
   sourceIds?: string[]
-  onSelectSource?: (sourceId: string | null) => void
+  onSelectSource?: ({
+    sourceId,
+    indexedSourceId,
+  }: {
+    sourceId?: string | null
+    indexedSourceId?: string | null
+  }) => void
 }) {
   const [loadedRootItems, setLoadedRootItems] = React.useState(false)
 
@@ -34,7 +40,12 @@ export function SourceManager({
       params={params}
       initialSourceIds={sourceIds}
       onLoadedRootItems={() => setLoadedRootItems(true)}
-      onClickItem={({ sourceId }) => onSelectSource?.(sourceId || null)}
+      onClickItem={({ sourceId, indexedSourceId }) =>
+        onSelectSource?.({
+          sourceId,
+          indexedSourceId,
+        })
+      }
     >
       {loadedRootItems ? (
         <SourceManagerContent params={params} initialSourceIds={sourceIds} />

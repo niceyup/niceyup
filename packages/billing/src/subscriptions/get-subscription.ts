@@ -57,15 +57,15 @@ export async function getActiveSubscription(params: GetSubscriptionParams) {
 
   if (!subscription) {
     throw new BillingError({
-      code: 'BILLING_SUBSCRIPTION_NOT_FOUND',
-      message: 'Billing subscription not found',
+      code: 'SUBSCRIPTION_NOT_FOUND',
+      message: 'Subscription not found',
     })
   }
 
   if (subscription.status !== 'active' && subscription.status !== 'trialing') {
     throw new BillingError({
-      code: 'BILLING_SUBSCRIPTION_NOT_ACTIVE',
-      message: 'Billing subscription not active',
+      code: 'SUBSCRIPTION_NOT_ACTIVE',
+      message: 'Subscription not active',
       plan: subscription.plan,
     })
   }
@@ -78,8 +78,8 @@ export async function getActiveSubscription(params: GetSubscriptionParams) {
     !subscription.periodEnd
   ) {
     throw new BillingError({
-      code: 'BILLING_SUBSCRIPTION_INCOMPLETE',
-      message: 'Billing subscription is incomplete',
+      code: 'SUBSCRIPTION_INCOMPLETE',
+      message: 'Subscription is incomplete',
       plan: subscription.plan,
     })
   }
@@ -87,6 +87,7 @@ export async function getActiveSubscription(params: GetSubscriptionParams) {
   return {
     id: subscription.id,
     plan: subscription.plan,
+    currency: subscription.currency,
     referenceId: subscription.referenceId,
     stripeCustomerId: subscription.stripeCustomerId,
     stripeSubscriptionId: subscription.stripeSubscriptionId,

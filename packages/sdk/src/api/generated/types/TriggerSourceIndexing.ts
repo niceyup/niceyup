@@ -139,7 +139,7 @@ export type TriggerSourceIndexingMutationRequest = {
    */
   status?: TriggerSourceIndexingMutationRequestStatusEnum
   /**
-   * @description Source IDs to trigger indexing. If none are provided or the array is empty, all sources will be triggered
+   * @description Source identifiers to trigger indexing for. If omitted or empty, indexing will be triggered for all sources.
    * @type array | undefined
    */
   sources?: string[]

@@ -3,14 +3,14 @@
  * Do not edit manually.
  */
 
-export type GetSourceIndexingStatusPathParams = {
+export type GetSourceIndexingSummaryPathParams = {
   /**
    * @type string
    */
   agentId: string
 }
 
-export type GetSourceIndexingStatusHeaderParams = {
+export type GetSourceIndexingSummaryHeaderParams = {
   /**
    * @type string | undefined
    */
@@ -24,11 +24,15 @@ export type GetSourceIndexingStatusHeaderParams = {
 /**
  * @description Success
  */
-export type GetSourceIndexingStatus200 = {
+export type GetSourceIndexingSummary200 = {
   /**
    * @type object
    */
-  count: {
+  summary: {
+    /**
+     * @type number
+     */
+    total: number
     /**
      * @type number
      */
@@ -55,7 +59,7 @@ export type GetSourceIndexingStatus200 = {
 /**
  * @description Bad Request. Usually due to missing parameters, or invalid parameters.
  */
-export type GetSourceIndexingStatus400 = {
+export type GetSourceIndexingSummary400 = {
   /**
    * @type string
    */
@@ -88,7 +92,7 @@ export type GetSourceIndexingStatus400 = {
 /**
  * @description Unauthorized. Due to missing or invalid authentication.
  */
-export type GetSourceIndexingStatus401 = {
+export type GetSourceIndexingSummary401 = {
   /**
    * @type string
    */
@@ -102,7 +106,7 @@ export type GetSourceIndexingStatus401 = {
 /**
  * @description Forbidden. You do not have permission to access this resource or to perform this action.
  */
-export type GetSourceIndexingStatus403 = {
+export type GetSourceIndexingSummary403 = {
   /**
    * @type string
    */
@@ -112,7 +116,7 @@ export type GetSourceIndexingStatus403 = {
 /**
  * @description Not Found. The requested resource was not found.
  */
-export type GetSourceIndexingStatus404 = {
+export type GetSourceIndexingSummary404 = {
   /**
    * @type string
    */
@@ -122,7 +126,7 @@ export type GetSourceIndexingStatus404 = {
 /**
  * @description Too Many Requests. You have exceeded the rate limit. Try again later.
  */
-export type GetSourceIndexingStatus429 = {
+export type GetSourceIndexingSummary429 = {
   /**
    * @type string
    */
@@ -132,7 +136,7 @@ export type GetSourceIndexingStatus429 = {
 /**
  * @description Internal Server Error. This is a problem with the server that you cannot fix.
  */
-export type GetSourceIndexingStatus500 = {
+export type GetSourceIndexingSummary500 = {
   /**
    * @type string
    */
@@ -143,17 +147,17 @@ export type GetSourceIndexingStatus500 = {
   message: string
 }
 
-export type GetSourceIndexingStatusQueryResponse = GetSourceIndexingStatus200
+export type GetSourceIndexingSummaryQueryResponse = GetSourceIndexingSummary200
 
-export type GetSourceIndexingStatusQuery = {
-  Response: GetSourceIndexingStatus200
-  PathParams: GetSourceIndexingStatusPathParams
-  HeaderParams: GetSourceIndexingStatusHeaderParams
+export type GetSourceIndexingSummaryQuery = {
+  Response: GetSourceIndexingSummary200
+  PathParams: GetSourceIndexingSummaryPathParams
+  HeaderParams: GetSourceIndexingSummaryHeaderParams
   Errors:
-    | GetSourceIndexingStatus400
-    | GetSourceIndexingStatus401
-    | GetSourceIndexingStatus403
-    | GetSourceIndexingStatus404
-    | GetSourceIndexingStatus429
-    | GetSourceIndexingStatus500
+    | GetSourceIndexingSummary400
+    | GetSourceIndexingSummary401
+    | GetSourceIndexingSummary403
+    | GetSourceIndexingSummary404
+    | GetSourceIndexingSummary429
+    | GetSourceIndexingSummary500
 }

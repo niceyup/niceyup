@@ -36,9 +36,9 @@ export async function getConversationExplorerNodeFolder(
     .where(
       and(
         eq(conversationExplorerNodes.id, params.id),
+        eq(conversationExplorerNodes.type, 'folder'),
         eq(conversationExplorerNodes.visibility, params.visibility),
         eq(conversationExplorerNodes.agentId, params.agentId),
-        isNull(conversationExplorerNodes.conversationId),
         ownerTypeCondition,
         isNull(conversationExplorerNodes.deletedAt),
       ),
@@ -103,12 +103,13 @@ export async function createConversationExplorerNodeItem(
   const [explorerNode] = await (tx ?? db)
     .insert(conversationExplorerNodes)
     .values({
-      visibility: params.visibility,
-      agentId: params.agentId,
-      conversationId: params.conversationId,
+      type: 'conversation',
       parentId:
         !params.parentId || params.parentId === 'root' ? null : params.parentId,
       fractionalIndex,
+      visibility: params.visibility,
+      agentId: params.agentId,
+      conversationId: params.conversationId,
       ...ownerTypeCondition,
     })
     .returning({

@@ -1,18 +1,18 @@
 import { cache } from '@workspace/cache'
 import { BillingError } from '@workspace/core/errros'
-import { meters, plans } from '../lib/plans'
+import { LIMITS, METERS } from '../lib/constants'
 import { unixTimestamp } from '../lib/utils'
 import { stripeClient } from '../stripe-client'
 import { getActiveSubscription } from '../subscriptions'
 
-function aiUsageKey(stripeCustomerId: string) {
-  return `billing:meters:${meters.aiUsage.slug}:${stripeCustomerId}`
+function computeUsageKey(stripeCustomerId: string) {
+  return `billing:meters:${METERS['compute-usage'].slug}:${stripeCustomerId}`
 }
 
 const CACHE_TTL_SECONDS = 5 * 60 // 5 minutes
 
 async function getCachedValue(stripeCustomerId: string) {
-  const key = aiUsageKey(stripeCustomerId)
+  const key = computeUsageKey(stripeCustomerId)
 
   const cachedValue = await cache.get(key)
 
@@ -30,14 +30,14 @@ async function getCachedValue(stripeCustomerId: string) {
 }
 
 async function setCachedValue(stripeCustomerId: string, value: number) {
-  const key = aiUsageKey(stripeCustomerId)
+  const key = computeUsageKey(stripeCustomerId)
 
   await cache.set(key, value)
   await cache.expire(key, CACHE_TTL_SECONDS)
 }
 
 async function deleteCachedValue(stripeCustomerId: string) {
-  const key = aiUsageKey(stripeCustomerId)
+  const key = computeUsageKey(stripeCustomerId)
 
   await cache.del(key)
 }
@@ -57,7 +57,7 @@ type ValueParams = {
   cachedValueMaxThreshold?: number
 }
 
-export async function value(params: ValueParams): Promise<number | null> {
+export async function value(params: ValueParams) {
   const cachedValue = await getCachedValue(params.stripeCustomerId)
 
   const shouldUseCache =
@@ -70,7 +70,7 @@ export async function value(params: ValueParams): Promise<number | null> {
   }
   const meterEventSummaries =
     await stripeClient.billing.meters.listEventSummaries(
-      meters.aiUsage.meterId,
+      METERS['compute-usage'].meterId,
       {
         customer: params.stripeCustomerId,
         start_time: unixTimestamp(params.startDate),
@@ -96,11 +96,11 @@ type IngestParams = {
 
 export async function ingest(params: IngestParams) {
   if (!Number.isFinite(params.value)) {
-    throw new Error('Invalid AI usage value to ingest')
+    throw new Error('Invalid compute usage value to ingest')
   }
 
   await stripeClient.billing.meterEvents.create({
-    event_name: meters.aiUsage.slug,
+    event_name: METERS['compute-usage'].slug,
     payload: {
       value: params.value.toFixed(12),
       stripe_customer_id: params.stripeCustomerId,
@@ -111,7 +111,7 @@ export async function ingest(params: IngestParams) {
   await deleteCachedValue(params.stripeCustomerId)
 }
 
-type AssertWithinLimitParams = (
+type ThrowIfExceededParams = (
   | {
       referenceId: string | null | undefined
       stripeCustomerId?: never
@@ -131,25 +131,26 @@ type AssertWithinLimitParams = (
   cb?: (error: unknown) => Promise<void>
 }
 
-export async function assertWithinLimit(params: AssertWithinLimitParams) {
+export async function throwIfExceeded(params: ThrowIfExceededParams) {
   try {
     const subscription = await getActiveSubscription(params)
 
-    const aiUsageLimit =
-      plans[subscription.plan as keyof typeof plans]?.meters.aiUsage.limits
-        .value ?? 0
+    const computeUsageLimit =
+      LIMITS[subscription.plan]?.computeUsage[
+        subscription.currency.toUpperCase()
+      ]?.value ?? 0
 
-    const aiUsage = await value({
+    const computeUsage = await value({
       stripeCustomerId: subscription.stripeCustomerId,
       startDate: subscription.periodStart,
       endDate: subscription.periodEnd,
-      cachedValueMaxThreshold: aiUsageLimit,
+      cachedValueMaxThreshold: computeUsageLimit,
     })
 
-    if (!aiUsage || aiUsage > aiUsageLimit) {
+    if (computeUsage > computeUsageLimit || !computeUsageLimit) {
       throw new BillingError({
-        code: 'BILLING_AI_USAGE_LIMIT_EXCEEDED',
-        message: 'Billing AI usage limit exceeded',
+        code: 'COMPUTE_USAGE_LIMIT_EXCEEDED',
+        message: 'Compute usage limit exceeded',
         plan: subscription.plan,
       })
     }
@@ -160,8 +161,8 @@ export async function assertWithinLimit(params: AssertWithinLimitParams) {
   }
 }
 
-export const aiUsage = {
+export const computeUsage = {
   value,
   ingest,
-  assertWithinLimit,
+  throwIfExceeded,
 }

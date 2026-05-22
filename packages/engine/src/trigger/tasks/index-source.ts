@@ -20,12 +20,13 @@ import { resolveEmbeddingModelSettings, resolveVectorStore } from '../../agents'
 import { RetryableError } from '../../errors'
 import {
   ingestDatabaseSource,
+  ingestDatabaseSourceQueryExamples,
+  ingestDatabaseSourceTablesMetadata,
   ingestFileSource,
   ingestQuestionAnswerSource,
   ingestTextSource,
   ingestWebsiteSource,
 } from '../../ingestors'
-import { env } from '../../lib/env'
 import { tmpDir } from '../../lib/utils'
 import { indexedSourceQueue } from './queue'
 
@@ -33,12 +34,19 @@ export type IndexSourceTask = typeof indexSourceTask
 
 export const indexSourceTask = schemaTask({
   id: 'index-source',
+  retry: {
+    outOfMemory: {
+      machine: 'medium-1x',
+    },
+  },
   queue: indexedSourceQueue,
   schema: z.object({
     indexedSourceId: z.string(),
     reindexing: z.boolean().optional(),
   }),
-  run: async (payload) => {
+  run: async (payload, { ctx }) => {
+    const isRetrying = ctx.attempt.number > 1
+
     const [indexedSource] = await db
       .select({
         id: indexedSources.id,
@@ -60,11 +68,18 @@ export const indexSourceTask = schemaTask({
       .where(eq(indexedSources.id, payload.indexedSourceId))
       .limit(1)
 
-    const isQueued =
-      indexedSource?.operation?.type === 'index' &&
-      indexedSource?.operation?.status === 'queued'
+    if (!indexedSource) {
+      throw new InvalidArgumentError({
+        code: 'INDEXED_SOURCE_NOT_FOUND',
+        message: 'Indexed source not found',
+      })
+    }
 
-    if (!isQueued) {
+    const isQueued =
+      indexedSource.operation?.type === 'index' &&
+      indexedSource.operation.status === 'queued'
+
+    if (!isQueued && !isRetrying) {
       return {
         status: 'skipped',
         message: 'Job skipped because the status is no longer queued',
@@ -263,10 +278,7 @@ export const indexSourceTask = schemaTask({
         const destinationPath = tmpDir(file.filePath)
 
         await storage.download({
-          bucket:
-            file.bucket === 'engine'
-              ? env.S3_ENGINE_BUCKET
-              : env.S3_DEFAULT_BUCKET,
+          bucket: file.bucket,
           key: file.filePath,
           destinationPath,
         })
@@ -294,10 +306,7 @@ export const indexSourceTask = schemaTask({
           })
         }
 
-        const {
-          tablesMetadata,
-          // queryExamples
-        } = databaseSource
+        const { tablesMetadata, queryExamples } = databaseSource
 
         await ingestDatabaseSource({
           vectorStore,
@@ -305,22 +314,22 @@ export const indexSourceTask = schemaTask({
           tablesMetadata: tablesMetadata || [],
         })
 
-        // await ingestDatabaseSourceTablesMetadata({
-        //   vectorStore,
-        //   sourceId: indexedSource.sourceId,
-        //   tablesMetadata: tablesMetadata || [],
-        // })
+        await ingestDatabaseSourceTablesMetadata({
+          vectorStore,
+          sourceId: indexedSource.sourceId,
+          tablesMetadata: tablesMetadata || [],
+        })
 
         // await ingestDatabaseSourceProperNouns({
         //   vectorStore,
         //   sourceId: indexedSource.sourceId,
         // })
 
-        // await ingestDatabaseSourceQueryExamples({
-        //   vectorStore,
-        //   sourceId: indexedSource.sourceId,
-        //   queryExamples: queryExamples || [],
-        // })
+        await ingestDatabaseSourceQueryExamples({
+          vectorStore,
+          sourceId: indexedSource.sourceId,
+          queryExamples: queryExamples || [],
+        })
         break
 
       default:

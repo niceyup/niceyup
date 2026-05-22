@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { desc, eq } from 'drizzle-orm'
 import { db } from '../db'
 import { subscriptions } from '../schema/auth'
 
@@ -24,6 +24,7 @@ export async function getSubscription(params: GetSubscriptionParams) {
     .select({
       id: subscriptions.id,
       plan: subscriptions.plan,
+      currency: subscriptions.currency,
       referenceId: subscriptions.referenceId,
       stripeCustomerId: subscriptions.stripeCustomerId,
       stripeSubscriptionId: subscriptions.stripeSubscriptionId,
@@ -48,6 +49,7 @@ export async function getSubscription(params: GetSubscriptionParams) {
           ? eq(subscriptions.stripeCustomerId, params.stripeCustomerId)
           : eq(subscriptions.referenceId, params.referenceId),
     )
+    .orderBy(desc(subscriptions.id))
     .limit(1)
 
   return subscription || null

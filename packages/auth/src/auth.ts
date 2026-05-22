@@ -1,5 +1,7 @@
 import { apiKey } from '@better-auth/api-key'
+import { billing } from '@workspace/billing'
 import { stripePlugin } from '@workspace/billing/better-auth'
+import { LIMITS } from '@workspace/billing/constants'
 import { cache } from '@workspace/cache'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
@@ -21,6 +23,7 @@ import {
 const config = {
   appName: 'Niceyup',
   secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.WEB_URL,
   database: drizzleAdapter(db, {
     provider: 'pg',
     usePlural: true,
@@ -98,6 +101,15 @@ const config = {
   },
   plugins: [
     organization({
+      membershipLimit: async (_user, organization) => {
+        const subscription = await billing.subscriptions.getSubscription({
+          referenceId: organization.id,
+        })
+
+        const seats = LIMITS[subscription?.plan ?? 'hobby']?.seats.value ?? 1
+
+        return seats
+      },
       ac,
       roles,
       teams: {
@@ -107,9 +119,9 @@ const config = {
         },
         allowRemovingAllTeams: true,
       },
+      invitationExpiresIn: 60 * 60 * 48, // 48 hours
       cancelPendingInvitationsOnReInvite: true,
       requireEmailVerificationOnInvitation: true,
-      invitationExpiresIn: 60 * 60 * 48, // 48 hours
       sendInvitationEmail: async (data) => {
         const url = `${env.WEB_URL}/invitations/${data.id}`
         const expiresIn = '48 hours'

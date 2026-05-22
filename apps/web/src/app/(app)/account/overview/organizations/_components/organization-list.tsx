@@ -7,7 +7,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@workspace/ui/components/avatar'
-import { Badge } from '@workspace/ui/components/badge'
 import { Button } from '@workspace/ui/components/button'
 import {
   DropdownMenu,
@@ -132,9 +131,9 @@ export function OrganizationList({
               </div>
 
               <div className="flex items-center gap-1">
-                <Badge variant="outline" className="rounded-sm">
+                {/* <Badge variant="outline" className="rounded-sm">
                   Standard
-                </Badge>
+                </Badge> */}
               </div>
 
               <div className="ml-auto flex items-center">

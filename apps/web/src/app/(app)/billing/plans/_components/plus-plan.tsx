@@ -3,7 +3,12 @@
 import { Button } from '@workspace/ui/components/button'
 import { CheckCircleIcon } from 'lucide-react'
 
-const features = ['Full access to all features']
+const features = [
+  'Full access to all features',
+  '$5 included in AI usage',
+  'Pay only for additional usage',
+  'Priority support',
+]
 
 export function PlusPlan() {
   return (
@@ -18,9 +23,7 @@ export function PlusPlan() {
         $10 <span className="text-muted-foreground text-sm">/month</span>
       </h1>
 
-      <Button className="w-full" disabled>
-        Get Started
-      </Button>
+      <Button disabled>Get Started</Button>
 
       <ul className="flex flex-col gap-2">
         {features.map((feature) => (

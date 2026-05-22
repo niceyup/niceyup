@@ -14,7 +14,11 @@ export default async function Layout({
   const membershipRole = await getMembershipRole({ organizationSlug })
 
   if (!membershipRole.isAdmin) {
-    return <PermissionDenied />
+    return (
+      <div className="w-full rounded-lg border bg-background p-4 py-24">
+        <PermissionDenied />
+      </div>
+    )
   }
 
   return children

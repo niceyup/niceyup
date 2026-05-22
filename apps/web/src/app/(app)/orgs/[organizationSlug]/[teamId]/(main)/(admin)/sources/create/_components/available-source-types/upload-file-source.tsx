@@ -63,7 +63,7 @@ export function UploadFileSource({
     params: {
       organizationSlug: params.organizationSlug,
     },
-    sourceType: 'file',
+    fileType: 'unstructured',
     explorerNode: {
       folderId,
     },

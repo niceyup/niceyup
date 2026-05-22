@@ -210,7 +210,7 @@ export async function listOrganizationMembers(
   const checkAccessToOrganization = await getOrganization(context)
 
   if (!checkAccessToOrganization) {
-    return null
+    return []
   }
 
   const listOrganizationMembers = await db
@@ -280,9 +280,8 @@ export async function getMembership(context: ContextGetMembershipParams) {
     isBilling: membership.role === 'owner' || membership.role === 'billing',
     isAdmin:
       membership.role === 'owner' ||
-      membership.role === 'admin' ||
-      membership.role === 'billing',
-    isMember: membership.role === 'member',
+      membership.role === 'billing' ||
+      membership.role === 'admin',
   }
 }
 
@@ -324,8 +323,7 @@ export async function getMembershipRole(
     isBilling: member?.role === 'owner' || member?.role === 'billing',
     isAdmin:
       member?.role === 'owner' ||
-      member?.role === 'admin' ||
-      member?.role === 'billing',
-    isMember: member?.role === 'member',
+      member?.role === 'billing' ||
+      member?.role === 'admin',
   }
 }
