@@ -1,1 +1,0 @@
-ALTER TABLE "agents" ADD COLUMN "enable_source_retrieval_tool" boolean DEFAULT false NOT NULL;

@@ -1,1 +1,0 @@
-ALTER TABLE "sources" ALTER COLUMN "status" SET DEFAULT 'draft';

@@ -1,1 +1,0 @@
-ALTER TABLE "providers" DROP CONSTRAINT "providers_provider_unique";

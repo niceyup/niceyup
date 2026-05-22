@@ -1,1 +1,0 @@
-ALTER TABLE "agents" ALTER COLUMN "enable_source_retrieval_tool" DROP NOT NULL;

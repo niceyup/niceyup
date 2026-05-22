@@ -1,1 +1,0 @@
-ALTER TABLE "conversation_explorer_tree" ADD COLUMN "deleted_at" timestamp with time zone;

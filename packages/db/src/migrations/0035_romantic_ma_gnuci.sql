@@ -1,1 +1,0 @@
-ALTER TABLE "connections" ADD COLUMN "tokens" text;

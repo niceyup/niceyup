@@ -1,5 +1,4 @@
 import { Emitter } from '@/components/emitter'
-import { checkAccess } from '../access-required/_actions/check-access'
 import { UploadLocalFileSourceOverlay } from './orgs/[organizationSlug]/[teamId]/(main)/(admin)/sources/create/_components/upload-local-file-source-overlay'
 
 export default async function Layout({
@@ -9,8 +8,6 @@ export default async function Layout({
   children: React.ReactNode
   modals: React.ReactNode
 }>) {
-  await checkAccess()
-
   return (
     <Emitter>
       <div className="flex min-h-svh flex-col items-stretch justify-center bg-foreground/3">

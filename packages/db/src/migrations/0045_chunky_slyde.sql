@@ -1,1 +1,0 @@
-ALTER TABLE "invitations" ADD COLUMN "created_at" timestamp with time zone NOT NULL;
