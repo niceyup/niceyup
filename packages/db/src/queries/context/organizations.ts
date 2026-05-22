@@ -277,11 +277,7 @@ export async function getMembership(context: ContextGetMembershipParams) {
   return {
     ...membership,
     isOwner: membership.role === 'owner',
-    isBilling: membership.role === 'owner' || membership.role === 'billing',
-    isAdmin:
-      membership.role === 'owner' ||
-      membership.role === 'billing' ||
-      membership.role === 'admin',
+    isAdmin: membership.role === 'owner' || membership.role === 'admin',
   }
 }
 
@@ -320,10 +316,6 @@ export async function getMembershipRole(
   return {
     role: member?.role || null,
     isOwner: member?.role === 'owner',
-    isBilling: member?.role === 'owner' || member?.role === 'billing',
-    isAdmin:
-      member?.role === 'owner' ||
-      member?.role === 'billing' ||
-      member?.role === 'admin',
+    isAdmin: member?.role === 'owner' || member?.role === 'admin',
   }
 }

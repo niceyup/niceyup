@@ -3,16 +3,30 @@
   "ui": "tui",
   "tasks": {
     "build": {
-      "inputs": ["$TURBO_DEFAULT$", ".env"],
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ],
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ]
     },
     "start": {
       "cache": false,
-      "dependsOn": ["build"]
+      "dependsOn": [
+        "build"
+      ]
     },
     "dev": {
-      "inputs": ["$TURBO_DEFAULT$", ".env"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env"
+      ],
       "persistent": true,
       "cache": false
     },
@@ -20,7 +34,9 @@
       "cache": false
     },
     "lint": {
-      "dependsOn": ["^lint"]
+      "dependsOn": [
+        "^lint"
+      ]
     },
     "format": {}
   },
@@ -54,21 +70,7 @@
     "TRIGGER_SECRET_KEY",
     "RESEND_API_KEY",
     "RESEND_FROM_EMAIL",
-    "NOVU_SECRET_KEY",
-    "STRIPE_SECRET_KEY",
-    "STRIPE_WEBHOOK_SECRET",
-    "STRIPE_HOBBY_PLAN_PRICE_ID",
-    "STRIPE_HOBBY_PLAN_AI_USAGE_PRICE_ID",
-    "STRIPE_HOBBY_PLAN_COMPUTE_USAGE_PRICE_ID",
-    "STRIPE_STANDARD_PLAN_PRICE_ID",
-    "STRIPE_STANDARD_PLAN_AI_USAGE_PRICE_ID",
-    "STRIPE_STANDARD_PLAN_COMPUTE_USAGE_PRICE_ID",
-    "STRIPE_ADVANCED_PLAN_PRICE_ID",
-    "STRIPE_ADVANCED_PLAN_AI_USAGE_PRICE_ID",
-    "STRIPE_ADVANCED_PLAN_COMPUTE_USAGE_PRICE_ID",
-    "STRIPE_AI_USAGE_METER_ID",
-    "STRIPE_COMPUTE_USAGE_METER_ID",
-    "CURRENCY_API_KEY"
+    "NOVU_SECRET_KEY"
   ],
   "globalPassThroughEnv": [
     "NODE_ENV",

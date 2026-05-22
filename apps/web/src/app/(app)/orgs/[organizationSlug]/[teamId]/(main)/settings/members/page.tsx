@@ -1,23 +1,14 @@
-import { getActiveSubscription } from '@/actions/billing'
 import { listPendingInvitations } from '@/actions/invitations'
 import { getMembership } from '@/actions/membership'
 import { listOrganizationMembers } from '@/actions/organizations'
 import { listTeams } from '@/actions/teams'
 import { PermissionDenied } from '@/components/permission-denied'
 import type { OrganizationTeamParams } from '@/lib/types'
-import {
-  PREMIUM_ORGANIZATION_PLANS,
-  type PremiumOrganizationPlan,
-} from '@workspace/billing/constants'
 import type { SearchParams } from 'nuqs/server'
 import { MemberList } from './_components/member-list'
 import { PendingInvitationsList } from './_components/pending-invitations-list'
 import { TabBar, type TabItem } from './_components/tab-bar'
 import { loadSearchParams } from './_lib/search-params'
-
-function isPremiumOrganizationPlan(plan: string | undefined): boolean {
-  return PREMIUM_ORGANIZATION_PLANS.includes(plan as PremiumOrganizationPlan)
-}
 
 export default async function Page({
   params,
@@ -34,10 +25,6 @@ export default async function Page({
   if (!membership) {
     return null
   }
-
-  const activeSubscription = await getActiveSubscription({ organizationSlug })
-
-  const isPremium = isPremiumOrganizationPlan(activeSubscription?.plan)
 
   const [members, pendingInvitations, teams] = await Promise.all([
     listOrganizationMembers({ organizationSlug }),
@@ -73,7 +60,6 @@ export default async function Page({
             organizationId: membership.organizationId,
           }}
           membership={membership}
-          isPremium={isPremium}
           members={members}
           teams={teams}
         />
@@ -86,7 +72,6 @@ export default async function Page({
               organizationSlug,
               organizationId: membership.organizationId,
             }}
-            isPremium={isPremium}
             pendingInvitations={pendingInvitations}
             teams={teams}
           />

@@ -3,7 +3,6 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import {
   databaseSourceQueryExampleSchema,
   databaseSourceTableMetadataSchema,
@@ -119,10 +118,6 @@ export async function updateSourceConfiguration(app: FastifyTypedInstance) {
       const validatedData = sourceTypeSchema.parse({
         type: source.type,
         ...payload,
-      })
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: organization.id,
       })
 
       const updatedSource = await db.transaction(async (tx) => {

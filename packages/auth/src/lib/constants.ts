@@ -1,10 +1,9 @@
-export type Role = 'owner' | 'billing' | 'admin' | 'member'
+export type Role = 'owner' | 'admin' | 'member'
 
 export const ALLOWED_ROLES = {
   owner: ['owner'],
-  billing: ['owner', 'billing'],
-  admin: ['owner', 'billing', 'admin', 'member'],
-  member: ['owner', 'billing', 'admin', 'member'],
+  admin: ['owner', 'admin'],
+  member: ['owner', 'admin', 'member'],
 } as const satisfies Record<Role, [Role, ...Role[]]>
 
 export const COOKIE_PREFIX = 'auth' as const

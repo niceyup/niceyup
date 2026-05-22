@@ -3,7 +3,6 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -59,10 +58,6 @@ export async function deleteSource(app: FastifyTypedInstance) {
           message: 'Source not found or you don’t have access',
         })
       }
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: organization.id,
-      })
 
       await db.transaction(async (tx) => {
         const [sourceOperation] = await tx

@@ -3,7 +3,6 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import type {
   SourceOperationStatus,
   SourceOperationType,
@@ -114,10 +113,6 @@ async function manageSources(
     listSources: SourceData[]
   },
 ) {
-  await billing.limits.computeUsage.throwIfExceeded({
-    referenceId: context.organizationId,
-  })
-
   const { addedSources, removedSources } = await db.transaction(async (tx) => {
     const sourcesWithoutOperation: { id: string }[] = [] // create source operations
     const sourcesWithOperation: { id: string }[] = [] // update source operations

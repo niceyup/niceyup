@@ -47,7 +47,6 @@ import { Separator } from '@workspace/ui/components/separator'
 import { Spinner } from '@workspace/ui/components/spinner'
 import { cn } from '@workspace/ui/lib/utils'
 import { CheckIcon, ChevronsUpDownIcon, MailIcon } from 'lucide-react'
-import Link from 'next/link'
 import * as React from 'react'
 import { useForm, useFormContext } from 'react-hook-form'
 import { toast } from 'sonner'
@@ -62,19 +61,17 @@ type Team = Awaited<ReturnType<typeof listTeams>>[number]
 
 const formSchema = z.object({
   email: z.email().trim(),
-  role: z.enum(['member', 'admin', 'billing']),
+  role: z.enum(['member', 'admin']),
   teamId: z.string().optional(),
 })
 
 export function InviteMemberDialog({
   params,
-  isPremium,
   teams,
   open,
   onOpenChange,
 }: {
   params: Params
-  isPremium?: boolean
   teams?: Team[]
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -140,7 +137,6 @@ export function InviteMemberDialog({
                       <InputGroupInput
                         {...field}
                         placeholder="davy.jones@example.com"
-                        disabled={!isPremium}
                       />
                     </InputGroup>
                   </FormControl>
@@ -162,7 +158,7 @@ export function InviteMemberDialog({
                       <FormDescription>The role of the member.</FormDescription>
                     </div>
 
-                    <RoleSelect disabled={!isPremium} />
+                    <RoleSelect />
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -181,7 +177,7 @@ export function InviteMemberDialog({
                         The initial team to which the member will be added.
                       </FormDescription>
                     </div>
-                    <TeamSelect teams={teams} disabled={!isPremium} />
+                    <TeamSelect teams={teams} />
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -200,20 +196,10 @@ export function InviteMemberDialog({
                   Cancel
                 </Button>
               </DialogClose>
-              {isPremium ? (
-                <Button type="submit" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting && <Spinner />}
-                  Invite
-                </Button>
-              ) : (
-                <Button type="button" asChild>
-                  <Link
-                    href={`/orgs/${params.organizationSlug}/~/settings/billing`}
-                  >
-                    Upgrade Plan
-                  </Link>
-                </Button>
-              )}
+              <Button type="submit" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting && <Spinner />}
+                Invite
+              </Button>
             </DialogFooter>
           </form>
         </Form>
@@ -261,7 +247,7 @@ function RoleSelect({ disabled }: { disabled?: boolean }) {
               </>
             )}
 
-            {['member', 'admin', 'billing']
+            {['member', 'admin']
               .filter((value) => value !== getValues(name))
               .map((value) => (
                 <CommandItem

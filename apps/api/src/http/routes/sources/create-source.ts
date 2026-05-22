@@ -7,7 +7,6 @@ import {
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import {
@@ -118,10 +117,6 @@ export async function createSource(app: FastifyTypedInstance) {
           })
         }
       }
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: organization.id,
-      })
 
       const { source, itemExplorerNode } = await db.transaction(async (tx) => {
         const [source] = await tx

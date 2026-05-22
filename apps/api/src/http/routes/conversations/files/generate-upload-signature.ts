@@ -4,7 +4,6 @@ import { generateSignatureForUpload } from '@/http/functions/upload-file-to-stor
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import { queries } from '@workspace/db/queries'
 import { z } from 'zod'
 
@@ -71,10 +70,6 @@ export async function generateUploadSignatureConversation(
           })
         }
       }
-
-      await billing.limits.storageUsage.throwIfExceeded({
-        referenceId: organization.id,
-      })
 
       const signature = generateSignatureForUpload({
         key: 'conversations',

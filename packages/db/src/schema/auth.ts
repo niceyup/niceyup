@@ -18,7 +18,6 @@ export const users = pgTable('users', {
     .$defaultFn(() => false)
     .notNull(),
   image: text('image'),
-  stripeCustomerId: text('stripe_customer_id'),
   ...timestamps,
 })
 
@@ -85,7 +84,6 @@ export const organizations = pgTable(
     slug: text('slug').notNull().unique(),
     logo: text('logo'),
     metadata: text('metadata'),
-    stripeCustomerId: text('stripe_customer_id'),
     createdAt: timestamps.createdAt,
   },
   (table) => [uniqueIndex('organizations_slug_uidx').on(table.slug)],
@@ -195,27 +193,6 @@ export const apikeys = pgTable(
     index('apikeys_key_idx').on(table.key),
   ],
 )
-
-export const subscriptions = pgTable('subscriptions', {
-  ...id,
-  plan: text('plan').notNull(),
-  currency: text('currency').notNull().default('usd'),
-  referenceId: text('reference_id').notNull(),
-  stripeCustomerId: text('stripe_customer_id'),
-  stripeSubscriptionId: text('stripe_subscription_id'),
-  status: text('status').default('incomplete'),
-  periodStart: timestamp('period_start', { withTimezone: true }),
-  periodEnd: timestamp('period_end', { withTimezone: true }),
-  trialStart: timestamp('trial_start', { withTimezone: true }),
-  trialEnd: timestamp('trial_end', { withTimezone: true }),
-  cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
-  cancelAt: timestamp('cancel_at', { withTimezone: true }),
-  canceledAt: timestamp('canceled_at', { withTimezone: true }),
-  endedAt: timestamp('ended_at', { withTimezone: true }),
-  seats: integer('seats'),
-  billingInterval: text('billing_interval'),
-  stripeScheduleId: text('stripe_schedule_id'),
-})
 
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),

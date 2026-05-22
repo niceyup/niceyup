@@ -6,7 +6,6 @@ import {
   verifySignatureForUpload,
 } from '@/http/functions/upload-file-to-storage'
 import type { FastifyTypedInstance } from '@/types/fastify'
-import { billing } from '@workspace/billing'
 import { NiceyupError } from '@workspace/core/errros'
 import { z } from 'zod'
 
@@ -66,10 +65,6 @@ export async function uploadFilesConversation(app: FastifyTypedInstance) {
           files: 10,
           fileSize: 100 * 1024 * 1024, // 100 MB
         },
-      })
-
-      await billing.limits.storageUsage.throwIfExceeded({
-        referenceId: data.referenceId,
       })
 
       const uploadedFiles = []

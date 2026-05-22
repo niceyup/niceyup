@@ -60,13 +60,11 @@ type Team = Awaited<ReturnType<typeof listTeams>>[number]
 export function MemberList({
   params,
   membership,
-  isPremium,
   members,
   teams,
 }: {
   params: Params
   membership: Membership
-  isPremium?: boolean
   members?: OrganizationMember[]
   teams?: Team[]
 }) {
@@ -87,7 +85,6 @@ export function MemberList({
       {membership.isAdmin && (
         <InviteMemberDialog
           params={params}
-          isPremium={isPremium}
           teams={teams}
           open={inviteMemberDialogOpen}
           onOpenChange={setInviteMemberDialogOpen}

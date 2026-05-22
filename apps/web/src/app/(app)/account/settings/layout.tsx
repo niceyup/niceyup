@@ -17,10 +17,6 @@ export default async function Layout({
       href: '/account/settings/authentication',
     },
     {
-      label: 'Billing',
-      href: '/account/settings/billing',
-    },
-    {
       label: 'Documentation',
       href: 'https://docs.niceyup.com/accounts',
       target: '_blank',

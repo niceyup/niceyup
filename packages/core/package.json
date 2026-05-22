@@ -21,7 +21,6 @@
   "exports": {
     ".": "./src/index.ts",
     "./errros": "./src/errros/index.ts",
-    "./billing": "./src/billing/index.ts",
     "./model-providers": "./src/model-providers/index.ts",
     "./vector-stores": "./src/vector-stores/index.ts",
     "./connections": "./src/connections/index.ts",

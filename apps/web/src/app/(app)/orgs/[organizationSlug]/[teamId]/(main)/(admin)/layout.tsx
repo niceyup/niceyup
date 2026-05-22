@@ -1,8 +1,6 @@
-import { getActiveSubscription } from '@/actions/billing'
 import { getMembershipRole } from '@/actions/membership'
 import { PermissionDenied } from '@/components/permission-denied'
 import type { OrganizationTeamParams } from '@/lib/types'
-import { redirect } from 'next/navigation'
 
 export default async function Layout({
   params,
@@ -17,12 +15,6 @@ export default async function Layout({
 
   if (!membershipRole.isAdmin) {
     return <PermissionDenied />
-  }
-
-  const activeSubscription = await getActiveSubscription({ organizationSlug })
-
-  if (!activeSubscription) {
-    return redirect(`/orgs/${organizationSlug}/~/settings/billing`)
   }
 
   return children

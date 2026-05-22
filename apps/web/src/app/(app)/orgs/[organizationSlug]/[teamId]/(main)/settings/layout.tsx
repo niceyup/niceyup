@@ -26,13 +26,6 @@ export default async function Layout({
     },
   ]
 
-  if (membershipRole.isBilling) {
-    items.push({
-      label: 'Billing',
-      href: `/orgs/${organizationSlug}/~/settings/billing`,
-    })
-  }
-
   if (membershipRole.isAdmin) {
     items.push({
       label: 'Flags',

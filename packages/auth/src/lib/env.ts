@@ -1,4 +1,3 @@
-import { env as billingEnv } from '@workspace/billing/env'
 import { env as cacheEnv } from '@workspace/cache/env'
 import { env as databaseEnv } from '@workspace/db/env'
 import { env as emailEnv } from '@workspace/email/env'
@@ -18,7 +17,7 @@ const oauthEnv = createEnv({
 })
 
 export const env = createEnv({
-  extends: [oauthEnv, baseEnv, billingEnv, cacheEnv, databaseEnv, emailEnv],
+  extends: [oauthEnv, baseEnv, cacheEnv, databaseEnv, emailEnv],
   server: {
     BETTER_AUTH_SECRET: z.string(),
   },

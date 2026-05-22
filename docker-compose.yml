@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: supersecret
-      POSTGRES_DB: db-niceyup
+      POSTGRES_DB: niceyup-db
     volumes:
       - postgres-data:/bitnami/postgresql
 

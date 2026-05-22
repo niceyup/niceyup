@@ -12,8 +12,6 @@
   "dependencies": {
     "@better-auth/api-key": "1.6.2",
     "@better-auth/core": "1.6.2",
-    "@better-auth/stripe": "1.6.2",
-    "@workspace/billing": "workspace:*",
     "@workspace/cache": "workspace:*",
     "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",

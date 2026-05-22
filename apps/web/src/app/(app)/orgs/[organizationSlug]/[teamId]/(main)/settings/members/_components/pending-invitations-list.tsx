@@ -46,12 +46,10 @@ type Team = Awaited<ReturnType<typeof listTeams>>[number]
 
 export function PendingInvitationsList({
   params,
-  isPremium,
   pendingInvitations,
   teams,
 }: {
   params: Params
-  isPremium?: boolean
   pendingInvitations?: PendingInvitation[]
   teams?: Team[]
 }) {
@@ -69,7 +67,6 @@ export function PendingInvitationsList({
     <div className="flex w-full flex-col gap-4">
       <InviteMemberDialog
         params={params}
-        isPremium={isPremium}
         teams={teams}
         open={inviteMemberDialogOpen}
         onOpenChange={setInviteMemberDialogOpen}

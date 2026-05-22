@@ -113,7 +113,6 @@ We are working on the documentation to get started with Niceyup for local develo
 - Resend (Transactional & Marketing)
 - GitHub Actions (CI/CD)
 - GitHub OAuth (Social authentication)
-- Polar (Payment processing)
 - Novu (Multi-channel notifications)
 - OpenAI (AI models)
 - Anthropic (AI models)

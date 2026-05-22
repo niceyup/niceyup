@@ -3,7 +3,6 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -77,10 +76,6 @@ export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
           message: 'Knowledge base is already reindexing',
         })
       }
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: organization.id,
-      })
 
       await db
         .update(knowledgeBases)

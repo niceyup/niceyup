@@ -1,5 +1,4 @@
 import { schemaTask } from '@trigger.dev/sdk'
-import { billing } from '@workspace/billing'
 import { InvalidArgumentError } from '@workspace/core/errros'
 import { db } from '@workspace/db'
 import { and, asc, eq, gt, isNull, sql } from '@workspace/db/orm'
@@ -144,10 +143,6 @@ export const reindexKnowledgeBaseTask = schemaTask({
           message: 'Job canceled by user',
         }
       }
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: knowledgeBase.organizationId,
-      })
 
       const indexedSourcesToIndex = await db
         .select({

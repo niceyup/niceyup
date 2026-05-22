@@ -23,7 +23,6 @@
     "@scalar/fastify-api-reference": "1.38.1",
     "@workspace/ai": "workspace:*",
     "@workspace/auth": "workspace:*",
-    "@workspace/billing": "workspace:*",
     "@workspace/cache": "workspace:*",
     "@workspace/core": "workspace:*",
     "@workspace/db": "workspace:*",

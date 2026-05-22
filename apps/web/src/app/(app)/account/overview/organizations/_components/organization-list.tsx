@@ -130,12 +130,6 @@ export function OrganizationList({
                 </span>
               </div>
 
-              <div className="flex items-center gap-1">
-                {/* <Badge variant="outline" className="rounded-sm">
-                  Standard
-                </Badge> */}
-              </div>
-
               <div className="ml-auto flex items-center">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

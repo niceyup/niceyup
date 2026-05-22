@@ -8,12 +8,10 @@ import * as messages from './messages'
 import * as modelSettings from './model-settings'
 import * as organizations from './organizations'
 import * as sources from './sources'
-import * as subscriptions from './subscriptions'
 import * as vectorStores from './vector-stores'
 
 export const queries = {
   ...organizations,
-  ...subscriptions,
 
   ...flags,
   ...vectorStores,

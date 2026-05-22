@@ -1,7 +1,4 @@
 import { apiKey } from '@better-auth/api-key'
-import { billing } from '@workspace/billing'
-import { stripePlugin } from '@workspace/billing/better-auth'
-import { LIMITS } from '@workspace/billing/constants'
 import { cache } from '@workspace/cache'
 import { db } from '@workspace/db'
 import { eq } from '@workspace/db/orm'
@@ -101,15 +98,6 @@ const config = {
   },
   plugins: [
     organization({
-      membershipLimit: async (_user, organization) => {
-        const subscription = await billing.subscriptions.getSubscription({
-          referenceId: organization.id,
-        })
-
-        const seats = LIMITS[subscription?.plan ?? 'hobby']?.seats.value ?? 1
-
-        return seats
-      },
       ac,
       roles,
       teams: {
@@ -176,7 +164,6 @@ const config = {
         references: apiKeyConfigs.organization.references, // Owned by organizations
       },
     ]),
-    stripePlugin(),
 
     // API Reference for Better Auth
     ...(env.APP_ENV === 'development' ? [openAPI({ path: '/docs' })] : []),

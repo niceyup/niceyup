@@ -3,7 +3,6 @@ import { withDefaultErrorResponses } from '@/http/errors/default-error-responses
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import { db } from '@workspace/db'
 import { and, eq, inArray } from '@workspace/db/orm'
 import { queries } from '@workspace/db/queries'
@@ -187,10 +186,6 @@ async function manageIndexedSources(
     sourcesToRemove: SourceData[]
   },
 ) {
-  await billing.limits.computeUsage.throwIfExceeded({
-    referenceId: context.organizationId,
-  })
-
   const { addedIndexedSources, removedIndexedSources } = await db.transaction(
     async (tx) => {
       const addedIndexedSources: { id: string }[] = []

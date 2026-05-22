@@ -2,11 +2,7 @@
 
 import { env } from '@/lib/env'
 import { roles } from '@workspace/auth/access'
-import {
-  createAuthClient,
-  organizationClient,
-  stripeClient,
-} from '@workspace/auth/client'
+import { createAuthClient, organizationClient } from '@workspace/auth/client'
 
 export const authClient = createAuthClient({
   baseURL: env.NEXT_PUBLIC_WEB_URL,
@@ -16,9 +12,6 @@ export const authClient = createAuthClient({
         enabled: true,
       },
       roles,
-    }),
-    stripeClient({
-      subscription: true,
     }),
   ],
 })

@@ -10,7 +10,6 @@ import {
   verifySignatureForUpload,
 } from '@/http/functions/upload-file-to-storage'
 import type { FastifyTypedInstance } from '@/types/fastify'
-import { billing } from '@workspace/billing'
 import { NiceyupError } from '@workspace/core/errros'
 import type { SourceFileType } from '@workspace/core/sources'
 import { db } from '@workspace/db'
@@ -97,14 +96,6 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
           })
         }
       }
-
-      await billing.limits.storageUsage.throwIfExceeded({
-        referenceId: data.referenceId,
-      })
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: data.referenceId,
-      })
 
       const uploadedFiles = []
 

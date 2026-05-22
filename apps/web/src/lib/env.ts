@@ -1,12 +1,11 @@
 import { env as authEnv } from '@workspace/auth/env'
-import { env as billingEnv } from '@workspace/billing/env'
 import { env as cacheEnv } from '@workspace/cache/env'
 import { env as databaseEnv } from '@workspace/db/env'
 import { env as baseEnv, createEnv, z } from '@workspace/env'
 import { env as realtimeEnv } from '@workspace/realtime/env'
 
 export const env = createEnv({
-  extends: [baseEnv, authEnv, billingEnv, cacheEnv, databaseEnv, realtimeEnv],
+  extends: [baseEnv, authEnv, cacheEnv, databaseEnv, realtimeEnv],
   server: {
     NEXT_CONFIG_OUTPUT: z.enum(['standalone']).optional(),
   },

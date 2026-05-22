@@ -79,9 +79,6 @@ export function OrganizationSwitcher({
                   <AvatarFallback className="rounded-sm" />
                 </Avatar>
                 <span className="truncate">{activeOrganization.name}</span>
-                {/* <Badge variant="outline" className="rounded-sm">
-                  Standard
-                </Badge> */}
               </>
             ) : (
               <span className="text-muted-foreground">Select organization</span>

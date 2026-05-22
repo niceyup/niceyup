@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
   transpilePackages: [
     '@workspace/ai',
     '@workspace/auth',
-    '@workspace/billing',
     '@workspace/cache',
     '@workspace/core',
     '@workspace/db',

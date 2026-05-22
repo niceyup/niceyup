@@ -3,7 +3,6 @@ import { generateSignatureForUpload } from '@/http/functions/upload-file-to-stor
 import { authenticate } from '@/http/middlewares/authenticate'
 import type { FastifyTypedInstance } from '@/types/fastify'
 import { resolveAuthOrganizationContext } from '@workspace/auth/context'
-import { billing } from '@workspace/billing'
 import { sourceFileTypeSchema } from '@workspace/core/sources'
 import { z } from 'zod'
 
@@ -46,14 +45,6 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
       )
 
       const { fileType, explorerNode } = request.body
-
-      await billing.limits.storageUsage.throwIfExceeded({
-        referenceId: organization.id,
-      })
-
-      await billing.limits.computeUsage.throwIfExceeded({
-        referenceId: organization.id,
-      })
 
       const signature = generateSignatureForUpload({
         key: 'sources',

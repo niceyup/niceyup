@@ -38,7 +38,6 @@ export type Membership = {
   userId: string
   organizationId: string
   isOwner?: boolean
-  isBilling?: boolean
   isAdmin?: boolean
 }
 

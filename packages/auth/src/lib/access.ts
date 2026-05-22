@@ -10,24 +10,19 @@ type Roles = { [key in string]: Role }
 
 const statement = {
   ...defaultStatements,
-  project: ['create', 'update', 'delete', 'billing'],
+  project: ['create', 'update', 'delete'],
 } as const
 
 const ac = createAccessControl(statement)
 
 const owner = ac.newRole({
   ...ownerAc.statements,
-  project: ['create', 'update', 'delete', 'billing'],
+  project: ['create', 'update', 'delete'],
 })
 
 const admin = ac.newRole({
   ...adminAc.statements,
-  project: ['create', 'update', 'billing'],
-})
-
-const billing = ac.newRole({
-  ...memberAc.statements,
-  project: ['create', 'billing'],
+  project: ['create', 'update'],
 })
 
 const member = ac.newRole({
@@ -38,7 +33,6 @@ const member = ac.newRole({
 const roles: Roles = {
   owner,
   admin,
-  billing,
   member,
 }
 
