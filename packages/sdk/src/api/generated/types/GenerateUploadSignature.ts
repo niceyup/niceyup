@@ -119,7 +119,18 @@ export type GenerateUploadSignature500 = {
   message: string
 }
 
+export const generateUploadSignatureMutationRequestScopeEnum = {
+  avatars: 'avatars',
+} as const
+
+export type GenerateUploadSignatureMutationRequestScopeEnum =
+  (typeof generateUploadSignatureMutationRequestScopeEnum)[keyof typeof generateUploadSignatureMutationRequestScopeEnum]
+
 export type GenerateUploadSignatureMutationRequest = {
+  /**
+   * @type string
+   */
+  scope: GenerateUploadSignatureMutationRequestScopeEnum
   /**
    * @default "*"
    * @type string | undefined

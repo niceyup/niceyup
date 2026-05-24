@@ -47,10 +47,10 @@ export async function generateUploadSignatureSource(app: FastifyTypedInstance) {
       const { fileType, explorerNode } = request.body
 
       const signature = generateSignatureForUpload({
-        key: 'sources',
+        key: 'files:sources',
         payload: {
           data: {
-            bucket: 'engine',
+            bucket: 'private',
             scope: 'sources',
             metadata: {
               sentByUserId: user?.id,

@@ -15,7 +15,7 @@ type ResolveApiKeyConfigIdParams = {
   apiKey: string | null | undefined
 }
 
-export const resolveApiKeyConfigId = (params: ResolveApiKeyConfigIdParams) => {
+export function resolveApiKeyConfigId(params: ResolveApiKeyConfigIdParams) {
   if (!params.apiKey) {
     return null
   }

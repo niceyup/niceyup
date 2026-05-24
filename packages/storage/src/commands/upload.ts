@@ -1,11 +1,11 @@
 import type { Readable } from 'node:stream'
 import { Upload } from '@aws-sdk/lib-storage'
-import type { Bucket } from '../lib/types'
+import type { FileBucket } from '@workspace/core/files'
 import { resolveBucket } from '../lib/utils'
 import { s3Client } from '../s3-client'
 
 type UploadParams = {
-  bucket: Bucket
+  bucket: FileBucket
   key: string
   body: string | Uint8Array | Buffer | Readable
   contentType: string

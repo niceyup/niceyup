@@ -56,7 +56,7 @@ export async function uploadFilesConversation(app: FastifyTypedInstance) {
       const { 'x-upload-signature': signature } = request.headers
 
       const { data } = verifySignatureForUpload({
-        key: 'conversations',
+        key: 'files:conversations',
         signature,
       })
 

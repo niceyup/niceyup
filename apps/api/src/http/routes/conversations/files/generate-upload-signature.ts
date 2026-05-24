@@ -72,10 +72,10 @@ export async function generateUploadSignatureConversation(
       }
 
       const signature = generateSignatureForUpload({
-        key: 'conversations',
+        key: 'files:conversations',
         payload: {
           data: {
-            bucket: 'default',
+            bucket: 'public',
             scope: 'conversations',
             metadata: {
               sentByUserId: user.id,

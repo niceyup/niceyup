@@ -54,8 +54,8 @@ export function EditAgentLogoForm({
   })
 
   const { uploadFile } = useUploadFiles({
-    bucket: 'default',
-    scope: 'public',
+    bucket: 'public',
+    scope: 'avatars',
     params: {
       organizationSlug: params.organizationSlug,
     },

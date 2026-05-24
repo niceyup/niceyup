@@ -39,8 +39,8 @@ export async function getFile(app: FastifyTypedInstance) {
                 fileMimeType: z.string(),
                 fileSize: z.number(),
                 filePath: z.string(),
-                bucket: z.enum(['default', 'engine']),
-                scope: z.enum(['public', 'conversations', 'sources']),
+                bucket: z.string(),
+                scope: z.string(),
                 url: z.string(),
               }),
             })
@@ -84,7 +84,7 @@ export async function getFile(app: FastifyTypedInstance) {
 
       let url: string
 
-      if (file.bucket === 'engine') {
+      if (file.bucket === 'private') {
         url = await storage.signedUrl({
           bucket: file.bucket,
           key: file.filePath,

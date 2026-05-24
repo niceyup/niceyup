@@ -868,7 +868,7 @@ export function useChat({
   }
 
   const { uploading, uploadFile: uploadFileFn } = useUploadFiles({
-    bucket: 'default',
+    bucket: 'public',
     scope: 'conversations',
     params: {
       organizationSlug: params.organizationSlug,

@@ -27,11 +27,11 @@ function getGenerateUploadSignatureUrl() {
  */
 export async function generateUploadSignature(
   {
-    headers,
     data,
+    headers,
   }: {
+    data: GenerateUploadSignatureMutationRequest
     headers: GenerateUploadSignatureHeaderParams
-    data?: GenerateUploadSignatureMutationRequest
   },
   config: Partial<RequestConfig<GenerateUploadSignatureMutationRequest>> & {
     client?: typeof fetch

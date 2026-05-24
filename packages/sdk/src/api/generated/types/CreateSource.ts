@@ -139,11 +139,18 @@ export type CreateSourceMutationRequestTypeEnum3 =
   (typeof createSourceMutationRequestTypeEnum3)[keyof typeof createSourceMutationRequestTypeEnum3]
 
 export const createSourceMutationRequestTypeEnum4 = {
-  database: 'database',
+  website: 'website',
 } as const
 
 export type CreateSourceMutationRequestTypeEnum4 =
   (typeof createSourceMutationRequestTypeEnum4)[keyof typeof createSourceMutationRequestTypeEnum4]
+
+export const createSourceMutationRequestTypeEnum5 = {
+  database: 'database',
+} as const
+
+export type CreateSourceMutationRequestTypeEnum5 =
+  (typeof createSourceMutationRequestTypeEnum5)[keyof typeof createSourceMutationRequestTypeEnum5]
 
 export const createSourceMutationRequestDialectEnum = {
   postgresql: 'postgresql',
@@ -156,6 +163,7 @@ export type CreateSourceMutationRequestDialectEnum =
 export const createSourceMutationRequestTypeEnum = {
   text: 'text',
   'question-answer': 'question-answer',
+  website: 'website',
   database: 'database',
 } as const
 
@@ -200,6 +208,20 @@ export type CreateSourceMutationRequest = (
        * @type string
        */
       type: CreateSourceMutationRequestTypeEnum4
+      /**
+       * @type string
+       */
+      name: string
+      /**
+       * @type string, uri
+       */
+      url: string
+    }
+  | {
+      /**
+       * @type string
+       */
+      type: CreateSourceMutationRequestTypeEnum5
       /**
        * @type string
        */

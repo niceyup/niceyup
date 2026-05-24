@@ -15,6 +15,7 @@ import type {
   ConversationExplorerNodeType,
   ConversationVisibility,
 } from '@workspace/core/conversations'
+import type { FileBucket, FileMetadata, FileScope } from '@workspace/core/files'
 import type { KnowledgeBaseStatus } from '@workspace/core/knowledge-bases'
 import type { McpServerType } from '@workspace/core/mcp-servers'
 import type {
@@ -56,9 +57,6 @@ import {
 import type {
   ActiveToolArguments,
   ActiveToolType,
-  FileBucket,
-  FileMetadata,
-  FileScope,
   McpServerCredentials,
   McpServerHeaders,
   OperationError,

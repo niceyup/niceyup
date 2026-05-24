@@ -41,8 +41,8 @@ export function EditUserImageForm({
   })
 
   const { uploadFile } = useUploadFiles({
-    bucket: 'default',
-    scope: 'public',
+    bucket: 'public',
+    scope: 'avatars',
     accept: 'image/png, image/jpeg',
     maxSize: 2 * 1024 * 1024, // 2 MB
   })

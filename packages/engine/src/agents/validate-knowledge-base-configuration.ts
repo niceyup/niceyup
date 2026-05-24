@@ -8,9 +8,9 @@ type ValidateKnowledgeBaseConfigurationParams = {
   embeddingModelSettingsId?: string | null
 }
 
-export const safeValidateKnowledgeBaseConfiguration = async (
+export async function safeValidateKnowledgeBaseConfiguration(
   params: ValidateKnowledgeBaseConfigurationParams,
-) => {
+) {
   try {
     if (!params.id) {
       throw new InvalidArgumentError({
@@ -53,9 +53,9 @@ export const safeValidateKnowledgeBaseConfiguration = async (
   }
 }
 
-export const validateKnowledgeBaseConfiguration = async (
+export async function validateKnowledgeBaseConfiguration(
   params: ValidateKnowledgeBaseConfigurationParams,
-) => {
+) {
   const { success, data, error } =
     await safeValidateKnowledgeBaseConfiguration(params)
 

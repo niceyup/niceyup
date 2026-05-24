@@ -58,7 +58,7 @@ export function UploadFileSource({
   })
 
   const { generateSignature } = useUploadFiles({
-    bucket: 'engine',
+    bucket: 'private',
     scope: 'sources',
     params: {
       organizationSlug: params.organizationSlug,

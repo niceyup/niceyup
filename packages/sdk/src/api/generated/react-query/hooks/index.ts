@@ -99,6 +99,7 @@ export type { UpdateIndexedSourcesMutationKey } from './useUpdateIndexedSources'
 export type { UpdateMcpServerMutationKey } from './useUpdateMcpServer'
 export type { UpdateModelProviderMutationKey } from './useUpdateModelProvider'
 export type { UpdateSourceMutationKey } from './useUpdateSource'
+export type { UpdateSourceConfigurationMutationKey } from './useUpdateSourceConfiguration'
 export type { UpdateSourceFolderMutationKey } from './useUpdateSourceFolder'
 export type { UpdateVectorStoreMutationKey } from './useUpdateVectorStore'
 export type { UploadFilesMutationKey } from './useUploadFiles'
@@ -530,6 +531,10 @@ export {
   useUpdateModelProvider,
 } from './useUpdateModelProvider'
 export { updateSourceMutationKey, useUpdateSource } from './useUpdateSource'
+export {
+  updateSourceConfigurationMutationKey,
+  useUpdateSourceConfiguration,
+} from './useUpdateSourceConfiguration'
 export {
   updateSourceFolderMutationKey,
   useUpdateSourceFolder,

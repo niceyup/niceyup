@@ -74,7 +74,7 @@ export async function uploadFilesSource(app: FastifyTypedInstance) {
         explorerNode: {
           folderId?: string | null
         }
-      }>({ key: 'sources', signature })
+      }>({ key: 'files:sources', signature })
 
       const files = request.files({
         limits: {

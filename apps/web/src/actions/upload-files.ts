@@ -5,10 +5,10 @@ import { sdk } from '@/lib/sdk'
 
 export type GenerateUploadSignatureParams =
   | ({
-      bucket: 'default'
+      bucket: 'public'
     } & (
       | {
-          scope: 'public'
+          scope: 'avatars'
           params?: {
             organizationSlug?: string | null
           }
@@ -27,7 +27,7 @@ export type GenerateUploadSignatureParams =
         }
     ))
   | ({
-      bucket: 'engine'
+      bucket: 'private'
     } & {
       scope: 'sources'
       params: {
@@ -64,10 +64,12 @@ export async function generateUploadSignature(
         : await sdk.generateUploadSignature({
             headers: {
               'x-app-secret-key': env.APP_SECRET_KEY,
-              'x-organization-slug':
-                params.params?.organizationSlug ?? undefined,
+              ...(params.params?.organizationSlug
+                ? { 'x-organization-slug': params.params.organizationSlug }
+                : {}),
             },
             data: {
+              scope: params.scope,
               accept: params.accept,
               maxFiles: params.maxFiles,
               maxSize: params.maxSize,

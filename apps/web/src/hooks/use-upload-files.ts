@@ -114,34 +114,43 @@ export function useUploadFiles(params: GenerateUploadSignatureParams) {
   }
 }
 
-export const uploadFileWithSignature = async ({
-  scope = 'public',
+type Scope = GenerateUploadSignatureParams['scope']
+
+function resolvePath(scope: Scope) {
+  if (scope === 'conversations') {
+    return '/api/conversations/files'
+  }
+
+  if (scope === 'sources') {
+    return '/api/sources/files'
+  }
+
+  return '/api/files'
+}
+
+export async function uploadFileWithSignature({
+  scope,
   signature,
   file,
 }: {
-  scope: GenerateUploadSignatureParams['scope']
+  scope: Scope
   signature: string
   file: File
-}): Promise<UploadedFile> => {
+}): Promise<UploadedFile> {
   try {
-    let path = '/api/files'
-
-    if (scope === 'conversations') {
-      path = '/api/conversations/files'
-    } else if (scope === 'sources') {
-      path = '/api/sources/files'
-    }
-
     const formData = new FormData()
     formData.set('file', file as File)
 
-    const response = await fetch(`${env.NEXT_PUBLIC_API_URL}${path}`, {
-      method: 'POST',
-      headers: {
-        'x-upload-signature': signature,
+    const response = await fetch(
+      `${env.NEXT_PUBLIC_API_URL}${resolvePath(scope)}`,
+      {
+        method: 'POST',
+        headers: {
+          'x-upload-signature': signature,
+        },
+        body: formData,
       },
-      body: formData,
-    })
+    )
 
     const result = await response.json()
 

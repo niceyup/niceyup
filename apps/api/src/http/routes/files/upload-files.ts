@@ -58,7 +58,7 @@ export async function uploadFiles(app: FastifyTypedInstance) {
       const { data, accept, maxFiles, maxSize } = verifySignatureForUpload<{
         maxFiles: number
         maxSize: number
-      }>({ key: 'public', signature })
+      }>({ key: 'files', signature })
 
       const files = request.files({
         limits: {

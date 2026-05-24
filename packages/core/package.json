@@ -28,6 +28,7 @@
     "./models": "./src/models/index.ts",
     "./conversations": "./src/conversations/index.ts",
     "./knowledge-bases": "./src/knowledge-bases/index.ts",
-    "./sources": "./src/sources/index.ts"
+    "./sources": "./src/sources/index.ts",
+    "./files": "./src/files/index.ts"
   }
 }

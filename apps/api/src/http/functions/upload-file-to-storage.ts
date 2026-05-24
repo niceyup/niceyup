@@ -3,30 +3,15 @@ import { BadRequestError } from '@/http/errors/bad-request-error'
 import { UnauthorizedError } from '@/http/errors/unauthorized-error'
 import { env } from '@/lib/env'
 import type { MultipartFile } from '@fastify/multipart'
+import {
+  type FileBucketScope,
+  type FileMetadata,
+  fileBucketScopeSchema,
+} from '@workspace/core/files'
 import { queries } from '@workspace/db/queries'
-import type { FileMetadata } from '@workspace/db/types'
 import { storage } from '@workspace/storage'
 import { generateId } from '@workspace/utils'
 import jwt from 'jsonwebtoken'
-
-const BucketScope = {
-  default: ['public', 'conversations'],
-  engine: ['sources'],
-}
-
-export type FileBucket = 'default' | 'engine'
-
-export type FileScope = 'public' | 'conversations' | 'sources'
-
-export type FileBucketScope =
-  | {
-      bucket: 'default'
-      scope: 'public' | 'conversations'
-    }
-  | {
-      bucket: 'engine'
-      scope: 'sources'
-    }
 
 export type FileData = FileBucketScope & {
   metadata?: FileMetadata
@@ -132,7 +117,9 @@ type UploadFileToStorageParams = {
 }
 
 export async function uploadFileToStorage(params: UploadFileToStorageParams) {
-  if (!BucketScope[params.data.bucket].includes(params.data.scope)) {
+  const bucketScopeValidation = fileBucketScopeSchema.safeParse(params.data)
+
+  if (!bucketScopeValidation.success) {
     throw new BadRequestError({
       code: 'INVALID_BUCKET_SCOPE',
       message: 'Invalid bucket scope',

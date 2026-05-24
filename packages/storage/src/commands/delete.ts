@@ -3,12 +3,12 @@ import {
   DeleteObjectsCommand,
   paginateListObjectsV2,
 } from '@aws-sdk/client-s3'
-import type { Bucket } from '../lib/types'
+import type { FileBucket } from '@workspace/core/files'
 import { resolveBucket } from '../lib/utils'
 import { s3Client } from '../s3-client'
 
 type DeleteParams = {
-  bucket: Bucket
+  bucket: FileBucket
   key: string
 }
 
@@ -22,7 +22,7 @@ export async function del(params: DeleteParams) {
 }
 
 type DeleteDirectoryParams = {
-  bucket: Bucket
+  bucket: FileBucket
   path: `/${string}/`
 }
 

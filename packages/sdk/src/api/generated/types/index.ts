@@ -125,6 +125,7 @@ export type {
   CreateSourceMutationRequestTypeEnum2,
   CreateSourceMutationRequestTypeEnum3,
   CreateSourceMutationRequestTypeEnum4,
+  CreateSourceMutationRequestTypeEnum5,
   CreateSourceMutationRequestDialectEnum,
   CreateSourceMutationRequestTypeEnum,
   CreateSourceMutationRequest,
@@ -287,6 +288,7 @@ export type {
   GenerateUploadSignature404,
   GenerateUploadSignature429,
   GenerateUploadSignature500,
+  GenerateUploadSignatureMutationRequestScopeEnum,
   GenerateUploadSignatureMutationRequest,
   GenerateUploadSignatureMutationResponse,
   GenerateUploadSignatureMutation,
@@ -430,8 +432,6 @@ export type {
   GetFilePathParams,
   GetFileQueryParams,
   GetFileHeaderParams,
-  FileBucketEnum,
-  FileScopeEnum,
   GetFile200,
   GetFile400,
   GetFile401,
@@ -1304,6 +1304,21 @@ export type {
   UpdateSourceMutation,
 } from './UpdateSource'
 export type {
+  UpdateSourceConfigurationPathParams,
+  UpdateSourceConfigurationHeaderParams,
+  UpdateSourceConfiguration204Enum,
+  UpdateSourceConfiguration204,
+  UpdateSourceConfiguration400,
+  UpdateSourceConfiguration401,
+  UpdateSourceConfiguration403,
+  UpdateSourceConfiguration404,
+  UpdateSourceConfiguration429,
+  UpdateSourceConfiguration500,
+  UpdateSourceConfigurationMutationRequest,
+  UpdateSourceConfigurationMutationResponse,
+  UpdateSourceConfigurationMutation,
+} from './UpdateSourceConfiguration'
+export type {
   UpdateSourceFolderPathParams,
   UpdateSourceFolderHeaderParams,
   UpdateSourceFolder204Enum,
@@ -1393,6 +1408,7 @@ export {
   createSourceMutationRequestTypeEnum2,
   createSourceMutationRequestTypeEnum3,
   createSourceMutationRequestTypeEnum4,
+  createSourceMutationRequestTypeEnum5,
   createSourceMutationRequestDialectEnum,
   createSourceMutationRequestTypeEnum,
 } from './CreateSource'
@@ -1405,6 +1421,7 @@ export { deleteModelProvider204Enum } from './DeleteModelProvider'
 export { deleteSource204Enum } from './DeleteSource'
 export { deleteSourceFolder204Enum } from './DeleteSourceFolder'
 export { deleteVectorStore204Enum } from './DeleteVectorStore'
+export { generateUploadSignatureMutationRequestScopeEnum } from './GenerateUploadSignature'
 export { generateUploadSignatureSourceMutationRequestFileTypeEnum } from './GenerateUploadSignatureSource'
 export {
   languageModelSettingsTypeEnum,
@@ -1431,7 +1448,6 @@ export {
   providerProviderEnum3,
   promptMessagesRoleEnum3,
 } from './GetConversationConfiguration'
-export { fileBucketEnum, fileScopeEnum } from './GetFile'
 export { mcpServerTypeEnum, connectionAppEnum2 } from './GetMcpServer'
 export { modelProviderProviderEnum } from './GetModelProvider'
 export { sourceTypeEnum, sourceStatusEnum } from './GetSource'
@@ -1781,6 +1797,7 @@ export {
   updateModelProviderMutationRequestProviderEnum,
 } from './UpdateModelProvider'
 export { updateSource204Enum } from './UpdateSource'
+export { updateSourceConfiguration204Enum } from './UpdateSourceConfiguration'
 export { updateSourceFolder204Enum } from './UpdateSourceFolder'
 export {
   updateVectorStore204Enum,

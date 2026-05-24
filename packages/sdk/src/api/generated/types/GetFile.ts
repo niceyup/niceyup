@@ -29,22 +29,6 @@ export type GetFileHeaderParams = {
   'x-organization-slug'?: string
 }
 
-export const fileBucketEnum = {
-  default: 'default',
-  engine: 'engine',
-} as const
-
-export type FileBucketEnum =
-  (typeof fileBucketEnum)[keyof typeof fileBucketEnum]
-
-export const fileScopeEnum = {
-  public: 'public',
-  conversations: 'conversations',
-  sources: 'sources',
-} as const
-
-export type FileScopeEnum = (typeof fileScopeEnum)[keyof typeof fileScopeEnum]
-
 /**
  * @description Success
  */
@@ -76,11 +60,11 @@ export type GetFile200 = {
     /**
      * @type string
      */
-    bucket: FileBucketEnum
+    bucket: string
     /**
      * @type string
      */
-    scope: FileScopeEnum
+    scope: string
     /**
      * @type string
      */

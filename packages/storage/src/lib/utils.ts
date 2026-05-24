@@ -1,6 +1,10 @@
+import type { FileBucket } from '@workspace/core/files'
 import { env } from './env'
-import type { Bucket } from './types'
 
-export const resolveBucket = (bucket: Bucket) => {
-  return bucket === 'engine' ? env.S3_ENGINE_BUCKET : env.S3_DEFAULT_BUCKET
+export function resolveBucket(bucket: FileBucket) {
+  if (bucket === 'private') {
+    return env.S3_PRIVATE_BUCKET
+  }
+
+  return env.S3_BUCKET
 }

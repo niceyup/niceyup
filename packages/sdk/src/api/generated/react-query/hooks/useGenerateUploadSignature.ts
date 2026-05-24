@@ -47,8 +47,8 @@ export function useGenerateUploadSignature<TContext>(
         | GenerateUploadSignature500
       >,
       {
+        data: GenerateUploadSignatureMutationRequest
         headers: GenerateUploadSignatureHeaderParams
-        data?: GenerateUploadSignatureMutationRequest
       },
       TContext
     > & { client?: QueryClient }
@@ -73,14 +73,14 @@ export function useGenerateUploadSignature<TContext>(
       | GenerateUploadSignature500
     >,
     {
+      data: GenerateUploadSignatureMutationRequest
       headers: GenerateUploadSignatureHeaderParams
-      data?: GenerateUploadSignatureMutationRequest
     },
     TContext
   >(
     {
-      mutationFn: async ({ headers, data }) => {
-        return generateUploadSignature({ headers, data }, config)
+      mutationFn: async ({ data, headers }) => {
+        return generateUploadSignature({ data, headers }, config)
       },
       mutationKey,
       ...mutationOptions,

@@ -29,6 +29,7 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
           'x-organization-slug': z.string().optional(),
         }),
         body: z.object({
+          scope: z.enum(['avatars']),
           accept: z.string().default(DEFAULT_ACCEPT),
           maxFiles: z.number().positive().default(DEFAULT_MAX_FILES),
           maxSize: z.number().positive().default(DEFAULT_MAX_SIZE),
@@ -71,16 +72,16 @@ export async function generateUploadSignature(app: FastifyTypedInstance) {
         _organization = organization
       }
 
-      const { accept, maxFiles, maxSize, expires } = request.body
+      const { scope, accept, maxFiles, maxSize, expires } = request.body
 
       const referenceId = _organization ? _organization.id : user.id
 
       const signature = generateSignatureForUpload({
-        key: 'public',
+        key: 'files',
         payload: {
           data: {
-            bucket: 'default',
-            scope: 'public',
+            bucket: 'public',
+            scope,
             metadata: {
               ...(_organization ? { sentByUserId: user.id } : {}),
             },
