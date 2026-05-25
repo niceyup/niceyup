@@ -10,7 +10,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { openAPI, organization } from 'better-auth/plugins'
 import { ac, roles } from './lib/access'
 import { apiKeyConfigs } from './lib/api-key'
-import { COOKIE_PREFIX } from './lib/constants'
+import { COOKIE_PREFIX, ENABLE_SECURE_COOKIES } from './lib/constants'
 import { env } from './lib/env'
 import {
   setupDefaultIndividualOrganization,
@@ -57,6 +57,7 @@ const config = {
   trustedOrigins: [env.WEB_URL, env.API_URL],
   advanced: {
     cookiePrefix: COOKIE_PREFIX,
+    useSecureCookies: ENABLE_SECURE_COOKIES,
     crossSubDomainCookies: {
       enabled: true,
       domain: new URL(
