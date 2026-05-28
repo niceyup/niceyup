@@ -13,5 +13,9 @@ export const COOKIE_PREFIX = 'auth' as const
 
 export const ENABLE_SECURE_COOKIES = env.APP_ENV === 'production'
 
+export const DOMAIN_COOKIES = new URL(
+  env.WEB_URL ?? process.env.WEB_URL ?? 'http://localhost:3000',
+).hostname
+
 export const COOKIE_SESSION_TOKEN_NAME =
   `${ENABLE_SECURE_COOKIES ? SECURE_COOKIE_PREFIX : ''}${COOKIE_PREFIX}.session_token` as const

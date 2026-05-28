@@ -1,6 +1,6 @@
+import type { FileBucket, FileMetadata, FileScope } from '@workspace/core/files'
 import { and, eq } from 'drizzle-orm'
 import { type DBTransaction, db } from '../db'
-import type { FileBucket, FileMetadata, FileScope } from '../lib/types'
 import { files } from '../schema'
 
 type CreateFileParams = {
@@ -36,7 +36,6 @@ export async function createFile(params: CreateFileParams, tx?: DBTransaction) {
       bucket: files.bucket,
       scope: files.scope,
       metadata: files.metadata,
-      referenceId: files.referenceId,
     })
 
   return file || null

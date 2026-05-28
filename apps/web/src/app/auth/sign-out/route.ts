@@ -1,5 +1,9 @@
-import { deleteSessionToken } from '@/lib/auth/session-token'
 import { auth } from '@workspace/auth'
+import {
+  COOKIE_SESSION_TOKEN_NAME,
+  DOMAIN_COOKIES,
+  ENABLE_SECURE_COOKIES,
+} from '@workspace/auth/constants'
 import { headers } from 'next/headers'
 import { type NextRequest, NextResponse } from 'next/server'
 
@@ -12,11 +16,15 @@ export async function GET(request: NextRequest) {
     await auth.api.signOut({
       headers: await headers(),
     })
-  } catch {
-  } finally {
-    // Delete session token from cookies
-    await deleteSessionToken()
-  }
+  } catch {}
 
-  return NextResponse.redirect(redirectUrl)
+  const response = NextResponse.redirect(redirectUrl)
+
+  response.cookies.delete({
+    name: COOKIE_SESSION_TOKEN_NAME,
+    domain: DOMAIN_COOKIES,
+    secure: ENABLE_SECURE_COOKIES,
+  })
+
+  return response
 }

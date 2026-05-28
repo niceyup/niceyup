@@ -1,8 +1,7 @@
 import { extname } from 'node:path'
-import { BadRequestError } from '@/http/errors/bad-request-error'
-import { UnauthorizedError } from '@/http/errors/unauthorized-error'
 import { env } from '@/lib/env'
 import type { MultipartFile } from '@fastify/multipart'
+import { AuthError, InvalidArgumentError } from '@workspace/core/errros'
 import {
   type FileBucketScope,
   type FileMetadata,
@@ -59,7 +58,7 @@ export function verifySignatureForUpload<T>(
 
     return payload
   } catch {
-    throw new UnauthorizedError({
+    throw new AuthError({
       code: 'INVALID_UPLOAD_SIGNATURE',
       message: 'Invalid upload signature',
     })
@@ -75,7 +74,7 @@ export async function validatedFileForUpload(
   params: ValidatedFileForUploadParams,
 ) {
   if (!params.file.filename) {
-    throw new BadRequestError({
+    throw new InvalidArgumentError({
       code: 'FILE_NAME_NOT_FOUND',
       message: 'File name not found',
     })
@@ -101,7 +100,7 @@ export async function validatedFileForUpload(
     })
 
     if (!isAccepted) {
-      throw new BadRequestError({
+      throw new InvalidArgumentError({
         code: 'FILE_TYPE_NOT_ALLOWED',
         message: `File type "${fileMimeType}" is not allowed. Allowed types: "${params.accept}"`,
       })
@@ -120,7 +119,7 @@ export async function uploadFileToStorage(params: UploadFileToStorageParams) {
   const bucketScopeValidation = fileBucketScopeSchema.safeParse(params.data)
 
   if (!bucketScopeValidation.success) {
-    throw new BadRequestError({
+    throw new InvalidArgumentError({
       code: 'INVALID_BUCKET_SCOPE',
       message: 'Invalid bucket scope',
     })
@@ -150,7 +149,7 @@ export async function uploadFileToStorage(params: UploadFileToStorageParams) {
     // Delete the file from S3 if it was not created
     await storage.delete({ bucket: params.data.bucket, key: filePath })
 
-    throw new BadRequestError({
+    throw new InvalidArgumentError({
       code: 'FILE_NOT_CREATED',
       message: 'File not created',
     })
