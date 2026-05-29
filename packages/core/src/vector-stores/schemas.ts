@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const vectorStoreProviderSchema = z.enum(['upstash'])
+export const vectorStoreProviderSchema = z.enum(['upstash', 'qdrant'])
 
 export const vectorStoreUpstashSchema = z.object({
   provider: z.literal('upstash'),
@@ -12,4 +12,17 @@ export const vectorStoreUpstashSchema = z.object({
   }),
 })
 
-export const vectorStoreSchemas = z.union([vectorStoreUpstashSchema])
+export const vectorStoreQdrantSchema = z.object({
+  provider: z.literal('qdrant'),
+  settings: z.object({
+    url: z.string(),
+  }),
+  credentials: z.object({
+    apiKey: z.string(),
+  }),
+})
+
+export const vectorStoreSchemas = z.union([
+  vectorStoreUpstashSchema,
+  vectorStoreQdrantSchema,
+])

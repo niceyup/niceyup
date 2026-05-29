@@ -1,6 +1,5 @@
-import { UpstashVectorStore as UpstashVectorStoreLangchain } from '@langchain/community/vectorstores/upstash'
 import type { DocumentInterface } from '@langchain/core/documents'
-import { Index } from '@upstash/vector'
+import { QdrantVectorStore as QdrantVectorStoreLangchain } from '@langchain/qdrant'
 import { generateEmbeddings } from '../lib/embeddings'
 import { syntheticEmbeddings } from '../lib/mocks'
 import type { Collection } from '../lib/types'
@@ -15,23 +14,19 @@ import {
   type VectorStoreProviderConfig,
 } from '../lib/vector-store'
 
-export class UpstashVectorStore extends VectorStore {
-  private readonly vectorStore: UpstashVectorStoreLangchain
+export class QdrantVectorStore extends VectorStore {
+  private readonly vectorStore: QdrantVectorStoreLangchain
 
   constructor(
-    config: VectorStoreProviderConfig<'upstash'>,
+    config: VectorStoreProviderConfig<'qdrant'>,
     options: VectorStoreOptions,
   ) {
     super(config, options)
 
-    const index = new Index({
+    this.vectorStore = new QdrantVectorStoreLangchain(syntheticEmbeddings, {
       url: config.settings.url,
-      token: config.credentials.token,
-    })
-
-    this.vectorStore = new UpstashVectorStoreLangchain(syntheticEmbeddings, {
-      index,
-      namespace: options.namespace,
+      apiKey: config.credentials.apiKey,
+      collectionName: options.namespace,
     })
   }
 
@@ -83,22 +78,41 @@ export class UpstashVectorStore extends VectorStore {
   async query<COLLECTION extends Collection>(
     params: QueryParams<COLLECTION>,
   ): Promise<QueryResult<COLLECTION>> {
-    let filter = `__meta.collection = '${params.collection}'`
+    const filter: { must: object[] } = {
+      must: [
+        {
+          key: '__meta.collection',
+          match: { value: params.collection },
+        },
+      ],
+    }
 
     if (params.sourceId) {
-      filter += ` AND __meta.sourceId = '${params.sourceId}'`
+      filter.must.push({
+        key: '__meta.sourceId',
+        match: { value: params.sourceId },
+      })
     }
 
     if (params.sourceIds) {
-      filter += ` AND __meta.sourceId IN (${params.sourceIds.map((id) => `'${id}'`).join(', ')})`
+      filter.must.push({
+        key: '__meta.sourceId',
+        match: { any: params.sourceIds },
+      })
     }
 
     if (params.sourceType) {
-      filter += ` AND __meta.sourceType = '${params.sourceType}'`
+      filter.must.push({
+        key: '__meta.sourceType',
+        match: { value: params.sourceType },
+      })
     }
 
     if (params.filter?.key) {
-      filter += ` AND key = '${params.filter.key}'`
+      filter.must.push({
+        key: 'key',
+        match: { value: params.filter.key },
+      })
     }
 
     const [vector] = await generateEmbeddings({
@@ -131,19 +145,26 @@ export class UpstashVectorStore extends VectorStore {
   }
 
   async delete(params: DeleteParams): Promise<void> {
-    const filter = `__meta.sourceId = '${params.sourceId}'`
+    const filter = {
+      must: [
+        {
+          key: '__meta.sourceId',
+          match: { value: params.sourceId },
+        },
+      ],
+    }
 
-    await this.vectorStore.index.namespace(this.namespace).delete({ filter })
+    await this.vectorStore.delete({ filter })
   }
 
   async deleteAll(): Promise<void> {
-    await this.vectorStore.index.namespace(this.namespace).reset()
+    await this.vectorStore.client.deleteCollection(this.namespace)
   }
 }
 
-export function createUpstashVectorStore(
-  config: VectorStoreProviderConfig<'upstash'>,
+export function createQdrantVectorStore(
+  config: VectorStoreProviderConfig<'qdrant'>,
   options: VectorStoreOptions,
 ) {
-  return new UpstashVectorStore(config, options)
+  return new QdrantVectorStore(config, options)
 }

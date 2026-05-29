@@ -149,7 +149,7 @@ export async function retrieveSources({
 //     collection: 'database-source-proper-nouns',
 //     sourceId,
 //     query: search,
-//     filter: `key = '${key}'`,
+//     filter: { key },
 //     topK: 10,
 //   })
 

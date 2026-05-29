@@ -12,6 +12,9 @@ import type {
 
 export type VectorStoreConfig = VectorStoreSchemas
 
+export type VectorStoreProviderConfig<P extends VectorStoreConfig['provider']> =
+  Extract<VectorStoreConfig, { provider: P }>
+
 export type VectorStoreOptions = {
   namespace: string
   embeddingModel: EmbeddingModel
@@ -32,8 +35,8 @@ export abstract class VectorStore {
 
   abstract upsert(params: UpsertParams): Promise<void>
 
-  abstract query<COLLECTION extends Collection, FILTER extends object>(
-    params: QueryParams<COLLECTION, FILTER>,
+  abstract query<COLLECTION extends Collection>(
+    params: QueryParams<COLLECTION>,
   ): Promise<QueryResult<COLLECTION>>
 
   abstract delete(params: DeleteParams): Promise<void>
@@ -102,13 +105,17 @@ export type UpsertParams =
 // Query Types
 // ================================
 
-export type QueryParams<COLLECTION extends Collection, FILTER = unknown> = {
+type QueryFilterParams = {
+  key?: string
+}
+
+export type QueryParams<COLLECTION extends Collection> = {
   collection: COLLECTION
   sourceId?: string
   sourceIds?: string[]
   sourceType?: SourceType
   query: string
-  filter?: FILTER
+  filter?: QueryFilterParams
   topK?: number
 }
 
