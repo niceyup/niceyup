@@ -1,4 +1,9 @@
 export {
+  gateway,
+  createGateway,
+  type GatewayProviderOptions,
+} from '@ai-sdk/gateway'
+export {
   openai,
   createOpenAI,
   type OpenAIResponsesProviderOptions,

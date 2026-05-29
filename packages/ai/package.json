@@ -15,6 +15,7 @@
     "@ai-sdk/mcp": "1.0.22",
     "@ai-sdk/openai": "3.0.37",
     "@ai-sdk/openai-compatible": "2.0.31",
+    "@ai-sdk/provider": "3.0.10",
     "@ai-sdk/provider-utils": "4.0.16",
     "@ai-sdk/rsc": "2.0.105",
     "@ai-sdk/xai": "3.0.60",
