@@ -55,14 +55,12 @@ export async function getConversationConfiguration(app: FastifyTypedInstance) {
             .object({
               conversation: z.object({
                 id: z.string(),
-                configuration: z
-                  .object({
-                    languageModelSettings: modelSettingsSchema.nullable(),
-                    systemMessage: z.string(),
-                    promptMessages: z.array(promptMessageSchema),
-                    enableKnowledgeBaseTool: z.boolean(),
-                  })
-                  .nullable(),
+                configuration: z.object({
+                  languageModelSettings: modelSettingsSchema.nullable(),
+                  systemMessage: z.string(),
+                  promptMessages: z.array(promptMessageSchema),
+                  enableKnowledgeBaseTool: z.boolean(),
+                }),
               }),
             })
             .describe('Success'),
@@ -99,21 +97,26 @@ export async function getConversationConfiguration(app: FastifyTypedInstance) {
         conversationId,
       })
 
+      if (!conversationConfiguration) {
+        throw new BadRequestError({
+          code: 'CONVERSATION_CONFIGURATION_NOT_FOUND',
+          message: 'Conversation configuration not found',
+        })
+      }
+
       const languageModelSettings =
-        await conversationConfiguration?.languageModelSettings()
+        await conversationConfiguration.languageModelSettings()
 
       return {
         conversation: {
           id: conversation.id,
-          configuration: conversationConfiguration
-            ? {
-                languageModelSettings: languageModelSettings ?? null,
-                systemMessage: conversationConfiguration.systemMessage,
-                promptMessages: conversationConfiguration.promptMessages,
-                enableKnowledgeBaseTool:
-                  conversationConfiguration.enableKnowledgeBaseTool,
-              }
-            : null,
+          configuration: {
+            languageModelSettings: languageModelSettings ?? null,
+            systemMessage: conversationConfiguration.systemMessage,
+            promptMessages: conversationConfiguration.promptMessages,
+            enableKnowledgeBaseTool:
+              conversationConfiguration.enableKnowledgeBaseTool,
+          },
         },
       }
     },

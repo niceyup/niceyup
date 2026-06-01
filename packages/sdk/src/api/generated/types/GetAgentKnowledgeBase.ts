@@ -31,6 +31,7 @@ export type KnowledgeBaseStatusEnum =
 
 export const vectorStoreProviderEnum2 = {
   upstash: 'upstash',
+  qdrant: 'qdrant',
 } as const
 
 export type VectorStoreProviderEnum2 =
@@ -163,7 +164,7 @@ export type GetAgentKnowledgeBase200 = {
        * @type number
        */
       topK: number | null
-    } | null
+    }
   }
 }
 

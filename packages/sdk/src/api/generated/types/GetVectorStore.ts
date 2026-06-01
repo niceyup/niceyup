@@ -23,6 +23,7 @@ export type GetVectorStoreHeaderParams = {
 
 export const vectorStoreProviderEnum = {
   upstash: 'upstash',
+  qdrant: 'qdrant',
 } as const
 
 export type VectorStoreProviderEnum =

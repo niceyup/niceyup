@@ -140,7 +140,7 @@ export type GetAgentConfiguration200 = {
        * @type boolean
        */
       enableKnowledgeBaseTool: boolean
-    } | null
+    }
   }
 }
 

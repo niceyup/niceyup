@@ -47,14 +47,12 @@ export async function getAgentSystemConfiguration(app: FastifyTypedInstance) {
             .object({
               agent: z.object({
                 id: z.string(),
-                systemConfiguration: z
-                  .object({
-                    auxiliaryLanguageModelSettings:
-                      modelSettingsSchema.nullable(),
-                    titleGenerationSystemMessage: z.string(),
-                    suggestions: z.array(z.string()),
-                  })
-                  .nullable(),
+                systemConfiguration: z.object({
+                  auxiliaryLanguageModelSettings:
+                    modelSettingsSchema.nullable(),
+                  titleGenerationSystemMessage: z.string(),
+                  suggestions: z.array(z.string()),
+                }),
               }),
             })
             .describe('Success'),
@@ -88,21 +86,26 @@ export async function getAgentSystemConfiguration(app: FastifyTypedInstance) {
         agentId,
       })
 
+      if (!agentSystemConfiguration) {
+        throw new BadRequestError({
+          code: 'AGENT_SYSTEM_CONFIGURATION_NOT_FOUND',
+          message: 'Agent system configuration not found',
+        })
+      }
+
       const auxiliaryLanguageModelSettings =
-        await agentSystemConfiguration?.auxiliaryLanguageModelSettings()
+        await agentSystemConfiguration.auxiliaryLanguageModelSettings()
 
       return {
         agent: {
           id: agent.id,
-          systemConfiguration: agentSystemConfiguration
-            ? {
-                auxiliaryLanguageModelSettings:
-                  auxiliaryLanguageModelSettings ?? null,
-                titleGenerationSystemMessage:
-                  agentSystemConfiguration.titleGenerationSystemMessage,
-                suggestions: agentSystemConfiguration.suggestions,
-              }
-            : null,
+          systemConfiguration: {
+            auxiliaryLanguageModelSettings:
+              auxiliaryLanguageModelSettings ?? null,
+            titleGenerationSystemMessage:
+              agentSystemConfiguration.titleGenerationSystemMessage,
+            suggestions: agentSystemConfiguration.suggestions,
+          },
         },
       }
     },

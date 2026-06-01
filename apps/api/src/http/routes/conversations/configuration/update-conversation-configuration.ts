@@ -86,6 +86,13 @@ export async function updateConversationConfiguration(
         conversationId,
       })
 
+      if (!conversationConfiguration) {
+        throw new BadRequestError({
+          code: 'CONVERSATION_CONFIGURATION_NOT_FOUND',
+          message: 'Conversation configuration not found',
+        })
+      }
+
       if (languageModelSettings) {
         const modelProvider = await queries.ctx.getModelProvider(
           { organizationId: organization.id },
@@ -102,51 +109,19 @@ export async function updateConversationConfiguration(
       }
 
       await db.transaction(async (tx) => {
-        let _conversationConfiguration:
-          | {
-              languageModelSettingsId: string | null
-            }
-          | undefined
-
-        if (conversationConfiguration) {
-          _conversationConfiguration = {
-            languageModelSettingsId:
-              conversationConfiguration.languageModelSettingsId,
-          }
-        } else {
-          const [createdConversationConfiguration] = await tx
-            .insert(agentConfigurations)
-            .values({
-              conversationId,
-            })
-            .returning({
-              languageModelSettingsId:
-                agentConfigurations.languageModelSettingsId,
-            })
-
-          _conversationConfiguration = createdConversationConfiguration
-        }
-
-        if (!_conversationConfiguration) {
-          throw new BadRequestError({
-            code: 'CONVERSATION_CONFIGURATION_NOT_FOUND',
-            message: 'Conversation configuration not found',
-          })
-        }
-
         let _languageModelSettingsId: string | null | undefined = undefined
 
         if (
           // Delete language model settings
           languageModelSettings === null &&
-          _conversationConfiguration.languageModelSettingsId
+          conversationConfiguration.languageModelSettingsId
         ) {
           await tx
             .delete(modelSettings)
             .where(
               eq(
                 modelSettings.id,
-                _conversationConfiguration.languageModelSettingsId,
+                conversationConfiguration.languageModelSettingsId,
               ),
             )
 
@@ -154,7 +129,7 @@ export async function updateConversationConfiguration(
         } else if (
           // Update language model settings
           languageModelSettings &&
-          _conversationConfiguration.languageModelSettingsId
+          conversationConfiguration.languageModelSettingsId
         ) {
           await tx
             .update(modelSettings)
@@ -166,16 +141,16 @@ export async function updateConversationConfiguration(
             .where(
               eq(
                 modelSettings.id,
-                _conversationConfiguration.languageModelSettingsId,
+                conversationConfiguration.languageModelSettingsId,
               ),
             )
 
           _languageModelSettingsId =
-            _conversationConfiguration.languageModelSettingsId
+            conversationConfiguration.languageModelSettingsId
         } else if (
           // Create language model settings
           languageModelSettings &&
-          !_conversationConfiguration.languageModelSettingsId
+          !conversationConfiguration.languageModelSettingsId
         ) {
           const [createdLanguageModelSettings] = await tx
             .insert(modelSettings)

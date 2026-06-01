@@ -60,7 +60,14 @@ export async function cancelSourceIndexing(app: FastifyTypedInstance) {
         agentId,
       })
 
-      if (agentKnowledgeBase?.status !== 'ready') {
+      if (!agentKnowledgeBase) {
+        throw new BadRequestError({
+          code: 'KNOWLEDGE_BASE_NOT_FOUND',
+          message: 'Knowledge base not found',
+        })
+      }
+
+      if (agentKnowledgeBase.status !== 'ready') {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_NOT_READY',
           message: 'Knowledge base is not ready',

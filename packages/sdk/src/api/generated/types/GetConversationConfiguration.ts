@@ -147,7 +147,7 @@ export type GetConversationConfiguration200 = {
        * @type boolean
        */
       enableKnowledgeBaseTool: boolean
-    } | null
+    }
   }
 }
 

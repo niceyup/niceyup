@@ -52,14 +52,12 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
             .object({
               agent: z.object({
                 id: z.string(),
-                configuration: z
-                  .object({
-                    languageModelSettings: modelSettingsSchema.nullable(),
-                    systemMessage: z.string(),
-                    promptMessages: z.array(promptMessageSchema),
-                    enableKnowledgeBaseTool: z.boolean(),
-                  })
-                  .nullable(),
+                configuration: z.object({
+                  languageModelSettings: modelSettingsSchema.nullable(),
+                  systemMessage: z.string(),
+                  promptMessages: z.array(promptMessageSchema),
+                  enableKnowledgeBaseTool: z.boolean(),
+                }),
               }),
             })
             .describe('Success'),
@@ -93,21 +91,25 @@ export async function getAgentConfiguration(app: FastifyTypedInstance) {
         agentId,
       })
 
+      if (!agentConfiguration) {
+        throw new BadRequestError({
+          code: 'AGENT_CONFIGURATION_NOT_FOUND',
+          message: 'Agent configuration not found',
+        })
+      }
+
       const languageModelSettings =
-        await agentConfiguration?.languageModelSettings()
+        await agentConfiguration.languageModelSettings()
 
       return {
         agent: {
           id: agent.id,
-          configuration: agentConfiguration
-            ? {
-                languageModelSettings: languageModelSettings ?? null,
-                systemMessage: agentConfiguration.systemMessage,
-                promptMessages: agentConfiguration.promptMessages,
-                enableKnowledgeBaseTool:
-                  agentConfiguration.enableKnowledgeBaseTool,
-              }
-            : null,
+          configuration: {
+            languageModelSettings: languageModelSettings ?? null,
+            systemMessage: agentConfiguration.systemMessage,
+            promptMessages: agentConfiguration.promptMessages,
+            enableKnowledgeBaseTool: agentConfiguration.enableKnowledgeBaseTool,
+          },
         },
       }
     },

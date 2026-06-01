@@ -30,21 +30,21 @@ export default async function Page({
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {agentDetailed.knowledgeBase?.status === 'reindexing' && (
+      {agentDetailed.knowledgeBase.status === 'reindexing' && (
         <KnowledgeBaseAlertReindexing params={{ organizationSlug, agentId }} />
       )}
 
       <EditEnableKnowledgeBaseToolForm
         params={{ organizationSlug, agentId }}
         enableKnowledgeBaseTool={
-          agentDetailed.configuration?.enableKnowledgeBaseTool
+          agentDetailed.configuration.enableKnowledgeBaseTool
         }
       />
 
       <EditVectorStoreForm
         params={{ organizationSlug, agentId }}
         vectorStore={
-          agentDetailed.knowledgeBase?.vectorStore
+          agentDetailed.knowledgeBase.vectorStore
             ? {
                 id: agentDetailed.knowledgeBase.vectorStore.id,
                 value: agentDetailed.knowledgeBase.vectorStore,
@@ -56,7 +56,7 @@ export default async function Page({
       <EditEmbeddingModelSettingsForm
         params={{ organizationSlug, agentId }}
         embeddingModelSettings={
-          agentDetailed.knowledgeBase?.embeddingModelSettings
+          agentDetailed.knowledgeBase.embeddingModelSettings
             ? {
                 ...agentDetailed.knowledgeBase.embeddingModelSettings,
                 provider: agentDetailed.knowledgeBase.embeddingModelSettings
@@ -76,13 +76,13 @@ export default async function Page({
 
       <EditTopKForm
         params={{ organizationSlug, agentId }}
-        topK={agentDetailed.knowledgeBase?.topK}
+        topK={agentDetailed.knowledgeBase.topK}
       />
 
       <ReindexKnowledgeBaseForm
         params={{ organizationSlug, agentId }}
         disabled={
-          !agentDetailed.knowledgeBase?.isConfigured ||
+          !agentDetailed.knowledgeBase.isConfigured ||
           agentDetailed.knowledgeBase.status === 'reindexing'
         }
       />

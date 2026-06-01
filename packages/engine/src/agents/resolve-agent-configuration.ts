@@ -25,7 +25,7 @@ export type AgentConfiguration = Awaited<
 export async function resolveAgentConfiguration(params: {
   agentId: string
 }) {
-  const [agentConfiguration] = await db
+  let [agentConfiguration] = await db
     .select({
       id: agentConfigurations.id,
       languageModelSettingsId: agentConfigurations.languageModelSettingsId,
@@ -38,7 +38,32 @@ export async function resolveAgentConfiguration(params: {
     .limit(1)
 
   if (!agentConfiguration) {
-    return null
+    const agent = await queries.getAgent({
+      agentId: params.agentId,
+    })
+
+    if (!agent) {
+      return null
+    }
+
+    const [createdAgentConfiguration] = await db
+      .insert(agentConfigurations)
+      .values({
+        agentId: agent.id,
+      })
+      .returning({
+        id: agentConfigurations.id,
+        languageModelSettingsId: agentConfigurations.languageModelSettingsId,
+        systemMessage: agentConfigurations.systemMessage,
+        promptMessages: agentConfigurations.promptMessages,
+        enableKnowledgeBaseTool: agentConfigurations.enableKnowledgeBaseTool,
+      })
+
+    if (!createdAgentConfiguration) {
+      return null
+    }
+
+    agentConfiguration = createdAgentConfiguration
   }
 
   let cachedKnowledgeBase: AgentKnowledgeBase | undefined

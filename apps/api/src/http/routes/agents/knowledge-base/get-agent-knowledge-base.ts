@@ -57,14 +57,12 @@ export async function getAgentKnowledgeBase(app: FastifyTypedInstance) {
             .object({
               agent: z.object({
                 id: z.string(),
-                knowledgeBase: z
-                  .object({
-                    status: knowledgeBaseStatusSchema,
-                    vectorStore: vectorStoreSchema.nullable(),
-                    embeddingModelSettings: modelSettingsSchema.nullable(),
-                    topK: z.number().nullable(),
-                  })
-                  .nullable(),
+                knowledgeBase: z.object({
+                  status: knowledgeBaseStatusSchema,
+                  vectorStore: vectorStoreSchema.nullable(),
+                  embeddingModelSettings: modelSettingsSchema.nullable(),
+                  topK: z.number().nullable(),
+                }),
               }),
             })
             .describe('Success'),
@@ -98,22 +96,27 @@ export async function getAgentKnowledgeBase(app: FastifyTypedInstance) {
         agentId,
       })
 
+      if (!agentKnowledgeBase) {
+        throw new BadRequestError({
+          code: 'KNOWLEDGE_BASE_NOT_FOUND',
+          message: 'Knowledge base not found',
+        })
+      }
+
       const [vectorStore, embeddingModelSettings] = await Promise.all([
-        agentKnowledgeBase?.vectorStore(),
-        agentKnowledgeBase?.embeddingModelSettings(),
+        agentKnowledgeBase.vectorStore(),
+        agentKnowledgeBase.embeddingModelSettings(),
       ])
 
       return {
         agent: {
           id: agent.id,
-          knowledgeBase: agentKnowledgeBase
-            ? {
-                status: agentKnowledgeBase.status,
-                vectorStore: vectorStore ?? null,
-                embeddingModelSettings: embeddingModelSettings ?? null,
-                topK: agentKnowledgeBase.topK,
-              }
-            : null,
+          knowledgeBase: {
+            status: agentKnowledgeBase.status,
+            vectorStore: vectorStore ?? null,
+            embeddingModelSettings: embeddingModelSettings ?? null,
+            topK: agentKnowledgeBase.topK,
+          },
         },
       }
     },

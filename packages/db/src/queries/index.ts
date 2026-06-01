@@ -1,4 +1,5 @@
 import * as activeTools from './active-tools'
+import * as agents from './agents'
 import { contextQueries } from './context'
 import * as conversations from './conversations'
 import * as files from './files'
@@ -18,6 +19,7 @@ export const queries = {
   ...mcpServers,
   ...activeTools,
   ...modelSettings,
+  ...agents,
   ...conversations,
   ...messages,
   ...sources,

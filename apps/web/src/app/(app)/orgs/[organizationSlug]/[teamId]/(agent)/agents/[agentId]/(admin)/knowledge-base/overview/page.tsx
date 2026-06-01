@@ -33,7 +33,7 @@ export default async function Page({
     return null
   }
 
-  if (!agentDetailed.knowledgeBase?.isConfigured) {
+  if (!agentDetailed.knowledgeBase.isConfigured) {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>
@@ -60,7 +60,7 @@ export default async function Page({
     )
   }
 
-  if (!agentDetailed.configuration?.enableKnowledgeBaseTool) {
+  if (!agentDetailed.configuration.enableKnowledgeBaseTool) {
     return (
       <div className="w-full rounded-lg border bg-background p-4">
         <Empty>

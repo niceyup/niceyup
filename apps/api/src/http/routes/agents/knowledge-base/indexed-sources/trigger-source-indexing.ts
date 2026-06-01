@@ -88,7 +88,14 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
         agentId,
       })
 
-      if (agentKnowledgeBase?.status === 'reindexing') {
+      if (!agentKnowledgeBase) {
+        throw new BadRequestError({
+          code: 'KNOWLEDGE_BASE_NOT_FOUND',
+          message: 'Knowledge base not found',
+        })
+      }
+
+      if (agentKnowledgeBase.status === 'reindexing') {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_REINDEXING',
           message: 'Knowledge base is reindexing',
@@ -96,9 +103,9 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
       }
 
       const validatedConfiguration =
-        await agentKnowledgeBase?.safeValidateConfiguration()
+        await agentKnowledgeBase.safeValidateConfiguration()
 
-      if (!agentKnowledgeBase || validatedConfiguration?.success !== true) {
+      if (validatedConfiguration.success !== true) {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_NOT_CONFIGURED',
           message: 'Knowledge base vector store or embedding model is not set',
@@ -160,11 +167,11 @@ export async function triggerSourceIndexing(app: FastifyTypedInstance) {
 
         const sourceIdsSet = new Set(listSources.map((source) => source.id))
 
-        const sourceIdsNotFound = sourceIds?.filter(
+        const sourceIdsNotFound = sourceIds.filter(
           (id) => !sourceIdsSet.has(id),
         )
 
-        if (sourceIdsNotFound?.length) {
+        if (sourceIdsNotFound.length) {
           throw new BadRequestError({
             code: 'SOURCE_NOT_FOUND',
             message: `The following source identifiers were not found or you don’t have access to them: [${sourceIdsNotFound.join(', ')}]`,

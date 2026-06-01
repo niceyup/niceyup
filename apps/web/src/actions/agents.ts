@@ -117,6 +117,14 @@ export async function getAgentDetailed<
       params.with?.knowledgeBase ? resolveAgentKnowledgeBase(context) : null,
     ])
 
+  if (
+    (params.with?.systemConfiguration && !agentSystemConfiguration) ||
+    (params.with?.configuration && !agentConfiguration) ||
+    (params.with?.knowledgeBase && !agentKnowledgeBase)
+  ) {
+    return null
+  }
+
   const [
     auxiliaryLanguageModelSettings,
     languageModelSettings,
@@ -131,33 +139,37 @@ export async function getAgentDetailed<
     agentKnowledgeBase?.safeValidateConfiguration(),
   ])
 
-  const systemConfiguration = agentSystemConfiguration
-    ? {
-        auxiliaryLanguageModelSettings: auxiliaryLanguageModelSettings ?? null,
-        titleGenerationSystemMessage:
-          agentSystemConfiguration.titleGenerationSystemMessage,
-        suggestions: agentSystemConfiguration.suggestions,
-      }
-    : null
+  let systemConfiguration = undefined
+  let configuration = undefined
+  let knowledgeBase = undefined
 
-  const configuration = agentConfiguration
-    ? {
-        languageModelSettings: languageModelSettings ?? null,
-        systemMessage: agentConfiguration.systemMessage,
-        promptMessages: agentConfiguration.promptMessages,
-        enableKnowledgeBaseTool: agentConfiguration.enableKnowledgeBaseTool,
-      }
-    : null
+  if (agentSystemConfiguration) {
+    systemConfiguration = {
+      auxiliaryLanguageModelSettings: auxiliaryLanguageModelSettings ?? null,
+      titleGenerationSystemMessage:
+        agentSystemConfiguration.titleGenerationSystemMessage,
+      suggestions: agentSystemConfiguration.suggestions,
+    }
+  }
 
-  const knowledgeBase = agentKnowledgeBase
-    ? {
-        status: agentKnowledgeBase.status,
-        vectorStore: vectorStore ?? null,
-        embeddingModelSettings: embeddingModelSettings ?? null,
-        topK: agentKnowledgeBase.topK,
-        isConfigured: validatedConfiguration?.success === true,
-      }
-    : null
+  if (agentConfiguration) {
+    configuration = {
+      languageModelSettings: languageModelSettings ?? null,
+      systemMessage: agentConfiguration.systemMessage,
+      promptMessages: agentConfiguration.promptMessages,
+      enableKnowledgeBaseTool: agentConfiguration.enableKnowledgeBaseTool,
+    }
+  }
+
+  if (agentKnowledgeBase) {
+    knowledgeBase = {
+      status: agentKnowledgeBase.status,
+      vectorStore: vectorStore ?? null,
+      embeddingModelSettings: embeddingModelSettings ?? null,
+      topK: agentKnowledgeBase.topK,
+      isConfigured: validatedConfiguration?.success === true,
+    }
+  }
 
   return {
     ...agent,
@@ -166,12 +178,12 @@ export async function getAgentDetailed<
     knowledgeBase,
   } as unknown as typeof agent &
     (WithParams extends { systemConfiguration: true }
-      ? { systemConfiguration: typeof systemConfiguration }
+      ? { systemConfiguration: NonNullable<typeof systemConfiguration> }
       : unknown) &
     (WithParams extends { configuration: true }
-      ? { configuration: typeof configuration }
+      ? { configuration: NonNullable<typeof configuration> }
       : unknown) &
     (WithParams extends { knowledgeBase: true }
-      ? { knowledgeBase: typeof knowledgeBase }
+      ? { knowledgeBase: NonNullable<typeof knowledgeBase> }
       : unknown)
 }

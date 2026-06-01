@@ -81,6 +81,13 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
         agentId,
       })
 
+      if (!agentConfiguration) {
+        throw new BadRequestError({
+          code: 'AGENT_CONFIGURATION_NOT_FOUND',
+          message: 'Agent configuration not found',
+        })
+      }
+
       if (languageModelSettings?.providerId) {
         const modelProvider = await queries.ctx.getModelProvider(
           { organizationId: organization.id },
@@ -97,55 +104,24 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
       }
 
       await db.transaction(async (tx) => {
-        let _agentConfiguration:
-          | {
-              languageModelSettingsId: string | null
-            }
-          | undefined
-
-        if (agentConfiguration) {
-          _agentConfiguration = {
-            languageModelSettingsId: agentConfiguration.languageModelSettingsId,
-          }
-        } else {
-          const [createdAgentConfiguration] = await tx
-            .insert(agentConfigurations)
-            .values({
-              agentId,
-            })
-            .returning({
-              languageModelSettingsId:
-                agentConfigurations.languageModelSettingsId,
-            })
-
-          _agentConfiguration = createdAgentConfiguration
-        }
-
-        if (!_agentConfiguration) {
-          throw new BadRequestError({
-            code: 'AGENT_CONFIGURATION_NOT_FOUND',
-            message: 'Agent configuration not found',
-          })
-        }
-
         let _languageModelSettingsId: string | null | undefined = undefined
 
         if (
           // Delete language model settings
           languageModelSettings === null &&
-          _agentConfiguration.languageModelSettingsId
+          agentConfiguration.languageModelSettingsId
         ) {
           await tx
             .delete(modelSettings)
             .where(
-              eq(modelSettings.id, _agentConfiguration.languageModelSettingsId),
+              eq(modelSettings.id, agentConfiguration.languageModelSettingsId),
             )
 
           _languageModelSettingsId = null
         } else if (
           // Update language model settings
           languageModelSettings &&
-          _agentConfiguration.languageModelSettingsId
+          agentConfiguration.languageModelSettingsId
         ) {
           await tx
             .update(modelSettings)
@@ -155,14 +131,14 @@ export async function updateAgentConfiguration(app: FastifyTypedInstance) {
               providerId: languageModelSettings.providerId,
             })
             .where(
-              eq(modelSettings.id, _agentConfiguration.languageModelSettingsId),
+              eq(modelSettings.id, agentConfiguration.languageModelSettingsId),
             )
 
-          _languageModelSettingsId = _agentConfiguration.languageModelSettingsId
+          _languageModelSettingsId = agentConfiguration.languageModelSettingsId
         } else if (
           // Create language model settings
           languageModelSettings &&
-          !_agentConfiguration.languageModelSettingsId
+          !agentConfiguration.languageModelSettingsId
         ) {
           const [createdLanguageModelSettings] = await tx
             .insert(modelSettings)

@@ -75,17 +75,21 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
         agentId,
       })
 
-      if (agentKnowledgeBase?.status === 'reindexing') {
+      if (!agentKnowledgeBase) {
+        throw new BadRequestError({
+          code: 'KNOWLEDGE_BASE_NOT_FOUND',
+          message: 'Knowledge base not found',
+        })
+      }
+
+      if (agentKnowledgeBase.status === 'reindexing') {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_REINDEXING',
           message: 'Knowledge base is reindexing',
         })
       }
 
-      if (
-        agentKnowledgeBase &&
-        (vectorStoreId !== undefined || embeddingModelSettings !== undefined)
-      ) {
+      if (vectorStoreId !== undefined || embeddingModelSettings !== undefined) {
         const [indexingSource] = await db
           .select({ id: indexedSources.id })
           .from(indexedSources)
@@ -142,59 +146,24 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
       }
 
       await db.transaction(async (tx) => {
-        let _agentKnowledgeBase:
-          | {
-              embeddingModelSettingsId: string | null
-            }
-          | undefined
-
-        if (agentKnowledgeBase) {
-          _agentKnowledgeBase = {
-            embeddingModelSettingsId:
-              agentKnowledgeBase.embeddingModelSettingsId,
-          }
-        } else {
-          const [createdKnowledgeBase] = await tx
-            .insert(knowledgeBases)
-            .values({
-              agentId,
-              organizationId: organization.id,
-            })
-            .returning({
-              embeddingModelSettingsId: knowledgeBases.embeddingModelSettingsId,
-            })
-
-          _agentKnowledgeBase = createdKnowledgeBase
-        }
-
-        if (!_agentKnowledgeBase) {
-          throw new BadRequestError({
-            code: 'KNOWLEDGE_BASE_NOT_FOUND',
-            message: 'Knowledge base not found',
-          })
-        }
-
         let _embeddingModelSettingsId: string | null | undefined = undefined
 
         if (
           // Delete embedding model settings
           embeddingModelSettings === null &&
-          _agentKnowledgeBase.embeddingModelSettingsId
+          agentKnowledgeBase.embeddingModelSettingsId
         ) {
           await tx
             .delete(modelSettings)
             .where(
-              eq(
-                modelSettings.id,
-                _agentKnowledgeBase.embeddingModelSettingsId,
-              ),
+              eq(modelSettings.id, agentKnowledgeBase.embeddingModelSettingsId),
             )
 
           _embeddingModelSettingsId = null
         } else if (
           // Update embedding model settings
           embeddingModelSettings &&
-          _agentKnowledgeBase.embeddingModelSettingsId
+          agentKnowledgeBase.embeddingModelSettingsId
         ) {
           await tx
             .update(modelSettings)
@@ -204,18 +173,15 @@ export async function updateAgentKnowledgeBase(app: FastifyTypedInstance) {
               providerId: embeddingModelSettings.providerId,
             })
             .where(
-              eq(
-                modelSettings.id,
-                _agentKnowledgeBase.embeddingModelSettingsId,
-              ),
+              eq(modelSettings.id, agentKnowledgeBase.embeddingModelSettingsId),
             )
 
           _embeddingModelSettingsId =
-            _agentKnowledgeBase.embeddingModelSettingsId
+            agentKnowledgeBase.embeddingModelSettingsId
         } else if (
           // Create embedding model settings
           embeddingModelSettings &&
-          !_agentKnowledgeBase.embeddingModelSettingsId
+          !agentKnowledgeBase.embeddingModelSettingsId
         ) {
           const [createdEmbeddingModelSettings] = await tx
             .insert(modelSettings)

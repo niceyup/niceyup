@@ -18,7 +18,7 @@ export type AgentKnowledgeBase = Awaited<
 export async function resolveAgentKnowledgeBase(params: {
   agentId: string
 }) {
-  const [agentKnowledgeBase] = await db
+  let [agentKnowledgeBase] = await db
     .select({
       id: knowledgeBases.id,
       status: knowledgeBases.status,
@@ -33,7 +33,35 @@ export async function resolveAgentKnowledgeBase(params: {
     .limit(1)
 
   if (!agentKnowledgeBase) {
-    return null
+    const agent = await queries.getAgent({
+      agentId: params.agentId,
+    })
+
+    if (!agent) {
+      return null
+    }
+
+    const [createdKnowledgeBase] = await db
+      .insert(knowledgeBases)
+      .values({
+        agentId: agent.id,
+        organizationId: agent.organizationId,
+      })
+      .returning({
+        id: knowledgeBases.id,
+        status: knowledgeBases.status,
+        vectorStoreId: knowledgeBases.vectorStoreId,
+        embeddingModelSettingsId: knowledgeBases.embeddingModelSettingsId,
+        topK: knowledgeBases.topK,
+        agentId: knowledgeBases.agentId,
+        organizationId: knowledgeBases.organizationId,
+      })
+
+    if (!createdKnowledgeBase) {
+      return null
+    }
+
+    agentKnowledgeBase = createdKnowledgeBase
   }
 
   const vectorStoreId = agentKnowledgeBase.vectorStoreId ?? null

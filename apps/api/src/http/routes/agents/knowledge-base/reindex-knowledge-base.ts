@@ -60,10 +60,17 @@ export async function reindexKnowledgeBase(app: FastifyTypedInstance) {
         agentId,
       })
 
-      const validatedConfiguration =
-        await agentKnowledgeBase?.safeValidateConfiguration()
+      if (!agentKnowledgeBase) {
+        throw new BadRequestError({
+          code: 'KNOWLEDGE_BASE_NOT_FOUND',
+          message: 'Knowledge base not found',
+        })
+      }
 
-      if (!agentKnowledgeBase || validatedConfiguration?.success !== true) {
+      const validatedConfiguration =
+        await agentKnowledgeBase.safeValidateConfiguration()
+
+      if (validatedConfiguration.success !== true) {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_NOT_CONFIGURED',
           message: 'Knowledge base vector store or embedding model is not set',

@@ -119,7 +119,7 @@ export type GetAgentSystemConfiguration200 = {
        * @type array
        */
       suggestions: string[]
-    } | null
+    }
   }
 }
 

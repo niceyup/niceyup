@@ -82,9 +82,9 @@ export async function triggerSourceIngestion(app: FastifyTypedInstance) {
 
       const sourceIdsSet = new Set(listSources.map((source) => source.id))
 
-      const sourceIdsNotFound = sourceIds?.filter((id) => !sourceIdsSet.has(id))
+      const sourceIdsNotFound = sourceIds.filter((id) => !sourceIdsSet.has(id))
 
-      if (sourceIdsNotFound?.length) {
+      if (sourceIdsNotFound.length) {
         throw new BadRequestError({
           code: 'SOURCE_NOT_FOUND',
           message: `The following source identifiers were not found or you don’t have access to them: [${sourceIdsNotFound.join(', ')}]`,

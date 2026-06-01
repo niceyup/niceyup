@@ -117,6 +117,7 @@ export type CreateVectorStore500 = {
 
 export const createVectorStoreMutationRequestProviderEnum = {
   upstash: 'upstash',
+  qdrant: 'qdrant',
 } as const
 
 export type CreateVectorStoreMutationRequestProviderEnum =

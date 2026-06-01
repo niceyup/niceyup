@@ -76,6 +76,13 @@ export async function updateAgentSystemConfiguration(
         agentId,
       })
 
+      if (!agentSystemConfiguration) {
+        throw new BadRequestError({
+          code: 'AGENT_SYSTEM_CONFIGURATION_NOT_FOUND',
+          message: 'Agent system configuration not found',
+        })
+      }
+
       if (auxiliaryLanguageModelSettings?.providerId) {
         const modelProvider = await queries.ctx.getModelProvider(
           { organizationId: organization.id },
@@ -92,52 +99,20 @@ export async function updateAgentSystemConfiguration(
       }
 
       await db.transaction(async (tx) => {
-        let _agentSystemConfiguration:
-          | {
-              auxiliaryLanguageModelSettingsId: string | null
-            }
-          | undefined
-
-        if (agentSystemConfiguration) {
-          _agentSystemConfiguration = {
-            auxiliaryLanguageModelSettingsId:
-              agentSystemConfiguration.auxiliaryLanguageModelSettingsId,
-          }
-        } else {
-          const [createdAgentSystemConfiguration] = await tx
-            .insert(agentSystemConfigurations)
-            .values({
-              agentId,
-            })
-            .returning({
-              auxiliaryLanguageModelSettingsId:
-                agentSystemConfigurations.auxiliaryLanguageModelSettingsId,
-            })
-
-          _agentSystemConfiguration = createdAgentSystemConfiguration
-        }
-
-        if (!_agentSystemConfiguration) {
-          throw new BadRequestError({
-            code: 'AGENT_SYSTEM_CONFIGURATION_NOT_FOUND',
-            message: 'Agent system configuration not found',
-          })
-        }
-
         let _auxiliaryLanguageModelSettingsId: string | null | undefined =
           undefined
 
         if (
           // Delete auxiliary language model settings
           auxiliaryLanguageModelSettings === null &&
-          _agentSystemConfiguration.auxiliaryLanguageModelSettingsId
+          agentSystemConfiguration.auxiliaryLanguageModelSettingsId
         ) {
           await tx
             .delete(modelSettings)
             .where(
               eq(
                 modelSettings.id,
-                _agentSystemConfiguration.auxiliaryLanguageModelSettingsId,
+                agentSystemConfiguration.auxiliaryLanguageModelSettingsId,
               ),
             )
 
@@ -145,7 +120,7 @@ export async function updateAgentSystemConfiguration(
         } else if (
           // Update auxiliary language model settings
           auxiliaryLanguageModelSettings &&
-          _agentSystemConfiguration.auxiliaryLanguageModelSettingsId
+          agentSystemConfiguration.auxiliaryLanguageModelSettingsId
         ) {
           await tx
             .update(modelSettings)
@@ -157,16 +132,16 @@ export async function updateAgentSystemConfiguration(
             .where(
               eq(
                 modelSettings.id,
-                _agentSystemConfiguration.auxiliaryLanguageModelSettingsId,
+                agentSystemConfiguration.auxiliaryLanguageModelSettingsId,
               ),
             )
 
           _auxiliaryLanguageModelSettingsId =
-            _agentSystemConfiguration.auxiliaryLanguageModelSettingsId
+            agentSystemConfiguration.auxiliaryLanguageModelSettingsId
         } else if (
           // Create auxiliary language model settings
           auxiliaryLanguageModelSettings &&
-          !_agentSystemConfiguration.auxiliaryLanguageModelSettingsId
+          !agentSystemConfiguration.auxiliaryLanguageModelSettingsId
         ) {
           const [createdAuxiliaryLanguageModelSettings] = await tx
             .insert(modelSettings)

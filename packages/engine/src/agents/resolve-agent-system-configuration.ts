@@ -11,7 +11,7 @@ export type AgentSystemConfiguration = Awaited<
 export async function resolveAgentSystemConfiguration(params: {
   agentId: string
 }) {
-  const [agentSystemConfiguration] = await db
+  let [agentSystemConfiguration] = await db
     .select({
       id: agentSystemConfigurations.id,
       auxiliaryLanguageModelSettingsId:
@@ -25,7 +25,33 @@ export async function resolveAgentSystemConfiguration(params: {
     .limit(1)
 
   if (!agentSystemConfiguration) {
-    return null
+    const agent = await queries.getAgent({
+      agentId: params.agentId,
+    })
+
+    if (!agent) {
+      return null
+    }
+
+    const [createdAgentSystemConfiguration] = await db
+      .insert(agentSystemConfigurations)
+      .values({
+        agentId: agent.id,
+      })
+      .returning({
+        id: agentSystemConfigurations.id,
+        auxiliaryLanguageModelSettingsId:
+          agentSystemConfigurations.auxiliaryLanguageModelSettingsId,
+        titleGenerationSystemMessage:
+          agentSystemConfigurations.titleGenerationSystemMessage,
+        suggestions: agentSystemConfigurations.suggestions,
+      })
+
+    if (!createdAgentSystemConfiguration) {
+      return null
+    }
+
+    agentSystemConfiguration = createdAgentSystemConfiguration
   }
 
   const auxiliaryLanguageModelSettingsId =

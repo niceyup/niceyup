@@ -59,7 +59,14 @@ export async function cancelKnowledgeBaseReindexing(app: FastifyTypedInstance) {
         agentId,
       })
 
-      if (agentKnowledgeBase?.status !== 'reindexing') {
+      if (!agentKnowledgeBase) {
+        throw new BadRequestError({
+          code: 'KNOWLEDGE_BASE_NOT_FOUND',
+          message: 'Knowledge base not found',
+        })
+      }
+
+      if (agentKnowledgeBase.status !== 'reindexing') {
         throw new BadRequestError({
           code: 'KNOWLEDGE_BASE_NOT_REINDEXING',
           message: 'Knowledge base is not reindexing',

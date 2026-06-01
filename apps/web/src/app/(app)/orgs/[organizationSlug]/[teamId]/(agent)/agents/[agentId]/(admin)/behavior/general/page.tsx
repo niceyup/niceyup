@@ -29,7 +29,7 @@ export default async function Page({
       <EditLanguageModelSettingsForm
         params={{ organizationSlug, agentId }}
         languageModelSettings={
-          agentDetailed.configuration?.languageModelSettings
+          agentDetailed.configuration.languageModelSettings
             ? {
                 ...agentDetailed.configuration.languageModelSettings,
                 provider: agentDetailed.configuration.languageModelSettings
@@ -49,12 +49,12 @@ export default async function Page({
 
       <EditSystemMessageForm
         params={{ organizationSlug, agentId }}
-        systemMessage={agentDetailed.configuration?.systemMessage}
+        systemMessage={agentDetailed.configuration.systemMessage}
       />
 
       <EditPromptMessageForm
         params={{ organizationSlug, agentId }}
-        promptMessages={agentDetailed.configuration?.promptMessages}
+        promptMessages={agentDetailed.configuration.promptMessages}
       />
     </div>
   )

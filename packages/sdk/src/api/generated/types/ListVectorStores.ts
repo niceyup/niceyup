@@ -5,6 +5,7 @@
 
 export const listVectorStoresQueryParamsProviderEnum = {
   upstash: 'upstash',
+  qdrant: 'qdrant',
 } as const
 
 export type ListVectorStoresQueryParamsProviderEnum =
@@ -30,6 +31,7 @@ export type ListVectorStoresHeaderParams = {
 
 export const vectorStoresProviderEnum = {
   upstash: 'upstash',
+  qdrant: 'qdrant',
 } as const
 
 export type VectorStoresProviderEnum =

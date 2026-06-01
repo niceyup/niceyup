@@ -20,7 +20,7 @@ export async function resolveConversationConfiguration(params: {
     'conversation_configurations',
   )
 
-  const [conversationConfiguration] = await db
+  let [conversationConfiguration] = await db
     .select({
       id: conversationConfigurations.id,
       languageModelSettingsId:
@@ -40,7 +40,37 @@ export async function resolveConversationConfiguration(params: {
     .limit(1)
 
   if (!conversationConfiguration) {
-    return null
+    const conversation = await queries.getConversation({
+      conversationId: params.conversationId,
+    })
+
+    if (!conversation) {
+      return null
+    }
+
+    const [createdConversationConfiguration] = await db
+      .insert(conversationConfigurations)
+      .values({
+        conversationId: conversation.id,
+      })
+      .returning({
+        id: conversationConfigurations.id,
+        languageModelSettingsId:
+          conversationConfigurations.languageModelSettingsId,
+        systemMessage: conversationConfigurations.systemMessage,
+        promptMessages: conversationConfigurations.promptMessages,
+        enableKnowledgeBaseTool:
+          conversationConfigurations.enableKnowledgeBaseTool,
+      })
+
+    if (!createdConversationConfiguration) {
+      return null
+    }
+
+    conversationConfiguration = {
+      ...createdConversationConfiguration,
+      agentId: conversation.agentId,
+    }
   }
 
   const agentConfiguration = await resolveAgentConfiguration({

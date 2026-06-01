@@ -29,7 +29,7 @@ export default async function Page({
       <EditAuxiliaryLanguageModelSettingsForm
         params={{ organizationSlug, agentId }}
         auxiliaryLanguageModelSettings={
-          agentDetailed.systemConfiguration?.auxiliaryLanguageModelSettings
+          agentDetailed.systemConfiguration.auxiliaryLanguageModelSettings
             ? {
                 ...agentDetailed.systemConfiguration
                   .auxiliaryLanguageModelSettings,
@@ -51,13 +51,13 @@ export default async function Page({
       <EditTitleGenerationSystemMessageForm
         params={{ organizationSlug, agentId }}
         titleGenerationSystemMessage={
-          agentDetailed.systemConfiguration?.titleGenerationSystemMessage
+          agentDetailed.systemConfiguration.titleGenerationSystemMessage
         }
       />
 
       <EditSuggestionForm
         params={{ organizationSlug, agentId }}
-        suggestions={agentDetailed.systemConfiguration?.suggestions}
+        suggestions={agentDetailed.systemConfiguration.suggestions}
       />
     </div>
   )
